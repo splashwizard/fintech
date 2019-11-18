@@ -723,6 +723,17 @@
           </div>
         </div>
         @endif
+        @if(empty($invoice_layout->is_presale_note))
+        <div class="col-sm-3">
+          <div class="form-group">
+            <br>
+            <div class="checkbox">
+              <label>
+                {!! Form::checkbox('is_presale_note', 1, $invoice_layout->is_presale_note, ['class' => 'input-icheck']); !!} @lang('barcode.set_as_presale_note')</label>
+            </div>
+          </div>
+        </div>
+        @endif
         
       </div>
     </div>

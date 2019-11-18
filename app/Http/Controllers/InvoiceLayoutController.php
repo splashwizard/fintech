@@ -206,6 +206,7 @@ class InvoiceLayoutController extends Controller
                                 ->update(['is_default' => 0 ]);
                 $input['is_default'] = 1;
                 $input['is_order_confirm'] = 0;
+                $input['is_presale_note'] = 0;
                 BusinessLocation::where('business_id', $business_id)->update(['invoice_layout_id' => $id]);
             }
             
@@ -216,7 +217,19 @@ class InvoiceLayoutController extends Controller
                                 ->update(['is_order_confirm' => 0 ]);
                 $input['is_default'] = 0;
                 $input['is_order_confirm'] = 1;
+                $input['is_presale_note'] = 0;
                 BusinessLocation::where('business_id', $business_id)->update(['invoice_layout_order_conf_id' => $id]);
+            }
+            
+            if (!empty($request->input('is_presale_note'))) {
+                //get_default
+                $default = InvoiceLayout::where('business_id', $business_id)
+                                ->where('is_presale_note', 1)
+                                ->update(['is_presale_note' => 0 ]);
+                $input['is_default'] = 0;
+                $input['is_order_confirm'] = 0;
+                $input['is_presale_note'] = 1;
+                BusinessLocation::where('business_id', $business_id)->update(['invoice_layout_presale_note_id' => $id]);
             }
 
             //Module info

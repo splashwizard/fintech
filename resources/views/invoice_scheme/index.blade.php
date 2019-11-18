@@ -73,7 +73,10 @@
                                     <span class="badge bg-green">@lang("barcode.default")</span>
                                 @endif
                                 @if( $layout->is_order_confirm )
-                                    <span class="badge bg-yellow" style="display:block;width:90px;word-wrap:break-word;white-space:normal">@lang("barcode.order_confirm")</span>
+                                    <span class="badge bg-orange" style="display:block;width:90px;word-wrap:break-word;white-space:normal">@lang("barcode.order_confirm")</span>
+                                @endif
+                                @if( $layout->is_presale_note )
+                                    <span class="badge bg-yellow" style="display:block;width:90px;word-wrap:break-word;white-space:normal">@lang("barcode.presale_note")</span>
                                 @endif
                                 @if($layout->locations->count())
                                     <span class="link-des">
