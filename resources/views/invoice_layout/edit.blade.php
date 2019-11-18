@@ -701,6 +701,7 @@
               'placeholder' => __('invoice.footer_text'), 'rows' => 3]); !!}
           </div>
         </div>
+        <div id="set_item">
         @if(empty($invoice_layout->is_default))
         <div class="col-sm-3">
           <div class="form-group">
@@ -734,6 +735,7 @@
           </div>
         </div>
         @endif
+        </div>
         
       </div>
     </div>
@@ -789,5 +791,36 @@
 
   {!! Form::close() !!}
 </section>
+@endsection
+@section('javascript')
+<script>
+  $(document).ready(function(){
+    
+    $('#set_item label').click(function(e){
+      var checked = $(this).find('.input-icheck').prop("checked");
+      $('#set_item .input-icheck').prop("checked",false);
+      $('#set_item .icheckbox_square-blue').removeClass('checked');
+
+      $(this).find('.input-icheck').prop("checked", checked);
+      if(checked)
+        $(this).find('.icheckbox_square-blue').addClass('checked');
+      else
+        $(this).find('.icheckbox_square-blue').removeClass('checked');
+    });
+    $('#set_item .iCheck-helper').click(function(e){
+      var checked = $(this).parent().find('.input-icheck').prop("checked");
+      $('#set_item .input-icheck').prop("checked",false);
+      $('#set_item .icheckbox_square-blue').removeClass('checked');
+
+      $(this).parent().find('.input-icheck').prop("checked", checked);
+      if(checked)
+        $(this).parent().addClass('checked');
+      else
+        $(this).parent().removeClass('checked');
+    });
+    function setCheck(){
+    }
+  })
+</script>
 <!-- /.content -->
 @endsection
