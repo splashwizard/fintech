@@ -1,0 +1,16 @@
+{
+    "name": "Essentials",
+    "alias": "essentials",
+    "description": "",
+    "keywords": [],
+    "active": 1,
+    "order": 0,
+    "providers": [
+        "Modules\\Essentials\\Providers\\EssentialsServiceProvider"
+    ],
+    "aliases": {},
+    "files": [
+        "start.php"
+    ],
+    "requires": []
+}
