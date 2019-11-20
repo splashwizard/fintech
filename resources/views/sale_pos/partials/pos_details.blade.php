@@ -141,7 +141,28 @@
 									</button>
 								@endif
 							</div>
-							<div class="col-sm-3 col-xs-12 col-2px-padding">
+							
+							@php
+								$user = auth()->user();
+								$can_presale_note = $user->can('invoice.presale_note');
+
+								// get all inherited permissions for that user
+								if($can_presale_note):
+							@endphp
+							<div class="col-sm-2 col-xs-12 col-2px-padding">
+								<button type="button" class="btn bg-yellow btn-block btn-flat pos-express-btn" id="presale-note">
+								<div class="text-center">
+									<i class="fa fa-check" aria-hidden="true"></i>
+    								<b>@lang('lang_v1.presale_note')</b>
+    							</div>
+								</button>
+							</div>
+							@php
+								endif
+							@endphp
+							@php
+								echo $can_presale_note ? '<div class="col-sm-2 col-xs-12 col-2px-padding">' : '<div class="col-sm-3 col-xs-12 col-2px-padding">'
+							@endphp
 								<button type="button" class="btn bg-navy  btn-block btn-flat btn-lg no-print @if($pos_settings['disable_pay_checkout'] != 0) hide @endif pos-express-btn" id="pos-finalize" title="@lang('lang_v1.tooltip_checkout_multi_pay')">
 								<div class="text-center">
 									<i class="fa fa-check" aria-hidden="true"></i>
@@ -149,14 +170,17 @@
     							</div>
 								</button>
 							</div>
-							<div class="col-sm-3 col-xs-12 col-2px-padding">
-								<button type="button" class="btn btn-info btn-block btn-flat pos-express-btn" id="confirm-order">
+							@php
+								echo $can_presale_note ? '<div class="col-sm-2 col-xs-12 col-2px-padding">' : '<div class="col-sm-3 col-xs-12 col-2px-padding">'
+							@endphp
+								<button type="button" class="btn bg-orange btn-block btn-flat pos-express-btn" id="confirm-order">
 								<div class="text-center">
 									<i class="fa fa-check" aria-hidden="true"></i>
     								<b>@lang('lang_v1.confirm_order')</b>
     							</div>
 								</button>
 							</div>
+							
 							<div class="col-sm-2 col-xs-12 col-2px-padding">
 								<button type="button" class="btn btn-success btn-block btn-flat btn-lg no-print @if($pos_settings['disable_express_checkout'] != 0) hide @endif pos-express-btn pos-express-finalize"
 								data-pay_method="cash"

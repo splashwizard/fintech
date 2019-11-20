@@ -278,17 +278,28 @@ class SellPosController extends Controller
                 }
             }
 
-            $input['is_quotation'] = 0;
-            $input['is_confirm_order'] = 0;
             //status is send as quotation from Add sales screen.
             if ($input['status'] == 'quotation') {
                 $input['status'] = 'draft';
                 $input['is_quotation'] = 1;
+                $input['is_confirm_order'] = 0;
+                $input['is_presale_note'] = 0;
             }
             else if ($input['status'] == 'order_conf') {
-                $input['is_quotation'] = -1;
                 $input['status'] = 'draft';
                 $input['is_confirm_order'] = 1;
+                $input['is_quotation'] = -1;
+                $input['is_presale_note'] = 0;
+            }
+            else if ($input['status'] == 'presale_note') {
+                $input['status'] = 'draft';
+                $input['is_presale_note'] = 1;
+                $input['is_quotation'] = -1;
+                $input['is_confirm_order'] = 0;
+            } else {
+                $input['is_quotation'] = 0;
+                $input['is_confirm_order'] = 0;
+                $input['is_presale_note'] = 0;
             }
 
             if (!empty($input['products'])) {
@@ -457,21 +468,28 @@ class SellPosController extends Controller
                 $receipt = '';
                 if ($input['status'] == 'draft' && $input['is_quotation'] == 0) {
                     $msg = trans("sale.draft_added");
-                } elseif ($input['status'] == 'draft' && $input['is_quotation'] == 1) {
+                } else if ($input['status'] == 'draft' && $input['is_quotation'] == 1) {
                     $msg = trans("lang_v1.quotation_added");
                     if (!$is_direct_sale) {
                         $receipt = $this->receiptContent($business_id, $input['location_id'], $transaction->id);
                     } else {
                         $receipt = '';
                     }
-                } elseif ($input['status'] == 'draft' && $input['is_confirm_order'] == 1) {
+                } else if ($input['status'] == 'draft' && $input['is_confirm_order'] == 1) {
                     $msg = trans("lang_v1.order_confirmed");
                     if (!$is_direct_sale) {
-                        $receipt = $this->receiptContent($business_id, $input['location_id'], $transaction->id, null, false, true, true);
+                        $receipt = $this->receiptContent($business_id, $input['location_id'], $transaction->id, null, false, true, 'confirm_order');
                     } else {
                         $receipt = '';
                     }
-                } elseif ($input['status'] == 'final') {
+                } else if ($input['status'] == 'draft' && $input['is_presale_note'] == 1) {
+                    $msg = trans("lang_v1.presale_noted");
+                    if (!$is_direct_sale) {
+                        $receipt = $this->receiptContent($business_id, $input['location_id'], $transaction->id, null, false, true, 'presale_note');
+                    } else {
+                        $receipt = '';
+                    }
+                } else if ($input['status'] == 'final') {
                     if (empty($input['sub_type'])) {
                         $msg = trans("sale.pos_sale_added");
                         if (!$is_direct_sale && !$transaction->is_suspend) {
@@ -549,7 +567,8 @@ class SellPosController extends Controller
         $printer_type = null,
         $is_package_slip = false,
         $from_pos_screen = true,
-        $is_order_confirm = false
+        $content_type = 'default'
+        // $is_order_confirm = false
     ) {
         $output = ['is_enabled' => false,
                     'print_type' => 'browser',
@@ -569,7 +588,13 @@ class SellPosController extends Controller
         //If enabled, get print type.
         $output['is_enabled'] = true;
 
-        $layout_id = $is_order_confirm == false ? $location_details->invoice_layout_id : $location_details->invoice_layout_order_conf_id;
+        if($content_type == 'default'){
+            $layout_id = $location_details->invoice_layout_id;
+        } else if($content_type == 'confirm_order'){
+            $layout_id = $location_details->invoice_layout_order_conf_id;
+        } else if($content_type == 'presale_note'){
+            $layout_id = $location_details->invoice_layout_presale_note_id;
+        }
         $invoice_layout = $this->businessUtil->invoiceLayout($business_id, $location_id, $layout_id);
 
         //Check if printer setting is provided.

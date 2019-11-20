@@ -499,6 +499,46 @@ $(document).ready(function() {
         });
     });
 
+    //Save invoice as Order Confirmation
+    $('button#presale-note').click(function() {
+        //Check if product is present or not.
+        if ($('table#pos_table tbody').find('.product_row').length <= 0) {
+            toastr.warning(LANG.no_products_added);
+            return false;
+        }
+
+        var is_valid = isValidPosForm();
+        if (is_valid != true) {
+            return;
+        }
+
+        var data = pos_form_obj.serialize();
+        data = data + '&status=presale_note';
+        var url = pos_form_obj.attr('action');
+
+        $.ajax({
+            method: 'POST',
+            url: url,
+            data: data,
+            dataType: 'json',
+            success: function(result) {
+                if (result.success == 1) {
+                    reset_pos_form();
+                    toastr.success(result.msg);
+
+                    //Check if enabled or not
+                    if (result.receipt.is_enabled) {
+                        pos_print(result.receipt);
+                    }
+
+                    get_recent_transactions('quotation', $('div#tab_quotation'));
+                } else {
+                    toastr.error(result.msg);
+                }
+            },
+        });
+    });
+
     //Finalize invoice, open payment modal
     $('button#pos-finalize').click(function() {
         //Check if product is present or not.

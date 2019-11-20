@@ -460,6 +460,14 @@
               </label>
             </div>
           </div>
+          <div class="col-md-12">
+            <div class="checkbox">
+              <label>
+                {!! Form::checkbox('permissions[]', 'invoice.presale_note', false, ['class' => 'input-icheck']); !!}
+                {{ __('lang_v1.invoice.presale_note') }}
+              </label>
+            </div>
+          </div>
         </div>
         </div>
         <hr>
