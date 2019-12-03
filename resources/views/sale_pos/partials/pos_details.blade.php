@@ -151,7 +151,7 @@
 							@endphp
 							<div class="col-sm-2 col-xs-12 col-2px-padding">
 								<button type="button" class="btn bg-yellow btn-block btn-flat pos-express-btn" id="presale-note">
-								<div class="text-center">
+								<div class="text-center custom-row">
 									<i class="fa fa-check" aria-hidden="true"></i>
     								<b>@lang('lang_v1.presale_note')</b>
     							</div>
@@ -164,7 +164,7 @@
 								echo $can_presale_note ? '<div class="col-sm-2 col-xs-12 col-2px-padding">' : '<div class="col-sm-3 col-xs-12 col-2px-padding">'
 							@endphp
 								<button type="button" class="btn bg-navy  btn-block btn-flat btn-lg no-print @if($pos_settings['disable_pay_checkout'] != 0) hide @endif pos-express-btn" id="pos-finalize" title="@lang('lang_v1.tooltip_checkout_multi_pay')">
-								<div class="text-center">
+								<div class="text-center custom-row">
 									<i class="fa fa-check" aria-hidden="true"></i>
     								<b>@lang('lang_v1.checkout_multi_pay')</b>
     							</div>
@@ -174,7 +174,7 @@
 								echo $can_presale_note ? '<div class="col-sm-2 col-xs-12 col-2px-padding">' : '<div class="col-sm-3 col-xs-12 col-2px-padding">'
 							@endphp
 								<button type="button" class="btn bg-orange btn-block btn-flat pos-express-btn" id="confirm-order">
-								<div class="text-center">
+								<div class="text-center custom-row">
 									<i class="fa fa-check" aria-hidden="true"></i>
     								<b>@lang('lang_v1.confirm_order')</b>
     							</div>

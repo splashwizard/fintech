@@ -470,10 +470,16 @@ tr.details td.details-control {
 }
 
 .pos-express-btn{
-    font-size: 23px !important;
+    /* font-size: 23px !important; */
+    font-size: 18px !important;
     overflow: hidden !important;
     height: 73px !important;
     white-space: normal;
+}
+.custom-row{
+    margin-left:-6px;
+    margin-right:-6px;
+    display:flex;
 }
 .word-wrap{
     word-wrap: break-word !important;
