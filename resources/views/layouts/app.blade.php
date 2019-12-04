@@ -1,6 +1,6 @@
 @inject('request', 'Illuminate\Http\Request')
 
-@if($request->segment(1) == 'pos' && ($request->segment(2) == 'create' || $request->segment(3) == 'edit'))
+@if( ($request->segment(1) == 'pos' || $request->segment(1) == 'pos_deposit') && ($request->segment(2) == 'create' || $request->segment(3) == 'edit'))
     @php
         $pos_layout = true;
     @endphp

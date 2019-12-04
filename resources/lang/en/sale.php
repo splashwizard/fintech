@@ -16,6 +16,7 @@ return [
     'list_sale' => 'List Sales',
     'add_sale' => 'Add Sale',
     'pos_sale' => 'POS',
+    'pos_deposit' => 'POS Deposit',
     'draft_added' => 'Draft added successfully',
     'invoice_added' => 'Invoice added successfully',
     'item' => 'Items',

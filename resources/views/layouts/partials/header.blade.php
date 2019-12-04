@@ -43,6 +43,9 @@
           <a href="{{action('SellPosController@create')}}" title="POS" data-toggle="tooltip" data-placement="bottom" class="btn btn-success btn-flat pull-left m-8 hidden-xs btn-sm mt-10">
             <strong><i class="fa fa-th-large"></i> &nbsp; @lang('sale.pos_sale')</strong>
           </a>
+          <a href="{{action('SellPosDepositController@create')}}" title="POS Deposit" data-toggle="tooltip" data-placement="bottom" class="btn btn-success btn-flat pull-left m-8 hidden-xs btn-sm mt-10">
+            <strong><i class="fa fa-th-large"></i> &nbsp; @lang('sale.pos_deposit')</strong>
+          </a>
         @endcan
         @can('profit_loss_report.view')
           <button type="button" id="view_todays_profit" title="{{ __('home.todays_profit') }}" data-toggle="tooltip" data-placement="bottom" class="btn btn-success btn-flat pull-left m-8 hidden-xs btn-sm mt-10">

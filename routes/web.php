@@ -117,6 +117,8 @@ Route::middleware(['IsInstalled', 'auth', 'SetSessionData', 'language', 'timezon
     Route::get('/sells/{transaction_id}/print', 'SellPosController@printInvoice')->name('sell.printInvoice');
     Route::get('/sells/pos/get-product-suggestion', 'SellPosController@getProductSuggestion');
     Route::resource('pos', 'SellPosController');
+    Route::get('/sells/pos_deposit/get_product_row/{variation_id}/{location_id}', 'SellPosDepositController@getProductRow');
+    Route::resource('pos_deposit', 'SellPosDepositController');
 
     Route::resource('roles', 'RoleController');
 
