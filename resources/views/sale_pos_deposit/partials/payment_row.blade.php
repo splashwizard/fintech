@@ -13,7 +13,7 @@
         @endif
 
 		<div class="box-body" >
-			@include('sale_pos.partials.payment_row_form')
+			@include('sale_pos_deposit.partials.payment_row_form')
 		</div>
 	</div>
 </div>

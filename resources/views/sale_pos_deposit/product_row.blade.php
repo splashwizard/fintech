@@ -278,7 +278,7 @@
 				<span style="font-weight: bold">Bank Account No</span>
 				<input type="text" class="form-control" placeholder="Back Account No">
 			</div>
-			<button type="button" class="btn btn-default btn-flat quantity-up"><i class="fa fa-3x fa-plus text-success"></i></button>
+			<button type="button" class="btn btn-default btn-flat pay-window"><i class="fa fa-3x fa-plus text-success"></i></button>
 		</div>
 	</td>
 {{--	<td class="text-center v-center">--}}

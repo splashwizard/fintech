@@ -20,7 +20,7 @@
 										@continue
 									@endif
 
-									@include('sale_pos.partials.payment_row', ['removable' => !$loop->first, 'row_index' => $loop->index, 'payment_line' => $payment_line])
+									@include('sale_pos_deposit.partials.payment_row', ['removable' => !$loop->first, 'row_index' => $loop->index, 'payment_line' => $payment_line])
 								@endforeach
 							</div>
 							<input type="hidden" id="payment_row_index" value="{{count($payment_lines)}}">
