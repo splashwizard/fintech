@@ -71,6 +71,14 @@
                 </select>
               </div>
             </div>
+            <div class="col-sm-4">
+                <div class="form-group">
+                    {!! Form::label('account_id', __('product.account') . ':*') !!}
+                    <div class="input-group">
+                        {!! Form::select('account_id', $accounts, $product->account_id, ['class' => 'form-control select2', 'required']); !!}
+                    </div>
+                </div>
+            </div>
 
             <div class="col-sm-4 @if(!session('business.enable_brand')) hide @endif">
               <div class="form-group">

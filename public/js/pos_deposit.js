@@ -671,7 +671,7 @@ $(document).ready(function() {
         var row_index = $('#payment_row_index').val();
         $.ajax({
             method: 'POST',
-            url: '/sells/pos/get_payment_row',
+            url: '/sells/pos_deposit/get_payment_row',
             data: { row_index: row_index },
             dataType: 'html',
             success: function(result) {

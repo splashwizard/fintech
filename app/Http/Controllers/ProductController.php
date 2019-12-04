@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Account;
 use App\Brands;
 use App\Business;
 use App\BusinessLocation;
@@ -262,6 +263,8 @@ class ProductController extends Controller
                             ->pluck('name', 'id');
         $units = Unit::forDropdown($business_id, true);
 
+        $accounts = Account::forDropdown($business_id, true);
+
         $tax_dropdown = TaxRate::forBusinessDropdown($business_id, true, true);
         $taxes = $tax_dropdown['tax_rates'];
         $tax_attributes = $tax_dropdown['attributes'];
@@ -302,7 +305,7 @@ class ProductController extends Controller
         $product_types = $this->product_types;
 
         return view('product.create')
-            ->with(compact('categories', 'brands', 'units', 'taxes', 'barcode_types', 'default_profit_percent', 'tax_attributes', 'barcode_default', 'business_locations', 'duplicate_product', 'sub_categories', 'rack_details', 'selling_price_group_count', 'module_form_parts', 'product_types'));
+            ->with(compact('categories', 'brands', 'units', 'accounts', 'taxes', 'barcode_types', 'default_profit_percent', 'tax_attributes', 'barcode_default', 'business_locations', 'duplicate_product', 'sub_categories', 'rack_details', 'selling_price_group_count', 'module_form_parts', 'product_types'));
     }
 
     /**
@@ -319,7 +322,7 @@ class ProductController extends Controller
 
         try {
             $business_id = $request->session()->get('user.business_id');
-            $form_fields = ['name', 'brand_id', 'unit_id', 'category_id', 'tax', 'type', 'barcode_type', 'sku', 'alert_quantity', 'tax_type', 'weight', 'product_custom_field1', 'product_custom_field2', 'product_custom_field3', 'product_custom_field4', 'product_description', 'sub_unit_ids'];
+            $form_fields = ['name', 'brand_id', 'unit_id', 'account_id', 'category_id', 'tax', 'type', 'barcode_type', 'sku', 'alert_quantity', 'tax_type', 'weight', 'product_custom_field1', 'product_custom_field2', 'product_custom_field3', 'product_custom_field4', 'product_description', 'sub_unit_ids'];
 
             $module_form_fields = $this->moduleUtil->getModuleFormField('product_form_fields');
             if (!empty($module_form_fields)) {
@@ -489,6 +492,7 @@ class ProductController extends Controller
 
         //Get units.
         $units = Unit::forDropdown($business_id, true);
+        $accounts = Account::forDropdown($business_id, true);
         $sub_units = $this->productUtil->getSubUnits($business_id, $product->unit_id, true);
         
         //Get all business locations
@@ -502,7 +506,7 @@ class ProductController extends Controller
         $product_types = $this->product_types;
 
         return view('product.edit')
-                ->with(compact('categories', 'brands', 'units', 'sub_units', 'taxes', 'tax_attributes', 'barcode_types', 'product', 'sub_categories', 'default_profit_percent', 'business_locations', 'rack_details', 'selling_price_group_count', 'module_form_parts', 'product_types'));
+                ->with(compact('categories', 'brands', 'units', 'accounts', 'sub_units', 'taxes', 'tax_attributes', 'barcode_types', 'product', 'sub_categories', 'default_profit_percent', 'business_locations', 'rack_details', 'selling_price_group_count', 'module_form_parts', 'product_types'));
     }
 
     /**
@@ -520,7 +524,7 @@ class ProductController extends Controller
 
         try {
             $business_id = $request->session()->get('user.business_id');
-            $product_details = $request->only(['name', 'brand_id', 'unit_id', 'category_id', 'tax', 'barcode_type', 'sku', 'alert_quantity', 'tax_type', 'weight', 'product_custom_field1', 'product_custom_field2', 'product_custom_field3', 'product_custom_field4', 'product_description', 'sub_unit_ids']);
+            $product_details = $request->only(['name', 'brand_id', 'unit_id', 'account_id', 'category_id', 'tax', 'barcode_type', 'sku', 'alert_quantity', 'tax_type', 'weight', 'product_custom_field1', 'product_custom_field2', 'product_custom_field3', 'product_custom_field4', 'product_description', 'sub_unit_ids']);
 
             DB::beginTransaction();
             
@@ -539,6 +543,7 @@ class ProductController extends Controller
             $product->name = $product_details['name'];
             $product->brand_id = $product_details['brand_id'];
             $product->unit_id = $product_details['unit_id'];
+            $product->account_id = $product_details['account_id'];
             $product->category_id = $product_details['category_id'];
             $product->tax = $product_details['tax'];
             $product->barcode_type = $product_details['barcode_type'];

@@ -63,6 +63,14 @@
             {!! Form::select('sub_unit_ids[]', [], !empty($duplicate_product->sub_unit_ids) ? $duplicate_product->sub_unit_ids : null, ['class' => 'form-control select2', 'multiple', 'id' => 'sub_unit_ids']); !!}
           </div>
         </div>
+        <div class="col-sm-4">
+            <div class="form-group">
+                {!! Form::label('account_id', __('product.account') . ':*') !!}
+                <div class="input-group">
+                    {!! Form::select('account_id', $accounts, '', ['class' => 'form-control select2', 'required']); !!}
+                </div>
+            </div>
+        </div>
 
         <div class="col-sm-4 @if(!session('business.enable_brand')) hide @endif">
           <div class="form-group">

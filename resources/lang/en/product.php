@@ -20,6 +20,7 @@ return [
     'category' => 'Category',
     'sub_category' => 'Sub category',
     'unit' => 'Unit',
+    'account' => 'Bank Account',
     'brand' => 'Brand',
     'tax' => 'Tax',
     'sku' => 'SKU',
