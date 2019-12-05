@@ -1,6 +1,6 @@
 @forelse($products as $product)
 	<div class="col-md-3 col-xs-4 product_list no-print">
-		<div class="product_box bg-gray" data-toggle="tooltip" data-placement="bottom" data-variation_id="{{$product->id}}" title="{{$product->name}} @if($product->type == 'variable')- {{$product->variation}} @endif {{ '(' . $product->sub_sku . ')'}}">
+		<div class="product_box bg-gray" data-toggle="tooltip" data-placement="bottom" data-account_id="{{$product->account_id}}" data-variation_id="{{$product->id}}" title="{{$product->name}} @if($product->type == 'variable')- {{$product->variation}} @endif {{ '(' . $product->sub_sku . ')'}}">
 		<div class="image-container">
 			@if(count($product->media) > 0)
 				<img src="{{$product->media->first()->display_url}}" alt="Product Image">

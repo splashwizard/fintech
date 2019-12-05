@@ -25,10 +25,10 @@
 	@if(!empty($brands))
 		&nbsp;
 		{!! Form::select('size', $brands, null, ['id' => 'product_brand', 'class' => 'select2', 'name' => null, 'style' => 'width:45% !important']) !!}
-		
+
 	@endif
 
-	
+
 
 	<div class="box-tools pull-right">
 		<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>

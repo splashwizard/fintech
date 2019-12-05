@@ -999,6 +999,7 @@ $(document).ready(function() {
         if ($('input#location_id').val() == '') {
             toastr.warning(LANG.select_location);
         } else {
+            $('#account_0').val($(this).data('account_id')).trigger('change');
             pos_product_row($(this).data('variation_id'));
         }
     });
@@ -1197,7 +1198,7 @@ function get_product_suggestion_list(category_id, brand_id, location_id, url = n
     }
 
     if (url == null) {
-        url = '/sells/pos/get-product-suggestion';
+        url = '/sells/pos_deposit/get-product-suggestion';
     }
     $('#suggestion_page_loader').fadeIn(700);
     var page = $('input#suggestion_page').val();
@@ -1574,7 +1575,9 @@ function reset_pos_form(){
 	set_default_customer();
 	set_location();
 
-	$('tr.product_row').remove();
+	// $('tr.product_row').remove();
+    $('tr.product_row').remove();
+    $('tr.bank_account_row').remove();
 	$('span.total_quantity, span.price_total, span#total_discount, span#order_tax, span#total_payable, span#shipping_charges_amount').text(0);
 	$('span.total_payable_span', 'span.total_paying', 'span.balance_due').text(0);
 

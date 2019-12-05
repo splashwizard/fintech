@@ -1528,6 +1528,7 @@ class SellPosDepositController extends Controller
                 'p.type',
                 'p.enable_stock',
                 'variations.id',
+                'account_id',
                 'variations.name as variation',
                 'VLD.qty_available',
                 'variations.default_sell_price as selling_price',

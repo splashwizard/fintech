@@ -271,7 +271,7 @@
 		<i class="fa fa-close text-danger pos_remove_row cursor-pointer" aria-hidden="true"></i>
 	</td>
 </tr>
-<tr>
+<tr class="bank_account_row">
 	<td colspan="3">
 		<div style="display: flex">
 			<div style="width: 100%; margin-right: 10px">
@@ -281,7 +281,4 @@
 			<button type="button" class="btn btn-default btn-flat pay-window"><i class="fa fa-3x fa-plus text-success"></i></button>
 		</div>
 	</td>
-{{--	<td class="text-center v-center">--}}
-{{--		<i class="fa fa-plus fa-3x"></i>--}}
-{{--	</td>--}}
 </tr>
