@@ -208,7 +208,7 @@
 				</a>
 				<ul class="treeview-menu">
 				  @if(auth()->user()->can('direct_sell.access') ||  auth()->user()->can('view_own_sell_only'))
-					<li class="{{ $request->segment(1) == 'sells' && $request->segment(2) == null ? 'active' : '' }}" ><a href="{{action('SellController@index')}}"><i class="fa fa-list"></i>@lang('lang_v1.all_sales')</a></li>
+					<li class="{{ $request->segment(1) == 'sells' && $request->segment(2) == null ? 'active' : '' }}" ><a href="{{action('SellController@index')}}"><i class="fa fa-list"></i>@lang('lang_v1.deposit_log')</a></li>
 				  @endif
 				  <!-- Call superadmin module if defined -->
 				  @if(Module::has('Ecommerce'))

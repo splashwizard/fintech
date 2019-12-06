@@ -70,6 +70,7 @@ class SellController extends Controller
 
             $sells = Transaction::leftJoin('contacts', 'transactions.contact_id', '=', 'contacts.id')
                 ->leftJoin('transaction_payments as tp', 'transactions.id', '=', 'tp.transaction_id')
+                ->leftJoin('accounts', 'tp.account_id', '=', 'accounts.id')
                 ->join(
                     'business_locations AS bl',
                     'transactions.location_id',
@@ -91,6 +92,7 @@ class SellController extends Controller
                     'transactions.is_direct_sale',
                     'transactions.invoice_no',
                     'contacts.name',
+//                    'accounts.name',
                     'transactions.payment_status',
                     'transactions.final_total',
                     'transactions.tax_amount',
@@ -101,7 +103,8 @@ class SellController extends Controller
                     'transactions.rp_redeemed_amount',
                     'transactions.rp_earned',
                     DB::raw('SUM(IF(tp.is_return = 1,-1*tp.amount,tp.amount)) as total_paid'),
-                    'bl.name as business_location',
+//                    'bl.name as business_location',
+                    'accounts.name as business_location',
                     DB::raw('COUNT(SR.id) as return_exists'),
                     DB::raw('(SELECT SUM(TP2.amount) FROM transaction_payments AS TP2 WHERE
                         TP2.transaction_id=SR.id ) as return_paid'),
@@ -375,7 +378,8 @@ class SellController extends Controller
                         }
                     }]);
 
-            $rawColumns = ['final_total', 'action', 'total_paid', 'total_remaining', 'payment_status', 'invoice_no', 'discount_amount', 'tax_amount', 'total_before_tax'];
+//            $rawColumns = ['final_total', 'action', 'total_paid', 'total_remaining', 'payment_status', 'invoice_no', 'discount_amount', 'tax_amount', 'total_before_tax'];
+            $rawColumns = ['final_total', 'action', 'payment_status', 'invoice_no', 'discount_amount', 'tax_amount', 'total_before_tax'];
                 
             return $datatable->rawColumns($rawColumns)
                       ->make(true);

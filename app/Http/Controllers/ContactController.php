@@ -169,7 +169,7 @@ class ContactController extends Controller
                     ->leftjoin('customer_groups AS cg', 'contacts.customer_group_id', '=', 'cg.id')
                     ->where('contacts.business_id', $business_id)
                     ->onlyCustomers()
-                    ->addSelect(['contacts.contact_id', 'contacts.name', 'contacts.created_at', 'total_rp', 'cg.name as customer_group', 'city', 'state', 'country', 'landmark', 'mobile', 'contacts.id', 'is_default',
+                    ->addSelect(['contacts.contact_id', 'contacts.name', 'contacts.email', 'contacts.created_at', 'total_rp', 'cg.name as customer_group', 'city', 'state', 'country', 'landmark', 'mobile', 'contacts.id', 'is_default',
                         DB::raw("SUM(IF(t.type = 'sell' AND t.status = 'final', final_total, 0)) as total_invoice"),
                         DB::raw("SUM(IF(t.type = 'sell' AND t.status = 'final', (SELECT SUM(IF(is_return = 1,-1*amount,amount)) FROM transaction_payments WHERE transaction_payments.transaction_id=t.id), 0)) as invoice_received"),
                         DB::raw("SUM(IF(t.type = 'sell_return', final_total, 0)) as total_sell_return"),
@@ -235,10 +235,10 @@ class ContactController extends Controller
             ->removeColumn('total_sell_return')
             ->removeColumn('sell_return_paid');
         $reward_enabled = (request()->session()->get('business.enable_rp') == 1) ? true : false;
-        $raw = [7, 8, 9];
+        $raw = [8, 9, 10];
         if (!$reward_enabled) {
             $contacts->removeColumn('total_rp');
-            $raw = [6, 7, 8];
+            $raw = [7, 8, 9];
         }
         return $contacts->rawColumns($raw)
                         ->make(false);

@@ -35,7 +35,7 @@
                         <tr>
                             <th>@lang('lang_v1.contact_id')</th>
                             @if($type == 'supplier') 
-                                <th>@lang('business.business_name')</th>
+                                    <th>@lang('business.business_name')</th>
                                 <th>@lang('contact.name')</th>
                                 <th>@lang('lang_v1.added_on')</th>
                                 <th>@lang('contact.contact')</th>
@@ -44,9 +44,11 @@
                                 <th>@lang('messages.action')</th>
                             @elseif( $type == 'customer')
                                 <th>@lang('user.name')</th>
+                                <th>@lang('user.email')</th>
                                 <th>@lang('lang_v1.added_on')</th>
                                 @if($reward_enabled)
-                                    <th>{{session('business.rp_name')}}</th>
+{{--                                    <th>{{session('business.rp_name')}}</th>--}}
+                                    <th>@lang('user.rp_name')</th>
                                 @endif
                                 <th>@lang('lang_v1.customer_group')</th>
                                 <th>@lang('business.address')</th>
@@ -59,7 +61,7 @@
                     </thead>
                     <tfoot>
                         <tr class="bg-gray font-17 text-center footer-total">
-                            <td @if($type == 'supplier') colspan="5" @elseif( $type == 'customer') @if($reward_enabled) colspan="7" @else colspan="6" @endif @endif><strong>@lang('sale.total'):</strong></td>
+                            <td @if($type == 'supplier') colspan="5" @elseif( $type == 'customer') @if($reward_enabled) colspan="8" @else colspan="6" @endif @endif><strong>@lang('sale.total'):</strong></td>
                             <td><span class="display_currency" id="footer_contact_due" data-currency_symbol ="true"></span></td>
                             <td><span class="display_currency" id="footer_contact_return_due" data-currency_symbol ="true"></span></td>
                             <td></td>

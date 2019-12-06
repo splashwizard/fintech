@@ -44,11 +44,11 @@
                             <th>@lang('messages.date')</th>
                             <th>@lang('sale.invoice_no')</th>
                             <th>@lang('sale.customer_name')</th>
-                            <th>@lang('sale.location')</th>
+                            <th>@lang('sale.bank')</th>
                             <th>@lang('sale.payment_status')</th>
                             <th>@lang('sale.total_amount')</th>
-                            <th>@lang('sale.total_paid')</th>
-                            <th>@lang('purchase.payment_due')</th>
+{{--                            <th>@lang('sale.total_paid')</th>--}}
+{{--                            <th>@lang('purchase.payment_due')</th>--}}
                             <th>@lang('messages.action')</th>
                         </tr>
                     </thead>
@@ -57,8 +57,8 @@
                             <td colspan="4"><strong>@lang('sale.total'):</strong></td>
                             <td id="footer_payment_status_count"></td>
                             <td><span class="display_currency" id="footer_sale_total" data-currency_symbol ="true"></span></td>
-                            <td><span class="display_currency" id="footer_total_paid" data-currency_symbol ="true"></span></td>
-                            <td class="text-left"><small>@lang('lang_v1.sell_due') - <span class="display_currency" id="footer_total_remaining" data-currency_symbol ="true"></span><br>@lang('lang_v1.sell_return_due') - <span class="display_currency" id="footer_total_sell_return_due" data-currency_symbol ="true"></span></small></td>
+{{--                            <td><span class="display_currency" id="footer_total_paid" data-currency_symbol ="true"></span></td>--}}
+{{--                            <td class="text-left"><small>@lang('lang_v1.sell_due') - <span class="display_currency" id="footer_total_remaining" data-currency_symbol ="true"></span><br>@lang('lang_v1.sell_return_due') - <span class="display_currency" id="footer_total_sell_return_due" data-currency_symbol ="true"></span></small></td>--}}
                             <td></td>
                         </tr>
                     </tfoot>
@@ -128,7 +128,7 @@ $(document).ready( function(){
             }
         },
         columnDefs: [ {
-            "targets": [8],
+            "targets": [6],
             "orderable": false,
             "searchable": false
         } ],
@@ -139,15 +139,15 @@ $(document).ready( function(){
             { data: 'business_location', name: 'bl.name'},
             { data: 'payment_status', name: 'payment_status'},
             { data: 'final_total', name: 'final_total'},
-            { data: 'total_paid', name: 'total_paid', "searchable": false},
-            { data: 'total_remaining', name: 'total_remaining'},
+            // { data: 'total_paid', name: 'total_paid', "searchable": false},
+            // { data: 'total_remaining', name: 'total_remaining'},
             { data: 'action', name: 'action'}
         ],
         "fnDrawCallback": function (oSettings) {
 
             $('#footer_sale_total').text(sum_table_col($('#sell_table'), 'final-total'));
             
-            $('#footer_total_paid').text(sum_table_col($('#sell_table'), 'total-paid'));
+            // $('#footer_total_paid').text(sum_table_col($('#sell_table'), 'total-paid'));
 
             $('#footer_total_remaining').text(sum_table_col($('#sell_table'), 'payment_due'));
 

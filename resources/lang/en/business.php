@@ -37,7 +37,7 @@ return [
     'confirm_password' => 'Confirm Password',
     'register' => 'Register',
     'business' => 'Business',
-    'address' => 'Address',
+    'address' => 'Register IP',
     'logo_help' => 'Previous logo (if exists) will be replaced',
     'update_settings' => 'Update Settings',
     'business_settings' => 'Business Settings',

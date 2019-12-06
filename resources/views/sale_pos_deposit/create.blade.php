@@ -48,7 +48,7 @@
 						</div>
 					@endif
 				@endslot
-				{!! Form::open(['url' => action('SellPosController@store'), 'method' => 'post', 'id' => 'add_pos_sell_form' ]) !!}
+				{!! Form::open(['url' => action('SellPosDepositController@store'), 'method' => 'post', 'id' => 'add_pos_sell_form' ]) !!}
 
 				{!! Form::hidden('location_id', $default_location, ['id' => 'location_id', 'data-receipt_printer_type' => isset($bl_attributes[$default_location]['data-receipt_printer_type']) ? $bl_attributes[$default_location]['data-receipt_printer_type'] : 'browser']); !!}
 

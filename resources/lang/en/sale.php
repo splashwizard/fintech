@@ -63,6 +63,7 @@ return [
     'draft_updated' => 'Draft updated successfully',
     'pos_sale_updated' => 'Sale updated successfully',
     'location' => 'Location',
+    'bank' => 'Bank',
     'add_payment_row' => 'Add Payment Row',
     'finalize_payment' => 'Finalize Payment',
     'sale_date' => 'Sale Date',
