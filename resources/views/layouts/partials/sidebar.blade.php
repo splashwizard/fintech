@@ -200,7 +200,7 @@
 			@endif
 
 			@if(auth()->user()->can('sell.view') || auth()->user()->can('sell.create') || auth()->user()->can('direct_sell.access') ||  auth()->user()->can('view_own_sell_only'))
-			  <li class="treeview {{  in_array( $request->segment(1), ['sells', 'pos', 'sell-return', 'ecommerce', 'discount']) ? 'active active-sub' : '' }}" id="tour_step7">
+			  <li class="treeview {{  in_array( $request->segment(1), ['sells', 'withdraw', 'pos', 'sell-return', 'ecommerce', 'discount']) ? 'active active-sub' : '' }}" id="tour_step7">
 				<a href="#" id="tour_step7_menu"><i class="fa fa-arrow-circle-up"></i> <span>@lang('sale.sale')</span>
 				  <span class="pull-right-container">
 					<i class="fa fa-angle-left pull-right"></i>
@@ -209,6 +209,9 @@
 				<ul class="treeview-menu">
 				  @if(auth()->user()->can('direct_sell.access') ||  auth()->user()->can('view_own_sell_only'))
 					<li class="{{ $request->segment(1) == 'sells' && $request->segment(2) == null ? 'active' : '' }}" ><a href="{{action('SellController@index')}}"><i class="fa fa-list"></i>@lang('lang_v1.deposit_log')</a></li>
+				  @endif
+				  @if(auth()->user()->can('direct_sell.access') ||  auth()->user()->can('view_own_sell_only'))
+					  <li class="{{ $request->segment(1) == 'withdraw' && $request->segment(2) == null ? 'active' : '' }}" ><a href="{{action('WithdrawController@index')}}"><i class="fa fa-list"></i>@lang('lang_v1.withdraw_log')</a></li>
 				  @endif
 				  <!-- Call superadmin module if defined -->
 				  @if(Module::has('Ecommerce'))
@@ -306,6 +309,8 @@
 				  </a>
 				  <ul class="treeview-menu">
 					  <li class="{{ $request->segment(1) == 'account' && $request->segment(2) == 'account' ? 'active' : '' }}"><a href="{{action('AccountController@index')}}"><i class="fa fa-list"></i>@lang('account.list_accounts')</a></li>
+
+					  <li class="{{ $request->segment(1) == 'account' && $request->segment(2) == 'service' ? 'active' : '' }}"><a href="{{action('ServiceController@index')}}"><i class="fa fa-list"></i>@lang('account.service_list')</a></li>
 
 					  <li class="{{ $request->segment(1) == 'account' && $request->segment(2) == 'balance-sheet' ? 'active' : '' }}"><a href="{{action('AccountReportsController@balanceSheet')}}"><i class="fa fa-book"></i>@lang('account.balance_sheet')</a></li>
 

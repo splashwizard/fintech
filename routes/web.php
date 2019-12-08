@@ -108,6 +108,7 @@ Route::middleware(['IsInstalled', 'auth', 'SetSessionData', 'language', 'timezon
     Route::get('/sells/quotations', 'SellController@getQuotations');
     Route::get('/sells/draft-dt', 'SellController@getDraftDatables');
     Route::resource('sells', 'SellController');
+    Route::resource('withdraw', 'WithdrawController');
 
     Route::get('/sells/pos/get_product_row/{variation_id}/{location_id}', 'SellPosController@getProductRow');
     Route::post('/sells/pos/get_payment_row', 'SellPosController@getPaymentRow');
@@ -272,10 +273,13 @@ Route::middleware(['IsInstalled', 'auth', 'SetSessionData', 'language', 'timezon
 
     Route::group(['prefix' => 'account'], function () {
         Route::resource('/account', 'AccountController');
+        Route::resource('/service', 'ServiceController');
         Route::get('/fund-transfer/{id}', 'AccountController@getFundTransfer');
         Route::post('/fund-transfer', 'AccountController@postFundTransfer');
         Route::get('/deposit/{id}', 'AccountController@getDeposit');
         Route::post('/deposit', 'AccountController@postDeposit');
+        Route::get('/withdraw/{id}', 'AccountController@getWithdraw');
+        Route::post('/withdraw', 'AccountController@postWithdraw');
         Route::get('/close/{id}', 'AccountController@close');
         Route::get('/delete-account-transaction/{id}', 'AccountController@destroyAccountTransaction');
         Route::get('/get-account-balance/{id}', 'AccountController@getAccountBalance');

@@ -619,6 +619,26 @@ class TransactionUtil extends Util
         return true;
     }
 
+
+    public function createWithDrawPaymentLine($transaction, $user_id = null, $account_id = null)
+    {
+        $payment_data = [
+            'transaction_id' => $transaction->id,
+            'amount' => $transaction->final_total,
+            'method' => 'bank_transfer',
+            'business_id' => $transaction->business_id,
+            'is_return' => 0,
+            'paid_on' => !empty($transaction->transaction_date) ? $transaction->transaction_date : \Carbon::now()->toDateTimeString(),
+            'created_by' => empty($user_id) ? auth()->user()->id : $user_id,
+            'payment_for' => $transaction->contact_id,
+            'account_id' => !empty($account_id) ? $account_id : null
+        ];
+
+        $transaction_payment = new TransactionPayment($payment_data);
+        $transaction_payment->save();
+
+        return true;
+    }
     /**
      * Edit transaction payment line
      *
@@ -1511,6 +1531,39 @@ class TransactionUtil extends Util
 
             //Increment the invoice count
             $scheme->invoice_count = $scheme->invoice_count + 1;
+            $scheme->save();
+
+            return $invoice_no;
+        } else {
+            return str_random(5);
+        }
+    }
+
+    public function getWithdrawNumber($business_id, $status, $location_id, $invoice_scheme_id = null)
+    {
+        if ($status == 'final') {
+            if (empty($invoice_scheme_id)) {
+                $scheme = $this->getInvoiceScheme($business_id, $location_id);
+            } else {
+                $scheme = InvoiceScheme::where('business_id', $business_id)
+                    ->find($invoice_scheme_id);
+            }
+
+            if ($scheme->scheme_type == 'blank') {
+                $prefix = $scheme->prefix;
+            } else {
+                $prefix = date('Y') . '-';
+            }
+
+            //Count
+            $count = $scheme->start_number + $scheme->withdraw_count;
+            $count = str_pad($count, $scheme->total_digits, '0', STR_PAD_LEFT);
+
+            //Prefix + count
+            $invoice_no = $prefix . $count;
+
+            //Increment the invoice count
+            $scheme->withdraw_count = $scheme->withdraw_count + 1;
             $scheme->save();
 
             return $invoice_no;
@@ -2914,6 +2967,8 @@ class TransactionUtil extends Util
      */
     public function createSellReturnTransaction($business_id, $input, $invoice_total, $user_id)
     {
+        $invoice_scheme_id = !empty($input['invoice_scheme_id']) ? $input['invoice_scheme_id'] : null;
+        $invoice_no = !empty($input['invoice_no']) ? $input['invoice_no'] : $this->getWithdrawNumber($business_id, 'final', $input['location_id'], $invoice_scheme_id);
         $transaction = Transaction::create([
             'business_id' => $business_id,
             'location_id' => $input['location_id'],
@@ -2921,7 +2976,8 @@ class TransactionUtil extends Util
             'status' => 'final',
             'contact_id' => $input['contact_id'],
             'customer_group_id' => $input['customer_group_id'],
-            'ref_no' => $input['ref_no'],
+//            'ref_no' => $input['ref_no'],
+            'invoice_no' => $invoice_no,
             'total_before_tax' => $invoice_total['total_before_tax'],
             'transaction_date' => $input['transaction_date'],
             'tax_id' => null,

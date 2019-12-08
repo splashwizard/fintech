@@ -569,6 +569,7 @@ return [
     'previous_bal_due_help' => 'Check this field to show sum of balance dues for all sales of the customer if exists',
     'all_sales' => 'All sales',
     'deposit_log' => 'Deposit Log',
+    'withdraw_log' => 'Withdraw Log',
     'current_sale' => 'Current sale',
     'view_invoice_url' => 'Invoice URL',
     'copy' => 'Copy',

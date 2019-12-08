@@ -38,7 +38,7 @@
 									</span>
 								{!! Form::select('select_location_id', $business_locations, null, ['class' => 'form-control input-sm mousetrap', 
 								'placeholder' => __('lang_v1.select_location'),
-								'id' => 'select_location_id', 
+								'id' => 'select_location_id',
 								'required', 'autofocus'], $bl_attributes); !!}
 								<span class="input-group-addon">
 										@show_tooltip(__('tooltip.sale_location'))
@@ -224,7 +224,7 @@
 	</div>
 </section>
 
-<!-- This will be printed -->
+<!-- This will be printed1 -->
 <section class="invoice print_section" id="receipt_section">
 </section>
 <div class="modal fade contact_modal" tabindex="-1" role="dialog" aria-labelledby="gridSystemModalLabel">

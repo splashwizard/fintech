@@ -20,7 +20,7 @@ use Yajra\DataTables\Facades\DataTables;
 
 use DB;
 
-class AccountController extends Controller
+class ServiceController extends Controller
 {
     protected $commonUtil;
     protected $transactionUtil;
@@ -57,7 +57,7 @@ class AccountController extends Controller
                 $join->on('AT.account_id', '=', 'accounts.id');
                 $join->whereNull('AT.deleted_at');
             })
-                                ->where('is_service', 0)
+                                ->where('is_service', 1)
                                 ->where('business_id', $business_id)
                                 ->select(['name', 'account_number', 'accounts.note', 'accounts.id',
                                     'is_closed', DB::raw("SUM( IF(AT.type='credit', amount, -1*amount) ) as balance")])
