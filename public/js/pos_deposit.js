@@ -982,6 +982,7 @@ $(document).ready(function() {
         null
     );
     $('select#product_category, select#product_brand').on('change', function(e) {
+        $('#product_category_hidden').val($("select#product_category option:selected").text());
         $('input#suggestion_page').val(1);
         var location_id = $('input#location_id').val();
         if (location_id != '' || location_id != undefined) {

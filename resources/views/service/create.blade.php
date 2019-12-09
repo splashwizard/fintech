@@ -1,11 +1,11 @@
 <div class="modal-dialog" role="document">
   <div class="modal-content">
 
-    {!! Form::open(['url' => action('AccountController@store'), 'method' => 'post', 'id' => 'payment_account_form' ]) !!}
+    {!! Form::open(['url' => action('ServiceController@store'), 'method' => 'post', 'id' => 'payment_account_form' ]) !!}
 
     <div class="modal-header">
       <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-      <h4 class="modal-title">@lang( 'account.add_account' )</h4>
+      <h4 class="modal-title">@lang( 'account.add_service' )</h4>
     </div>
 
     <div class="modal-body">
@@ -15,8 +15,8 @@
             </div>
 
             <div class="form-group">
-                {!! Form::label('account_number', __( 'account.account_number' ) .":*") !!}
-                {!! Form::text('account_number', null, ['class' => 'form-control', 'required','placeholder' => __( 'account.account_number' ) ]); !!}
+                {!! Form::label('account_number', __( 'account.short_name' ) .":*") !!}
+                {!! Form::text('account_number', null, ['class' => 'form-control', 'required','placeholder' => __( 'account.short_name' ) ]); !!}
             </div>
 
             {{--

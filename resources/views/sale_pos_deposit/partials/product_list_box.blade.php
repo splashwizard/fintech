@@ -2,9 +2,9 @@
 	<div class="box-header with-border">
 
 	@if(!empty($categories))
-		<select class="select2" id="product_category" style="width:45% !important">
+		<select class="select2" id="product_category" style="width:45% !important" name="product_category">
 
-			<option value="all">@lang('lang_v1.all_category')</option>
+{{--			<option value="all">@lang('lang_v1.all_category')</option>--}}
 
 			@foreach($categories as $category)
 				<option value="{{$category['id']}}">{{$category['name']}}</option>

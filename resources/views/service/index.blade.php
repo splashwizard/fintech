@@ -31,7 +31,7 @@
         <div class="col-sm-12">
             <button type="button" class="btn btn-primary btn-modal pull-right" 
                 data-container=".account_model"
-                data-href="{{action('AccountController@create')}}">
+                data-href="{{action('ServiceController@create')}}">
                 <i class="fa fa-plus"></i> @lang( 'messages.add' )</button>
         </div>
     </div>
@@ -60,7 +60,7 @@
                             <thead>
                                 <tr>
                                     <th>@lang( 'lang_v1.name' )</th>
-                                    <th>@lang('account.account_number')</th>
+                                    <th>@lang('account.short_name')</th>
                                     <th>@lang( 'brand.note' )</th>
                                     <th>@lang('lang_v1.balance')</th>
                                     <th>@lang( 'messages.action' )</th>
@@ -199,7 +199,7 @@
         other_account_table = $('#other_account_table').DataTable({
                         processing: true,
                         serverSide: true,
-                        ajax: '/account/account?account_type=other',
+                        ajax: '/account/service?account_type=other',
                         columnDefs:[{
                                 "targets": 4,
                                 "orderable": false,

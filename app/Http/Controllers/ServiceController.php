@@ -120,7 +120,7 @@ class ServiceController extends Controller
         //                             ->where('account_type', 'capital')
         //                             ->count();
 
-        return view('account.index')
+        return view('service.index')
                 ->with(compact('not_linked_payments'));
     }
 
@@ -136,7 +136,7 @@ class ServiceController extends Controller
 
         $account_types = Account::accountTypes();
 
-        return view('account.create')
+        return view('service.create')
                 ->with(compact('account_types'));
     }
 
@@ -159,6 +159,7 @@ class ServiceController extends Controller
                 $input['business_id'] = $business_id;
                 $input['created_by'] = $user_id;
                 $input['account_type'] = 'saving_current';
+                $input['is_service'] = 1;
                
                 $account = Account::create($input);
 
@@ -293,7 +294,7 @@ class ServiceController extends Controller
         $account = Account::where('business_id', $business_id)
                             ->find($id);
                             
-        return view('account.show')
+        return view('service.show')
                 ->with(compact('account'));
     }
 
@@ -314,7 +315,7 @@ class ServiceController extends Controller
 
             $account_types = Account::accountTypes();
 
-            return view('account.edit')
+            return view('service.edit')
                 ->with(compact('account', 'account_types'));
         }
     }
@@ -454,7 +455,7 @@ class ServiceController extends Controller
                             ->NotClosed()
                             ->pluck('name', 'id');
 
-            return view('account.transfer')
+            return view('service.transfer')
                 ->with(compact('from_account', 'to_accounts'));
         }
     }
@@ -551,7 +552,7 @@ class ServiceController extends Controller
                             ->NotClosed()
                             ->pluck('name', 'id');
 
-            return view('account.deposit')
+            return view('service.deposit')
                 ->with(compact('account', 'account', 'from_accounts'));
         }
     }
@@ -587,7 +588,7 @@ class ServiceController extends Controller
             $to_users = $contacts->pluck('name', 'id');
 
 
-            return view('account.withdraw')
+            return view('service.withdraw')
                 ->with(compact('account', 'account', 'to_users'));
         }
     }
@@ -890,7 +891,7 @@ class ServiceController extends Controller
 
         $accounts->prepend(__('messages.all'), '');
                             
-        return view('account.cash_flow')
+        return view('service.cash_flow')
                  ->with(compact('accounts'));
     }
 }

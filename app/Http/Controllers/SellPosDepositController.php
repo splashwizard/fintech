@@ -434,8 +434,15 @@ class SellPosDepositController extends Controller
                     $this->transactionUtil->updatePaymentStatus($transaction->id, $transaction->final_total);
 
                     if ($request->session()->get('business.enable_rp') == 1) {
-                        $redeemed = !empty($input['rp_redeemed']) ? $input['rp_redeemed'] : 0;
-                        $this->transactionUtil->updateCustomerRewardPoints($contact_id, $transaction->rp_earned, 0, $redeemed);
+//                        $redeemed = !empty($input['rp_redeemed']) ? $input['rp_redeemed'] : 0;
+//                        $this->transactionUtil->updateCustomerRewardPoints($contact_id, $transaction->rp_earned, 0, $redeemed);
+                        $product_category = $input['product_category_hidden'];
+                        if($product_category == 'Banking') {
+                            $redeemed = !empty($input['rp_redeemed']) ? $input['rp_redeemed'] : 0;
+                            $this->transactionUtil->updateCustomerRewardPoints($contact_id, $transaction->rp_earned, 0, $redeemed);
+                        } else if($product_category == 'Service List') {
+                            $this->transactionUtil->updateCustomerRewardPoints($contact_id, 0, 0, $transaction->rp_earned);
+                        }
                     }
 
                     //Allocate the quantity from purchase and add mapping of
