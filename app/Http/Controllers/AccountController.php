@@ -547,6 +547,7 @@ class AccountController extends Controller
 
             $from_accounts = Account::where('business_id', $business_id)
                             ->where('id', '!=', $id)
+                            ->where('is_service', 0)
                             // ->where('account_type', 'capital')
                             ->NotClosed()
                             ->pluck('name', 'id');

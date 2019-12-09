@@ -77,15 +77,15 @@ class ServiceController extends Controller
             return DataTables::of($accounts)
                             ->addColumn(
                                 'action',
-                                '<button data-href="{{action(\'AccountController@edit\',[$id])}}" data-container=".account_model" class="btn btn-xs btn-primary btn-modal"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</button>
-                                <a href="{{action(\'AccountController@show\',[$id])}}" class="btn btn-warning btn-xs"><i class="fa fa-book"></i> @lang("account.account_book")</a>&nbsp;
+                                '<button data-href="{{action(\'ServiceController@edit\',[$id])}}" data-container=".account_model" class="btn btn-xs btn-primary btn-modal"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</button>
+                                <a href="{{action(\'ServiceController@show\',[$id])}}" class="btn btn-warning btn-xs"><i class="fa fa-book"></i> @lang("account.account_book")</a>&nbsp;
                                 @if($is_closed == 0)
-                                <button data-href="{{action(\'AccountController@getFundTransfer\',[$id])}}" class="btn btn-xs btn-info btn-modal" data-container=".view_modal"><i class="fa fa-exchange"></i> @lang("account.fund_transfer")</button>
+                                <button data-href="{{action(\'ServiceController@getFundTransfer\',[$id])}}" class="btn btn-xs btn-info btn-modal" data-container=".view_modal"><i class="fa fa-exchange"></i> @lang("account.fund_transfer")</button>
 
-                                <button data-href="{{action(\'AccountController@getDeposit\',[$id])}}" class="btn btn-xs btn-success btn-modal" data-container=".view_modal"><i class="fa fa-money"></i> @lang("account.deposit")</button>
+                                <button data-href="{{action(\'ServiceController@getDeposit\',[$id])}}" class="btn btn-xs btn-success btn-modal" data-container=".view_modal"><i class="fa fa-money"></i> @lang("account.deposit")</button>
 
-                                <button data-url="{{action(\'AccountController@close\',[$id])}}" class="btn btn-xs btn-danger close_account"><i class="fa fa-close"></i> @lang("messages.close")</button>
-                                <button data-href="{{action(\'AccountController@getWithdraw\',[$id])}}" class="btn btn-xs btn-primary btn-modal" data-container=".view_modal"><i class="fa fa-money"></i> @lang("account.withdraw")</button>
+                                <button data-url="{{action(\'ServiceController@close\',[$id])}}" class="btn btn-xs btn-danger close_account"><i class="fa fa-close"></i> @lang("messages.close")</button>
+                                <button data-href="{{action(\'ServiceController@getWithdraw\',[$id])}}" class="btn btn-xs btn-primary btn-modal" data-container=".view_modal"><i class="fa fa-money"></i> @lang("account.withdraw")</button>
                                 @endif'
                             )
                             ->editColumn('name', function ($row) {
@@ -565,31 +565,29 @@ class ServiceController extends Controller
 
         if (request()->ajax()) {
             $business_id = session()->get('user.business_id');
-
             $account = Account::where('business_id', $business_id)
                 ->NotClosed()
                 ->find($id);
-
-//            $from_accounts = Account::where('business_id', $business_id)
-//                ->where('id', '!=', $id)
-//                // ->where('account_type', 'capital')
-//                ->NotClosed()
-//                ->pluck('name', 'id');
-
             $user_id = session()->get('user.id');
-
             $contacts = Contact::where('business_id', $business_id);
-
             $selected_contacts = User::isSelectedContacts($user_id);
+
             if ($selected_contacts) {
                 $contacts->join('user_contact_access AS uca', 'contacts.id', 'uca.contact_id')
                     ->where('uca.user_id', $user_id);
             }
             $to_users = $contacts->pluck('name', 'id');
 
+            $withdraw_mode = ['w' => 'Wallet', 'b' => 'Bank'];
+
+            $from_accounts = Account::where('business_id', $business_id)
+                ->where('id', '!=', $id)
+                ->where('is_service', 0)
+                ->NotClosed()
+                ->pluck('name', 'id');
 
             return view('service.withdraw')
-                ->with(compact('account', 'account', 'to_users'));
+                ->with(compact('account', 'account', 'to_users', 'withdraw_mode', 'from_accounts'));
         }
     }
 
@@ -683,6 +681,8 @@ class ServiceController extends Controller
             if (!empty($amount)) {
                 $user_id = $request->session()->get('user.id');
 
+                $withdraw_mode = request()->get('withdraw_mode');
+
                 $business_locations = BusinessLocation::forDropdown($business_id, false, true);
                 $business_locations = $business_locations['locations'];
                 $input = [];
@@ -700,22 +700,62 @@ class ServiceController extends Controller
                 $input['discount_type'] = 'percentage';
                 $input['discount_amount'] = 0;
                 $input['final_total'] = $amount;
+                $input['commission_agent'] = null;
+                $input['status'] = 'final';
                 $input['additional_notes'] = $request->input('note');
                 $invoice_total = ['total_before_tax' => $amount, 'tax' => 0];
-                $transaction = $this->transactionUtil->createSellReturnTransaction($business_id, $input, $invoice_total, $user_id);
+//                $transaction = $this->transactionUtil->createSellReturnTransaction($business_id, $input, $invoice_total, $user_id);
+                $transaction = $this->transactionUtil->createSellTransaction($business_id, $input, $invoice_total, $user_id);
                 $this->transactionUtil->createWithDrawPaymentLine($transaction, $user_id, $account_id);
-                $this->transactionUtil->updateCustomerRewardPoints($contact_id, 0, 0, $amount);
+                $this->transactionUtil->updateCustomerRewardPoints($contact_id, $amount, 0, 0);
 
                 $debit_data = [
                     'amount' => $amount,
                     'account_id' => $account_id,
-                    'type' => 'debit',
+                    'type' => 'credit',
                     'sub_type' => 'withdraw',
                     'operation_date' => $this->commonUtil->uf_date($request->input('operation_date'), true),
                     'created_by' => session()->get('user.id')
                 ];
 
-                $debit = AccountTransaction::createAccountTransaction($debit_data);
+                AccountTransaction::createAccountTransaction($debit_data);
+                if($withdraw_mode == 'b') { // bank mode
+                    $business_locations = BusinessLocation::forDropdown($business_id, false, true);
+                    $business_locations = $business_locations['locations'];
+                    $input = [];
+                    if (count($business_locations) == 1) {
+                        foreach ($business_locations as $id => $name) {
+                            $input['location_id'] = $id;
+                        }
+                    }
+                    $bank_account_id = $request->input('withdraw_from');
+                    $contact_id = $request->input('withdraw_to');
+                    $cg = $this->contactUtil->getCustomerGroup($business_id, $contact_id);
+                    $input['customer_group_id'] = (empty($cg) || empty($cg->id)) ? null : $cg->id;
+                    $input['contact_id'] = $contact_id;
+                    $input['ref_no'] = 0;
+                    $input['transaction_date'] = $this->commonUtil->uf_date($request->input('operation_date'), true);
+                    $input['discount_type'] = 'percentage';
+                    $input['discount_amount'] = 0;
+                    $input['final_total'] = $amount;
+                    $input['additional_notes'] = $request->input('note');
+                    $invoice_total = ['total_before_tax' => $amount, 'tax' => 0];
+                    $transaction = $this->transactionUtil->createSellReturnTransaction($business_id, $input, $invoice_total, $user_id);
+                    $this->transactionUtil->createWithDrawPaymentLine($transaction, $user_id, $bank_account_id);
+                    $this->transactionUtil->updateCustomerRewardPoints($contact_id, 0, 0, $amount);
+
+                    $debit_data = [
+                        'amount' => $amount,
+                        'account_id' => $bank_account_id,
+                        'type' => 'debit',
+                        'sub_type' => 'withdraw',
+                        'operation_date' => $this->commonUtil->uf_date($request->input('operation_date'), true),
+                        'created_by' => session()->get('user.id')
+                    ];
+
+                    AccountTransaction::createAccountTransaction($debit_data);
+                }
+
 //                $credit_data = [
 //                    'amount' => $amount,
 //                    'account_id' => $account_id,

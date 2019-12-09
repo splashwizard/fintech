@@ -110,6 +110,42 @@
 	    <!-- /.col -->
   	</div>
   	<br>
+	<div class="row">
+		<div class="col-sm-12">
+			<div class="box box-primary">
+				<div class="box-body">
+					<div style="display: flex;padding-left: 15px;margin-bottom: 10px">
+					@foreach($bank_accounts as $bank_account)
+						<div class="custom_bank_radio">
+							<div class="custom_label">
+								@php echo $bank_account->name;
+								@endphp
+							</div>
+							<div class="custom_value">
+								@php echo $bank_account->balance;
+								@endphp
+							</div>
+						</div>
+					@endforeach
+					</div>
+					<div style="display: flex;padding-left: 15px;margin-bottom: 10px">
+					@foreach($service_accounts as $service_account)
+						<div class="custom_service_radio">
+							<div class="custom_label">
+								@php echo $service_account->name;
+								@endphp
+							</div>
+							<div class="custom_value">
+								@php echo $service_account->balance;
+								@endphp
+							</div>
+						</div>
+					@endforeach
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
     @if(!empty($widgets['after_sale_purchase_totals']))
       @foreach($widgets['after_sale_purchase_totals'] as $widget)
         {!! $widget !!}

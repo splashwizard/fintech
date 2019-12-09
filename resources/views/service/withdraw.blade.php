@@ -1,7 +1,7 @@
 <div class="modal-dialog" role="document">
   <div class="modal-content">
 
-    {!! Form::open(['url' => action('AccountController@postWithdraw'), 'method' => 'post', 'id' => 'deposit_form' ]) !!}
+    {!! Form::open(['url' => action('ServiceController@postWithdraw'), 'method' => 'post', 'id' => 'withdraw_form' ]) !!}
 
     <div class="modal-header">
       <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -23,6 +23,16 @@
             <div class="form-group">
                 {!! Form::label('withdraw_to', __( 'account.withdraw_to' ) .":*") !!}
                 {!! Form::select('withdraw_to', $to_users, null, ['class' => 'form-control', 'required' ]); !!}
+            </div>
+
+            <div class="form-group">
+                {!! Form::label('withdraw_mode', __( 'account.withdraw_mode' ) .":*") !!}
+                {!! Form::select('withdraw_mode', $withdraw_mode, null, ['class' => 'form-control', 'required' ]); !!}
+            </div>
+
+            <div class="form-group hide" id="withdraw_div">
+                {!! Form::label('withdraw_from', __( 'account.withdraw_from' ) .":*") !!}
+                {!! Form::select('withdraw_from', $from_accounts, null, ['class' => 'form-control', 'required' ]); !!}
             </div>
 
             <div class="form-group">
@@ -56,5 +66,12 @@
     $('#od_datetimepicker').datetimepicker({
       format: moment_date_format + ' ' + moment_time_format
     });
+    $('#withdraw_mode').change(function () {
+        var withdraw_mode = $(this).val();
+        if(withdraw_mode === 'w')
+            $('#withdraw_div').addClass('hide');
+        else
+            $('#withdraw_div').removeClass('hide');
+    })
   });
 </script>

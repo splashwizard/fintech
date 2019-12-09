@@ -594,6 +594,38 @@ table.table-text-center td, table.table-text-center th{
     vertical-align: middle !important;
 }
 
-.bg-woocommerce{
+.bg-woocommerce {
   background-color: #9E458B !important;
+}
+
+.custom_bank_radio {
+    border-radius: 10px;
+    color: white;
+    font-size: 14px;
+    background-color: #252ea6;
+    display: flex;
+    margin-right: 15px;
+}
+
+.custom_label {
+    padding: 20px;
+}
+
+
+
+.custom_service_radio {
+    border-radius: 10px;
+    color: white;
+    font-size: 14px;
+    background-color: #1fa610;
+    display: flex;
+    margin-right: 15px;
+}
+
+.custom_value {
+    background-color: #d6d657;
+    display: inline-block;
+    padding: 20px;
+    border-radius: 7px;
+    text-align: center;
 }

@@ -290,6 +290,14 @@ Route::middleware(['IsInstalled', 'auth', 'SetSessionData', 'language', 'timezon
         Route::post('/link-account', 'AccountReportsController@postLinkAccount');
         Route::get('/cash-flow', 'AccountController@cashFlow');
     });
+    Route::group(['prefix' => 'service'], function () {
+        Route::get('/deposit/{id}', 'ServiceController@getDeposit');
+        Route::post('/deposit', 'ServiceController@postDeposit');
+        Route::get('/withdraw/{id}', 'ServiceController@getWithdraw');
+        Route::post('/withdraw', 'ServiceController@postWithdraw');
+        Route::get('/close/{id}', 'ServiceController@close');
+        Route::get('/fund-transfer/{id}', 'ServiceController@getFundTransfer');
+    });
     
 
     //Restaurant module

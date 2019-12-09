@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Account;
 use App\BusinessLocation;
 
 use App\Currency;
@@ -198,7 +199,39 @@ class HomeController extends Controller
             }
         }
 
-        return view('home.index', compact('date_filters', 'sells_chart_1', 'sells_chart_2', 'widgets'));
+        $bank_accounts_sql = Account::leftjoin('account_transactions as AT', function ($join) {
+            $join->on('AT.account_id', '=', 'accounts.id');
+            $join->whereNull('AT.deleted_at');
+        })
+            ->where('is_service', 0)
+            ->where('business_id', $business_id)
+            ->select(['name', 'account_number', 'accounts.note', 'accounts.id',
+                'is_closed', DB::raw("SUM( IF(AT.type='credit', amount, -1*amount) ) as balance")])
+            ->groupBy('accounts.id');
+
+        $bank_accounts_sql->where(function ($q) {
+            $q->where('account_type', '!=', 'capital');
+            $q->orWhereNull('account_type');
+        });
+        $bank_accounts = $bank_accounts_sql->get();
+
+        $service_accounts_sql = Account::leftjoin('account_transactions as AT', function ($join) {
+            $join->on('AT.account_id', '=', 'accounts.id');
+            $join->whereNull('AT.deleted_at');
+        })
+            ->where('is_service', 1)
+            ->where('business_id', $business_id)
+            ->select(['name', 'account_number', 'accounts.note', 'accounts.id',
+                'is_closed', DB::raw("SUM( IF(AT.type='credit', amount, -1*amount) ) as balance")])
+            ->groupBy('accounts.id');
+
+        $service_accounts_sql->where(function ($q) {
+            $q->where('account_type', '!=', 'capital');
+            $q->orWhereNull('account_type');
+        });
+        $service_accounts = $service_accounts_sql->get();
+
+        return view('home.index', compact('date_filters', 'sells_chart_1', 'sells_chart_2', 'widgets', 'bank_accounts', 'service_accounts'));
     }
 
     /**
