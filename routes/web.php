@@ -108,7 +108,7 @@ Route::middleware(['IsInstalled', 'auth', 'SetSessionData', 'language', 'timezon
     Route::get('/sells/quotations', 'SellController@getQuotations');
     Route::get('/sells/draft-dt', 'SellController@getDraftDatables');
     Route::resource('sells', 'SellController');
-    Route::resource('withdraw', 'WithdrawController');
+    Route::resource('withdraw', 'WithDrawController');
 
     Route::get('/sells/pos/get_product_row/{variation_id}/{location_id}', 'SellPosController@getProductRow');
     Route::post('/sells/pos/get_payment_row', 'SellPosController@getPaymentRow');
