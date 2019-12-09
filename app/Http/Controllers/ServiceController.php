@@ -712,7 +712,7 @@ class ServiceController extends Controller
                 $debit_data = [
                     'amount' => $amount,
                     'account_id' => $account_id,
-                    'type' => 'credit',
+                    'type' => 'debit',
                     'sub_type' => 'withdraw',
                     'operation_date' => $this->commonUtil->uf_date($request->input('operation_date'), true),
                     'created_by' => session()->get('user.id')
