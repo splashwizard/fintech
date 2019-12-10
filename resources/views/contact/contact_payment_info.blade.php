@@ -16,7 +16,7 @@
     </p>
 @endif
 @if( $contact->type == 'customer' || $contact->type == 'both')
-    <strong>@lang('report.total_sell')</strong>
+    <strong>@lang('contact.total_bank_deposit')</strong>
     <p class="text-muted">
     <span class="display_currency" data-currency_symbol="true">
     {{ $contact->total_invoice }}</span>
@@ -26,7 +26,7 @@
     <span class="display_currency" data-currency_symbol="true">
     {{ $contact->invoice_received }}</span>
     </p>
-    <strong>@lang('contact.total_sale_due')</strong>
+    <strong>@lang('contact.total_service_deposit')</strong>
     <p class="text-muted">
     <span class="display_currency" data-currency_symbol="true">
     {{ $contact->total_invoice - $contact->invoice_received }}</span>

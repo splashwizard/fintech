@@ -445,6 +445,7 @@ class ProductUtil extends Util
             DB::raw("IF(pv.is_dummy = 0, CONCAT(p.name, 
                     ' (', pv.name, ':',variations.name, ')'), p.name) AS product_name"),
             'p.id as product_id',
+            'p.account_id',
             'p.brand_id',
             'p.category_id',
             'p.tax as tax_id',
@@ -548,6 +549,9 @@ class ProductUtil extends Util
         return $details;
     }
 
+    public function getPrice($product){
+        return $this->num_uf($product['unit_price_inc_tax']) * $this->num_uf($product['quantity']);
+    }
     /**
      * Calculates the total amount of invoice
      *

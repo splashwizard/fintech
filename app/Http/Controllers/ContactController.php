@@ -979,8 +979,8 @@ class ContactController extends Controller
                     'payment_status' => '',
                     'total' => '',
                     'payment_method' => !empty($paymentTypes[$payment->method]) ? $paymentTypes[$payment->method] : '',
-                    'debit' => in_array($payment->transaction_type, ['purchase', 'sell_return']) ? $payment->amount : '',
-                    'credit' => in_array($payment->transaction_type, ['sell', 'purchase_return', 'opening_balance']) ? $payment->amount : '',
+                    'debit' => in_array($payment->transaction_type, ['purchase', 'sell_return']) || ($payment->transaction_type == 'sell' && $payment->method =='other') ? $payment->amount : '',
+                    'credit' => in_array($payment->transaction_type, ['sell', 'purchase_return', 'opening_balance']) && $payment->method !='other' ? $payment->amount : '',
                     'others' => $payment->note . '<small>' . __('account.payment_for') . ': ' . $ref_no . '</small>'
                 ];
             }

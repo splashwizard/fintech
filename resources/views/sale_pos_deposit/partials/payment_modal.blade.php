@@ -10,18 +10,7 @@
 					<div class="col-md-9">
 						<div class="row">
 							<div id="payment_rows_div">
-								@foreach($payment_lines as $payment_line)
-									
-									@if($payment_line['is_return'] == 1)
-										@php
-											$change_return = $payment_line;
-										@endphp
-
-										@continue
-									@endif
-
-									@include('sale_pos_deposit.partials.payment_row', ['removable' => !$loop->first, 'row_index' => $loop->index, 'payment_line' => $payment_line])
-								@endforeach
+								@include('sale_pos_deposit.partials.payment_rows', ['payment_lines' => $payment_lines])
 							</div>
 							<input type="hidden" id="payment_row_index" value="{{count($payment_lines)}}">
 						</div>

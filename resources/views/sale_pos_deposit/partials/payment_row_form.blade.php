@@ -37,6 +37,7 @@
 						<i class="fa fa-money"></i>
 					</span>
 					{!! Form::select("payment[$row_index][account_id]", $accounts, !empty($payment_line['account_id']) ? $payment_line['account_id'] : '' , ['class' => 'form-control select2', 'id' => "account_$row_index", 'style' => 'width:100%;']); !!}
+					{!! Form::hidden("payment[$row_index][category_name]", !empty($payment_line['category_name']) ? $payment_line['category_name'] : '') !!}
 				</div>
 			</div>
 		</div>

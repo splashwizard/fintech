@@ -209,6 +209,19 @@ $(document).ready(function() {
         pos_total_row();
 
         adjustComboQty(tr);
+
+        const data = $('#add_pos_sell_form').serialize();
+        $.ajax({
+            method:'POST',
+            url: '/sells/pos_deposit/get_payment_rows',
+            data: data,
+            dataType: 'html',
+            success: function(result) {
+                if(result){
+                    $('#payment_rows_div').html(result);
+                }
+            }
+        });
     });
 
     //If change in unit price update price including tax and line total
@@ -1020,6 +1033,19 @@ $(document).ready(function() {
         } else {
             $('#account_0').val($(this).data('account_id')).trigger('change');
             pos_product_row($(this).data('variation_id'));
+
+            const data = $('#add_pos_sell_form').serialize();
+            $.ajax({
+                method:'POST',
+                url: '/sells/pos_deposit/get_payment_rows',
+                data: data,
+                dataType: 'html',
+                success: function(result) {
+                    if(result){
+                        $('#payment_rows_div').html(result);
+                    }
+                }
+            });
         }
     });
 

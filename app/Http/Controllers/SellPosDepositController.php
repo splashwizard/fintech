@@ -436,12 +436,15 @@ class SellPosDepositController extends Controller
                     if ($request->session()->get('business.enable_rp') == 1) {
 //                        $redeemed = !empty($input['rp_redeemed']) ? $input['rp_redeemed'] : 0;
 //                        $this->transactionUtil->updateCustomerRewardPoints($contact_id, $transaction->rp_earned, 0, $redeemed);
-                        $product_category = $input['product_category_hidden'];
-                        if($product_category == 'Banking') {
-                            $redeemed = !empty($input['rp_redeemed']) ? $input['rp_redeemed'] : 0;
-                            $this->transactionUtil->updateCustomerRewardPoints($contact_id, $transaction->rp_earned, 0, $redeemed);
-                        } else if($product_category == 'Service List') {
-                            $this->transactionUtil->updateCustomerRewardPoints($contact_id, 0, 0, $transaction->rp_earned);
+                        foreach ($input['payment'] as $key => $payment_item){
+                            if($key < count($input['payment']) - 1 ){
+                                $product_category = $payment_item['category_name'];
+                                if($product_category == 'Banking') {
+                                    $this->transactionUtil->updateCustomerRewardPoints($contact_id, $payment_item['amount'], 0, 0);
+                                } else if($product_category == 'Service List') {
+                                    $this->transactionUtil->updateCustomerRewardPoints($contact_id, 0, 0, $payment_item['amount']);
+                                }
+                            }
                         }
                     }
 
@@ -1367,6 +1370,39 @@ class SellPosDepositController extends Controller
         return view('sale_pos_deposit.partials.payment_row')
             ->with(compact('payment_types', 'row_index', 'removable', 'payment_line', 'accounts'));
     }
+
+    public function getPaymentRows(Request $request)
+    {
+        $business_id = request()->session()->get('user.business_id');
+        $input = $request->except('token');
+
+        $products = $input['products'];
+        $payment_data = [];
+        foreach ($products as $product) {
+            if(!isset($payment_data[$product['account_id']]['amount'] )){
+                $payment_data[$product['account_id']]['amount'] = $this->productUtil->getPrice($product);
+                $payment_data[$product['account_id']]['category_id'] = $product['category_id'];
+            }
+            else
+                $payment_data[$product['account_id']]['amount'] += $this->productUtil->getPrice($product);
+        }
+        $payment_lines = [];
+        foreach ($payment_data as $key => $payment){
+            $query = Category::where('id', $payment['category_id']);
+            $data = $query->get()[0];
+            $payment_lines[] = ['account_id' => $key, 'method' => $data->name == 'Banking' ? 'bank_transfer' : 'other', 'amount' => $payment['amount'], 'note' => '', 'card_transaction_number' => '', 'card_number' => '', 'card_type' => '', 'card_holder_name' => '', 'card_month' => '', 'card_year' => '', 'card_security' => '', 'cheque_number' => '', 'bank_account_number' => '',
+                'is_return' => 0, 'transaction_no' => '', 'category_name' => $data->name];
+        }
+        $payment_types = $this->productUtil->payment_types();
+        //Accounts
+        $accounts = [];
+        if ($this->moduleUtil->isModuleEnabled('account')) {
+            $accounts = Account::forDropdown($business_id, true, false);
+        }
+
+        return view('sale_pos_deposit.partials.payment_rows')->with(compact('payment_lines', 'payment_types', 'accounts'));
+    }
+
 
     /**
      * Returns recent transactions

@@ -120,6 +120,7 @@ Route::middleware(['IsInstalled', 'auth', 'SetSessionData', 'language', 'timezon
     Route::resource('pos', 'SellPosController');
     Route::get('/sells/pos_deposit/get_product_row/{variation_id}/{location_id}', 'SellPosDepositController@getProductRow');
     Route::post('/sells/pos_deposit/get_payment_row', 'SellPosDepositController@getPaymentRow');
+    Route::post('/sells/pos_deposit/get_payment_rows', 'SellPosDepositController@getPaymentRows');
     Route::get('/sells/pos_deposit/get-product-suggestion', 'SellPosDepositController@getProductSuggestion');
     Route::resource('pos_deposit', 'SellPosDepositController');
 
