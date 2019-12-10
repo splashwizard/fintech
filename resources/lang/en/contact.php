@@ -37,6 +37,8 @@ return [
     'pay_due_amount' => 'Pay Due Amount',
     'total_paid' => 'Total Paid',
     'total_purchase_paid' => 'Total Purchase Payment',
+    'total_sale_due' => 'Total Deposit',
+    'total_withdraw_due' => 'Total Withdrawal',
     'total_sale_paid' => 'Total Sale Payment',
     'total_bank_deposit' => 'Total Bank Deposit',
     'total_service_deposit' => 'Total Service Deposit',

@@ -14,6 +14,8 @@ return [
     'welcome_message' => 'Welcome :name,',
     'total_sell' => 'Total Sales',
     'total_purchase' => 'Total purchase',
+    'total_deposit' => 'Total Deposit',
+    'total_withdrawal' => 'Total Withdrawal',
     'invoice_due' => 'Invoice due',
     'purchase_due' => 'Purchase due',
     'today' => 'Today',

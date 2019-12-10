@@ -52,8 +52,8 @@
 	        <span class="info-box-icon bg-aqua"><i class="ion ion-cash"></i></span>
 
 	        <div class="info-box-content">
-	          <span class="info-box-text">{{ __('home.total_purchase') }}</span>
-	          <span class="info-box-number total_purchase"><i class="fa fa-refresh fa-spin fa-fw margin-bottom"></i></span>
+	          <span class="info-box-text">{{ __('home.total_deposit') }}</span>
+	          <span class="info-box-number total_deposit"><i class="fa fa-refresh fa-spin fa-fw margin-bottom"></i></span>
 	        </div>
 	        <!-- /.info-box-content -->
 	      </div>
@@ -65,8 +65,8 @@
 	        <span class="info-box-icon bg-aqua"><i class="ion ion-ios-cart-outline"></i></span>
 
 	        <div class="info-box-content">
-	          <span class="info-box-text">{{ __('home.total_sell') }}</span>
-	          <span class="info-box-number total_sell"><i class="fa fa-refresh fa-spin fa-fw margin-bottom"></i></span>
+	          <span class="info-box-text">{{ __('home.total_withdrawal') }}</span>
+	          <span class="info-box-number total_withdraw"><i class="fa fa-refresh fa-spin fa-fw margin-bottom"></i></span>
 	        </div>
 	        <!-- /.info-box-content -->
 	      </div>

@@ -267,12 +267,15 @@ class HomeController extends Controller
 
             $total_purchase = $total_purchase_inc_tax - $total_purchase_return_inc_tax - $total_adjustment;
             $output = $purchase_details;
-            $output['total_purchase'] = $total_purchase;
+//            $output['total_withdraw'] = $total_purchase;
 
             $total_sell_inc_tax = !empty($sell_details['total_sell_inc_tax']) ? $sell_details['total_sell_inc_tax'] : 0;
             $total_sell_return_inc_tax = !empty($transaction_totals['total_sell_return_inc_tax']) ? $transaction_totals['total_sell_return_inc_tax'] : 0;
 
-            $output['total_sell'] = $total_sell_inc_tax - $total_sell_return_inc_tax;
+
+            $output['total_withdraw'] = $total_sell_return_inc_tax;
+//            $output['total_sell'] = $total_sell_inc_tax - $total_sell_return_inc_tax;
+            $output['total_deposit'] = $total_sell_inc_tax;
 
             $output['invoice_due'] = $sell_details['invoice_due'];
 

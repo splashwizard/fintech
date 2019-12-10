@@ -79,9 +79,9 @@ function update_statistics(start, end) {
     var data = { start: start, end: end };
     //get purchase details
     var loader = '<i class="fa fa-refresh fa-spin fa-fw margin-bottom"></i>';
-    $('.total_purchase').html(loader);
+    $('.total_deposit').html(loader);
     $('.purchase_due').html(loader);
-    $('.total_sell').html(loader);
+    $('.total_withdraw').html(loader);
     $('.invoice_due').html(loader);
     $.ajax({
         method: 'get',
@@ -90,11 +90,11 @@ function update_statistics(start, end) {
         data: data,
         success: function(data) {
             //purchase details
-            $('.total_purchase').html(__currency_trans_from_en(data.total_purchase, true));
+            $('.total_deposit').html(__currency_trans_from_en(data.total_deposit, true));
             $('.purchase_due').html(__currency_trans_from_en(data.purchase_due, true));
 
             //sell details
-            $('.total_sell').html(__currency_trans_from_en(data.total_sell, true));
+            $('.total_withdraw').html(__currency_trans_from_en(data.total_withdraw, true));
             $('.invoice_due').html(__currency_trans_from_en(data.invoice_due, true));
         },
     });
