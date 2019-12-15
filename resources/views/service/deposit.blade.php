@@ -25,15 +25,15 @@
                 {!! Form::select('from_account', $from_accounts, null, ['class' => 'form-control', 'required' ]); !!}
             </div>
 
-            <div class="form-group">
-                {!! Form::label('operation_date', __( 'messages.date' ) .":*") !!}
-                <div class="input-group date" id='od_datetimepicker'>
-                  {!! Form::text('operation_date', 0, ['class' => 'form-control', 'required','placeholder' => __( 'messages.date' ) ]); !!}
-                  <span class="input-group-addon">
-                    <span class="glyphicon glyphicon-calendar"></span>
-                  </span>
-                </div>
-            </div>
+{{--            <div class="form-group">--}}
+{{--                {!! Form::label('operation_date', __( 'messages.date' ) .":*") !!}--}}
+{{--                <div class="input-group date" id='od_datetimepicker'>--}}
+{{--                  {!! Form::text('operation_date', 0, ['class' => 'form-control', 'required','placeholder' => __( 'messages.date' ) ]); !!}--}}
+{{--                  <span class="input-group-addon">--}}
+{{--                    <span class="glyphicon glyphicon-calendar"></span>--}}
+{{--                  </span>--}}
+{{--                </div>--}}
+{{--            </div>--}}
 
             <div class="form-group">
                 {!! Form::label('note', __( 'brand.note' )) !!}

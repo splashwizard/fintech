@@ -264,6 +264,10 @@ class AccountController extends Controller
                                             $details .= ' ( ' . __('account.to') .': ' . $row->transfer_transaction->account->name . ')';
                                         }
                                     }
+                                    else if($row->sub_type == 'withdraw'){
+                                        $details = '<b>' . __('contact.customer') . ':</b> ' . $row->transaction->contact->name . '<br><b>'.
+                                            __('sale.invoice_no') . ':</b> ' . $row->transaction->invoice_no;
+                                    }
                                 } else {
                                     if (!empty($row->transaction->type)) {
                                         if ($row->transaction->type == 'purchase') {
@@ -617,12 +621,13 @@ class AccountController extends Controller
                             ->findOrFail($account_id);
 
             if (!empty($amount)) {
+                $date = new \DateTime('now');
                 $credit_data = [
                     'amount' => $amount,
                     'account_id' => $account_id,
                     'type' => 'credit',
                     'sub_type' => 'deposit',
-                    'operation_date' => $this->commonUtil->uf_date($request->input('operation_date'), true),
+                    'operation_date' => $date->format('Y-m-d H:i:s'),
                     'created_by' => session()->get('user.id'),
                     'note' => $note
                 ];
@@ -696,7 +701,8 @@ class AccountController extends Controller
                 $input['customer_group_id'] = (empty($cg) || empty($cg->id)) ? null : $cg->id;
                 $input['contact_id'] = $contact_id;
                 $input['ref_no'] = 0;
-                $input['transaction_date'] = $this->commonUtil->uf_date($request->input('operation_date'), true);
+                $date = new \DateTime('now');
+                $input['transaction_date'] = $date->format('Y-m-d H:i:s');
                 $input['discount_type'] = 'percentage';
                 $input['discount_amount'] = 0;
                 $input['final_total'] = $amount;
@@ -711,8 +717,9 @@ class AccountController extends Controller
                     'account_id' => $account_id,
                     'type' => 'debit',
                     'sub_type' => 'withdraw',
-                    'operation_date' => $this->commonUtil->uf_date($request->input('operation_date'), true),
-                    'created_by' => session()->get('user.id')
+                    'operation_date' => $date->format('Y-m-d H:i:s'),
+                    'created_by' => session()->get('user.id'),
+                    'transaction_id' => $transaction->id
                 ];
 
                 $debit = AccountTransaction::createAccountTransaction($debit_data);

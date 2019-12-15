@@ -615,12 +615,13 @@ class ServiceController extends Controller
                             ->findOrFail($account_id);
 
             if (!empty($amount)) {
+                $date = new \DateTime('now');
                 $credit_data = [
                     'amount' => $amount,
                     'account_id' => $account_id,
                     'type' => 'credit',
                     'sub_type' => 'deposit',
-                    'operation_date' => $this->commonUtil->uf_date($request->input('operation_date'), true),
+                    'operation_date' => $date->format('Y-m-d H:i:s'),
                     'created_by' => session()->get('user.id'),
                     'note' => $note
                 ];
@@ -696,7 +697,8 @@ class ServiceController extends Controller
                 $input['customer_group_id'] = (empty($cg) || empty($cg->id)) ? null : $cg->id;
                 $input['contact_id'] = $contact_id;
                 $input['ref_no'] = 0;
-                $input['transaction_date'] = $this->commonUtil->uf_date($request->input('operation_date'), true);
+                $date = new \DateTime('now');
+                $input['transaction_date'] = $date->format('Y-m-d H:i:s');
                 $input['discount_type'] = 'percentage';
                 $input['discount_amount'] = 0;
                 $input['final_total'] = $amount;
@@ -714,7 +716,7 @@ class ServiceController extends Controller
                     'account_id' => $account_id,
                     'type' => 'debit',
                     'sub_type' => 'withdraw',
-                    'operation_date' => $this->commonUtil->uf_date($request->input('operation_date'), true),
+                    'operation_date' => $date->format('Y-m-d H:i:s'),
                     'created_by' => session()->get('user.id')
                 ];
 
