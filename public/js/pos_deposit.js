@@ -394,6 +394,18 @@ $(document).ready(function() {
             .parents('tr')
             .remove();
         pos_total_row();
+        const data = $('#add_pos_sell_form').serialize();
+        $.ajax({
+            method:'POST',
+            url: '/sells/pos_deposit/get_payment_rows',
+            data: data,
+            dataType: 'html',
+            success: function(result) {
+                if(result){
+                    $('#payment_rows_div').html(result);
+                }
+            }
+        });
     });
     $('table#pos_table tbody').on('click', '.pay-window', function() {
 
