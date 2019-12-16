@@ -3625,6 +3625,15 @@ class TransactionUtil extends Util
         return $total_points;
     }
 
+    public function updateCustomerRewardPointsFromUnitPoint($business_id,
+                                                            $customer_id,
+                                                            $earned,
+                                                            $earned_before = 0,
+                                                            $redeemed = 0,
+                                                            $redeemed_before = 0){
+        $this->updateCustomerRewardPoints($customer_id, $this->calculateRewardPoints($business_id, $earned), $earned_before, $this->calculateRewardPoints($business_id, $redeemed), $redeemed_before);
+    }
+
     /**
      * Updates reward point of a customer
      *

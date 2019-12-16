@@ -440,9 +440,9 @@ class SellPosDepositController extends Controller
                             if($key < count($input['payment']) - 1 ){
                                 $product_category = $payment_item['category_name'];
                                 if($product_category == 'Banking') {
-                                    $this->transactionUtil->updateCustomerRewardPoints($contact_id, $payment_item['amount'], 0, 0);
+                                    $this->transactionUtil->updateCustomerRewardPointsFromUnitPoint($business_id, $contact_id, $payment_item['amount'], 0, 0);
                                 } else if($product_category == 'Service List') {
-                                    $this->transactionUtil->updateCustomerRewardPoints($contact_id, 0, 0, $payment_item['amount']);
+                                    $this->transactionUtil->updateCustomerRewardPointsFromUnitPoint($business_id, $contact_id, 0, 0, $payment_item['amount']);
                                 }
                             }
                         }
