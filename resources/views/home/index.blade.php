@@ -122,7 +122,7 @@
 								@endphp
 							</div>
 							<div class="custom_value">
-								@php echo $bank_account->balance;
+								@php echo (!empty($bank_account->balance) ? $bank_account->balance : 0);
 								@endphp
 							</div>
 						</div>
@@ -136,7 +136,7 @@
 								@endphp
 							</div>
 							<div class="custom_value">
-								@php echo $service_account->balance;
+								@php echo (!empty($service_account->balance) ? $service_account->balance : 0);
 								@endphp
 							</div>
 						</div>
