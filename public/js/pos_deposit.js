@@ -72,18 +72,18 @@ $(document).ready(function() {
         },
     });
     $('#customer_id').on('select2:select', function(e) {
-        var data = e.params.data;
-        if (data.pay_term_number) {
-            $('input#pay_term_number').val(data.pay_term_number);
-        } else {
-            $('input#pay_term_number').val('');
-        }
-
-        if (data.pay_term_type) {
-            $('#pay_term_type').val(data.pay_term_type);
-        } else {
-            $('#pay_term_type').val('');
-        }
+        // var data = e.params.data;
+        // if (data.pay_term_number) {
+        //     $('input#pay_term_number').val(data.pay_term_number);
+        // } else {
+        //     $('input#pay_term_number').val('');
+        // }
+        //
+        // if (data.pay_term_type) {
+        //     $('#pay_term_type').val(data.pay_term_type);
+        // } else {
+        //     $('#pay_term_type').val('');
+        // }
     });
 
     set_default_customer();
