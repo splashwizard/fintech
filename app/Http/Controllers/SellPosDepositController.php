@@ -367,6 +367,22 @@ class SellPosDepositController extends Controller
                     $input['invoice_scheme_id'] = $request->input('invoice_scheme_id');
                 }
 
+                if ($request->session()->get('business.enable_rp') == 1) {
+                    $earned = $redeemed = 0;
+                    foreach ($input['payment'] as $key => $payment_item){
+//                        if($key < count($input['payment']) - 1 ){
+                            $product_category = $payment_item['category_name'];
+                            if($product_category == 'Banking') {
+                                $earned += $payment_item['amount'];
+                            } else if($product_category == 'Service List') {
+                                $redeemed += $payment_item['amount'];
+                            }
+//                        }
+                    }
+                    $input['final_total'] = $earned;
+                    $input['rp_redeemed'] = $redeemed;
+                }
+
                 $transaction = $this->transactionUtil->createSellTransaction($business_id, $input, $invoice_total, $user_id);
 
                 $this->transactionUtil->createOrUpdateSellLines($transaction, $input['products'], $input['location_id']);
@@ -434,18 +450,7 @@ class SellPosDepositController extends Controller
                     $this->transactionUtil->updatePaymentStatus($transaction->id, $transaction->final_total);
 
                     if ($request->session()->get('business.enable_rp') == 1) {
-//                        $redeemed = !empty($input['rp_redeemed']) ? $input['rp_redeemed'] : 0;
-//                        $this->transactionUtil->updateCustomerRewardPoints($contact_id, $transaction->rp_earned, 0, $redeemed);
-                        foreach ($input['payment'] as $key => $payment_item){
-                            if($key < count($input['payment']) - 1 ){
-                                $product_category = $payment_item['category_name'];
-                                if($product_category == 'Banking') {
-                                    $this->transactionUtil->updateCustomerRewardPointsFromUnitPoint($business_id, $contact_id, $payment_item['amount'], 0, 0);
-                                } else if($product_category == 'Service List') {
-                                    $this->transactionUtil->updateCustomerRewardPointsFromUnitPoint($business_id, $contact_id, 0, 0, $payment_item['amount']);
-                                }
-                            }
-                        }
+                        $this->transactionUtil->updateCustomerRewardPoints($contact_id, $transaction->rp_earned, 0, $transaction->rp_redeemed);
                     }
 
                     //Allocate the quantity from purchase and add mapping of
