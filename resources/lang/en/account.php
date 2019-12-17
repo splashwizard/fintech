@@ -49,7 +49,7 @@ return [
     'deposit_from' => 'Deposit From',
     'withdraw_to' => 'Withdraw To',
     'withdraw_mode' => 'Via wallet or bank',
-    'withdraw_from' => 'Withdraw From',
+    'via_account' => 'Via Account',
     'no_capital_account_created' => 'No active Capital Account exists.',
     'payment_account_report' => 'Payment Account Report',
     'invoice_ref_no' => 'Invoice No./Ref. No.',

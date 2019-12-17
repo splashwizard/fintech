@@ -578,16 +578,22 @@ class ServiceController extends Controller
             }
             $to_users = $contacts->pluck('name', 'id');
 
-            $withdraw_mode = ['w' => 'Wallet', 'b' => 'Bank'];
+//            $withdraw_mode = ['w' => 'Wallet', 'b' => 'Bank'];
+            $withdraw_mode = ['b' => 'Bank', 's' => 'Service'];
 
-            $from_accounts = Account::where('business_id', $business_id)
+            $bank_accounts = Account::where('business_id', $business_id)
                 ->where('id', '!=', $id)
                 ->where('is_service', 0)
                 ->NotClosed()
                 ->pluck('name', 'id');
+            $service_accounts = Account::where('business_id', $business_id)
+                ->where('id', '!=', $id)
+                ->where('is_service', 1)
+                ->NotClosed()
+                ->pluck('name', 'id');
 
             return view('service.withdraw')
-                ->with(compact('account', 'account', 'to_users', 'withdraw_mode', 'from_accounts'));
+                ->with(compact('account', 'account', 'to_users', 'withdraw_mode', 'bank_accounts', 'service_accounts'));
         }
     }
 
@@ -721,7 +727,7 @@ class ServiceController extends Controller
                 ];
 
                 AccountTransaction::createAccountTransaction($debit_data);
-                if($withdraw_mode == 'b') { // bank mode
+                if($withdraw_mode == 'b' || $withdraw_mode == 's') { // bank mode
                     $business_locations = BusinessLocation::forDropdown($business_id, false, true);
                     $business_locations = $business_locations['locations'];
                     $input = [];

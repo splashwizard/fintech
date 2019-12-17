@@ -20,26 +20,26 @@
 			<div class="btn-group pull-right" data-toggle="buttons">
 				<label class="btn btn-info active">
     				<input type="radio" name="date-filter"
-    				data-start="{{ date('Y-m-d') }}" 
+    				data-start="{{ date('Y-m-d') }}"
     				data-end="{{ date('Y-m-d') }}"
     				checked> {{ __('home.today') }}
   				</label>
   				<label class="btn btn-info">
     				<input type="radio" name="date-filter"
-    				data-start="{{ $date_filters['this_week']['start']}}" 
+    				data-start="{{ $date_filters['this_week']['start']}}"
     				data-end="{{ $date_filters['this_week']['end']}}"
     				> {{ __('home.this_week') }}
   				</label>
   				<label class="btn btn-info">
     				<input type="radio" name="date-filter"
-    				data-start="{{ $date_filters['this_month']['start']}}" 
+    				data-start="{{ $date_filters['this_month']['start']}}"
     				data-end="{{ $date_filters['this_month']['end']}}"
     				> {{ __('home.this_month') }}
   				</label>
   				<label class="btn btn-info">
-    				<input type="radio" name="date-filter" 
-    				data-start="{{ $date_filters['this_fy']['start']}}" 
-    				data-end="{{ $date_filters['this_fy']['end']}}" 
+    				<input type="radio" name="date-filter"
+    				data-start="{{ $date_filters['this_fy']['start']}}"
+    				data-end="{{ $date_filters['this_fy']['end']}}"
     				> {{ __('home.this_fy') }}
   				</label>
             </div>
@@ -52,8 +52,23 @@
 	        <span class="info-box-icon bg-aqua"><i class="ion ion-cash"></i></span>
 
 	        <div class="info-box-content">
-	          <span class="info-box-text">{{ __('home.total_deposit') }}</span>
-	          <span class="info-box-number total_deposit"><i class="fa fa-refresh fa-spin fa-fw margin-bottom"></i></span>
+                <div style="margin-top: 10px">
+                    <div style="width: 50%;float: left">
+                        <span class="info-box-text">{{ __('home.total_deposit').":" }}</span>
+                    </div>
+                    <div style="width: 50%;float: left">
+                        <span class="info-box-number total_deposit"><i class="fa fa-refresh fa-spin fa-fw margin-bottom"></i></span>
+                    </div>
+                </div>
+                <span style="clear: left"></span>
+                <div style="margin-top: 40px">
+                    <div style="width: 50%;float: left">
+                        <span class="info-box-text">{{ __('home.deposit_tickets').":" }}</span>
+                    </div>
+                    <div style="width: 50%;float: left">
+                        <span class="info-box-number deposit_tickets"><i class="fa fa-refresh fa-spin fa-fw margin-bottom"></i></span>
+                    </div>
+                </div>
 	        </div>
 	        <!-- /.info-box-content -->
 	      </div>
@@ -65,8 +80,23 @@
 	        <span class="info-box-icon bg-aqua"><i class="ion ion-ios-cart-outline"></i></span>
 
 	        <div class="info-box-content">
-	          <span class="info-box-text">{{ __('home.total_withdrawal') }}</span>
-	          <span class="info-box-number total_withdraw"><i class="fa fa-refresh fa-spin fa-fw margin-bottom"></i></span>
+                <div style="margin-top: 10px">
+                    <div style="width: 60%;float: left">
+                        <span class="info-box-text">{{ __('home.total_withdrawal').":" }}</span>
+                    </div>
+                    <div style="width: 40%;float: left">
+                        <span class="info-box-number total_withdraw"><i class="fa fa-refresh fa-spin fa-fw margin-bottom"></i></span>
+                    </div>
+                </div>
+                <span style="clear: left"></span>
+                <div style="margin-top: 40px">
+                    <div style="width: 60%;float: left">
+                        <span class="info-box-text">{{ __('home.withdrawal_tickets').":" }}</span>
+                    </div>
+                    <div style="width: 40%;float: left">
+                        <span class="info-box-number withdrawal_tickets"><i class="fa fa-refresh fa-spin fa-fw margin-bottom"></i></span>
+                    </div>
+                </div>
 	        </div>
 	        <!-- /.info-box-content -->
 	      </div>
@@ -224,7 +254,7 @@
     </div>
 
     <div class="row">
-      
+
       <div class="col-sm-6">
         @component('components.widget', ['class' => 'box-warning'])
           @slot('icon')

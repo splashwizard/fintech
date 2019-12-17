@@ -91,10 +91,12 @@ function update_statistics(start, end) {
         success: function(data) {
             //purchase details
             $('.total_deposit').html(__currency_trans_from_en(data.total_deposit, true));
+            $('.deposit_tickets').html(data.deposit_count);
             $('.purchase_due').html(__currency_trans_from_en(data.purchase_due, true));
 
             //sell details
             $('.total_withdraw').html(__currency_trans_from_en(data.total_withdraw, true));
+            $('.withdrawal_tickets').html(data.withdraw_count);
             $('.invoice_due').html(__currency_trans_from_en(data.invoice_due, true));
         },
     });

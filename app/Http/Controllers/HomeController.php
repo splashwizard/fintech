@@ -261,6 +261,62 @@ class HomeController extends Controller
                 $end
             );
 
+            $sells = Transaction::leftJoin('contacts', 'transactions.contact_id', '=', 'contacts.id')
+                ->leftJoin('transaction_payments as tp', 'transactions.id', '=', 'tp.transaction_id')
+                ->leftJoin('accounts', 'tp.account_id', '=', 'accounts.id')
+                ->join(
+                    'business_locations AS bl',
+                    'transactions.location_id',
+                    '=',
+                    'bl.id'
+                )
+                ->leftJoin(
+                    'transactions AS SR',
+                    'transactions.id',
+                    '=',
+                    'SR.return_parent_id'
+                )
+                ->where('transactions.business_id', $business_id)
+                ->where('transactions.type', 'sell')
+                ->where('transactions.status', 'final')
+                ->where('accounts.is_service', 0);
+
+            $withdraws = Transaction::leftJoin('contacts', 'transactions.contact_id', '=', 'contacts.id')
+                ->leftJoin('transaction_payments as tp', 'transactions.id', '=', 'tp.transaction_id')
+                ->leftJoin('accounts', 'tp.account_id', '=', 'accounts.id')
+                ->join(
+                    'business_locations AS bl',
+                    'transactions.location_id',
+                    '=',
+                    'bl.id'
+                )
+                ->leftJoin(
+                    'transactions AS SR',
+                    'transactions.id',
+                    '=',
+                    'SR.return_parent_id'
+                )
+                ->where('transactions.business_id', $business_id)
+                ->where('transactions.type', 'sell_return')
+                ->where('transactions.status', 'final')
+                ->where('accounts.is_service', 0);
+
+
+            $permitted_locations = auth()->user()->permitted_locations();
+            if ($permitted_locations != 'all') {
+                $sells->whereIn('transactions.location_id', $permitted_locations);
+                $withdraws->whereIn('transactions.location_id', $permitted_locations);
+            }
+
+            if (!auth()->user()->can('direct_sell.access') && auth()->user()->can('view_own_sell_only')) {
+                $sells->where('transactions.created_by', request()->session()->get('user.id'));
+                $withdraws->whereIn('transactions.location_id', $permitted_locations);
+            }
+            $sells->groupBy('transactions.id');
+            $withdraws->groupBy('transactions.id');
+            $deposit_count = count($sells->select('transactions.id')->get());
+            $withdraw_count = count($withdraws->select('transactions.id')->get());
+
             $total_purchase_inc_tax = !empty($purchase_details['total_purchase_inc_tax']) ? $purchase_details['total_purchase_inc_tax'] : 0;
             $total_purchase_return_inc_tax = $transaction_totals['total_purchase_return_inc_tax'];
             $total_adjustment = $transaction_totals['total_adjustment'];
@@ -274,6 +330,8 @@ class HomeController extends Controller
 
 
             $output['total_withdraw'] = $total_sell_return_inc_tax;
+            $output['deposit_count'] = $deposit_count;
+            $output['withdraw_count'] = $withdraw_count;
 //            $output['total_sell'] = $total_sell_inc_tax - $total_sell_return_inc_tax;
             $output['total_deposit'] = $total_sell_inc_tax;
 

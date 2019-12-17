@@ -30,9 +30,13 @@
                 {!! Form::select('withdraw_mode', $withdraw_mode, null, ['class' => 'form-control', 'required' ]); !!}
             </div>
 
-            <div class="form-group hide" id="withdraw_div">
-                {!! Form::label('withdraw_from', __( 'account.withdraw_from' ) .":*") !!}
-                {!! Form::select('withdraw_from', $from_accounts, null, ['class' => 'form-control', 'required' ]); !!}
+            <div class="form-group" id="bank_div">
+                {!! Form::label('withdraw_from', __( 'account.via_account' ) .":*") !!}
+                {!! Form::select('withdraw_from', $bank_accounts, null, ['class' => 'form-control', 'required' ]); !!}
+            </div>
+            <div class="form-group" id="service_div" style="display: none">
+                {!! Form::label('withdraw_from', __( 'account.via_account' ) .":*") !!}
+                {!! Form::select('withdraw_from', $service_accounts, null, ['class' => 'form-control', 'required' ]); !!}
             </div>
 
 {{--            <div class="form-group">--}}
@@ -68,10 +72,13 @@
     });
     $('#withdraw_mode').change(function () {
         var withdraw_mode = $(this).val();
-        if(withdraw_mode === 'w')
-            $('#withdraw_div').addClass('hide');
-        else
-            $('#withdraw_div').removeClass('hide');
+        if(withdraw_mode === 'b'){
+            $('#bank_div').show();
+            $('#service_div').hide();
+        } else {
+            $('#bank_div').hide();
+            $('#service_div').show();
+        }
     })
   });
 </script>
