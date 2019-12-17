@@ -98,6 +98,9 @@ function update_statistics(start, end) {
             $('.total_withdraw').html(__currency_trans_from_en(data.total_withdraw, true));
             $('.withdrawal_tickets').html(data.withdraw_count);
             $('.invoice_due').html(__currency_trans_from_en(data.invoice_due, true));
+            $('.total_bonus').html(__currency_trans_from_en(data.total_bonus, true));
+            $('.total_profit').html(__currency_trans_from_en(data.total_profit, true));
+            $('.registration_cnt').html(data.registration_cnt + ' Pax');
         },
     });
 }

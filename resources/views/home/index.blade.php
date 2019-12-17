@@ -111,8 +111,23 @@
 	        </span>
 
 	        <div class="info-box-content">
-	          <span class="info-box-text">{{ __('home.purchase_due') }}</span>
-	          <span class="info-box-number purchase_due"><i class="fa fa-refresh fa-spin fa-fw margin-bottom"></i></span>
+                <div style="margin-top: 10px">
+                    <div style="width: 60%;float: left">
+                        <span class="info-box-text">{{ __('home.total_bonus').":" }}</span>
+                    </div>
+                    <div style="width: 40%;float: left">
+                        <span class="info-box-number total_bonus"><i class="fa fa-refresh fa-spin fa-fw margin-bottom"></i></span>
+                    </div>
+                </div>
+                <span style="clear: left"></span>
+                <div style="margin-top: 40px">
+                    <div style="width: 60%;float: left">
+                        <span class="info-box-text">{{ __('home.total_profit').":" }}</span>
+                    </div>
+                    <div style="width: 40%;float: left">
+                        <span class="info-box-number total_profit"><i class="fa fa-refresh fa-spin fa-fw margin-bottom"></i></span>
+                    </div>
+                </div>
 	        </div>
 	        <!-- /.info-box-content -->
 	      </div>
@@ -130,8 +145,12 @@
 	        </span>
 
 	        <div class="info-box-content">
-	          <span class="info-box-text">{{ __('home.invoice_due') }}</span>
-	          <span class="info-box-number invoice_due"><i class="fa fa-refresh fa-spin fa-fw margin-bottom"></i></span>
+                <div style="margin-top: 10px">
+                    <span class="info-box-text">{{ __('home.new_registration').":" }}</span>
+                </div>
+                <div style="margin-top: 10px">
+                    <span class="info-box-number registration_cnt"><i class="fa fa-refresh fa-spin fa-fw margin-bottom"></i></span>
+                </div>
 	        </div>
 	        <!-- /.info-box-content -->
 	      </div>

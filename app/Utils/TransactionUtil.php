@@ -1681,6 +1681,7 @@ class TransactionUtil extends Util
                     ->select(
                         'transactions.id',
                         'final_total',
+                        'rp_earned',
                         DB::raw("(final_total - tax_amount) as total_exc_tax"),
                         DB::raw('(SELECT SUM(IF(tp.is_return = 1, -1*tp.amount, tp.amount)) FROM transaction_payments as tp WHERE tp.transaction_id = transactions.id) as total_paid'),
                         DB::raw('SUM(total_before_tax) as total_before_tax'),
@@ -1712,8 +1713,11 @@ class TransactionUtil extends Util
         }
 
         $sell_details = $query->get();
+        $query->where('rp_earned', '>', 'final_total');
+        $bonus_details = $query->get();
 
         $output['total_sell_inc_tax'] = $sell_details->sum('final_total');
+        $output['total_bonus'] = $bonus_details->sum('rp_earned') - $bonus_details->sum('final_total');
         //$output['total_sell_exc_tax'] = $sell_details->sum('total_exc_tax');
         $output['total_sell_exc_tax'] = $sell_details->sum('total_before_tax');
         $output['invoice_due'] = $sell_details->sum('final_total') - $sell_details->sum('total_paid');

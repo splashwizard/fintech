@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Account;
 use App\BusinessLocation;
 
+use App\Contact;
 use App\Currency;
 use App\Transaction;
 use App\Utils\BusinessUtil;
@@ -330,12 +331,16 @@ class HomeController extends Controller
             $total_sell_inc_tax = !empty($sell_details['total_sell_inc_tax']) ? $sell_details['total_sell_inc_tax'] : 0;
             $total_sell_return_inc_tax = !empty($transaction_totals['total_sell_return_inc_tax']) ? $transaction_totals['total_sell_return_inc_tax'] : 0;
 
+            $query = Contact::where('contacts.business_id', $business_id);
 
             $output['total_withdraw'] = $total_sell_return_inc_tax;
             $output['deposit_count'] = $deposit_count;
             $output['withdraw_count'] = $withdraw_count;
 //            $output['total_sell'] = $total_sell_inc_tax - $total_sell_return_inc_tax;
             $output['total_deposit'] = $total_sell_inc_tax;
+            $output['total_bonus'] = $sell_details['total_bonus'];
+            $output['total_profit'] = $output['total_deposit'] - $output['total_withdraw'] - $output['total_bonus'];
+            $output['registration_cnt'] = $query->count();
 
             $output['invoice_due'] = $sell_details['invoice_due'];
 
