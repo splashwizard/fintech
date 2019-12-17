@@ -84,7 +84,7 @@ class SellController extends Controller
                     'SR.return_parent_id'
                 )
                 ->where('transactions.business_id', $business_id)
-                ->where('transactions.type', 'sell')
+                ->whereIn('transactions.type', ['sell', 'sell_return'])
                 ->where('transactions.status', 'final')
                 ->select(
                     'transactions.id',

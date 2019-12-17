@@ -736,13 +736,14 @@ class ServiceController extends Controller
                             $input['location_id'] = $id;
                         }
                     }
-                    $bank_account_id = $request->input('withdraw_from');
+                    $bank_account_id = $withdraw_mode == 'b' ? $request->input('bank_account_id') : $request->input('service_id');
                     $contact_id = $request->input('withdraw_to');
                     $cg = $this->contactUtil->getCustomerGroup($business_id, $contact_id);
                     $input['customer_group_id'] = (empty($cg) || empty($cg->id)) ? null : $cg->id;
                     $input['contact_id'] = $contact_id;
                     $input['ref_no'] = 0;
-                    $input['transaction_date'] = $this->commonUtil->uf_date($request->input('operation_date'), true);
+                    $now = new \DateTime('now');
+                    $input['transaction_date'] = $now->format('Y-m-d H:i:s');
                     $input['discount_type'] = 'percentage';
                     $input['discount_amount'] = 0;
                     $input['final_total'] = $amount;
@@ -757,7 +758,7 @@ class ServiceController extends Controller
                         'account_id' => $bank_account_id,
                         'type' => 'debit',
                         'sub_type' => 'withdraw',
-                        'operation_date' => $this->commonUtil->uf_date($request->input('operation_date'), true),
+                        'operation_date' => $now->format('Y-m-d H:i:s'),
                         'created_by' => session()->get('user.id')
                     ];
 

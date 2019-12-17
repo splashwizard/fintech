@@ -279,7 +279,8 @@ class HomeController extends Controller
                 ->where('transactions.business_id', $business_id)
                 ->where('transactions.type', 'sell')
                 ->where('transactions.status', 'final')
-                ->where('accounts.is_service', 0);
+                ->where('accounts.is_service', 0)
+                ->whereBetween(\Illuminate\Support\Facades\DB::raw('date(transactions.transaction_date)'), [$start, $end]);
 
             $withdraws = Transaction::leftJoin('contacts', 'transactions.contact_id', '=', 'contacts.id')
                 ->leftJoin('transaction_payments as tp', 'transactions.id', '=', 'tp.transaction_id')
@@ -299,7 +300,8 @@ class HomeController extends Controller
                 ->where('transactions.business_id', $business_id)
                 ->where('transactions.type', 'sell_return')
                 ->where('transactions.status', 'final')
-                ->where('accounts.is_service', 0);
+                ->where('accounts.is_service', 0)
+                ->whereBetween(\Illuminate\Support\Facades\DB::raw('date(transactions.transaction_date)'), [$start, $end]);
 
 
             $permitted_locations = auth()->user()->permitted_locations();

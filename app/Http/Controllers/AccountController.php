@@ -710,7 +710,7 @@ class AccountController extends Controller
                 $invoice_total = ['total_before_tax' => $amount, 'tax' => 0];
                 $transaction = $this->transactionUtil->createSellReturnTransaction($business_id, $input, $invoice_total, $user_id);
                 $this->transactionUtil->createWithDrawPaymentLine($transaction, $user_id, $account_id);
-                $this->transactionUtil->updateCustomerRewardPoints($contact_id, 0, 0, $amount);
+                $this->transactionUtil->updateCustomerRewardPoints($contact_id, 0, 0, $transaction->rp_redeemed);
 
                 $debit_data = [
                     'amount' => $amount,

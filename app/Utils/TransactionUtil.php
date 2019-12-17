@@ -2969,6 +2969,8 @@ class TransactionUtil extends Util
     {
         $invoice_scheme_id = !empty($input['invoice_scheme_id']) ? $input['invoice_scheme_id'] : null;
         $invoice_no = !empty($input['invoice_no']) ? $input['invoice_no'] : $this->getWithdrawNumber($business_id, 'final', $input['location_id'], $invoice_scheme_id);
+        $final_total = $this->num_uf($input['final_total']);
+
         $transaction = Transaction::create([
             'business_id' => $business_id,
             'location_id' => $input['location_id'],
@@ -2976,6 +2978,7 @@ class TransactionUtil extends Util
             'status' => 'final',
             'contact_id' => $input['contact_id'],
             'customer_group_id' => $input['customer_group_id'],
+            'payment_status' => 'paid',
 //            'ref_no' => $input['ref_no'],
             'invoice_no' => $invoice_no,
             'total_before_tax' => $invoice_total['total_before_tax'],
@@ -2984,8 +2987,9 @@ class TransactionUtil extends Util
             'discount_type' => $input['discount_type'],
             'discount_amount' => $this->num_uf($input['discount_amount']),
             'tax_amount' => $invoice_total['tax'],
-            'final_total' => $this->num_uf($input['final_total']),
+            'final_total' => $final_total,
             'additional_notes' => !empty($input['additional_notes']) ? $input['additional_notes'] : null,
+            'rp_redeemed' => !empty($final_total) ? $this->calculateRewardPoints($business_id, $final_total) : 0,
             'created_by' => $user_id,
             'is_quotation' => isset($input['is_quotation']) ? $input['is_quotation'] : 0
         ]);

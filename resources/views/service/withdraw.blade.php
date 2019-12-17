@@ -31,12 +31,12 @@
             </div>
 
             <div class="form-group" id="bank_div">
-                {!! Form::label('withdraw_from', __( 'account.via_account' ) .":*") !!}
-                {!! Form::select('withdraw_from', $bank_accounts, null, ['class' => 'form-control', 'required' ]); !!}
+                {!! Form::label('bank_account_id', __( 'account.via_account' ) .":*") !!}
+                {!! Form::select('bank_account_id', $bank_accounts, null, ['class' => 'form-control', 'required' ]); !!}
             </div>
             <div class="form-group" id="service_div" style="display: none">
-                {!! Form::label('withdraw_from', __( 'account.via_account' ) .":*") !!}
-                {!! Form::select('withdraw_from', $service_accounts, null, ['class' => 'form-control', 'required' ]); !!}
+                {!! Form::label('service_id', __( 'account.via_account' ) .":*") !!}
+                {!! Form::select('service_id', $service_accounts, null, ['class' => 'form-control', 'required' ]); !!}
             </div>
 
 {{--            <div class="form-group">--}}
