@@ -39,6 +39,11 @@ Route::middleware(['IsInstalled', 'auth', 'SetSessionData', 'language', 'timezon
     Route::get('/home/purchase-payment-dues', 'HomeController@getPurchasePaymentDues');
     Route::get('/home/sales-payment-dues', 'HomeController@getSalesPaymentDues');
 
+//    Route::get('/mass_overview', 'MassOverviewController@index')->name('mass_overview');
+    Route::get('/mass_overview/get_bank_details', 'MassOverviewController@getBankDetails');
+    Route::get('/mass_overview/get_service_details', 'MassOverviewController@getServiceDetails');
+    Route::resource('mass_overview', 'MassOverviewController');
+
     Route::get('/load-more-notifications', 'HomeController@loadMoreNotifications');
     
     Route::get('/business/settings', 'BusinessController@getBusinessSettings')->name('business.getBusinessSettings');

@@ -49,6 +49,12 @@
 				@lang('home.home')</span>
 			  </a>
 			</li>
+			<li class="{{ $request->segment(1) == 'mass_overview' ? 'active' : '' }}">
+				 <a href="{{action('MassOverviewController@index')}}">
+					  <i class="fa fa-dashboard"></i> <span>
+				@lang('home.mass_overview')</span>
+				  </a>
+			</li>
 			@if(auth()->user()->can('user.view') || auth()->user()->can('user.create') || auth()->user()->can('roles.view'))
 			<li class="treeview {{ in_array($request->segment(1), ['roles', 'users', 'sales-commission-agents']) ? 'active active-sub' : '' }}">
 				<a href="#">
