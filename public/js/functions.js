@@ -115,7 +115,6 @@ function __currency_convert_recursively(element, use_page_currency = false) {
         if (is_quantity) {
             show_symbol = false;
         }
-
         $(this).text(__currency_trans_from_en(value, show_symbol, use_page_currency, __currency_precision, is_quantity));
     });
 }

@@ -74,20 +74,22 @@ class LoginController extends Controller
      */
     protected function authenticated(Request $request, $user)
     {
-        if (!$user->business->is_active) {
-            \Auth::logout();
-            return redirect('/login')
-              ->with(
-                  'status',
-                  ['success' => 0, 'msg' => __('lang_v1.business_inactive')]
-              );
-        } elseif ($user->status != 'active') {
-            \Auth::logout();
-            return redirect('/login')
-              ->with(
-                  'status',
-                  ['success' => 0, 'msg' => __('lang_v1.user_inactive')]
-              );
+        if(!$user->hasRole('Superadmin')){
+            if (!$user->business->is_active) {
+                \Auth::logout();
+                return redirect('/login')
+                  ->with(
+                      'status',
+                      ['success' => 0, 'msg' => __('lang_v1.business_inactive')]
+                  );
+            } elseif ($user->status != 'active') {
+                \Auth::logout();
+                return redirect('/login')
+                  ->with(
+                      'status',
+                      ['success' => 0, 'msg' => __('lang_v1.user_inactive')]
+                  );
+            }
         }
     }
 

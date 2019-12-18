@@ -248,10 +248,14 @@ class BusinessUtil extends Util
      *
      * @return array
      */
-    public function getCurrentFinancialYear($business_id)
+    public function getCurrentFinancialYear($business_id = 0)
     {
-        $business = Business::where('id', $business_id)->first();
-        $start_month = $business->fy_start_month;
+        if($business_id == 0)
+            $start_month = 1;
+        else{
+            $business = Business::where('id', $business_id)->first();
+            $start_month = $business->fy_start_month;
+        }
         $end_month = $start_month -1;
         if ($start_month == 1) {
             $end_month = 12;

@@ -12,7 +12,7 @@
     <h1>{{ __('home.welcome_message', ['name' => Session::get('user.first_name')]) }}
     </h1>
 </section>
-@if(auth()->user()->can('dashboard.data'))
+@if(auth()->user()->can('dashboard.data') || auth()->user()->hasRole('Superadmin'))
 <!-- Main content -->
 <section class="content no-print">
 	<div class="row" style="margin-bottom: 20px">

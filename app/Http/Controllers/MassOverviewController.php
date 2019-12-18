@@ -9,6 +9,7 @@ use App\Contact;
 use App\Currency;
 use App\Transaction;
 use App\Business;
+use App\User;
 use App\Utils\BusinessUtil;
 use App\Utils\ModuleUtil;
 
@@ -51,9 +52,9 @@ class MassOverviewController extends Controller
      */
     public function index()
     {
-        $business_id = request()->session()->get('user.business_id');
+        $business_id = auth()->user()->hasRole('Superadmin') ? 0 : request()->session()->get('user.business_id');
 
-        if (!auth()->user()->can('dashboard.data')) {
+        if (!auth()->user()->can('dashboard.data') && !auth()->user()->hasRole('Superadmin')) {
             return view('home.index');
         }
 
@@ -64,39 +65,64 @@ class MassOverviewController extends Controller
         $date_filters['this_week']['start'] = date('Y-m-d', strtotime('monday this week'));
         $date_filters['this_week']['end'] = date('Y-m-d', strtotime('sunday this week'));
         if (request()->ajax()) {
-            $start = request()->start;
-            $end = request()->end;
-            $business_id = request()->session()->get('user.business_id');
-            $query = Transaction::join('business', 'transactions.business_id', '=', 'business.id')
-                ->where('transactions.business_id', $business_id)
-                ->whereIn('transactions.type', ['sell', 'sell_return'])
-                ->where('transactions.status', 'final')
-                ->select('transactions.id','transactions.business_id as business_id', DB::raw("SUM(IF(transactions.type='sell', final_total, 0)) AS total_deposit"), DB::raw("SUM(IF(transactions.type='sell_return', final_total, 0)) AS total_withdrawal, business.name as company_name"));
+            $start_date = request()->start_date;
+            $end_date = request()->end_date;
+            if(auth()->user()->hasRole('Superadmin')){
+                $query = Business::leftjoin(DB::raw('(SELECT * FROM transactions WHERE DATE(transactions.`transaction_date`) BETWEEN "'. $start_date .'" AND "'. $end_date.'" AND transactions.`type` IN ("sell", "sell_return") AND transactions.`status` = "final" ) AS t'), 't.business_id', '=', 'business.id')
+                    ->groupBy('business.id')
+                    ->orderBy('business.id', 'asc')
+                    ->select('business.id', DB::raw("SUM(IF(t.type='sell', final_total, 0)) AS total_deposit"), DB::raw("SUM(IF(t.type='sell_return', final_total, 0)) AS total_withdrawal, business.name as company_name"));
+            } else{
+                $business_id = request()->session()->get('user.business_id');
 
-            //Check for permitted locations of a user
-            $permitted_locations = auth()->user()->permitted_locations();
-            if ($permitted_locations != 'all') {
-                $query->whereIn('transactions.location_id', $permitted_locations);
+
+                $business_id = request()->get('business_id');
+                $business = Business::where('id', $business_id)->first();
+                if($business->admin_ids == $user_id){
+                    $business->admin_ids = null;
+                }
+                else {
+                    $user_arr = explode(',', $business->admin_ids);
+                    $index = array_search($user_id, $user_arr);
+                    array_splice($user_arr, $index, 1);
+                    $business->admin_ids = join(',', $user_arr);
+                }
+
+                $query = Business::leftjoin(DB::raw('(SELECT * FROM transactions WHERE DATE(transactions.`transaction_date`) BETWEEN "'. $start_date .'" AND "'. $end_date.'"  AND transactions.`type` IN ("sell", "sell_return") AND transactions.`status` = "final") AS t'), 't.business_id', '=', 'business.id')
+                    ->where('business.id', $business_id)
+                    ->groupBy('business.id')
+                    ->orderBy('business.id', 'asc')
+                    ->select('business.id', DB::raw("SUM(IF(t.type='sell', final_total, 0)) AS total_deposit"), DB::raw("SUM(IF(t.type='sell_return', final_total, 0)) AS total_withdrawal, business.name as company_name"));
+
+                //Check for permitted locations of a user
+                $permitted_locations = auth()->user()->permitted_locations();
+                if ($permitted_locations != 'all') {
+                    $query->whereIn('transactions.location_id', $permitted_locations);
+                }
             }
-
-            if (!empty($start_date) && !empty($end_date)) {
-                $query->whereBetween(DB::raw('date(transaction_date)'), [$start_date, $end_date]);
-            }
-
-            if (empty($start_date) && !empty($end_date)) {
-                $query->whereDate('transaction_date', '<=', $end_date);
-            }
-
-
-            $transaction_types = ['sell_return'];
-            $transaction_totals = $this->transactionUtil->getTransactionTotals($business_id, $transaction_types, $start, $end);
             $datatable = Datatables::of($query)->addColumn(
                 'action',
                 function ($row) {
-                    $html = '<a href="'.action("MassOverviewController@show", [$row->business_id]).'" class="btn btn-info btn-xs">View</a>';
+                    if(auth()->user()->hasRole('Superadmin'))
+                        $html = '<a href="'.action("MassOverviewController@edit", [$row->id]).'" class="btn btn-info btn-xs">Edit</a>';
+                    else
+                        $html = '<a href="'.action("MassOverviewController@show", [$row->id]).'" class="btn btn-info btn-xs">View</a>';
                     return $html;
+                })
+                ->editColumn(
+                'total_deposit',
+                function ($row) {
+                    if(!isset($row->total_deposit))
+                        return 0;
+                    return $row->total_deposit;
+                })->editColumn(
+                'total_withdrawal',
+                function ($row) {
+                    if(!isset($row->total_withdrawal))
+                        return 0;
+                    return $row->total_withdrawal;
                 });
-            $rawColumns = ['business_id', 'company_name', 'total_deposit', 'total_withdrawal', 'action'];
+            $rawColumns = ['id', 'company_name', 'total_deposit', 'total_withdrawal', 'action'];
 
             return $datatable->rawColumns($rawColumns)
                 ->make(true);
@@ -115,12 +141,68 @@ class MassOverviewController extends Controller
     {
         $data = Business::where('id', $id)->select('name')->get();
         $company_name = $data[0]->name;
-        return view('mass_overview.show', compact('company_name'));
+        $business_id = $id;
+        return view('mass_overview.show', compact('company_name', 'business_id'));
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        if(auth()->user()->hasRole('Superadmin')){
+            $data = Business::where('id', $id)->select('name')->get();
+            $company_name = $data[0]->name;
+            $business_id = $id;
+            return view('mass_overview.edit', compact('company_name', 'business_id'));
+        }
+    }
+
+    public function createAdminToBusiness($business_id){
+        $users = User::whereHas('roles', function ($q) {
+            $q->where('name', 'like', 'Admin%');
+        })->get();
+        $admin_data = $users->pluck('username', 'id');
+        return view('mass_overview.create_admin')
+            ->with(compact('admin_data', 'business_id'));
+    }
+
+    public function storeAdminToBusiness(){
+        if (request()->ajax()) {
+            try {
+                $business_id = request()->get('business_id');
+                $admin_id = request()->get('admin_id');
+                $business = Business::where('id', $business_id)->first();
+                if(empty($business->admin_ids))
+                    $user_arr = [$admin_id];
+                else{
+                    $user_arr = explode(',', $business->admin_ids);
+                    $user_arr[] = $admin_id;
+                }
+                $business->admin_ids = join(',', $user_arr);
+                $business->update();
+                $output = ['success' => true,
+                    'msg' => __("mass_overview.admin_added_success")
+                ];
+            } catch (\Exception $e) {
+                \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+
+                $output = ['success' => false,
+                    'msg' => __("messages.something_fwent_wrong")
+                ];
+            }
+
+            return $output;
+        }
+        return null;
     }
 
     public function getBankDetails(){
-        $business_id = request()->session()->get('user.business_id');
         if (request()->ajax()) {
+            $business_id = request()->get('business_id');
             $accounts = Account::leftjoin('account_transactions as AT', function ($join) {
                 $join->on('AT.account_id', '=', 'accounts.id');
                 $join->whereNull('AT.deleted_at');
@@ -150,8 +232,8 @@ class MassOverviewController extends Controller
 
 
     public function getServiceDetails(){
-        $business_id = request()->session()->get('user.business_id');
         if (request()->ajax()) {
+            $business_id = request()->get('business_id');
             $accounts = Account::leftjoin('account_transactions as AT', function ($join) {
                 $join->on('AT.account_id', '=', 'accounts.id');
                 $join->whereNull('AT.deleted_at');
@@ -166,5 +248,67 @@ class MassOverviewController extends Controller
                     return '<span class="display_currency" data-currency_symbol="true">' . $row->balance . '</span>';
                 })->rawColumns(['balance', 'name'])->make(true);
         }
+    }
+
+    public function getUsers(){
+        if (request()->ajax()) {
+            $business_id = request()->get('business_id');
+            $business = Business::where('id', $business_id)->first();
+            if(empty($business->admin_ids))
+                $user_arr = [];
+            else{
+                $user_arr = explode(',', $business->admin_ids);
+            }
+
+            $users = User::whereIn('id', $user_arr)
+                ->select(['id', 'username', 'business_id',
+                    DB::raw("CONCAT(COALESCE(surname, ''), ' ', COALESCE(first_name, ''), ' ', COALESCE(last_name, '')) as full_name"), 'email']);
+
+            return Datatables::of($users)
+                ->addColumn(
+                    'role',
+                    function ($row) {
+                        $role_name = $this->moduleUtil->getUserRoleName($row->id);
+                        return $role_name;
+                    }
+                )
+                ->addColumn(
+                    'action',
+                    '<a data-href="{{action(\'MassOverviewController@removeAdminFromBusiness\', [$id])}}" class="btn btn-xs btn-danger delete_user_button"><i class="glyphicon glyphicon-trash"></i> @lang("messages.delete")</a>'
+                )
+                ->filterColumn('full_name', function ($query, $keyword) {
+                    $query->whereRaw("CONCAT(COALESCE(surname, ''), ' ', COALESCE(first_name, ''), ' ', COALESCE(last_name, '')) like ?", ["%{$keyword}%"]);
+                })
+                ->removeColumn('id')
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+    }
+    public function removeAdminFromBusiness($user_id){
+        try {
+            $business_id = request()->get('business_id');
+            $business = Business::where('id', $business_id)->first();
+            if($business->admin_ids == $user_id){
+                $business->admin_ids = null;
+            }
+            else {
+                $user_arr = explode(',', $business->admin_ids);
+                $index = array_search($user_id, $user_arr);
+                array_splice($user_arr, $index, 1);
+                $business->admin_ids = join(',', $user_arr);
+            }
+            $business->update();
+            $output = ['success' => true,
+                'msg' => __("mass_overview.admin_added_success")
+            ];
+        } catch (\Exception $e) {
+            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+
+            $output = ['success' => false,
+                'msg' => __("messages.something_fwent_wrong")
+            ];
+        }
+
+        return $output;
     }
 }

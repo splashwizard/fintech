@@ -31,7 +31,7 @@ class Category extends Model
      */
     public static function catAndSubCategories($business_id)
     {
-        $categories = Category::where('business_id', $business_id)
+        $categories = Category::whereIn('business_id', [$business_id, 0])
                         ->where('parent_id', 0)
                         ->orderBy('name', 'asc')
                         ->get()
@@ -41,7 +41,7 @@ class Category extends Model
             return [];
         }
 
-        $sub_categories = Category::where('business_id', $business_id)
+        $sub_categories = Category::whereIn('business_id', [$business_id, 0])
                             ->where('parent_id', '!=', 0)
                             ->orderBy('name', 'asc')
                             ->get()
@@ -69,7 +69,7 @@ class Category extends Model
 
     public static function forDropdown($business_id)
     {
-        $categories = Category::where('business_id', $business_id)
+        $categories = Category::whereIn('business_id', [$business_id, 0])
                             ->where('parent_id', 0)
                             ->select(DB::raw('IF(short_code IS NOT NULL, CONCAT(name, "-", short_code), name) as name'), 'id')
                             ->get();

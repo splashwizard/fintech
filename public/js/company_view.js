@@ -4,7 +4,10 @@ $(document).ready(function() {
         serverSide: true,
         aaSorting: [[0, 'desc']],
         "ajax": {
-            "url": "/mass_overview/get_bank_details"
+            "url": "/mass_overview/get_bank_details",
+            "data": function ( d ) {
+                d.business_id = business_id;
+            }
         },
         columns: [
             { data: 'name', name: 'name'},
@@ -19,7 +22,10 @@ $(document).ready(function() {
         serverSide: true,
         aaSorting: [[0, 'desc']],
         "ajax": {
-            "url": "/mass_overview/get_service_details"
+            "url": "/mass_overview/get_service_details",
+            "data": function ( d ) {
+                d.business_id = business_id;
+            }
         },
         columns: [
             { data: 'name', name: 'name'},

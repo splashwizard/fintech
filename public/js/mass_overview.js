@@ -17,7 +17,7 @@ $(document).ready(function() {
             "searchable": false
         }],
         columns: [
-            { data: 'business_id', name: 'business_id'},
+            { data: 'id', name: 'id'},
             { data: 'company_name', name: 'company_name'},
             { data: 'total_deposit', name: 'total_deposit'},
             { data: 'total_withdrawal', name: 'total_withdrawal'},
@@ -28,5 +28,4 @@ $(document).ready(function() {
     $(document).on('change', 'input[name="date-filter"]', function() {
         company_table.ajax.reload();
     });
-
 });

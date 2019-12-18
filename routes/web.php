@@ -42,6 +42,11 @@ Route::middleware(['IsInstalled', 'auth', 'SetSessionData', 'language', 'timezon
 //    Route::get('/mass_overview', 'MassOverviewController@index')->name('mass_overview');
     Route::get('/mass_overview/get_bank_details', 'MassOverviewController@getBankDetails');
     Route::get('/mass_overview/get_service_details', 'MassOverviewController@getServiceDetails');
+    Route::get('/mass_overview/get_admins', 'MassOverviewController@getAdmins');
+    Route::get('/mass_overview/create_admin_to_business/{business_id}', 'MassOverviewController@createAdminToBusiness');
+    Route::post('/mass_overview/store_admin_to_business', 'MassOverviewController@storeAdminToBusiness');
+    Route::post('/mass_overview/remove_admin_from_business/{user_id}', 'MassOverviewController@removeAdminFromBusiness');
+    Route::get('/mass_overview/get_users', 'MassOverviewController@getUsers');
     Route::resource('mass_overview', 'MassOverviewController');
 
     Route::get('/load-more-notifications', 'HomeController@loadMoreNotifications');
