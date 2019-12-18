@@ -75,9 +75,17 @@ class MassOverviewController extends Controller
                     ->select('business.id', DB::raw("SUM(IF(t.type='sell', final_total, 0)) AS total_deposit"), DB::raw("SUM(IF(t.type='sell_return', final_total, 0)) AS total_withdrawal, business.name as company_name"));
             } else{
                 $business_id = request()->session()->get('user.business_id');
+                $user_id = request()->session()->get('user.id');
+                $data = AdminHasBusiness::where('user_id', $user_id)->get();
+                $allowed_business_ids = [];
+                foreach ($data as $row){
+                    $allowed_business_ids[] = $row->business_id;
+                }
+                if(!array_search($business_id, $allowed_business_ids))
+                    $allowed_business_ids[] = $business_id;
 
                 $query = Business::leftjoin(DB::raw('(SELECT * FROM transactions WHERE DATE(transactions.`transaction_date`) BETWEEN "'. $start_date .'" AND "'. $end_date.'"  AND transactions.`type` IN ("sell", "sell_return") AND transactions.`status` = "final") AS t'), 't.business_id', '=', 'business.id')
-                    ->where('business.id', $business_id)
+                    ->whereIn('business.id', $allowed_business_ids)
                     ->groupBy('business.id')
                     ->orderBy('business.id', 'asc')
                     ->select('business.id', DB::raw("SUM(IF(t.type='sell', final_total, 0)) AS total_deposit"), DB::raw("SUM(IF(t.type='sell_return', final_total, 0)) AS total_withdrawal, business.name as company_name"));
@@ -164,11 +172,9 @@ class MassOverviewController extends Controller
                 $business_id = request()->get('business_id');
                 $admin_id = request()->get('admin_id');
 
-                $business = AdminHasBusiness::create(['user_id' => $admin_id, 'business_id'=> $business_id]);
-//                $business = new AdminHasBusiness;
-//                $business->user_id = $admin_id;
-//                $business->business_id = $business_id;
-                $business->save();
+//                $business = AdminHasBusiness::create(['id' => 2, 'user_id' => $admin_id, 'business_id'=> $business_id]);
+
+                DB::table('admin_has_business')->insert(['user_id' => $admin_id, 'business_id'=> $business_id]);
                 $output = ['success' => true,
                     'msg' => __("mass_overview.admin_added_success")
                 ];
@@ -271,7 +277,7 @@ class MassOverviewController extends Controller
     public function removeAdminFromBusiness($user_id){
         try {
             $business_id = request()->get('business_id');
-            $business = AdminHasBusiness::where('business_id', $business_id)->where('user_id', $user_id)->get();
+            $business = AdminHasBusiness::where('business_id', $business_id)->where('user_id', $user_id)->first();
             $business->delete();
             $output = ['success' => true,
                 'msg' => __("mass_overview.admin_added_success")

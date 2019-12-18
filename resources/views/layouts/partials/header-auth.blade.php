@@ -26,9 +26,9 @@
 
 	        		<!-- Register Url -->
 		        	@if(env('ALLOW_REGISTRATION', true))
-		            	<a 
+		            	<a
 		            		href="{{ route('business.getRegister') }}@if(!empty(request()->lang)){{'?lang=' . request()->lang}} @endif"
-		            		class="btn bg-maroon btn-flat margin" 
+		            		class="btn bg-maroon btn-flat margin"
 		            	><b>{{ __('business.not_yet_registered')}}</b> {{ __('business.register_now') }}</a>
 
 		            	<!-- pricing url -->
