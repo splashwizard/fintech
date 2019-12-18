@@ -10,6 +10,7 @@ use App\Currency;
 use App\Transaction;
 use App\Business;
 use App\User;
+use App\AdminHasBusiness;
 use App\Utils\BusinessUtil;
 use App\Utils\ModuleUtil;
 
@@ -74,19 +75,6 @@ class MassOverviewController extends Controller
                     ->select('business.id', DB::raw("SUM(IF(t.type='sell', final_total, 0)) AS total_deposit"), DB::raw("SUM(IF(t.type='sell_return', final_total, 0)) AS total_withdrawal, business.name as company_name"));
             } else{
                 $business_id = request()->session()->get('user.business_id');
-
-
-                $business_id = request()->get('business_id');
-                $business = Business::where('id', $business_id)->first();
-                if($business->admin_ids == $user_id){
-                    $business->admin_ids = null;
-                }
-                else {
-                    $user_arr = explode(',', $business->admin_ids);
-                    $index = array_search($user_id, $user_arr);
-                    array_splice($user_arr, $index, 1);
-                    $business->admin_ids = join(',', $user_arr);
-                }
 
                 $query = Business::leftjoin(DB::raw('(SELECT * FROM transactions WHERE DATE(transactions.`transaction_date`) BETWEEN "'. $start_date .'" AND "'. $end_date.'"  AND transactions.`type` IN ("sell", "sell_return") AND transactions.`status` = "final") AS t'), 't.business_id', '=', 'business.id')
                     ->where('business.id', $business_id)
@@ -175,15 +163,12 @@ class MassOverviewController extends Controller
             try {
                 $business_id = request()->get('business_id');
                 $admin_id = request()->get('admin_id');
-                $business = Business::where('id', $business_id)->first();
-                if(empty($business->admin_ids))
-                    $user_arr = [$admin_id];
-                else{
-                    $user_arr = explode(',', $business->admin_ids);
-                    $user_arr[] = $admin_id;
-                }
-                $business->admin_ids = join(',', $user_arr);
-                $business->update();
+
+                $business = AdminHasBusiness::create(['user_id' => $admin_id, 'business_id'=> $business_id]);
+//                $business = new AdminHasBusiness;
+//                $business->user_id = $admin_id;
+//                $business->business_id = $business_id;
+                $business->save();
                 $output = ['success' => true,
                     'msg' => __("mass_overview.admin_added_success")
                 ];
@@ -253,11 +238,10 @@ class MassOverviewController extends Controller
     public function getUsers(){
         if (request()->ajax()) {
             $business_id = request()->get('business_id');
-            $business = Business::where('id', $business_id)->first();
-            if(empty($business->admin_ids))
-                $user_arr = [];
-            else{
-                $user_arr = explode(',', $business->admin_ids);
+            $business = AdminHasBusiness::where('business_id', $business_id)->get();
+            $user_arr = [];
+            foreach ($business as $row){
+                $user_arr[] = $row->user_id;
             }
 
             $users = User::whereIn('id', $user_arr)
@@ -287,17 +271,8 @@ class MassOverviewController extends Controller
     public function removeAdminFromBusiness($user_id){
         try {
             $business_id = request()->get('business_id');
-            $business = Business::where('id', $business_id)->first();
-            if($business->admin_ids == $user_id){
-                $business->admin_ids = null;
-            }
-            else {
-                $user_arr = explode(',', $business->admin_ids);
-                $index = array_search($user_id, $user_arr);
-                array_splice($user_arr, $index, 1);
-                $business->admin_ids = join(',', $user_arr);
-            }
-            $business->update();
+            $business = AdminHasBusiness::where('business_id', $business_id)->where('user_id', $user_id)->get();
+            $business->delete();
             $output = ['success' => true,
                 'msg' => __("mass_overview.admin_added_success")
             ];
