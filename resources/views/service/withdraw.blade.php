@@ -67,6 +67,7 @@
 
 <script type="text/javascript">
   $(document).ready( function(){
+    $('#service_div select').removeAttr('required');
     $('#od_datetimepicker').datetimepicker({
       format: moment_date_format + ' ' + moment_time_format
     });
@@ -75,8 +76,10 @@
         if(withdraw_mode === 'b'){
             $('#bank_div').show();
             $('#service_div').hide();
+            $('#service_div select').removeAttr('required');
         } else {
             $('#bank_div').hide();
+            $('#bank_div select').removeAttr('required');
             $('#service_div').show();
         }
     })
