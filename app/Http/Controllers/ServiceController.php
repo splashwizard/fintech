@@ -723,7 +723,8 @@ class ServiceController extends Controller
                     'type' => 'debit',
                     'sub_type' => 'withdraw',
                     'operation_date' => $date->format('Y-m-d H:i:s'),
-                    'created_by' => session()->get('user.id')
+                    'created_by' => session()->get('user.id'),
+                    'transaction_id' => $transaction->id
                 ];
 
                 AccountTransaction::createAccountTransaction($debit_data);
@@ -753,16 +754,30 @@ class ServiceController extends Controller
                     $this->transactionUtil->createWithDrawPaymentLine($transaction, $user_id, $bank_account_id);
                     $this->transactionUtil->updateCustomerRewardPoints($contact_id, 0, 0, $amount);
 
-                    $debit_data = [
+//                    $debit_data = [
+//                        'amount' => $amount,
+//                        'account_id' => $bank_account_id,
+//                        'type' => 'debit',
+//                        'sub_type' => 'withdraw',
+//                        'operation_date' => $now->format('Y-m-d H:i:s'),
+//                        'created_by' => session()->get('user.id')
+//                    ];
+//
+//                    AccountTransaction::createAccountTransaction($debit_data);
+                    $credit_data = [
                         'amount' => $amount,
                         'account_id' => $bank_account_id,
-                        'type' => 'debit',
+                        'type' => 'credit',
                         'sub_type' => 'withdraw',
+                        'created_by' => session()->get('user.id'),
+                        'note' => $request->input('note'),
+                        'transfer_account_id' => $account_id,
+                        'transfer_transaction_id' => $transaction->id,
                         'operation_date' => $now->format('Y-m-d H:i:s'),
-                        'created_by' => session()->get('user.id')
+                        'transaction_id' => $transaction->id
                     ];
 
-                    AccountTransaction::createAccountTransaction($debit_data);
+                    $credit = AccountTransaction::createAccountTransaction($credit_data);
                 }
 
 //                $credit_data = [

@@ -331,7 +331,8 @@ class HomeController extends Controller
             $total_sell_inc_tax = !empty($sell_details['total_sell_inc_tax']) ? $sell_details['total_sell_inc_tax'] : 0;
             $total_sell_return_inc_tax = !empty($transaction_totals['total_sell_return_inc_tax']) ? $transaction_totals['total_sell_return_inc_tax'] : 0;
 
-            $query = Contact::where('contacts.business_id', $business_id);
+            $query = Contact::where('contacts.business_id', $business_id)
+                ->whereBetween(\Illuminate\Support\Facades\DB::raw('date(contacts.created_at)'), [$start, $end]);
 
             $output['total_withdraw'] = $total_sell_return_inc_tax;
             $output['deposit_count'] = $deposit_count;

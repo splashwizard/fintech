@@ -150,6 +150,18 @@ class MassOverviewController extends Controller
     public function edit($id)
     {
         if(auth()->user()->hasRole('Superadmin')){
+            $business = Business::findOrFail($id);
+
+            $currency = $business->currency;
+            $currency_data = ['id' => $currency->id,
+                'code' => $currency->code,
+                'symbol' => $currency->symbol,
+                'thousand_separator' => $currency->thousand_separator,
+                'decimal_separator' => $currency->decimal_separator
+            ];
+            session()->put('business', $business);
+            session()->put('currency', $currency_data);
+
             $data = Business::where('id', $id)->select('name')->get();
             $company_name = $data[0]->name;
             $business_id = $id;

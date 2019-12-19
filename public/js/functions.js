@@ -75,6 +75,7 @@ function __currency_trans_from_en(
         var thousand = __currency_thousand_separator;
         var decimal = __currency_decimal_separator;
     }
+    console.log(__currency_symbol);
 
     symbol = '';
     var format = '%s%v';
@@ -89,7 +90,7 @@ function __currency_trans_from_en(
     if (is_quantity) {
         precision = __quantity_precision;
     }
-
+    // console.log(input, symbol, precision, thousand, decimal, format);
     return accounting.formatMoney(input, symbol, precision, thousand, decimal, format);
 }
 
@@ -115,6 +116,7 @@ function __currency_convert_recursively(element, use_page_currency = false) {
         if (is_quantity) {
             show_symbol = false;
         }
+        // $(this).text(__currency_trans_from_en(value, show_symbol, use_page_currency, __currency_precision, is_quantity));
         $(this).text(__currency_trans_from_en(value, show_symbol, use_page_currency, __currency_precision, is_quantity));
     });
 }
