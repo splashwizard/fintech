@@ -75,7 +75,6 @@ function __currency_trans_from_en(
         var thousand = __currency_thousand_separator;
         var decimal = __currency_decimal_separator;
     }
-    console.log(__currency_symbol);
 
     symbol = '';
     var format = '%s%v';
