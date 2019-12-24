@@ -135,31 +135,8 @@
 								</div>
 							</div>
 						@endif
-
-						<div class="@if(!empty($commission_agent)) col-sm-4 @else col-sm-6 @endif">
-							<div class="form-group">
-								<div class="input-group">
-									<span class="input-group-addon">
-										<i class="fa fa-barcode"></i>
-									</span>
-									{!! Form::text('search_product', null, ['class' => 'form-control mousetrap', 'id' => 'search_product', 'placeholder' => __('lang_v1.search_product_placeholder'),
-									'disabled' => is_null($default_location)? true : false,
-									'autofocus' => is_null($default_location)? false : true,
-									]); !!}
-									<span class="input-group-btn">
-										<button type="button" class="btn btn-default bg-white btn-flat pos_add_quick_product" data-href="{{action('ProductController@quickAdd')}}" data-container=".quick_add_product_modal"><i class="fa fa-plus-circle text-primary fa-lg"></i></button>
-									</span>
-								</div>
-							</div>
-						</div>
 						<div class="clearfix"></div>
 
-						<!-- Call restaurant module if defined -->
-				        @if(in_array('tables' ,$enabled_modules) || in_array('service_staff' ,$enabled_modules))
-				        	<span id="restaurant_module_span">
-				          		<div class="col-md-3"></div>
-				        	</span>
-				        @endif
 			        </div>
 
 					<div class="row">
@@ -205,6 +182,7 @@
 					@include('sale_pos_deposit.partials.pos_details')
 
 					@include('sale_pos_deposit.partials.payment_modal')
+					@include('sale_pos_deposit.partials.success_modal')
 
 					@if(empty($pos_settings['disable_suspend']))
 						@include('sale_pos_deposit.partials.suspend_note_modal')

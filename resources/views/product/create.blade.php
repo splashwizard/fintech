@@ -67,7 +67,7 @@
             <div class="form-group">
                 {!! Form::label('account_id', __('product.account') . ':*') !!}
                 <div class="input-group">
-                    {!! Form::select('account_id', $accounts, '', ['class' => 'form-control select2', 'required']); !!}
+                    {!! Form::select('account_id', $accounts, '', ['class' => 'form-control select2']); !!}
                 </div>
             </div>
         </div>
@@ -285,11 +285,12 @@
         </div>
 
         <input type="hidden" id="variation_counter" value="1">
-        <input type="hidden" id="default_profit_percent" 
+        <input type="hidden" id="default_profit_percent"
           value="{{ $default_profit_percent }}">
 
       </div>
     @endcomponent
+
     <div class="row">
     <div class="col-sm-12">
       <input type="hidden" name="submit_type" id="submit_type">

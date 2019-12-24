@@ -67,6 +67,84 @@ class Category extends Model
         return $categories;
     }
 
+    public static function bankCatAndSubCategories($business_id)
+    {
+        $categories = Category::whereIn('business_id', [$business_id, 0])
+            ->where('name', 'Banking')
+            ->where('parent_id', 0)
+            ->orderBy('name', 'asc')
+            ->get()
+            ->toArray();
+
+        if (empty($categories)) {
+            return [];
+        }
+
+        $sub_categories = Category::whereIn('business_id', [$business_id, 0])
+            ->where('parent_id', '!=', 0)
+            ->orderBy('name', 'asc')
+            ->get()
+            ->toArray();
+        $sub_cat_by_parent = [];
+
+        if (!empty($sub_categories)) {
+            foreach ($sub_categories as $sub_category) {
+                if (empty($sub_cat_by_parent[$sub_category['parent_id']])) {
+                    $sub_cat_by_parent[$sub_category['parent_id']] = [];
+                }
+
+                $sub_cat_by_parent[$sub_category['parent_id']][] = $sub_category;
+            }
+        }
+
+        foreach ($categories as $key => $value) {
+            if (!empty($sub_cat_by_parent[$value['id']])) {
+                $categories[$key]['sub_categories'] = $sub_cat_by_parent[$value['id']];
+            }
+        }
+
+        return $categories;
+    }
+
+    public static function serviceCatAndSubCategories($business_id)
+    {
+        $categories = Category::whereIn('business_id', [$business_id, 0])
+            ->where('name', 'Service List')
+            ->where('parent_id', 0)
+            ->orderBy('name', 'asc')
+            ->get()
+            ->toArray();
+
+        if (empty($categories)) {
+            return [];
+        }
+
+        $sub_categories = Category::whereIn('business_id', [$business_id, 0])
+            ->where('parent_id', '!=', 0)
+            ->orderBy('name', 'asc')
+            ->get()
+            ->toArray();
+        $sub_cat_by_parent = [];
+
+        if (!empty($sub_categories)) {
+            foreach ($sub_categories as $sub_category) {
+                if (empty($sub_cat_by_parent[$sub_category['parent_id']])) {
+                    $sub_cat_by_parent[$sub_category['parent_id']] = [];
+                }
+
+                $sub_cat_by_parent[$sub_category['parent_id']][] = $sub_category;
+            }
+        }
+
+        foreach ($categories as $key => $value) {
+            if (!empty($sub_cat_by_parent[$value['id']])) {
+                $categories[$key]['sub_categories'] = $sub_cat_by_parent[$value['id']];
+            }
+        }
+
+        return $categories;
+    }
+
     public static function forDropdown($business_id)
     {
         $categories = Category::whereIn('business_id', [$business_id, 0])

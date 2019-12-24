@@ -186,7 +186,8 @@ class SellPosDepositController extends Controller
         }
 
         //If brands, category are enabled then send else false.
-        $categories = (request()->session()->get('business.enable_category') == 1) ? Category::catAndSubCategories($business_id) : false;
+        $bank_categories = (request()->session()->get('business.enable_category') == 1) ? Category::bankCatAndSubCategories($business_id) : false;
+        $service_categories = (request()->session()->get('business.enable_category') == 1) ? Category::serviceCatAndSubCategories($business_id) : false;
         $brands = (request()->session()->get('business.enable_brand') == 1) ? Brands::where('business_id', $business_id)
                     ->pluck('name', 'id')
                     ->prepend(__('lang_v1.all_brands'), 'all') : false;
@@ -225,7 +226,8 @@ class SellPosDepositController extends Controller
                 'default_location',
                 'shortcuts',
                 'commission_agent',
-                'categories',
+                'bank_categories',
+                'service_categories',
                 'brands',
                 'pos_settings',
                 'change_return',
@@ -311,7 +313,7 @@ class SellPosDepositController extends Controller
                 } elseif (!$this->moduleUtil->isQuotaAvailable('invoices', $business_id)) {
                     return $this->moduleUtil->quotaExpiredResponse('invoices', $business_id, action('SellPosController@index'));
                 }
-        
+
                 $user_id = $request->session()->get('user.id');
 
                 $discount = ['discount_type' => $input['discount_type'],
@@ -386,7 +388,7 @@ class SellPosDepositController extends Controller
                 $transaction = $this->transactionUtil->createSellTransaction($business_id, $input, $invoice_total, $user_id);
 
                 $this->transactionUtil->createOrUpdateSellLines($transaction, $input['products'], $input['location_id']);
-                
+
                 if (!$is_direct_sale) {
                     //Add change return
                     $change_return = $this->dummyPaymentLine;
@@ -476,9 +478,9 @@ class SellPosDepositController extends Controller
                 }
 
                 Media::uploadMedia($business_id, $transaction, $request, 'documents');
-                
+
                 DB::commit();
-                
+
                 $msg = '';
                 $receipt = '';
                 if ($input['status'] == 'draft' && $input['is_quotation'] == 0) {
@@ -1383,16 +1385,29 @@ class SellPosDepositController extends Controller
 
         $products = $input['products'];
         $payment_data = [];
+        $bonus_amount = 0;
         foreach ($products as $product) {
             if(!isset($payment_data[$product['account_id']]['amount'] )){
+                $p_name = $product['p_name'];
                 $payment_data[$product['account_id']]['amount'] = $this->productUtil->getPrice($product);
                 $payment_data[$product['account_id']]['category_id'] = $product['category_id'];
+                $payment_data[$product['account_id']]['p_name'] = $p_name;
+                if($p_name != 'Bonus'){
+                    $bonus_amount += $this->productUtil->getPrice($product) * 0.1;
+                }
             }
-            else
+            else{
+                $p_name = $product['p_name'];
                 $payment_data[$product['account_id']]['amount'] += $this->productUtil->getPrice($product);
+                if($p_name != 'Bonus'){
+                    $bonus_amount += $this->productUtil->getPrice($product) * 0.1;
+                }
+            }
         }
         $payment_lines = [];
         foreach ($payment_data as $key => $payment){
+            if($payment['p_name'] == 'Bonus')
+                $payment['amount'] += $bonus_amount;
             $query = Category::where('id', $payment['category_id']);
             $data = $query->get()[0];
             $payment_lines[] = ['account_id' => $key, 'method' => $data->name == 'Banking' ? 'bank_transfer' : 'other', 'amount' => $payment['amount'], 'note' => '', 'card_transaction_number' => '', 'card_number' => '', 'card_type' => '', 'card_holder_name' => '', 'card_month' => '', 'card_year' => '', 'card_security' => '', 'cheque_number' => '', 'bank_account_number' => '',

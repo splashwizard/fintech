@@ -287,7 +287,7 @@ class ProductController extends Controller
             $duplicate_product->name .= ' (copy)';
 
             if (!empty($duplicate_product->category_id)) {
-                $sub_categories = Category::where('business_id', $business_id)
+                $sub_categories = Category::whereIn('business_id', [$business_id, 0])
                         ->where('parent_id', $duplicate_product->category_id)
                         ->pluck('name', 'id')
                         ->toArray();
@@ -808,7 +808,7 @@ class ProductController extends Controller
         if (!empty($request->input('cat_id'))) {
             $category_id = $request->input('cat_id');
             $business_id = $request->session()->get('user.business_id');
-            $sub_categories = Category::where('business_id', $business_id)
+            $sub_categories = Category::whereIn('business_id', [$business_id, 0])
                         ->where('parent_id', $category_id)
                         ->select(['name', 'id'])
                         ->get();

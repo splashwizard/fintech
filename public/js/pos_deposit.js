@@ -89,103 +89,103 @@ $(document).ready(function() {
     set_default_customer();
 
     //Add Product
-    $('#search_product')
-        .autocomplete({
-            source: function(request, response) {
-                var price_group = '';
-                if ($('#price_group').length > 0) {
-                    price_group = $('#price_group').val();
-                }
-                $.getJSON(
-                    '/products/list',
-                    {
-                        price_group: price_group,
-                        location_id: $('input#location_id').val(),
-                        term: request.term,
-                        not_for_selling: 0
-                    },
-                    response
-                );
-            },
-            minLength: 2,
-            response: function(event, ui) {
-                if (ui.content.length == 1) {
-                    ui.item = ui.content[0];
-                    if (ui.item.qty_available > 0) {
-                        $(this)
-                            .data('ui-autocomplete')
-                            ._trigger('select', 'autocompleteselect', ui);
-                        $(this).autocomplete('close');
-                    }
-                } else if (ui.content.length == 0) {
-                    toastr.error(LANG.no_products_found);
-                    $('input#search_product').select();
-                }
-            },
-            focus: function(event, ui) {
-                if (ui.item.qty_available <= 0) {
-                    return false;
-                }
-            },
-            select: function(event, ui) {
-                var is_overselling_allowed = false;
-                if($('input#is_overselling_allowed').length) {
-                    is_overselling_allowed = true;
-                }
-
-                if (ui.item.enable_stock != 1 || ui.item.qty_available > 0 || is_overselling_allowed) {
-                    $(this).val(null);
-                    pos_product_row(ui.item.variation_id);
-                } else {
-                    alert(LANG.out_of_stock);
-                }
-            },
-        })
-        .autocomplete('instance')._renderItem = function(ul, item) {
-            var is_overselling_allowed = false;
-            if($('input#is_overselling_allowed').length) {
-                is_overselling_allowed = true;
-            }
-        if (item.enable_stock == 1 && item.qty_available <= 0 && !is_overselling_allowed) {
-            var string = '<li class="ui-state-disabled">' + item.name;
-            if (item.type == 'variable') {
-                string += '-' + item.variation;
-            }
-            var selling_price = item.selling_price;
-            if (item.variation_group_price) {
-                selling_price = item.variation_group_price;
-            }
-            string +=
-                ' (' +
-                item.sub_sku +
-                ')' +
-                '<br> Price: ' +
-                selling_price +
-                ' (Out of stock) </li>';
-            return $(string).appendTo(ul);
-        } else {
-            var string = '<div>' + item.name;
-            if (item.type == 'variable') {
-                string += '-' + item.variation;
-            }
-
-            var selling_price = item.selling_price;
-            if (item.variation_group_price) {
-                selling_price = item.variation_group_price;
-            }
-
-            string += ' (' + item.sub_sku + ')' + '<br> Price: ' + selling_price;
-            if (item.enable_stock == 1) {
-                var qty_available = __currency_trans_from_en(item.qty_available, false, false, __currency_precision, true);
-                string += ' - ' + qty_available + item.unit;
-            }
-            string += '</div>';
-
-            return $('<li>')
-                .append(string)
-                .appendTo(ul);
-        }
-    };
+    // $('#search_product')
+    //     .autocomplete({
+    //         source: function(request, response) {
+    //             var price_group = '';
+    //             if ($('#price_group').length > 0) {
+    //                 price_group = $('#price_group').val();
+    //             }
+    //             $.getJSON(
+    //                 '/products/list',
+    //                 {
+    //                     price_group: price_group,
+    //                     location_id: $('input#location_id').val(),
+    //                     term: request.term,
+    //                     not_for_selling: 0
+    //                 },
+    //                 response
+    //             );
+    //         },
+    //         minLength: 2,
+    //         response: function(event, ui) {
+    //             if (ui.content.length == 1) {
+    //                 ui.item = ui.content[0];
+    //                 if (ui.item.qty_available > 0) {
+    //                     $(this)
+    //                         .data('ui-autocomplete')
+    //                         ._trigger('select', 'autocompleteselect', ui);
+    //                     $(this).autocomplete('close');
+    //                 }
+    //             } else if (ui.content.length == 0) {
+    //                 toastr.error(LANG.no_products_found);
+    //                 $('input#search_product').select();
+    //             }
+    //         },
+    //         focus: function(event, ui) {
+    //             if (ui.item.qty_available <= 0) {
+    //                 return false;
+    //             }
+    //         },
+    //         select: function(event, ui) {
+    //             var is_overselling_allowed = false;
+    //             if($('input#is_overselling_allowed').length) {
+    //                 is_overselling_allowed = true;
+    //             }
+    //
+    //             if (ui.item.enable_stock != 1 || ui.item.qty_available > 0 || is_overselling_allowed) {
+    //                 $(this).val(null);
+    //                 pos_product_row(ui.item.variation_id);
+    //             } else {
+    //                 alert(LANG.out_of_stock);
+    //             }
+    //         },
+    //     })
+    //     .autocomplete('instance')._renderItem = function(ul, item) {
+    //         var is_overselling_allowed = false;
+    //         if($('input#is_overselling_allowed').length) {
+    //             is_overselling_allowed = true;
+    //         }
+    //     if (item.enable_stock == 1 && item.qty_available <= 0 && !is_overselling_allowed) {
+    //         var string = '<li class="ui-state-disabled">' + item.name;
+    //         if (item.type == 'variable') {
+    //             string += '-' + item.variation;
+    //         }
+    //         var selling_price = item.selling_price;
+    //         if (item.variation_group_price) {
+    //             selling_price = item.variation_group_price;
+    //         }
+    //         string +=
+    //             ' (' +
+    //             item.sub_sku +
+    //             ')' +
+    //             '<br> Price: ' +
+    //             selling_price +
+    //             ' (Out of stock) </li>';
+    //         return $(string).appendTo(ul);
+    //     } else {
+    //         var string = '<div>' + item.name;
+    //         if (item.type == 'variable') {
+    //             string += '-' + item.variation;
+    //         }
+    //
+    //         var selling_price = item.selling_price;
+    //         if (item.variation_group_price) {
+    //             selling_price = item.variation_group_price;
+    //         }
+    //
+    //         string += ' (' + item.sub_sku + ')' + '<br> Price: ' + selling_price;
+    //         if (item.enable_stock == 1) {
+    //             var qty_available = __currency_trans_from_en(item.qty_available, false, false, __currency_precision, true);
+    //             string += ' - ' + qty_available + item.unit;
+    //         }
+    //         string += '</div>';
+    //
+    //         return $('<li>')
+    //             .append(string)
+    //             .appendTo(ul);
+    //     }
+    // };
 
     //Update line total and check for quantity not greater than max quantity
     $('table#pos_table tbody').on('change', 'input.pos_quantity', function() {
@@ -409,13 +409,13 @@ $(document).ready(function() {
     });
     $('table#pos_table tbody').on('click', '.pay-window', function() {
 
-        if ($('#reward_point_enabled').length) {
-            var validate_rp = isValidatRewardPoint();
-            if (!validate_rp['is_valid']) {
-                toastr.error(validate_rp['msg']);
-                return false;
-            }
-        }
+        // if ($('#reward_point_enabled').length) {
+        //     var validate_rp = isValidatRewardPoint();
+        //     if (!validate_rp['is_valid']) {
+        //         toastr.error(validate_rp['msg']);
+        //         return false;
+        //     }
+        // }
 
         $('#modal_payment').modal('show');
     });
@@ -773,10 +773,12 @@ $(document).ready(function() {
 
                             reset_pos_form();
 
+                            $('#modal_success').modal('show');
+
                             //Check if enabled or not
-                            if (result.receipt.is_enabled) {
-                                pos_print(result.receipt);
-                            }
+                            // if (result.receipt.is_enabled) {
+                            //     pos_print(result.receipt);
+                            // }
 
                             get_recent_transactions('final', $('div#tab_final'));
                         } else {
@@ -1294,7 +1296,7 @@ function get_product2_suggestion_list(category_id, brand_id, location_id, url = 
     }
     $('#suggestion_page_loader2').fadeIn(700);
     var page = $('input#suggestion_page2').val();
-    if (page === 1) {
+    if (page == 1) {
         $('div#product_list_body2').html('');
     }
     if ($('div#product_list_body2').find('input#no_products_found').length > 0) {
@@ -1501,31 +1503,40 @@ function pos_each_row(row_obj) {
 }
 
 function pos_total_row() {
-    var total_quantity = 0;
-    var price_total = 0;
+    const rate = 0.1;
+    let credit = 0, bonus = 0;
 
     $('table#pos_table tbody tr').each(function() {
-        total_quantity = total_quantity + __read_number($(this).find('input.pos_quantity'));
-        price_total = price_total + __read_number($(this).find('input.pos_line_total'));
+        const p_name = $(this).find('input.p_name').val();
+        if(p_name === 'Bonus'){
+            bonus += __read_number($(this).find('input.pos_line_total'));
+        } else {
+            const line_total = __read_number($(this).find('input.pos_line_total'));
+            credit += line_total;
+            bonus += rate * line_total;
+        }
     });
-
-    //Go through the modifier prices.
-    $('input.modifiers_price').each(function() {
-        price_total = price_total + __read_number($(this));
-    });
-
-    //updating shipping charges
-    $('span#shipping_charges_amount').text(
-        __currency_trans_from_en(__read_number($('input#shipping_charges_modal')), false)
-    );
-
-    $('span.total_quantity').each(function() {
-        $(this).html(__number_f(total_quantity));
-    });
-
-    //$('span.unit_price_total').html(unit_price_total);
-    $('span.price_total').html(__currency_trans_from_en(price_total, false));
-    calculate_billing_details(price_total);
+    $('#credit').html(credit);
+    $('#basic_bonus').html(bonus);
+    $('#total_earned').html(credit + bonus);
+    //
+    // //Go through the modifier prices.
+    // $('input.modifiers_price').each(function() {
+    //     price_total = price_total + __read_number($(this));
+    // });
+    //
+    // //updating shipping charges
+    // $('span#shipping_charges_amount').text(
+    //     __currency_trans_from_en(__read_number($('input#shipping_charges_modal')), false)
+    // );
+    //
+    // $('span.total_quantity').each(function() {
+    //     $(this).html(__number_f(total_quantity));
+    // });
+    //
+    // //$('span.unit_price_total').html(unit_price_total);
+    // $('span.price_total').html(__currency_trans_from_en(price_total, false));
+    // calculate_billing_details(price_total);
 }
 
 function calculate_billing_details(price_total) {

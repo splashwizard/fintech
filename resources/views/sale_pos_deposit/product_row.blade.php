@@ -19,6 +19,7 @@
 		<input type="hidden" class="product_type" name="products[{{$row_count}}][product_type]" value="{{$product->product_type}}">
 		<input type="hidden" name="products[{{$row_count}}][account_id]" value="{{$product->account_id}}">
 		<input type="hidden" name="products[{{$row_count}}][category_id]" value="{{$product->category_id}}">
+		<input type="hidden" name="products[{{$row_count}}][p_name]" class="p_name" value="{{$product->p_name}}">
 		<div data-toggle="tooltip" data-placement="bottom" title="@lang('lang_v1.add_description')">
 			<i class="fa fa-commenting cursor-pointer text-primary add-pos-row-description" data-toggle="modal" data-target="#row_description_modal_{{$row_count}}"></i>
 		</div>

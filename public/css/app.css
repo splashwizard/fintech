@@ -41,9 +41,14 @@
   margin-top: 20px;
 }
 #product_list_body {
-  max-height: 480px;
+  max-height: 350px;
   overflow-y: scroll;
   overflow-x: hidden;
+}
+#product_list_body2 {
+    max-height: 350px;
+    overflow-y: scroll;
+    overflow-x: hidden;
 }
 .div-overlay {
     cursor: not-allowed;

@@ -445,6 +445,7 @@ class ProductUtil extends Util
             DB::raw("IF(pv.is_dummy = 0, CONCAT(p.name, 
                     ' (', pv.name, ':',variations.name, ')'), p.name) AS product_name"),
             'p.id as product_id',
+            'p.name as p_name',
             'p.account_id',
             'p.brand_id',
             'p.category_id',
