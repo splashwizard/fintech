@@ -118,30 +118,30 @@
     @component('components.widget', ['class' => 'box-primary', 'title' => __('lang_v1.ledger')])
         <div class="row">
             <div class="col-md-12">
-                @foreach($transaction_types as $key => $value)
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <div class="checkbox">
-                                <label>
-                                  {!! Form::checkbox('transaction_types[]', $key, true, 
-                                  [ 'class' => 'input-icheck transaction_types']); !!} {{$value}}
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                @endforeach
-                
-                <div class="col-md-3">
-                    <div class="form-group">
-                        <div class="checkbox">
-                            <label>
-                              {!! Form::checkbox('show_payments', 1, true, 
-                              [ 'class' => 'input-icheck', 'id' => 'show_payments']); !!} @lang('lang_v1.show_payments')
-                            </label>
-                        </div>
-                    </div>
-                </div>
-                <div class="clearfix"></div>
+{{--                @foreach($transaction_types as $key => $value)--}}
+{{--                    <div class="col-md-3">--}}
+{{--                        <div class="form-group">--}}
+{{--                            <div class="checkbox">--}}
+{{--                                <label>--}}
+{{--                                  {!! Form::checkbox('transaction_types[]', $key, true,--}}
+{{--                                  [ 'class' => 'input-icheck transaction_types']); !!} {{$value}}--}}
+{{--                                </label>--}}
+{{--                            </div>--}}
+{{--                        </div>--}}
+{{--                    </div>--}}
+{{--                @endforeach--}}
+
+{{--                <div class="col-md-3">--}}
+{{--                    <div class="form-group">--}}
+{{--                        <div class="checkbox">--}}
+{{--                            <label>--}}
+{{--                              {!! Form::checkbox('show_payments', 1, true,--}}
+{{--                              [ 'class' => 'input-icheck', 'id' => 'show_payments']); !!} @lang('lang_v1.show_payments')--}}
+{{--                            </label>--}}
+{{--                        </div>--}}
+{{--                    </div>--}}
+{{--                </div>--}}
+{{--                <div class="clearfix"></div>--}}
                 <div class="col-md-3">
                     <div class="form-group">
                         {!! Form::label('ledger_date_range', __('report.date_range') . ':') !!}

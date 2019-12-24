@@ -128,6 +128,8 @@ return [
     'card' => 'Card',
     'cheque' => 'Cheque',
     'bank_transfer' => 'Bank Transfer',
+    'service_transfer' => 'Service Transfer',
+    'bonus' => 'Bonus',
     'other' => 'Other',
     'payment' => 'Payment',
     'total_items' => 'Total Items',

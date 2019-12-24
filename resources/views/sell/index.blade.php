@@ -1,11 +1,11 @@
 @extends('layouts.app')
-@section('title', __( 'lang_v1.all_sales'))
+@section('title', __( 'lang_v1.deposit_log'))
 
 @section('content')
 
 <!-- Content Header (Page header) -->
 <section class="content-header no-print">
-    <h1>@lang( 'sale.sells')
+    <h1>@lang( 'lang_v1.deposit_log')
         <small></small>
     </h1>
 </section>
@@ -44,8 +44,6 @@
                             <th>@lang('messages.date')</th>
                             <th>@lang('sale.invoice_no')</th>
                             <th>@lang('sale.customer_name')</th>
-                            <th>@lang('sale.bank')</th>
-                            <th>@lang('sale.payment_status')</th>
                             <th>@lang('sale.total_amount')</th>
 {{--                            <th>@lang('sale.total_paid')</th>--}}
 {{--                            <th>@lang('purchase.payment_due')</th>--}}
@@ -54,7 +52,7 @@
                     </thead>
                     <tfoot>
                         <tr class="bg-gray font-17 footer-total text-center">
-                            <td colspan="4"><strong>@lang('sale.total'):</strong></td>
+                            <td colspan="2"><strong>@lang('sale.total'):</strong></td>
                             <td id="footer_payment_status_count"></td>
                             <td><span class="display_currency" id="footer_sale_total" data-currency_symbol ="true"></span></td>
 {{--                            <td><span class="display_currency" id="footer_total_paid" data-currency_symbol ="true"></span></td>--}}
@@ -118,7 +116,7 @@ $(document).ready( function(){
                 d.payment_status = $('#sell_list_filter_payment_status').val();
                 d.created_by = $('#created_by').val();
                 d.sales_cmsn_agnt = $('#sales_cmsn_agnt').val();
-                d.service_staffs = $('#service_staffs').val();
+                d.is_service = $('#is_service').val();
                 
                 @if($is_woocommerce)
                     if($('#synced_from_woocommerce').is(':checked')) {
@@ -128,7 +126,7 @@ $(document).ready( function(){
             }
         },
         columnDefs: [ {
-            "targets": [6],
+            "targets": [4],
             "orderable": false,
             "searchable": false
         } ],
@@ -136,11 +134,9 @@ $(document).ready( function(){
             { data: 'transaction_date', name: 'transaction_date'  },
             { data: 'invoice_no', name: 'invoice_no'},
             { data: 'name', name: 'contacts.name'},
-            { data: 'business_location', name: 'bl.name'},
-            { data: 'payment_status', name: 'payment_status'},
+            // { data: 'business_location', name: 'bl.name'},
+            // { data: 'payment_status', name: 'payment_status'},
             { data: 'final_total', name: 'final_total'},
-            // { data: 'total_paid', name: 'total_paid', "searchable": false},
-            // { data: 'total_remaining', name: 'total_remaining'},
             { data: 'action', name: 'action'}
         ],
         "fnDrawCallback": function (oSettings) {
@@ -162,7 +158,7 @@ $(document).ready( function(){
         }
     });
 
-    $(document).on('change', '#sell_list_filter_location_id, #sell_list_filter_customer_id, #sell_list_filter_payment_status, #created_by, #sales_cmsn_agnt, #service_staffs',  function() {
+    $(document).on('change', '#is_service, #sell_list_filter_customer_id, #sell_list_filter_payment_status, #created_by, #sales_cmsn_agnt, #service_staffs',  function() {
         sell_table.ajax.reload();
     });
     @if($is_woocommerce)

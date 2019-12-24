@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\BusinessLocation;
 
+use App\Category;
 use App\Contact;
 use App\CustomerGroup;
 use App\InvoiceScheme;
@@ -130,6 +131,7 @@ class SellController extends Controller
             if (!auth()->user()->can('direct_sell.access') && auth()->user()->can('view_own_sell_only')) {
                 $sells->where('transactions.created_by', request()->session()->get('user.id'));
             }
+            $sells->where('accounts.is_service', request()->input('is_service'));
 
             if (!empty(request()->input('payment_status'))) {
                 $sells->where('transactions.payment_status', request()->input('payment_status'));
@@ -385,7 +387,7 @@ class SellController extends Controller
                       ->make(true);
         }
 
-        $business_locations = BusinessLocation::forDropdown($business_id, false);
+        $categories = Category::forDropdownBankOrService($business_id);
         $customers = Contact::customersDropdown($business_id, false);
         $sales_representative = User::forDropdown($business_id, false, false, true);
         
@@ -396,14 +398,9 @@ class SellController extends Controller
             $commission_agents = User::forDropdown($business_id, false, true, true);
         }
 
-        //Service staff filter
-        $service_staffs = null;
-        if ($this->productUtil->isModuleEnabled('service_staff')) {
-            $service_staffs = $this->productUtil->serviceStaffDropdown($business_id);
-        }
 
         return view('sell.index')
-        ->with(compact('business_locations', 'customers', 'is_woocommerce', 'sales_representative', 'is_cmsn_agent_enabled', 'commission_agents', 'service_staffs'));
+        ->with(compact('categories', 'customers', 'is_woocommerce', 'sales_representative', 'is_cmsn_agent_enabled', 'commission_agents'));
     }
 
     /**

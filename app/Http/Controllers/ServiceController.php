@@ -703,18 +703,17 @@ class ServiceController extends Controller
                 $input['customer_group_id'] = (empty($cg) || empty($cg->id)) ? null : $cg->id;
                 $input['contact_id'] = $contact_id;
                 $input['ref_no'] = 0;
-                $date = new \DateTime('now');
-                $input['transaction_date'] = $date->format('Y-m-d H:i:s');
+                $now = new \DateTime('now');
+                $input['transaction_date'] = $now->format('Y-m-d H:i:s');
                 $input['discount_type'] = 'percentage';
                 $input['discount_amount'] = 0;
                 $input['final_total'] = $amount;
-                $input['commission_agent'] = null;
-                $input['status'] = 'final';
                 $input['additional_notes'] = $request->input('note');
                 $invoice_total = ['total_before_tax' => $amount, 'tax' => 0];
+
 //                $transaction = $this->transactionUtil->createSellReturnTransaction($business_id, $input, $invoice_total, $user_id);
-                $transaction = $this->transactionUtil->createSellTransaction($business_id, $input, $invoice_total, $user_id);
-                $this->transactionUtil->createWithDrawPaymentLine($transaction, $user_id, $account_id);
+                $transaction = $this->transactionUtil->createSellReturnTransaction($business_id, $input, $invoice_total, $user_id);
+                $this->transactionUtil->createWithDrawPaymentLine($transaction, $user_id, $account_id, 1);
                 $this->transactionUtil->updateCustomerRewardPoints($contact_id, $amount, 0, 0);
 
                 $debit_data = [
@@ -722,7 +721,7 @@ class ServiceController extends Controller
                     'account_id' => $account_id,
                     'type' => 'debit',
                     'sub_type' => 'withdraw',
-                    'operation_date' => $date->format('Y-m-d H:i:s'),
+                    'operation_date' => $now->format('Y-m-d H:i:s'),
                     'created_by' => session()->get('user.id'),
                     'transaction_id' => $transaction->id
                 ];
@@ -738,20 +737,24 @@ class ServiceController extends Controller
                         }
                     }
                     $bank_account_id = $withdraw_mode == 'b' ? $request->input('bank_account_id') : $request->input('service_id');
+
                     $contact_id = $request->input('withdraw_to');
                     $cg = $this->contactUtil->getCustomerGroup($business_id, $contact_id);
                     $input['customer_group_id'] = (empty($cg) || empty($cg->id)) ? null : $cg->id;
                     $input['contact_id'] = $contact_id;
                     $input['ref_no'] = 0;
-                    $now = new \DateTime('now');
-                    $input['transaction_date'] = $now->format('Y-m-d H:i:s');
+                    $date = new \DateTime('now');
+                    $input['transaction_date'] = $date->format('Y-m-d H:i:s');
                     $input['discount_type'] = 'percentage';
                     $input['discount_amount'] = 0;
                     $input['final_total'] = $amount;
+                    $input['commission_agent'] = null;
+                    $input['status'] = 'final';
                     $input['additional_notes'] = $request->input('note');
                     $invoice_total = ['total_before_tax' => $amount, 'tax' => 0];
-                    $transaction = $this->transactionUtil->createSellReturnTransaction($business_id, $input, $invoice_total, $user_id);
-                    $this->transactionUtil->createWithDrawPaymentLine($transaction, $user_id, $bank_account_id);
+                    $transaction = $this->transactionUtil->createSellTransaction($business_id, $input, $invoice_total, $user_id);
+                    $is_service = $withdraw_mode == 'b' ? 0 : 1;
+                    $this->transactionUtil->createWithDrawPaymentLine($transaction, $user_id, $bank_account_id, $is_service);
                     $this->transactionUtil->updateCustomerRewardPoints($contact_id, 0, 0, $amount);
 
 //                    $debit_data = [

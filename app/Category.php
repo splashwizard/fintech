@@ -145,6 +145,18 @@ class Category extends Model
         return $categories;
     }
 
+    public static function forDropdownBankOrService($business_id)
+    {
+        $categories = Category::whereIn('business_id', [$business_id, 0])
+            ->where('parent_id', 0)
+            ->orderBy('name', 'asc')
+            ->get();
+
+        $dropdown =  $categories->pluck('name', 'id');
+
+        return $dropdown;
+    }
+
     public static function forDropdown($business_id)
     {
         $categories = Category::whereIn('business_id', [$business_id, 0])

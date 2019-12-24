@@ -1,8 +1,12 @@
 <div class="col-md-3">
     <div class="form-group">
-        {!! Form::label('sell_list_filter_location_id',  __('purchase.business_location') . ':') !!}
+        {!! Form::label('category_id',  'Bank/Service:') !!}
 
-        {!! Form::select('sell_list_filter_location_id', $business_locations, null, ['class' => 'form-control select2', 'style' => 'width:100%', 'placeholder' => __('lang_v1.all') ]); !!}
+{{--        {!! Form::select('category_id', $categories, null, ['class' => 'form-control select2', 'style' => 'width:100%', 'placeholder' => __('lang_v1.all') ]); !!}--}}
+        <select name="is_service" id="is_service" class="form-control">
+            <option value="0">Bank</option>
+            <option value="1">Service</option>
+        </select>
     </div>
 </div>
 <div class="col-md-3">
@@ -11,12 +15,12 @@
         {!! Form::select('sell_list_filter_customer_id', $customers, null, ['class' => 'form-control select2', 'style' => 'width:100%', 'placeholder' => __('lang_v1.all')]); !!}
     </div>
 </div>
-<div class="col-md-3">
-    <div class="form-group">
-        {!! Form::label('sell_list_filter_payment_status',  __('purchase.payment_status') . ':') !!}
-        {!! Form::select('sell_list_filter_payment_status', ['paid' => __('lang_v1.paid'), 'due' => __('lang_v1.due'), 'partial' => __('lang_v1.partial')], null, ['class' => 'form-control select2', 'style' => 'width:100%', 'placeholder' => __('lang_v1.all')]); !!}
-    </div>
-</div>
+{{--<div class="col-md-3">--}}
+{{--    <div class="form-group">--}}
+{{--        {!! Form::label('sell_list_filter_payment_status',  __('purchase.payment_status') . ':') !!}--}}
+{{--        {!! Form::select('sell_list_filter_payment_status', ['paid' => __('lang_v1.paid'), 'due' => __('lang_v1.due'), 'partial' => __('lang_v1.partial')], null, ['class' => 'form-control select2', 'style' => 'width:100%', 'placeholder' => __('lang_v1.all')]); !!}--}}
+{{--    </div>--}}
+{{--</div>--}}
 <div class="col-md-3">
     <div class="form-group">
         {!! Form::label('sell_list_filter_date_range', __('report.date_range') . ':') !!}
@@ -37,11 +41,11 @@
         </div>
     </div>
 @endif
-@if(!is_null($service_staffs))
-    <div class="col-md-3">
-        <div class="form-group">
-        {!! Form::label('service_staffs', __('restaurant.service_staff') . ':') !!}
-            {!! Form::select('service_staffs', $service_staffs, null, ['class' => 'form-control select2', 'style' => 'width:100%', 'placeholder' => __('lang_v1.all')]); !!}
-        </div>
-    </div>
-@endif
+{{--@if(!is_null($service_staffs))--}}
+{{--    <div class="col-md-3">--}}
+{{--        <div class="form-group">--}}
+{{--        {!! Form::label('service_staffs', __('restaurant.service_staff') . ':') !!}--}}
+{{--            {!! Form::select('service_staffs', $service_staffs, null, ['class' => 'form-control select2', 'style' => 'width:100%', 'placeholder' => __('lang_v1.all')]); !!}--}}
+{{--        </div>--}}
+{{--    </div>--}}
+{{--@endif--}}

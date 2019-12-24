@@ -18,6 +18,8 @@ return [
     'account_book' => 'Account Book',
     'credit' => 'Credit',
     'debit' => 'Debit',
+    'service_credit' => 'Service Credit',
+    'service_debit' => 'Service Debit',
     'account_name' => 'Account Name',
     'transaction_type' => 'Transaction Type',
     'fund_transfer' => 'Fund Transfer',

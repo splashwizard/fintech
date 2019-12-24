@@ -130,6 +130,7 @@ class WithDrawController extends Controller
             if (!auth()->user()->can('direct_sell.access') && auth()->user()->can('view_own_sell_only')) {
                 $sells->where('transactions.created_by', request()->session()->get('user.id'));
             }
+            $sells->where('accounts.is_service', request()->input('is_service'));
 
             if (!empty(request()->input('payment_status'))) {
                 $sells->where('transactions.payment_status', request()->input('payment_status'));

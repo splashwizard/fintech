@@ -1386,6 +1386,7 @@ class SellPosDepositController extends Controller
         $products = $input['products'];
         $payment_data = [];
         $bonus_amount = 0;
+        $is_direct_bonus = 0;
         foreach ($products as $product) {
             if(!isset($payment_data[$product['account_id']]['amount'] )){
                 $p_name = $product['p_name'];
@@ -1394,7 +1395,7 @@ class SellPosDepositController extends Controller
                 $payment_data[$product['account_id']]['p_name'] = $p_name;
                 if($p_name != 'Bonus'){
                     $bonus_amount += $this->productUtil->getPrice($product) * 0.1;
-                }
+                } else $is_direct_bonus = 1;
             }
             else{
                 $p_name = $product['p_name'];
@@ -1410,9 +1411,25 @@ class SellPosDepositController extends Controller
                 $payment['amount'] += $bonus_amount;
             $query = Category::where('id', $payment['category_id']);
             $data = $query->get()[0];
-            $payment_lines[] = ['account_id' => $key, 'method' => $data->name == 'Banking' ? 'bank_transfer' : 'other', 'amount' => $payment['amount'], 'note' => '', 'card_transaction_number' => '', 'card_number' => '', 'card_type' => '', 'card_holder_name' => '', 'card_month' => '', 'card_year' => '', 'card_security' => '', 'cheque_number' => '', 'bank_account_number' => '',
+            if($data->name == 'Banking'){
+                if($payment['p_name'] == 'Bonus')
+                    $method = 'bonus';
+                else
+                    $method = 'bank_transfer';
+            } else{
+                $method = 'service_transfer';
+            }
+            $payment_lines[] = ['account_id' => $key, 'method' => $method, 'amount' => $payment['amount'], 'note' => '', 'card_transaction_number' => '', 'card_number' => '', 'card_type' => '', 'card_holder_name' => '', 'card_month' => '', 'card_year' => '', 'card_security' => '', 'cheque_number' => '', 'bank_account_number' => '',
                 'is_return' => 0, 'transaction_no' => '', 'category_name' => $data->name];
         }
+        if($is_direct_bonus == 0){
+            $bonus_key = 20;
+            $query = Category::where('name', 'Bonus');
+            $data = $query->get()[0];
+            $payment_lines[] = ['account_id' => $bonus_key, 'method' => 'bonus', 'amount' => $bonus_amount, 'note' => '', 'card_transaction_number' => '', 'card_number' => '', 'card_type' => '', 'card_holder_name' => '', 'card_month' => '', 'card_year' => '', 'card_security' => '', 'cheque_number' => '', 'bank_account_number' => '',
+                'is_return' => 0, 'transaction_no' => '', 'category_name' => $data->name];
+        }
+
         $payment_types = $this->productUtil->payment_types();
         //Accounts
         $accounts = [];

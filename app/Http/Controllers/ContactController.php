@@ -912,7 +912,7 @@ class ContactController extends Controller
         $business_id = request()->session()->get('user.business_id');
         $contact_id = request()->input('contact_id');
         $transaction_types = explode(',', request()->input('transaction_types'));
-        $show_payments = request()->input('show_payments') == 'true' ? true : false;
+//        $show_payments = request()->input('show_payments') == 'true' ? true : false;
 
         //Get transactions
         $query1 = Transaction::where('transactions.contact_id', $contact_id)
@@ -931,63 +931,62 @@ class ContactController extends Controller
         $transactions = $query1->get();
 
         $ledger = [];
-        foreach ($transactions as $transaction) {
+//        foreach ($transactions as $transaction) {
+//            $ledger[] = [
+//                'date' => $transaction->transaction_date,
+//                'ref_no' => in_array($transaction->type, ['sell', 'sell_return']) ? $transaction->invoice_no : $transaction->ref_no,
+//                'type' => $this->transactionTypes[$transaction->type],
+//                'location' => $transaction->location->name,
+//                'payment_status' =>  __('lang_v1.' . $transaction->payment_status),
+//                'total' => $transaction->final_total,
+//                'payment_method' => '',
+//                'debit' => '',
+//                'credit' => '',
+//                'others' => $transaction->additional_notes
+//            ];
+//        }
+
+        $query2 = TransactionPayment::join(
+            'transactions as t',
+            'transaction_payments.transaction_id',
+            '=',
+            't.id'
+        )
+            ->leftJoin('business_locations as bl', 't.location_id', '=', 'bl.id')
+            ->where('t.contact_id', $contact_id)
+            ->where('t.business_id', $business_id)
+            ->where('t.status', '!=', 'draft');
+
+        if (!empty(request()->start_date) && !empty(request()->end_date)) {
+            $start = request()->start_date;
+            $end =  request()->end_date;
+            $query1->whereDate('transactions.transaction_date', '>=', $start)
+                        ->whereDate('transactions.transaction_date', '<=', $end);
+
+            $query2->whereDate('paid_on', '>=', $start)
+                    ->whereDate('paid_on', '<=', $end);
+        }
+
+        $payments = $query2->select('transaction_payments.*', 'bl.name as location_name', 't.type as transaction_type', 't.ref_no', 't.invoice_no')->get();
+        $paymentTypes = $this->transactionUtil->payment_types();
+        foreach ($payments as $payment) {
+            $ref_no = in_array($payment->transaction_type, ['sell', 'sell_return']) ?  $payment->invoice_no :  $payment->ref_no;
             $ledger[] = [
-                'date' => $transaction->transaction_date,
-                'ref_no' => in_array($transaction->type, ['sell', 'sell_return']) ? $transaction->invoice_no : $transaction->ref_no,
-                'type' => $this->transactionTypes[$transaction->type],
-                'location' => $transaction->location->name,
-                'payment_status' =>  __('lang_v1.' . $transaction->payment_status),
-                'total' => $transaction->final_total,
-                'payment_method' => '',
-                'debit' => '',
-                'credit' => '',
-                'others' => $transaction->additional_notes
+                'date' => $payment->paid_on,
+                'ref_no' => $payment->payment_ref_no,
+                'type' => $this->transactionTypes['payment'],
+                'location' => $payment->location_name,
+                'payment_method' => !empty($paymentTypes[$payment->method]) ? $paymentTypes[$payment->method] : '',
+//                'debit' => in_array($payment->transaction_type, ['purchase', 'sell_return']) || ($payment->transaction_type == 'sell' && $payment->method =='other') ? $payment->amount : '',
+//                'credit' => in_array($payment->transaction_type, ['sell', 'purchase_return', 'opening_balance']) && $payment->method !='other' ? $payment->amount : '',
+                'debit' => ($payment->transaction_type == 'sell_return' && $payment->method != 'service_transfer') ? $payment->amount : '',
+                'credit' => ($payment->transaction_type == 'sell' && $payment->method != 'service_transfer') ? $payment->amount : '',
+                'service_debit' => ($payment->transaction_type == 'sell_return' && $payment->method == 'service_transfer') ? $payment->amount : '',
+                'service_credit' => ($payment->transaction_type == 'sell' && $payment->method == 'service_transfer' ) ? $payment->amount : '',
+                'others' => $payment->note . '<small>' . __('account.payment_for') . ': ' . $ref_no . '</small>'
             ];
         }
-
-        if ($show_payments) {
-            $query2 = TransactionPayment::join(
-                'transactions as t',
-                'transaction_payments.transaction_id',
-                '=',
-                't.id'
-            )
-                ->leftJoin('business_locations as bl', 't.location_id', '=', 'bl.id')
-                ->where('t.contact_id', $contact_id)
-                ->where('t.business_id', $business_id)
-                ->where('t.status', '!=', 'draft');
-
-            if (!empty(request()->start_date) && !empty(request()->end_date)) {
-                $start = request()->start_date;
-                $end =  request()->end_date;
-                $query1->whereDate('transactions.transaction_date', '>=', $start)
-                            ->whereDate('transactions.transaction_date', '<=', $end);
-
-                if ($show_payments) {
-                    $query2->whereDate('paid_on', '>=', $start)
-                            ->whereDate('paid_on', '<=', $end);
-                }
-            }
-
-            $payments = $query2->select('transaction_payments.*', 'bl.name as location_name', 't.type as transaction_type', 't.ref_no', 't.invoice_no')->get();
-            $paymentTypes = $this->transactionUtil->payment_types();
-            foreach ($payments as $payment) {
-                $ref_no = in_array($payment->transaction_type, ['sell', 'sell_return']) ?  $payment->invoice_no :  $payment->ref_no;
-                $ledger[] = [
-                    'date' => $payment->paid_on,
-                    'ref_no' => $payment->payment_ref_no,
-                    'type' => $this->transactionTypes['payment'],
-                    'location' => $payment->location_name,
-                    'payment_status' => '',
-                    'total' => '',
-                    'payment_method' => !empty($paymentTypes[$payment->method]) ? $paymentTypes[$payment->method] : '',
-                    'debit' => in_array($payment->transaction_type, ['purchase', 'sell_return']) || ($payment->transaction_type == 'sell' && $payment->method =='other') ? $payment->amount : '',
-                    'credit' => in_array($payment->transaction_type, ['sell', 'purchase_return', 'opening_balance']) && $payment->method !='other' ? $payment->amount : '',
-                    'others' => $payment->note . '<small>' . __('account.payment_for') . ': ' . $ref_no . '</small>'
-                ];
-            }
-        }
+//        print_r($ledger);exit;
 
         //Sort by date
         if (!empty($ledger)) {
