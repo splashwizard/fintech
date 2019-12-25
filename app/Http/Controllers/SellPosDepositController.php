@@ -1325,9 +1325,13 @@ class SellPosDepositController extends Controller
                     $edit_discount = auth()->user()->can('edit_product_discount_from_pos_screen');
                     $edit_price = auth()->user()->can('edit_product_price_from_pos_screen');
                 }
+                $amount = 0;
+                if(request()->get('is_service')){
+                    $amount = request()->get('amount');
+                }
 
                 $output['html_content'] =  view('sale_pos_deposit.product_row')
-                            ->with(compact('product', 'row_count', 'tax_dropdown', 'enabled_modules', 'pos_settings', 'sub_units', 'discount', 'waiters', 'edit_discount', 'edit_price'))
+                            ->with(compact('product', 'row_count', 'tax_dropdown', 'enabled_modules', 'pos_settings', 'sub_units', 'discount', 'waiters', 'edit_discount', 'edit_price', 'amount'))
                             ->render();
             }
             
@@ -1390,18 +1394,22 @@ class SellPosDepositController extends Controller
         foreach ($products as $product) {
             if(!isset($payment_data[$product['account_id']]['amount'] )){
                 $p_name = $product['p_name'];
-                $payment_data[$product['account_id']]['amount'] = $this->productUtil->getPrice($product);
+//                $payment_data[$product['account_id']]['amount'] = $this->productUtil->getPrice($product);
+                $payment_data[$product['account_id']]['amount'] = $product['amount'];
                 $payment_data[$product['account_id']]['category_id'] = $product['category_id'];
                 $payment_data[$product['account_id']]['p_name'] = $p_name;
-                if($p_name != 'Bonus'){
-                    $bonus_amount += $this->productUtil->getPrice($product) * 0.1;
-                } else $is_direct_bonus = 1;
+                if($p_name == 'Bonus')
+                    $is_direct_bonus = 1;
+                else if($product['category_id'] == 66){
+                    $bonus_amount += $product['amount'] * 0.1;
+                }
             }
             else{
                 $p_name = $product['p_name'];
-                $payment_data[$product['account_id']]['amount'] += $this->productUtil->getPrice($product);
+//                $payment_data[$product['account_id']]['amount'] += $this->productUtil->getPrice($product);
+                $payment_data[$product['account_id']]['amount'] += $product['amount'];
                 if($p_name != 'Bonus'){
-                    $bonus_amount += $this->productUtil->getPrice($product) * 0.1;
+                    $bonus_amount += $product['amount'] * 0.1;
                 }
             }
         }

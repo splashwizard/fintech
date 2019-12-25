@@ -1045,8 +1045,11 @@ $(document).ready(function() {
         if ($('input#location_id').val() == '') {
             toastr.warning(LANG.select_location);
         } else {
-            $('#account_0').val($(this).data('account_id')).trigger('change');
-            pos_product_row($(this).data('variation_id'));
+            // $('#account_0').val($(this).data('account_id')).trigger('change');
+            let is_service = 0;
+            if($(this).parent().parent().attr('id') === 'product_list_body2')
+                is_service = 1;
+            pos_product_row($(this).data('variation_id'), is_service);
 
             const data = $('#add_pos_sell_form').serialize();
             $.ajax({
@@ -1338,7 +1341,7 @@ function get_recent_transactions(status, element_obj) {
     });
 }
 
-function pos_product_row(variation_id) {
+function pos_product_row(variation_id, is_service = 0) {
     //Get item addition method
     var item_addtn_method = 0;
     var add_via_ajax = true;
@@ -1417,6 +1420,8 @@ function pos_product_row(variation_id) {
                 customer_id: customer_id,
                 is_direct_sell: is_direct_sell,
                 price_group: price_group,
+                is_service: is_service,
+                amount: $('#total_earned').html()
             },
             dataType: 'json',
             success: function(result) {
@@ -1504,21 +1509,27 @@ function pos_each_row(row_obj) {
 
 function pos_total_row() {
     const rate = 0.1;
-    let credit = 0, bonus = 0;
+    let credit = 0, basic_bonus = 0, special_bonus = 0, debit = 0;
 
     $('table#pos_table tbody tr').each(function() {
         const p_name = $(this).find('input.p_name').val();
+        const category_id = parseInt($(this).find('input.category_id').val());
         if(p_name === 'Bonus'){
-            bonus += __read_number($(this).find('input.pos_line_total'));
-        } else {
+            special_bonus += __read_number($(this).find('input.pos_line_total'));
+        } else if(category_id === 66){
             const line_total = __read_number($(this).find('input.pos_line_total'));
             credit += line_total;
-            bonus += rate * line_total;
+            basic_bonus += rate * line_total;
+        } else {
+            const line_total = __read_number($(this).find('input.pos_line_total'));
+            debit += line_total;
         }
     });
     $('#credit').html(credit);
-    $('#basic_bonus').html(bonus);
-    $('#total_earned').html(credit + bonus);
+    $('#basic_bonus').html(basic_bonus);
+    $('#special_bonus').html(special_bonus);
+    $('#total_redeemed').html(debit);
+    $('#total_earned').html(credit + basic_bonus + special_bonus);
     //
     // //Go through the modifier prices.
     // $('input.modifiers_price').each(function() {

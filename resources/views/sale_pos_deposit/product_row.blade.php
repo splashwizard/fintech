@@ -18,7 +18,7 @@
 		<input type="hidden" class="enable_sr_no" value="{{$product->enable_sr_no}}">
 		<input type="hidden" class="product_type" name="products[{{$row_count}}][product_type]" value="{{$product->product_type}}">
 		<input type="hidden" name="products[{{$row_count}}][account_id]" value="{{$product->account_id}}">
-		<input type="hidden" name="products[{{$row_count}}][category_id]" value="{{$product->category_id}}">
+		<input type="hidden" name="products[{{$row_count}}][category_id]" class="category_id" value="{{$product->category_id}}">
 		<input type="hidden" name="products[{{$row_count}}][p_name]" class="p_name" value="{{$product->p_name}}">
 		<div data-toggle="tooltip" data-placement="bottom" title="@lang('lang_v1.add_description')">
 			<i class="fa fa-commenting cursor-pointer text-primary add-pos-row-description" data-toggle="modal" data-target="#row_description_modal_{{$row_count}}"></i>
@@ -264,8 +264,8 @@
 			$subtotal_type = !empty($pos_settings['is_pos_subtotal_editable']) ? 'text' : 'hidden';
 
 		@endphp
-		<input type="{{$subtotal_type}}" class="form-control pos_line_total @if(!empty($pos_settings['is_pos_subtotal_editable'])) input_number @endif" value="{{@num_format($product->quantity_ordered*$unit_price_inc_tax )}}">
-		<span class="display_currency pos_line_total_text @if(!empty($pos_settings['is_pos_subtotal_editable'])) hide @endif" data-currency_symbol="true">{{$product->quantity_ordered*$unit_price_inc_tax}}</span>
+		<input type="{{$subtotal_type}}" name="products[{{$row_count}}][amount]" class="form-control pos_line_total @if(!empty($pos_settings['is_pos_subtotal_editable'])) input_number @endif" value="@if(empty($amount)){{@num_format($product->quantity_ordered*$unit_price_inc_tax )}}@else{{$amount}}@endif">
+		<span name="products[{{$row_count}}][amount]" class="display_currency pos_line_total_text @if(!empty($pos_settings['is_pos_subtotal_editable'])) hide @endif" data-currency_symbol="true">@if(empty($amount)){{@num_format($product->quantity_ordered*$unit_price_inc_tax )}}@else{{$amount}}@endif</span>
 	</td>
 	<td class="text-center">
 		<i class="fa fa-close text-danger pos_remove_row cursor-pointer" aria-hidden="true"></i>

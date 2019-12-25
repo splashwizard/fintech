@@ -1,12 +1,8 @@
 <div class="col-md-3">
     <div class="form-group">
-        {!! Form::label('category_id',  'Bank/Service:') !!}
+        {!! Form::label('account_id',  'Bank/Service:') !!}
 
-{{--        {!! Form::select('category_id', $categories, null, ['class' => 'form-control select2', 'style' => 'width:100%', 'placeholder' => __('lang_v1.all') ]); !!}--}}
-        <select name="is_service" id="is_service" class="form-control">
-            <option value="0">Bank</option>
-            <option value="1">Service</option>
-        </select>
+        {!! Form::select('account_id', $accounts, null, ['class' => 'form-control select2', 'style' => 'width:100%', 'placeholder' => __('lang_v1.all') ]); !!}
     </div>
 </div>
 <div class="col-md-3">
