@@ -748,11 +748,16 @@ class ServiceController extends Controller
                     $input['discount_type'] = 'percentage';
                     $input['discount_amount'] = 0;
                     $input['final_total'] = $amount;
-                    $input['commission_agent'] = null;
-                    $input['status'] = 'final';
+                    if($withdraw_mode == 's'){
+                        $input['commission_agent'] = null;
+                        $input['status'] = 'final';
+                    }
                     $input['additional_notes'] = $request->input('note');
                     $invoice_total = ['total_before_tax' => $amount, 'tax' => 0];
-                    $transaction = $this->transactionUtil->createSellTransaction($business_id, $input, $invoice_total, $user_id);
+                    if($withdraw_mode == 's')
+                        $transaction = $this->transactionUtil->createSellTransaction($business_id, $input, $invoice_total, $user_id);
+                    else
+                        $transaction = $this->transactionUtil->createSellReturnTransaction($business_id, $input, $invoice_total, $user_id);
                     $is_service = $withdraw_mode == 'b' ? 0 : 1;
                     $this->transactionUtil->createWithDrawPaymentLine($transaction, $user_id, $bank_account_id, $is_service);
                     $this->transactionUtil->updateCustomerRewardPoints($contact_id, 0, 0, $amount);
@@ -770,7 +775,7 @@ class ServiceController extends Controller
                     $credit_data = [
                         'amount' => $amount,
                         'account_id' => $bank_account_id,
-                        'type' => 'credit',
+                        'type' => $withdraw_mode == 's' ? 'credit':'debit',
                         'sub_type' => 'withdraw',
                         'created_by' => session()->get('user.id'),
                         'note' => $request->input('note'),
