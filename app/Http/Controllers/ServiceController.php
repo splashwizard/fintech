@@ -74,19 +74,22 @@ class ServiceController extends Controller
                 });
             }
 
+            $is_admin_or_super = auth()->user()->hasRole('Admin#' . auth()->user()->business_id) || auth()->user()->hasRole('Superadmin');
+
             return DataTables::of($accounts)
                             ->addColumn(
                                 'action',
+                                $is_admin_or_super?
                                 '<button data-href="{{action(\'ServiceController@edit\',[$id])}}" data-container=".account_model" class="btn btn-xs btn-primary btn-modal"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</button>
                                 <a href="{{action(\'ServiceController@show\',[$id])}}" class="btn btn-warning btn-xs"><i class="fa fa-book"></i> @lang("account.account_book")</a>&nbsp;
-                                @if($is_closed == 0)
                                 <button data-href="{{action(\'ServiceController@getFundTransfer\',[$id])}}" class="btn btn-xs btn-info btn-modal" data-container=".view_modal"><i class="fa fa-exchange"></i> @lang("account.fund_transfer")</button>
 
                                 <button data-href="{{action(\'ServiceController@getDeposit\',[$id])}}" class="btn btn-xs btn-success btn-modal" data-container=".view_modal"><i class="fa fa-money"></i> @lang("account.deposit")</button>
 
                                 <button data-url="{{action(\'ServiceController@close\',[$id])}}" class="btn btn-xs btn-danger close_account"><i class="fa fa-close"></i> @lang("messages.close")</button>
                                 <button data-href="{{action(\'ServiceController@getWithdraw\',[$id])}}" class="btn btn-xs btn-primary btn-modal" data-container=".view_modal"><i class="fa fa-money"></i> @lang("account.withdraw")</button>
-                                @endif'
+                                ':'<a href="{{action(\'ServiceController@show\',[$id])}}" class="btn btn-warning btn-xs"><i class="fa fa-book"></i> @lang("account.account_book")</a>&nbsp;
+                                    <button data-href="{{action(\'ServiceController@getWithdraw\',[$id])}}" class="btn btn-xs btn-primary btn-modal" data-container=".view_modal"><i class="fa fa-money"></i> @lang("account.withdraw")</button>'
                             )
                             ->editColumn('name', function ($row) {
                                 if ($row->is_closed == 1) {
@@ -581,11 +584,13 @@ class ServiceController extends Controller
 //            $withdraw_mode = ['w' => 'Wallet', 'b' => 'Bank'];
             $withdraw_mode = ['b' => 'Bank', 's' => 'Service'];
 
-            $bank_accounts = Account::where('business_id', $business_id)
+            $sql = Account::where('business_id', $business_id)
                 ->where('id', '!=', $id)
                 ->where('is_service', 0)
-                ->NotClosed()
-                ->pluck('name', 'id');
+                ->NotClosed();
+            if (!(auth()->user()->hasRole('Admin#' . auth()->user()->business_id) || auth()->user()->hasRole('Superadmin')))
+                $sql->where('is_safe', 0);
+            $bank_accounts = $sql->pluck('name', 'id');
             $service_accounts = Account::where('business_id', $business_id)
                 ->where('id', '!=', $id)
                 ->where('is_service', 1)

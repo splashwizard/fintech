@@ -18,12 +18,10 @@
                 {!! Form::label('account_number', __( 'account.account_number' ) .":*") !!}
                 {!! Form::text('account_number', $account->account_number, ['class' => 'form-control', 'required','placeholder' => __( 'account.account_number' ) ]); !!}
             </div>
-            @if(auth()->user()->hasRole('Superadmin'))
             <div class="form-group">
                 {!! Form::checkbox('is_safe', 1, $account->is_safe,
                         [ 'class' => 'input-icheck']); !!} {{ __( 'account.is_safe' ) }}
             </div>
-            @endif
             {{--
             <div class="form-group">
                 {!! Form::label('account_type', __( 'account.account_type' ) .":") !!}

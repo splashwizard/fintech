@@ -73,24 +73,25 @@ class AccountController extends Controller
                     $q->orWhereNull('account_type');
                 });
             }
-
-            if(!auth()->user()->hasRole('Superadmin')){
+            $is_admin_or_super = auth()->user()->hasRole('Admin#' . auth()->user()->business_id) || auth()->user()->hasRole('Superadmin');
+            if(!$is_admin_or_super){
                 $accounts->where('is_safe','0');
             }
 
             return DataTables::of($accounts)
                             ->addColumn(
                                 'action',
+                                $is_admin_or_super?
                                 '<button data-href="{{action(\'AccountController@edit\',[$id])}}" data-container=".account_model" class="btn btn-xs btn-primary btn-modal"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</button>
-                                <a href="{{action(\'AccountController@show\',[$id])}}" class="btn btn-warning btn-xs"><i class="fa fa-book"></i> @lang("account.account_book")</a>&nbsp;
-                                @if($is_closed == 0)
+                                <a href="{{action(\'AccountController@show\',[$id])}}" class="btn btn-warning btn-xs"><i class="fa fa-book"></i> @lang("account.account_book")</a>
                                 <button data-href="{{action(\'AccountController@getFundTransfer\',[$id])}}" class="btn btn-xs btn-info btn-modal" data-container=".view_modal"><i class="fa fa-exchange"></i> @lang("account.fund_transfer")</button>
 
                                 <button data-href="{{action(\'AccountController@getDeposit\',[$id])}}" class="btn btn-xs btn-success btn-modal" data-container=".view_modal"><i class="fa fa-money"></i> @lang("account.deposit")</button>
 
                                 <button data-url="{{action(\'AccountController@close\',[$id])}}" class="btn btn-xs btn-danger close_account"><i class="fa fa-close"></i> @lang("messages.close")</button>
                                 <button data-href="{{action(\'AccountController@getWithdraw\',[$id])}}" class="btn btn-xs btn-primary btn-modal" data-container=".view_modal"><i class="fa fa-money"></i> @lang("account.withdraw")</button>
-                                @endif'
+                                ':'<a href="{{action(\'AccountController@show\',[$id])}}" class="btn btn-warning btn-xs"><i class="fa fa-book"></i> @lang("account.account_book")</a>
+                                <button data-href="{{action(\'AccountController@getWithdraw\',[$id])}}" class="btn btn-xs btn-primary btn-modal" data-container=".view_modal"><i class="fa fa-money"></i> @lang("account.withdraw")</button>'
                             )
                             ->editColumn('name', function ($row) {
                                 if ($row->is_closed == 1) {
@@ -347,8 +348,7 @@ class AccountController extends Controller
                                                     ->findOrFail($id);
                 $account->name = $input['name'];
                 $account->account_number = $input['account_number'];
-                if(auth()->user()->hasRole('Superadmin'))
-                    $account->is_safe = $input['is_safe'];
+                $account->is_safe = $input['is_safe'];
                 $account->note = $input['note'];
                 $account->save();
 

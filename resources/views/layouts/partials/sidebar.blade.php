@@ -372,43 +372,41 @@
             @endif
 
             @can('account.access')
-                @if(in_array('account', $enabled_modules))
-                    <li class="treeview {{ $request->segment(1) == 'account' ? 'active active-sub' : '' }}">
-                        <a href="#"><i class="fa fa-money" aria-hidden="true"></i>
-                            <span>@lang('lang_v1.payment_accounts')</span>
-                            <span class="pull-right-container">
-					  <i class="fa fa-angle-left pull-right"></i>
-					</span>
-                        </a>
-                        <ul class="treeview-menu">
-                            <li class="{{ $request->segment(1) == 'account' && $request->segment(2) == 'account' ? 'active' : '' }}">
-                                <a href="{{action('AccountController@index')}}"><i
-                                            class="fa fa-list"></i>@lang('account.list_accounts')</a></li>
+                <li class="treeview {{ $request->segment(1) == 'account' ? 'active active-sub' : '' }}">
+                    <a href="#"><i class="fa fa-money" aria-hidden="true"></i>
+                        <span>@lang('lang_v1.payment_accounts')</span>
+                        <span class="pull-right-container">
+                  <i class="fa fa-angle-left pull-right"></i>
+                </span>
+                    </a>
+                    <ul class="treeview-menu">
+                        <li class="{{ $request->segment(1) == 'account' && $request->segment(2) == 'account' ? 'active' : '' }}">
+                            <a href="{{action('AccountController@index')}}"><i
+                                        class="fa fa-list"></i>@lang('account.list_accounts')</a></li>
 
-                            <li class="{{ $request->segment(1) == 'account' && $request->segment(2) == 'service' ? 'active' : '' }}">
-                                <a href="{{action('ServiceController@index')}}"><i
-                                            class="fa fa-list"></i>@lang('account.service_list')</a></li>
-                            @can('account.balance_sheet_details')
-                                <li class="{{ $request->segment(1) == 'account' && $request->segment(2) == 'balance-sheet' ? 'active' : '' }}">
-                                    <a href="{{action('AccountReportsController@balanceSheet')}}"><i
-                                                class="fa fa-book"></i>@lang('account.balance_sheet')</a></li>
+                        <li class="{{ $request->segment(1) == 'account' && $request->segment(2) == 'service' ? 'active' : '' }}">
+                            <a href="{{action('ServiceController@index')}}"><i
+                                        class="fa fa-list"></i>@lang('account.service_list')</a></li>
+                        @can('account.balance_sheet_details')
+                            <li class="{{ $request->segment(1) == 'account' && $request->segment(2) == 'balance-sheet' ? 'active' : '' }}">
+                                <a href="{{action('AccountReportsController@balanceSheet')}}"><i
+                                            class="fa fa-book"></i>@lang('account.balance_sheet')</a></li>
 
-                                <li class="{{ $request->segment(1) == 'account' && $request->segment(2) == 'trial-balance' ? 'active' : '' }}">
-                                    <a href="{{action('AccountReportsController@trialBalance')}}"><i
-                                                class="fa fa-balance-scale"></i>@lang('account.trial_balance')</a></li>
+                            <li class="{{ $request->segment(1) == 'account' && $request->segment(2) == 'trial-balance' ? 'active' : '' }}">
+                                <a href="{{action('AccountReportsController@trialBalance')}}"><i
+                                            class="fa fa-balance-scale"></i>@lang('account.trial_balance')</a></li>
 
-                                <li class="{{ $request->segment(1) == 'account' && $request->segment(2) == 'cash-flow' ? 'active' : '' }}">
-                                    <a href="{{action('AccountController@cashFlow')}}"><i
-                                                class="fa fa-exchange"></i>@lang('lang_v1.cash_flow')</a></li>
+                            <li class="{{ $request->segment(1) == 'account' && $request->segment(2) == 'cash-flow' ? 'active' : '' }}">
+                                <a href="{{action('AccountController@cashFlow')}}"><i
+                                            class="fa fa-exchange"></i>@lang('lang_v1.cash_flow')</a></li>
 
-                                <li class="{{ $request->segment(1) == 'account' && $request->segment(2) == 'payment-account-report' ? 'active' : '' }}">
-                                    <a href="{{action('AccountReportsController@paymentAccountReport')}}"><i
-                                                class="fa fa-file-text-o"></i>@lang('account.payment_account_report')</a>
-                                </li>
-                                @endcan
-                        </ul>
-                    </li>
-                @endif
+                            <li class="{{ $request->segment(1) == 'account' && $request->segment(2) == 'payment-account-report' ? 'active' : '' }}">
+                                <a href="{{action('AccountReportsController@paymentAccountReport')}}"><i
+                                            class="fa fa-file-text-o"></i>@lang('account.payment_account_report')</a>
+                            </li>
+                            @endcan
+                    </ul>
+                </li>
             @endcan
 
             @if(auth()->user()->can('purchase_n_sell_report.view')

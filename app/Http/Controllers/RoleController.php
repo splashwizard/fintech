@@ -48,7 +48,8 @@ class RoleController extends Controller
 
             return DataTables::of($roles)
                 ->addColumn('action', function ($row) {
-                    if (!$row->is_default || $row->name == "Cashier#" . $row->business_id) {
+                    $is_superadmin = auth()->user()->hasRole('Superadmin');
+                    if (!$row->is_default || $row->name == "Cashier#" . $row->business_id || $is_superadmin) {
                         $action = '';
                         if (auth()->user()->can('roles.update')) {
                             $action .= '<a href="' . action('RoleController@edit', [$row->id]) . '" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> ' . __("messages.edit") . '</a>';

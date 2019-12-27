@@ -17,7 +17,9 @@
 <section class="content no-print">
 	<div class="row" style="margin-bottom: 20px">
 		<div class="col-md-12 col-xs-12">
+			@if(auth()->user()->hasRole('Superadmin'))
 			<a class="btn btn-info" href="{{ route('business.getRegister') }}@if(!empty(request()->lang)){{'?lang=' . request()->lang}} @endif">Register New Company</a>
+			@endif
 			<div class="btn-group pull-right" data-toggle="buttons">
 				<label class="btn btn-info active">
     				<input type="radio" name="date-filter"

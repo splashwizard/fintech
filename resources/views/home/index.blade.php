@@ -175,7 +175,7 @@
 	    <!-- /.col -->
   	</div>
   	<br>
-	<div class="row">
+	<div class="row" style="display: <?php echo count($bank_accounts)||count($service_accounts) ? 'block' : 'none'; ?>">
 		<div class="col-sm-12">
 			<div class="box box-primary">
 				<div class="box-body">
@@ -217,7 +217,7 @@
       @endforeach
     @endif
   	<!-- sales chart start -->
-  	<div class="row">
+  	<div class="row" style="display: none">
   		<div class="col-sm-12">
             @component('components.widget', ['class' => 'box-primary', 'title' => __('home.sells_last_30_days')])
               {!! $sells_chart_1->html() !!}
@@ -229,7 +229,7 @@
         {!! $widget !!}
       @endforeach
     @endif
-  	<div class="row">
+  	<div class="row" style="display: none">
   		<div class="col-sm-12">
             @component('components.widget', ['class' => 'box-primary', 'title' => __('home.sells_current_fy')])
               {!! $sells_chart_2->html() !!}
