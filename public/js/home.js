@@ -75,6 +75,15 @@ $(document).ready(function() {
     });
 });
 
+function getRandomColor() {
+    var letters = '0123456789ABCDEF';
+    var color = '#';
+    for (var i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
+
 function update_statistics(start, end) {
     var data = { start: start, end: end };
     //get purchase details
@@ -100,7 +109,60 @@ function update_statistics(start, end) {
             $('.invoice_due').html(__currency_trans_from_en(data.invoice_due, true));
             $('.total_bonus').html(__currency_trans_from_en(data.total_bonus, true));
             $('.total_profit').html(__currency_trans_from_en(data.total_profit, true));
-            $('.registration_cnt').html(data.registration_cnt + ' Pax');
+            // $('.registration_cnt').html(data.registration_cnt + ' Pax');
+
+            // -------------
+            // - PIE CHART -
+            // -------------
+            // Get context with jQuery - using jQuery's .get() method.
+            $('#pieChart').remove();
+            $('#chart_container').append('<canvas id="pieChart" height="165" width="250" style="width: 250px; height: 165px;"></canvas>');
+            var pieChartCanvas = $('#pieChart').get(0).getContext('2d');
+            var pieChart       = new Chart(pieChartCanvas);
+            const registration_arr = data.registration_arr;
+            let PieData = [];
+            let html = '';
+            for(let data of registration_arr){
+                const random_color = getRandomColor();
+                PieData.push({value: data.cnt, color: random_color,highlight: random_color,label: data.name});
+                html +='<li><i class="fa fa-circle-o" style="color: ' + random_color + '"></i> ' + data.name+ '</li>';
+            }
+            $('#chart_legend').html(html);
+            var pieOptions     = {
+                // Boolean - Whether we should show a stroke on each segment
+                segmentShowStroke    : true,
+                // String - The colour of each segment stroke
+                segmentStrokeColor   : '#fff',
+                // Number - The width of each segment stroke
+                segmentStrokeWidth   : 1,
+                // Number - The percentage of the chart that we cut out of the middle
+                percentageInnerCutout: 50, // This is 0 for Pie charts
+                // Number - Amount of animation steps
+                animationSteps       : 100,
+                // String - Animation easing effect
+                animationEasing      : 'easeOutBounce',
+                // Boolean - Whether we animate the rotation of the Doughnut
+                animateRotate        : true,
+                // Boolean - Whether we animate scaling the Doughnut from the centre
+                animateScale         : false,
+                // Boolean - whether to make the chart responsive to window resizing
+                responsive           : true,
+                // Boolean - whether to maintain the starting aspect ratio or not when responsive, if set to false, will take up entire container
+                maintainAspectRatio  : false,
+                // String - A legend template
+                legendTemplate       : '<ul class=\'<%=name.toLowerCase()%>-legend\'><% for (var i=0; i<segments.length; i++){%><li><span style=\'background-color:<%=segments[i].fillColor%>\'></span><%if(segments[i].label){%><%=segments[i].label%><%}%></li><%}%></ul>',
+                // String - A tooltip template
+                // tooltipTemplate      : '<%=label%> <%=value %> users'
+                tooltipTemplate      : '<%=value %> users <%=label%>'
+            };
+            // Create pie or douhnut chart
+            // You can switch between pie and douhnut using the method below.
+            pieChart.Doughnut(PieData, pieOptions);
+            // -----------------
+            // - END PIE CHART -
+            // -----------------
         },
     });
+
+
 }

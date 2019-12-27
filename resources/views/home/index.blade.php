@@ -139,19 +139,35 @@
 	    <!-- <div class="clearfix visible-sm-block"></div> -->
 	    <div class="col-md-3 col-sm-6 col-xs-12">
 	      <div class="info-box">
-	        <span class="info-box-icon bg-yellow">
-	        	<i class="ion ion-ios-paper-outline"></i>
-	        	<i class="fa fa-exclamation"></i>
-	        </span>
+{{--	        <span class="info-box-icon bg-yellow">--}}
+{{--	        	<i class="ion ion-ios-paper-outline"></i>--}}
+{{--	        	<i class="fa fa-exclamation"></i>--}}
+{{--	        </span>--}}
 
-	        <div class="info-box-content">
-                <div style="margin-top: 10px">
-                    <span class="info-box-text">{{ __('home.new_registration').":" }}</span>
-                </div>
-                <div style="margin-top: 10px">
-                    <span class="info-box-number registration_cnt"><i class="fa fa-refresh fa-spin fa-fw margin-bottom"></i></span>
-                </div>
-	        </div>
+{{--	        <div class="info-box-content">--}}
+{{--                <div style="margin-top: 10px">--}}
+{{--                    <span class="info-box-text">{{ __('home.new_registration').":" }}</span>--}}
+{{--                </div>--}}
+{{--                <div style="margin-top: 10px">--}}
+{{--                    <span class="info-box-number registration_cnt"><i class="fa fa-refresh fa-spin fa-fw margin-bottom"></i></span>--}}
+{{--                </div>--}}
+{{--	        </div>--}}
+              <div class="row" style="padding-top: 15px; padding-bottom: 15px">
+                  <div class="col-md-8">
+                      <div class="chart-responsive" id="chart_container">
+                          <canvas id="pieChart" height="165" width="250" style="width: 250px; height: 165px;"></canvas>
+                      </div>
+                      <!-- ./chart-responsive -->
+                  </div>
+                  <!-- /.col -->
+                  <div class="col-md-4">
+                      <ul class="chart-legend clearfix" id="chart_legend" style="margin-top: 20px">
+                      </ul>
+                  </div>
+                  <!-- /.col -->
+              </div>
+
+
 	        <!-- /.info-box-content -->
 	      </div>
 	      <!-- /.info-box -->
@@ -329,6 +345,7 @@
 <!-- /.content -->
 @stop
 @section('javascript')
+    <script src="{{ asset('AdminLTE/plugins/chartjs/Chart.js') }}"></script>
     <script src="{{ asset('js/home.js?v=' . $asset_v) }}"></script>
     {!! Charts::assets(['highcharts']) !!}
 {{--    {!! $sells_chart_1->script() !!}--}}

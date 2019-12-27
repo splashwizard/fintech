@@ -367,8 +367,12 @@ class HomeController extends Controller
             $total_sell_inc_tax = !empty($sell_details['total_sell_inc_tax']) ? $sell_details['total_sell_inc_tax'] : 0;
             $total_sell_return_inc_tax = !empty($transaction_totals['total_sell_return_inc_tax']) ? $transaction_totals['total_sell_return_inc_tax'] : 0;
 
-            $query = Contact::where('contacts.business_id', $business_id)
-                ->whereBetween(\Illuminate\Support\Facades\DB::raw('date(contacts.created_at)'), [$start, $end]);
+            $query = Contact::join('customer_groups AS g', 'g.id', 'contacts.customer_group_id')
+                ->where('contacts.business_id', $business_id)->where('type', 'customer')
+                ->whereBetween(\Illuminate\Support\Facades\DB::raw('date(contacts.created_at)'), [$start, $end])
+                ->select(DB::raw('COUNT(contacts.id) as cnt'), 'g.name')
+                ->groupBy('contacts.customer_group_id');
+
 
             $output['total_withdraw'] = $total_sell_return_inc_tax;
             $output['deposit_count'] = $deposit_count;
@@ -377,7 +381,7 @@ class HomeController extends Controller
             $output['total_deposit'] = $total_sell_inc_tax;
             $output['total_bonus'] = $sell_details['total_bonus'];
             $output['total_profit'] = $output['total_deposit'] - $output['total_withdraw'] - $output['total_bonus'];
-            $output['registration_cnt'] = $query->count();
+            $output['registration_arr'] = $query->get();
 
             $output['invoice_due'] = $sell_details['invoice_due'];
 
