@@ -601,6 +601,7 @@ return [
     'download' => 'Download',
     'previous_file_will_be_replaced' => 'Previously uploaded file will be replaced',
     'access_accounts' => 'Access Accounts',
+    'balance_sheet_details' => 'Balance Sheet Details',
     'payment_accounts' => 'Payment Accounts',
     'total_shipping_charges' => 'Total Shipping Charges',
     'recurring_invoice_error_message' => 'Unable to create invoice for Subscription no.: <i>:subscription_no</i>. Required stock not available for product <i>:product_name</i>',

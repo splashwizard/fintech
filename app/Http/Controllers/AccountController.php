@@ -74,6 +74,10 @@ class AccountController extends Controller
                 });
             }
 
+            if(!auth()->user()->hasRole('Superadmin')){
+                $accounts->where('is_safe','0');
+            }
+
             return DataTables::of($accounts)
                             ->addColumn(
                                 'action',
@@ -336,13 +340,15 @@ class AccountController extends Controller
 
         if (request()->ajax()) {
             try {
-                $input = $request->only(['name', 'account_number', 'note']);
+                $input = $request->only(['name', 'account_number', 'note', 'is_safe']);
 
                 $business_id = request()->session()->get('user.business_id');
                 $account = Account::where('business_id', $business_id)
                                                     ->findOrFail($id);
                 $account->name = $input['name'];
                 $account->account_number = $input['account_number'];
+                if(auth()->user()->hasRole('Superadmin'))
+                    $account->is_safe = $input['is_safe'];
                 $account->note = $input['note'];
                 $account->save();
 

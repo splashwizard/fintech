@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Account;
 use App\BusinessLocation;
 
 use App\Contact;
@@ -94,22 +95,11 @@ class WithDrawController extends Controller
                     'contacts.name',
 //                    'accounts.name',
                     'transactions.payment_status',
-                    'transactions.final_total',
-                    'transactions.tax_amount',
-                    'transactions.discount_amount',
-                    'transactions.discount_type',
-                    'transactions.total_before_tax',
-                    'transactions.rp_redeemed',
-                    'transactions.rp_redeemed_amount',
                     'transactions.rp_earned',
-                    DB::raw('SUM(IF(tp.is_return = 1,-1*tp.amount,tp.amount)) as total_paid'),
+                    'transactions.rp_redeemed',
+                    'tp.amount',
 //                    'bl.name as business_location',
-                    'accounts.name as business_location',
-                    DB::raw('COUNT(SR.id) as return_exists'),
-                    DB::raw('(SELECT SUM(TP2.amount) FROM transaction_payments AS TP2 WHERE
-                        TP2.transaction_id=SR.id ) as return_paid'),
-                    DB::raw('COALESCE(SR.final_total, 0) as amount_return'),
-                    'SR.id as return_transaction_id'
+                    'accounts.name as business_location'
                 );
 
 
@@ -130,7 +120,10 @@ class WithDrawController extends Controller
             if (!auth()->user()->can('direct_sell.access') && auth()->user()->can('view_own_sell_only')) {
                 $sells->where('transactions.created_by', request()->session()->get('user.id'));
             }
-            $sells->where('accounts.is_service', request()->input('is_service'));
+
+            if (!empty(request()->input('account_id'))) {
+                $sells->where('accounts.id', request()->input('account_id'));
+            }
 
             if (!empty(request()->input('payment_status'))) {
                 $sells->where('transactions.payment_status', request()->input('payment_status'));
@@ -305,52 +298,7 @@ class WithDrawController extends Controller
                     }
                 )
                 ->removeColumn('id')
-                ->editColumn(
-                    'final_total',
-                    '<span class="display_currency final-total" data-currency_symbol="true" data-orig-value="{{$final_total}}">{{$final_total}}</span>'
-                )
-                ->editColumn(
-                    'tax_amount',
-                    '<span class="display_currency total-tax" data-currency_symbol="true" data-orig-value="{{$tax_amount}}">{{$tax_amount}}</span>'
-                )
-                ->editColumn(
-                    'total_paid',
-                    '<span class="display_currency total-paid" data-currency_symbol="true" data-orig-value="{{$total_paid}}">{{$total_paid}}</span>'
-                )
-                ->editColumn(
-                    'total_before_tax',
-                    '<span class="display_currency total_before_tax" data-currency_symbol="true" data-orig-value="{{$total_before_tax}}">{{$total_before_tax}}</span>'
-                )
-                ->editColumn(
-                    'discount_amount',
-                    function ($row) {
-                        $discount = !empty($row->discount_amount) ? $row->discount_amount : 0;
-
-                        if (!empty($discount) && $row->discount_type == 'percentage') {
-                            $discount = $row->total_before_tax * ($discount / 100);
-                        }
-
-                        return '<span class="display_currency total-discount" data-currency_symbol="true" data-orig-value="' . $discount . '">' . $discount . '</span>';
-                    }
-                )
                 ->editColumn('transaction_date', '{{@format_datetime($transaction_date)}}')
-                ->editColumn(
-                    'payment_status',
-                    '<a href="{{ action("TransactionPaymentController@show", [$id])}}" class="view_payment_modal payment-status-label no-print" data-orig-value="{{$payment_status}}" data-status-name="{{__(\'lang_v1.\' . $payment_status)}}"><span class="label @payment_status($payment_status)">{{__(\'lang_v1.\' . $payment_status)}}
-                        </span></a>
-                        <span class="print_section">{{__(\'lang_v1.\' . $payment_status)}}</span>
-                        '
-                )
-                ->addColumn('total_remaining', function ($row) {
-                    $total_remaining =  $row->final_total - $row->total_paid;
-                    $total_remaining_html = '<strong>' . __('lang_v1.sell_due') .':</strong> <span class="display_currency payment_due" data-currency_symbol="true" data-orig-value="' . $total_remaining . '">' . $total_remaining . '</span>';
-
-                    if (!empty($row->return_exists)) {
-                        $return_due = $row->amount_return - $row->return_paid;
-                        $total_remaining_html .= '<br><strong>' . __('lang_v1.sell_return_due') .':</strong> <a href="' . action("TransactionPaymentController@show", [$row->return_transaction_id]) . '" class="view_purchase_return_payment_modal no-print"><span class="display_currency sell_return_due" data-currency_symbol="true" data-orig-value="' . $return_due . '">' . $return_due . '</span></a><span class="display_currency print_section" data-currency_symbol="true">' . $return_due . '</span>';
-                    }
-                    return $total_remaining_html;
-                })
                  ->editColumn('invoice_no', function ($row) {
                      $invoice_no = $row->invoice_no;
                      if (!empty($row->woocommerce_order_id)) {
@@ -380,11 +328,12 @@ class WithDrawController extends Controller
                     }]);
 
 //            $rawColumns = ['final_total', 'action', 'total_paid', 'total_remaining', 'payment_status', 'invoice_no', 'discount_amount', 'tax_amount', 'total_before_tax'];
-            $rawColumns = ['final_total', 'action', 'payment_status', 'invoice_no', 'discount_amount', 'tax_amount', 'total_before_tax'];
+            $rawColumns = ['amount', 'action', 'payment_status', 'invoice_no', 'discount_amount', 'tax_amount', 'total_before_tax'];
                 
             return $datatable->rawColumns($rawColumns)
                       ->make(true);
         }
+        $accounts = Account::forDropdown($business_id, false);
 
         $business_locations = BusinessLocation::forDropdown($business_id, false);
         $customers = Contact::customersDropdown($business_id, false);
@@ -404,7 +353,7 @@ class WithDrawController extends Controller
         }
 
         return view('withdraw.index')
-        ->with(compact('business_locations', 'customers', 'is_woocommerce', 'sales_representative', 'is_cmsn_agent_enabled', 'commission_agents', 'service_staffs'));
+        ->with(compact('accounts', 'business_locations', 'customers', 'is_woocommerce', 'sales_representative', 'is_cmsn_agent_enabled', 'commission_agents', 'service_staffs'));
     }
 
     /**

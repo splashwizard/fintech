@@ -5,7 +5,7 @@
 
     <div class="col-md-10">
 
-      <a href="{{ action('SellPosController@index')}}" title="{{ __('lang_v1.go_back') }}" data-toggle="tooltip" data-placement="bottom" class="btn btn-info btn-flat m-6 btn-xs m-5 pull-right">
+      <a href="{{ action('SellController@index')}}" title="{{ __('lang_v1.go_back') }}" data-toggle="tooltip" data-placement="bottom" class="btn btn-info btn-flat m-6 btn-xs m-5 pull-right">
         <strong><i class="fa fa-backward fa-lg"></i></strong>
       </a>
 

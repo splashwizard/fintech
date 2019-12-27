@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Account;
+use App\Business;
 use App\BusinessLocation;
 
 use App\Contact;
@@ -19,6 +20,7 @@ use Charts;
 use Datatables;
 use DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
 {
@@ -52,8 +54,44 @@ class HomeController extends Controller
      */
     public function index()
     {
-        $business_id = request()->session()->get('user.business_id');
+        if (request()->ajax()) {
+            $business_util = new BusinessUtil;
+            $business_id = request()->get('business_id');
+            $user = Auth::user();
+            $session_data = ['id' => $user->id,
+                'surname' => $user->surname,
+                'first_name' => $user->first_name,
+                'last_name' => $user->last_name,
+                'email' => $user->email,
+                'business_id' => $business_id,
+                'language' => $user->language,
+            ];
+            $business = Business::findOrFail($business_id);
 
+            $currency = $business->currency;
+            $currency_data = ['id' => $currency->id,
+                'code' => $currency->code,
+                'symbol' => $currency->symbol,
+                'thousand_separator' => $currency->thousand_separator,
+                'decimal_separator' => $currency->decimal_separator
+            ];
+            $session = request()->session();
+
+            $session->put('user', $session_data);
+            $session->put('business', $business);
+            $session->put('currency', $currency_data);
+            if($user->hasRole('Superadmin')){
+                $business_list = Business::get()->pluck('name','id');
+                $session->put('business_list', $business_list);
+            }
+
+            //set current financial year to session
+            $financial_year = $business_util->getCurrentFinancialYear($business->id);
+            $session->put('financial_year', $financial_year);
+            echo json_encode(array('flag' => 1, 'msg' => 'success'));
+            return;
+        }
+        $business_id = request()->session()->get('user.business_id');
         if (!auth()->user()->can('dashboard.data')) {
             return view('home.index');
         }
@@ -106,7 +144,6 @@ class HomeController extends Controller
             $location_sells[$loc_id]['loc_label'] = $loc_name;
             $location_sells[$loc_id]['values'] = $values;
         }
-
         $sells_chart_1 = Charts::multi('line', 'highcharts')
                             ->title(' ')
                             ->template('material')
@@ -171,7 +208,6 @@ class HomeController extends Controller
             $fy_sells_by_location_data[$loc_id]['loc_label'] = $loc_name;
             $fy_sells_by_location_data[$loc_id]['values'] = $values_data;
         }
-
         $sells_chart_2 = Charts::multi('line', 'highcharts')
                             ->title(__(' '))
                             ->labels($labels)

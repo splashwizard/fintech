@@ -1,10 +1,24 @@
 @inject('request', 'Illuminate\Http\Request')
 <!-- Main Header -->
   <header class="main-header no-print">
-    <a href="{{route('home')}}" class="logo">
-      
-      <span class="logo-lg">{{ Session::get('business.name') }}</span>
-    </a>
+    @if(auth()->user()->hasRole('Superadmin'))
+      <div class="dropdown" style="float: left">
+        <a href="{{route('home')}}" class="logo" data-toggle="dropdown">
+          <span class="logo-lg">{{ Session::get('business.name') }}</span>
+        </a>
+        <ul class="dropdown-menu" id="business_dropdown">
+          @foreach(Session::get('business_list') as $key => $business)
+            <li id="{{$key}}"><a href="#">{{$business}}</a></li>
+          @endforeach
+        </ul>
+      </div>
+    @else
+      <a href="{{route('home')}}" class="logo">
+        <span class="logo-lg">{{ Session::get('business.name') }}</span>
+      </a>
+    @endif
+
+
 
     <!-- Header Navbar -->
     <nav class="navbar navbar-static-top" role="navigation">
@@ -24,7 +38,7 @@
           @includeIf('essentials::layouts.partials.header_part')
         @endif
 
-        <button id="btnCalculator" title="@lang('lang_v1.calculator')" type="button" class="btn btn-success btn-flat pull-left m-8 hidden-xs btn-sm mt-10 popover-default" data-toggle="popover" data-trigger="click" data-content='@include("layouts.partials.calculator")' data-html="true" data-placement="bottom">
+        <button id="btnCalculator" style="display: block" title="@lang('lang_v1.calculator')" type="button" class="btn btn-success btn-flat pull-left m-8 hidden-xs btn-sm mt-10 popover-default" data-toggle="popover" data-trigger="click" data-content='@include("layouts.partials.calculator")' data-html="true" data-placement="bottom">
             <strong><i class="fa fa-calculator fa-lg" aria-hidden="true"></i></strong>
         </button>
         
@@ -40,7 +54,7 @@
         @endif
 
         @can('sell.create')
-          <a href="{{action('SellPosController@create')}}" title="POS" data-toggle="tooltip" data-placement="bottom" class="btn btn-success btn-flat pull-left m-8 hidden-xs btn-sm mt-10">
+          <a href="{{action('SellPosController@create')}}" style="display: none" title="POS" data-toggle="tooltip" data-placement="bottom" class="btn btn-success btn-flat pull-left m-8 hidden-xs btn-sm mt-10">
             <strong><i class="fa fa-th-large"></i> &nbsp; @lang('sale.pos_sale')</strong>
           </a>
           <a href="{{action('SellPosDepositController@create')}}" title="POS Deposit" data-toggle="tooltip" data-placement="bottom" class="btn btn-success btn-flat pull-left m-8 hidden-xs btn-sm mt-10">

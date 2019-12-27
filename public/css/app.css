@@ -634,3 +634,7 @@ table.table-text-center td, table.table-text-center th{
     border-radius: 7px;
     text-align: center;
 }
+
+ul.dropdown-menu{
+    left:150px
+}

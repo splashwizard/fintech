@@ -115,7 +115,7 @@ $(document).ready( function(){
                 d.customer_id = $('#sell_list_filter_customer_id').val();
                 d.created_by = $('#created_by').val();
                 d.sales_cmsn_agnt = $('#sales_cmsn_agnt').val();
-                d.is_service = $('#is_service').val();
+                d.account_id = $('#account_id').val();
                 
                 @if($is_woocommerce)
                     if($('#synced_from_woocommerce').is(':checked')) {
@@ -133,7 +133,7 @@ $(document).ready( function(){
             { data: 'transaction_date', name: 'transaction_date'  },
             { data: 'invoice_no', name: 'invoice_no'},
             { data: 'name', name: 'contacts.name'},
-            { data: 'final_total', name: 'final_total'},
+            { data: 'amount', name: 'amount'},
             // { data: 'total_paid', name: 'total_paid', "searchable": false},
             // { data: 'total_remaining', name: 'total_remaining'},
             { data: 'action', name: 'action'}
@@ -157,7 +157,7 @@ $(document).ready( function(){
         }
     });
 
-    $(document).on('change', '#is_service, #sell_list_filter_customer_id, #sell_list_filter_payment_status, #created_by, #sales_cmsn_agnt, #service_staffs',  function() {
+    $(document).on('change', '#account_id, #sell_list_filter_customer_id, #sell_list_filter_payment_status, #created_by, #sales_cmsn_agnt, #service_staffs',  function() {
         sell_table.ajax.reload();
     });
     @if($is_woocommerce)

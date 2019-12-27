@@ -824,6 +824,14 @@
               </label>
             </div>
           </div>
+          <div class="col-md-12">
+              <div class="checkbox">
+                  <label>
+                      {!! Form::checkbox('permissions[]', 'account.balance_sheet_details', in_array('account.balance_sheet_details', $role_permissions),
+                      [ 'class' => 'input-icheck']); !!} {{ __( 'lang_v1.balance_sheet_details' ) }}
+                  </label>
+              </div>
+          </div>
         </div>
         </div>
         <hr>

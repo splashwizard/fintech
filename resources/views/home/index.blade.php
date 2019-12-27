@@ -227,7 +227,7 @@
       @endforeach
     @endif
   	<!-- products less than alert quntity -->
-  	<div class="row">
+  	<div class="row" style="display: none" >
 
       <div class="col-sm-6">
         @component('components.widget', ['class' => 'box-warning'])
@@ -272,7 +272,7 @@
   		</div>
     </div>
 
-    <div class="row">
+    <div class="row" style="display: none">
 
       <div class="col-sm-6">
         @component('components.widget', ['class' => 'box-warning'])
@@ -331,8 +331,8 @@
 @section('javascript')
     <script src="{{ asset('js/home.js?v=' . $asset_v) }}"></script>
     {!! Charts::assets(['highcharts']) !!}
-    {!! $sells_chart_1->script() !!}
-    {!! $sells_chart_2->script() !!}
+{{--    {!! $sells_chart_1->script() !!}--}}
+{{--    {!! $sells_chart_2->script() !!}--}}
 @endif
 @endsection
 

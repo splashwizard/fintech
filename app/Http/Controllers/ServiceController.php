@@ -693,11 +693,12 @@ class ServiceController extends Controller
                 $business_locations = BusinessLocation::forDropdown($business_id, false, true);
                 $business_locations = $business_locations['locations'];
                 $input = [];
-                if (count($business_locations) == 1) {
+                if (count($business_locations) >= 1) {
                     foreach ($business_locations as $id => $name) {
                         $input['location_id'] = $id;
                     }
                 }
+//                print_r($input);exit;
                 $contact_id = $request->input('withdraw_to');
                 $cg = $this->contactUtil->getCustomerGroup($business_id, $contact_id);
                 $input['customer_group_id'] = (empty($cg) || empty($cg->id)) ? null : $cg->id;
@@ -710,7 +711,6 @@ class ServiceController extends Controller
                 $input['final_total'] = $amount;
                 $input['additional_notes'] = $request->input('note');
                 $invoice_total = ['total_before_tax' => $amount, 'tax' => 0];
-
 //                $transaction = $this->transactionUtil->createSellReturnTransaction($business_id, $input, $invoice_total, $user_id);
                 $transaction = $this->transactionUtil->createSellReturnTransaction($business_id, $input, $invoice_total, $user_id);
                 $this->transactionUtil->createWithDrawPaymentLine($transaction, $user_id, $account_id, 1);
@@ -731,7 +731,7 @@ class ServiceController extends Controller
                     $business_locations = BusinessLocation::forDropdown($business_id, false, true);
                     $business_locations = $business_locations['locations'];
                     $input = [];
-                    if (count($business_locations) == 1) {
+                    if (count($business_locations) >= 1) {
                         foreach ($business_locations as $id => $name) {
                             $input['location_id'] = $id;
                         }

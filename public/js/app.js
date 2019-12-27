@@ -8,6 +8,21 @@ $(document).ready(function() {
             }
         }
     });
+
+
+    $('#business_dropdown li').click(function(e){
+        const business_id = $(this).attr('id');
+        $.ajax({
+            method: 'GET',
+            url: '/home',
+            dataType: 'json',
+            data: {business_id: business_id},
+            success: function(result) {
+                window.location.reload(true);
+            },
+        });
+    });
+
     fileinput_setting = {
         showUpload: false,
         showPreview: false,
