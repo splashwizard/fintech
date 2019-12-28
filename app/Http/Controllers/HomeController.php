@@ -342,15 +342,15 @@ class HomeController extends Controller
 
 
             $permitted_locations = auth()->user()->permitted_locations();
-            if ($permitted_locations != 'all') {
-                $sells->whereIn('transactions.location_id', $permitted_locations);
-                $withdraws->whereIn('transactions.location_id', $permitted_locations);
-            }
-
-            if (!auth()->user()->can('direct_sell.access') && auth()->user()->can('view_own_sell_only')) {
-                $sells->where('transactions.created_by', request()->session()->get('user.id'));
-                $withdraws->whereIn('transactions.location_id', $permitted_locations);
-            }
+//            if ($permitted_locations != 'all') {
+//                $sells->whereIn('transactions.location_id', $permitted_locations);
+//                $withdraws->whereIn('transactions.location_id', $permitted_locations);
+//            }
+//
+//            if (!auth()->user()->can('direct_sell.access') && auth()->user()->can('view_own_sell_only')) {
+//                $sells->where('transactions.created_by', request()->session()->get('user.id'));
+//                $withdraws->whereIn('transactions.location_id', $permitted_locations);
+//            }
             $sells->groupBy('transactions.id');
             $withdraws->groupBy('transactions.id');
             $deposit_count = count($sells->select('transactions.id')->get());

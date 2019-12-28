@@ -703,7 +703,6 @@ class ServiceController extends Controller
                         $input['location_id'] = $id;
                     }
                 }
-//                print_r($input);exit;
                 $contact_id = $request->input('withdraw_to');
                 $cg = $this->contactUtil->getCustomerGroup($business_id, $contact_id);
                 $input['customer_group_id'] = (empty($cg) || empty($cg->id)) ? null : $cg->id;

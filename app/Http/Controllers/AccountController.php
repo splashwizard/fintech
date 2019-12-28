@@ -234,7 +234,7 @@ class AccountController extends Controller
 
             $start_date = request()->input('start_date');
             $end_date = request()->input('end_date');
-            
+
             if (!empty($start_date) && !empty($end_date)) {
                 $accounts->whereBetween(DB::raw('date(operation_date)'), [$start_date, $end_date]);
             }
@@ -263,14 +263,15 @@ class AccountController extends Controller
                                 if (!empty($row->sub_type)) {
                                     $details = __('account.' . $row->sub_type);
                                     if (in_array($row->sub_type, ['fund_transfer', 'deposit']) && !empty($row->transfer_transaction)) {
-                                        if ($row->type == 'credit') {
-                                            $details .= ' ( ' . __('account.from') .': ' . $row->transfer_transaction->account->name . ')';
-                                        } else {
-                                            $details .= ' ( ' . __('account.to') .': ' . $row->transfer_transaction->account->name . ')';
-                                        }
+//                                        if ($row->type == 'credit') {
+//                                            $details .= ' ( ' . __('account.from') .': ' . $row->transfer_transaction->account->name . ')';
+//                                        } else {
+//                                            $details .= ' ( ' . __('account.to') .': ' . $row->transfer_transaction->account->name . ')';
+//                                        }
                                     }
                                     else if($row->sub_type == 'withdraw'){
-                                        $details = '<b>' . __('contact.customer') . ':</b> ' . $row->transaction->contact->name . '<br><b>'.
+                                        $details =
+//                                            '<b>' . __('contact.customer') . ':</b> ' . $row->transaction->contact->name . '<br><b>'.
                                             __('sale.invoice_no') . ':</b> ' . $row->transaction->invoice_no;
                                     }
                                 } else {
@@ -348,7 +349,7 @@ class AccountController extends Controller
                                                     ->findOrFail($id);
                 $account->name = $input['name'];
                 $account->account_number = $input['account_number'];
-                $account->is_safe = $input['is_safe'];
+                $account->is_safe = isset($input['is_safe']) ? 1 : 0;
                 $account->note = $input['note'];
                 $account->save();
 
@@ -697,7 +698,7 @@ class AccountController extends Controller
                 $business_locations = BusinessLocation::forDropdown($business_id, false, true);
                 $business_locations = $business_locations['locations'];
                 $input = [];
-                if (count($business_locations) == 1) {
+                if (count($business_locations) >= 1) {
                     foreach ($business_locations as $id => $name) {
                         $input['location_id'] = $id;
                     }
