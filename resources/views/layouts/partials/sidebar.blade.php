@@ -628,11 +628,13 @@
                                     <a href="{{action('BusinessController@getBusinessSettings')}}" id="tour_step2"><i
                                                 class="fa fa-cogs"></i> @lang('business.business_settings')</a>
                                 </li>
+                            @endcan
+                            @if($is_superadmin)
                                 <li class="{{ $request->segment(1) == 'business-location' ? 'active' : '' }}">
                                     <a href="{{action('BusinessLocationController@index')}}"><i
                                                 class="fa fa-map-marker"></i> @lang('business.business_locations')</a>
                                 </li>
-                            @endcan
+                            @endif
                             @can('invoice_settings.access')
                                 <li class="@if( in_array($request->segment(1), ['invoice-schemes', 'invoice-layouts']) ) {{'active'}} @endif">
                                     <a href="{{action('InvoiceSchemeController@index')}}"><i class="fa fa-file"></i>

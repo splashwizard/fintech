@@ -82,6 +82,7 @@ return [
     'business_location_added_success' => 'Business location added successfully',
     'edit_business_location' => 'Edit business location',
     'business_location_updated_success' => 'Business location updated successfully',
+    'business_location_deleted_success' => 'Business location deleted successfully',
     'location' => 'Location',
     'already_registered' => 'Already registered?',
     'sign_in' => 'Sign In',

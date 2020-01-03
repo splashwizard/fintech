@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\BusinessLocation;
 use App\InvoiceLayout;
 use App\InvoiceScheme;
-    
+
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Permission;
@@ -68,9 +68,8 @@ class BusinessLocationController extends Controller
                 ->addColumn(
                     'action',
                     '<button type="button" data-href="{{action(\'BusinessLocationController@edit\', [$id])}}" class="btn btn-xs btn-primary btn-modal" data-container=".location_edit_modal"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</button>
-
                     <a href="{{route(\'location.settings\', [$id])}}" class="btn btn-success btn-xs"><i class="fa fa-wrench"></i> @lang("messages.settings")</a>
-                    '
+                    <button type="button" data-href="{{action(\'BusinessLocationController@destroy\', [$id])}}" class="btn btn-xs btn-danger delete_business_location"><i class="glyphicon glyphicon-trash"></i>Delete</button>'
                 )
                 ->removeColumn('id')
                 ->rawColumns([9])
@@ -240,12 +239,31 @@ class BusinessLocationController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\StoreFront  $storeFront
-     * @return \Illuminate\Http\Response
+     * @param $id
+     * @return array
      */
     public function destroy($id)
     {
         //
+        if (request()->ajax()) {
+            try {
+                $business_id = request()->session()->get('user.business_id');
+                BusinessLocation::where('business_id', $business_id)
+                    ->where('id', $id)->delete();
+
+                $output = ['success' => true,
+                    'msg' => __("business.business_location_deleted_success")
+                ];
+            } catch (\Exception $e) {
+                \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+
+                $output = ['success' => false,
+                    'msg' => __("messages.something_went_wrong")
+                ];
+            }
+
+            return $output;
+        }
     }
 
     /**

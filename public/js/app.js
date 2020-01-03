@@ -1233,6 +1233,35 @@ $(document).ready(function() {
             });
     });
 
+    $(document).on('click', 'button.delete_business_location', function () {
+        swal({
+            title: LANG.sure,
+            text: LANG.confirm_delete_user,
+            icon: "warning",
+            buttons: true,
+            dangerMode: true,
+        }).then((willDelete) => {
+            if (willDelete) {
+                var href = $(this).data('href');
+                var data = $(this).serialize();
+                $.ajax({
+                    method: "DELETE",
+                    url: href,
+                    dataType: "json",
+                    data: data,
+                    success: function (result) {
+                        if (result.success == true) {
+                            toastr.success(result.msg);
+                            business_locations.ajax.reload();
+                        } else {
+                            toastr.error(result.msg);
+                        }
+                    }
+                });
+            }
+        });
+    });
+
     if ($('#header_text').length) {
         CKEDITOR.replace('header_text', { customConfig: '/AdminLTE/plugins/ckeditor/config.js' });
     }
