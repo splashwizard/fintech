@@ -968,6 +968,7 @@ class ContactController extends Controller
         }
 
         $payments = $query2->select('transaction_payments.*', 'bl.name as location_name', 't.type as transaction_type', 't.ref_no', 't.invoice_no')->get();
+        $total_deposit = $query2->where('t.type', 'sell')->where('transaction_payments.method', '!=', 'service_transfer')->where('transaction_payments.method','!=', 'bonus')->sum('transaction_payments.amount');
         $paymentTypes = $this->transactionUtil->payment_types();
         foreach ($payments as $payment) {
             $ref_no = in_array($payment->transaction_type, ['sell', 'sell_return']) ?  $payment->invoice_no :  $payment->ref_no;
@@ -997,7 +998,7 @@ class ContactController extends Controller
             });
         }
         return view('contact.ledger')
-             ->with(compact('ledger'));
+             ->with(compact('ledger', 'total_deposit'));
     }
 
     public function postCustomersApi(Request $request)

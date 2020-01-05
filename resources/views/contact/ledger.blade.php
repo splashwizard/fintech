@@ -34,3 +34,8 @@
 		@endforeach
 	</tbody>
 </table>
+
+<div>
+	<b>Total Deposit:</b>
+	<span>{{$total_deposit}}</span>
+</div>
