@@ -236,7 +236,40 @@ function get_contact_ledger() {
 
             $('#ledger_table').DataTable({
                 searchable: false,
-                ordering:false
+                ordering:false,
+                "footerCallback": function ( row, data, start, end, display ) {
+                    var api = this.api(), data;
+
+                    // Remove the formatting to get integer data for summation
+                    var intVal = function ( i ) {
+                        // if(typeof i === 'string' && i)
+                        //     console.log($(i).text());
+                        return typeof i === 'string' && i?
+                            // i.replace(/[\$,]/g, '')*1
+                            parseFloat($(i).text().replace(/[RM ]/g, ''))
+                            :
+                            typeof i === 'number' ?
+                                i : 0;
+                        return 1;
+                    };
+
+                    // Total over this page
+                    let columns = [2,3,4,5,6];
+                    for(let i = 0; i < columns.length; i++){
+                        console.log(columns[i]);
+                        pageTotal = api
+                            .column( columns[i], { page: 'current'} )
+                            .data()
+                            .reduce( function (a, b) {
+                                return intVal(a) + intVal(b);
+                            }, 0 );
+
+                        // Update footer
+                        $( api.column( columns[i] ).footer() ).html(
+                            __currency_trans_from_en(pageTotal, true, false,  __currency_precision, true)
+                        );
+                    }
+                }
             });
         },
     });

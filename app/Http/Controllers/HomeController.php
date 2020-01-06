@@ -380,7 +380,7 @@ class HomeController extends Controller
 //            $output['total_sell'] = $total_sell_inc_tax - $total_sell_return_inc_tax;
             $output['total_deposit'] = $total_sell_inc_tax;
             $output['total_bonus'] = $sell_details['total_bonus'];
-            $output['total_profit'] = $output['total_withdraw'] - $output['total_deposit'];
+            $output['total_profit'] = $output['total_deposit'] - $output['total_withdraw'];
             $output['registration_arr'] = $query->get();
 
             $output['invoice_due'] = $sell_details['invoice_due'];

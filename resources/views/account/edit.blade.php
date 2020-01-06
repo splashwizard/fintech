@@ -61,3 +61,10 @@
 
   </div><!-- /.modal-content -->
 </div><!-- /.modal-dialog -->
+<script>
+    $(document).ready(function () {
+       $('#service_charge').blur(function () {
+           $(this).val(parseFloat($(this).val()).toFixed(2));
+       })
+    });
+</script>

@@ -9,6 +9,7 @@
 {{--			<th>@lang('sale.total')</th>--}}
 			<th>@lang('account.debit')</th>
 			<th>@lang('account.credit')</th>
+			<th>@lang('account.bonus')</th>
 			<th>@lang('account.service_debit')</th>
 			<th>@lang('account.service_credit')</th>
 			<th>@lang('lang_v1.payment_method')</th>
@@ -26,6 +27,7 @@
 {{--				<td>@if($data['total'] != '') <span class="display_currency" data-currency_symbol="true">{{$data['total']}}</span> @endif</td>--}}
 				<td>@if($data['debit'] != '') <span class="display_currency" data-currency_symbol="true">{{$data['debit']}}</span> @endif</td>
 				<td>@if($data['credit'] != '') <span class="display_currency" data-currency_symbol="true">{{$data['credit']}}</span> @endif</td>
+				<td>@if($data['bonus'] != '') <span class="display_currency" data-currency_symbol="true">{{$data['bonus']}}</span> @endif</td>
 				<td>@if($data['service_debit'] != '') <span class="display_currency" data-currency_symbol="true">{{$data['service_debit']}}</span> @endif</td>
 				<td>@if($data['service_credit'] != '') <span class="display_currency" data-currency_symbol="true">{{$data['service_credit']}}</span> @endif</td>
 				<td>{{$data['payment_method']}}</td>
@@ -33,9 +35,15 @@
 			</tr>
 		@endforeach
 	</tbody>
+	<tfoot>
+	<tr>
+		<th colspan="2"></th>
+		<th></th>
+		<th></th>
+		<th></th>
+		<th></th>
+		<th></th>
+		<th></th>
+	</tr>
+	</tfoot>
 </table>
-
-<div>
-	<b>Total Deposit:</b>
-	<span>{{$total_deposit}}</span>
-</div>

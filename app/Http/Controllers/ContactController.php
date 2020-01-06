@@ -173,7 +173,7 @@ class ContactController extends Controller
                         DB::raw("SUM(IF(t.type = 'sell' AND t.status = 'final', final_total, 0)) as total_invoice"),
 //                        DB::raw("1000 as total_invoice"),
                         DB::raw("SUM(IF(t.type = 'sell' AND t.status = 'final', (SELECT SUM(IF(is_return = 1,-1*amount,amount)) FROM transaction_payments WHERE transaction_payments.transaction_id=t.id), 0)) as invoice_received"),
-                        DB::raw("SUM(IF(t.type = 'sell_return', final_total, 0)) as total_sell_return"),
+                        DB::raw("SUM(IF( t.type = 'sell_return' AND (SELECT transaction_payments.method FROM transaction_payments WHERE transaction_payments.transaction_id=t.id) = 'bank_transfer', final_total, 0)) as total_sell_return"),
                         DB::raw("SUM(IF(t.type = 'sell_return', (SELECT SUM(amount) FROM transaction_payments WHERE transaction_payments.transaction_id=t.id), 0)) as sell_return_paid"),
                         DB::raw("SUM(IF(t.type = 'opening_balance', final_total, 0)) as opening_balance"),
                         DB::raw("SUM(IF(t.type = 'opening_balance', (SELECT SUM(IF(is_return = 1,-1*amount,amount)) FROM transaction_payments WHERE transaction_payments.transaction_id=t.id), 0)) as opening_balance_paid")
@@ -968,7 +968,7 @@ class ContactController extends Controller
         }
 
         $payments = $query2->select('transaction_payments.*', 'bl.name as location_name', 't.type as transaction_type', 't.ref_no', 't.invoice_no')->get();
-        $total_deposit = $query2->where('t.type', 'sell')->where('transaction_payments.method', '!=', 'service_transfer')->where('transaction_payments.method','!=', 'bonus')->sum('transaction_payments.amount');
+//        $total_deposit = $query2->where('t.type', 'sell')->where('transaction_payments.method', '!=', 'service_transfer')->where('transaction_payments.method','!=', 'bonus')->sum('transaction_payments.amount');
         $paymentTypes = $this->transactionUtil->payment_types();
         foreach ($payments as $payment) {
             $ref_no = in_array($payment->transaction_type, ['sell', 'sell_return']) ?  $payment->invoice_no :  $payment->ref_no;
@@ -981,7 +981,8 @@ class ContactController extends Controller
 //                'debit' => in_array($payment->transaction_type, ['purchase', 'sell_return']) || ($payment->transaction_type == 'sell' && $payment->method =='other') ? $payment->amount : '',
 //                'credit' => in_array($payment->transaction_type, ['sell', 'purchase_return', 'opening_balance']) && $payment->method !='other' ? $payment->amount : '',
                 'debit' => ($payment->transaction_type == 'sell_return' && $payment->method != 'service_transfer') ? $payment->amount : '',
-                'credit' => ($payment->transaction_type == 'sell' && $payment->method != 'service_transfer') ? $payment->amount : '',
+                'credit' => ($payment->transaction_type == 'sell' && $payment->method == 'bank_transfer') ? $payment->amount : '',
+                'bonus' => ($payment->transaction_type == 'sell' && $payment->method == 'bonus') ? $payment->amount : '',
                 'service_debit' => ($payment->transaction_type == 'sell_return' && $payment->method == 'service_transfer') ? $payment->amount : '',
                 'service_credit' => ($payment->transaction_type == 'sell' && $payment->method == 'service_transfer' ) ? $payment->amount : '',
                 'others' => $payment->note . '<small>' . __('account.payment_for') . ': ' . $ref_no . '</small>'
@@ -998,7 +999,7 @@ class ContactController extends Controller
             });
         }
         return view('contact.ledger')
-             ->with(compact('ledger', 'total_deposit'));
+             ->with(compact('ledger'));
     }
 
     public function postCustomersApi(Request $request)

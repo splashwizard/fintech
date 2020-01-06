@@ -481,6 +481,7 @@ class ServiceController extends Controller
                 $from = $request->input('from_account');
                 $to = $request->input('to_account');
                 $note = $request->input('note');
+                $date = new \DateTime('now');
                 if (!empty($amount)) {
                     $debit_data = [
                         'amount' => $amount,
@@ -490,7 +491,7 @@ class ServiceController extends Controller
                         'created_by' => session()->get('user.id'),
                         'note' => $note,
                         'transfer_account_id' => $to,
-                        'operation_date' => $this->commonUtil->uf_date($request->input('operation_date'), true),
+                        'operation_date' => $date->format('Y-m-d H:i:s'),
                     ];
 
                     DB::beginTransaction();
@@ -505,7 +506,7 @@ class ServiceController extends Controller
                             'note' => $note,
                             'transfer_account_id' => $from,
                             'transfer_transaction_id' => $debit->id,
-                            'operation_date' => $this->commonUtil->uf_date($request->input('operation_date'), true),
+                            'operation_date' => $date->format('Y-m-d H:i:s'),
                         ];
 
                     $credit = AccountTransaction::createAccountTransaction($credit_data);
