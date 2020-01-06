@@ -23,6 +23,22 @@ class Product extends Model
     protected $casts = [
         'sub_unit_ids' => 'array',
     ];
+
+
+    public static function forDropdown($business_id, $is_service = 0)
+    {
+        $query = Product::where('business_id', $business_id);
+        if(!$is_service)
+            $query = $query->where('category_id', 66);
+        else
+            $query = $query->where('category_id', 67);
+        $all_products = $query->select('id', 'name');
+
+        $products = $all_products->pluck('name', 'id');
+        $products = $products->prepend(__('lang_v1.all'), '');
+
+        return $products;
+    }
     
     /**
      * Get the products image.

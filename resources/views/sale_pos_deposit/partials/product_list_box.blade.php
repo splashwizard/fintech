@@ -8,7 +8,7 @@
 {{--			</select>--}}
 {{--		@endif--}}
 		@if(!empty($bank_categories))
-			<select class="select2" id="product_category" style="width:45% !important">
+			<select class="select2" id="product_category" style="width:40% !important">
 
 {{--				<option value="all">@lang('lang_v1.all_category')</option>--}}
 
@@ -27,6 +27,10 @@
 				@endforeach
 			</select>
 		@endif
+{{--		<select class="select" id="bank_products" style="width:45% !important" name="bank_products">--}}
+{{--			<option value="{{$bank_products['id']}}">{{$bank_products['name']}}</option>--}}
+{{--		</select>--}}
+		{!! Form::select('bank_products', $bank_products, null, ['id' => 'bank_products', 'class' => 'select form-control', 'name' => null, 'style' => 'width:45% !important; display:inline-block;margin-left:30px']) !!}
 
 	@if(!empty($brands))
 		&nbsp;
@@ -68,7 +72,7 @@
 {{--		@endif--}}
 
 		@if(!empty($service_categories))
-			<select class="select2" id="product_category2" style="width:45% !important">
+			<select class="select2" id="product_category2" style="width:40% !important">
 
 {{--				<option value="all">@lang('lang_v1.all_category')</option>--}}
 				@foreach($service_categories as $category)
@@ -86,6 +90,7 @@
 				@endforeach
 			</select>
 		@endif
+		{!! Form::select('service_products', $service_products, null, ['id' => 'service_products', 'class' => 'select form-control', 'name' => null, 'style' => 'width:45% !important; display:inline-block;margin-left:30px']) !!}
 		@if(!empty($brands))
 			&nbsp;
 			{!! Form::select('size', $brands, null, ['id' => 'product_brand', 'class' => 'select2', 'name' => null, 'style' => 'width:45% !important']) !!}

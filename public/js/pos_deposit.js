@@ -1004,6 +1004,7 @@
     //Show product list.
     get_product_suggestion_list(
         $('select#product_category').val(),
+        $('select#bank_products').val(),
         $('select#product_brand').val(),
         $('input#location_id').val(),
         null
@@ -1011,28 +1012,31 @@
 
     get_product2_suggestion_list(
         $('select#product_category2').val(),
+        $('select#service_products').val(),
         $('select#product_brand').val(),
         $('input#location_id').val(),
         null
     );
-    $('select#product_category, select#product_brand').on('change', function(e) {
+    $('select#product_category, select#product_brand, select#bank_products').on('change', function(e) {
         $('input#suggestion_page').val(1);
         var location_id = $('input#location_id').val();
         if (location_id != '' || location_id != undefined) {
             get_product_suggestion_list(
                 $('select#product_category').val(),
+                $('select#bank_products').val(),
                 $('select#product_brand').val(),
                 $('input#location_id').val(),
                 null
             );
         }
     });
-    $('select#product_category2').on('change', function(e) {
+    $('select#product_category2, select#service_products').on('change', function(e) {
         $('input#suggestion_page2').val(1);
         var location_id = $('input#location_id').val();
         if (location_id != '' || location_id != undefined) {
             get_product2_suggestion_list(
                 $('select#product_category2').val(),
+                $('select#service_products').val(),
                 $('select#product_brand').val(),
                 $('input#location_id').val(),
                 null
@@ -1253,7 +1257,7 @@
     }
 });
 
-function get_product_suggestion_list(category_id, brand_id, location_id, url = null) {
+function get_product_suggestion_list(category_id, product_id, brand_id, location_id, url = null) {
 
     if($('div#product_list_body').length == 0) {
         return false;
@@ -1276,6 +1280,7 @@ function get_product_suggestion_list(category_id, brand_id, location_id, url = n
         url: url,
         data: {
             category_id: category_id,
+            product_id: product_id,
             brand_id: brand_id,
             location_id: location_id,
             page: page,
@@ -1288,7 +1293,7 @@ function get_product_suggestion_list(category_id, brand_id, location_id, url = n
     });
 }
 
-function get_product2_suggestion_list(category_id, brand_id, location_id, url = null) {
+function get_product2_suggestion_list(category_id, product_id, brand_id, location_id, url = null) {
 
     if($('div#product_list_body2').length == 0) {
         return false;
@@ -1311,6 +1316,7 @@ function get_product2_suggestion_list(category_id, brand_id, location_id, url = 
         url: url,
         data: {
             category_id: category_id,
+            product_id: product_id,
             brand_id: brand_id,
             location_id: location_id,
             page: page,
@@ -1877,9 +1883,10 @@ $('div#product_list_body').on('scroll', function() {
         $('#suggestion_page').val(page);
         var location_id = $('input#location_id').val();
         var category_id = $('select#product_category').val();
+        var product_id = $('select#bank_products').val();
         var brand_id = $('select#product_brand').val();
 
-        get_product_suggestion_list(category_id, brand_id, location_id);
+        get_product_suggestion_list(category_id, product_id, brand_id, location_id);
     }
 });
 
@@ -1890,9 +1897,10 @@ $('div#product_list_body2').on('scroll', function() {
         $('#suggestion_page2').val(page);
         var location_id = $('input#location_id').val();
         var category_id = $('select#product_category2').val();
+        var product_id = $('select#service_products').val();
         var brand_id = $('select#product_brand').val();
 
-        get_product2_suggestion_list(category_id, brand_id, location_id);
+        get_product2_suggestion_list(category_id, product_id, brand_id, location_id);
     }
 });
 

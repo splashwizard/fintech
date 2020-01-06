@@ -188,6 +188,9 @@ class SellPosDepositController extends Controller
         //If brands, category are enabled then send else false.
         $bank_categories = (request()->session()->get('business.enable_category') == 1) ? Category::bankCatAndSubCategories($business_id) : false;
         $service_categories = (request()->session()->get('business.enable_category') == 1) ? Category::serviceCatAndSubCategories($business_id) : false;
+        $bank_products = Product::forDropDown($business_id, 0);
+        $service_products = Product::forDropDown($business_id, 1);
+
         $brands = (request()->session()->get('business.enable_brand') == 1) ? Brands::where('business_id', $business_id)
                     ->pluck('name', 'id')
                     ->prepend(__('lang_v1.all_brands'), 'all') : false;
@@ -228,6 +231,8 @@ class SellPosDepositController extends Controller
                 'commission_agent',
                 'bank_categories',
                 'service_categories',
+                'bank_products',
+                'service_products',
                 'brands',
                 'pos_settings',
                 'change_return',
@@ -1556,6 +1561,7 @@ class SellPosDepositController extends Controller
     {
         if ($request->ajax()) {
             $category_id = $request->get('category_id');
+            $product_id = $request->get('product_id');
             $brand_id = $request->get('brand_id');
             $location_id = $request->get('location_id');
             $term = $request->get('term');
@@ -1608,6 +1614,9 @@ class SellPosDepositController extends Controller
             }
             if ($brand_id != 'all') {
                 $products->where('p.brand_id', $brand_id);
+            }
+            if (!empty($product_id)) {
+                $products->where('p.id', $product_id);
             }
 
 

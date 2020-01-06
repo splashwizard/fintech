@@ -200,7 +200,7 @@
 							</li>
 						@endif
 
-						@if(auth()->user()->can('category.view') || auth()->user()->can('category.create'))
+						@if((auth()->user()->can('category.view') || auth()->user()->can('category.create')) && $is_superadmin)
 							<li class="{{ $request->segment(1) == 'categories' ? 'active' : '' }}">
 								<a href="{{action('CategoryController@index')}}"><i class="fa fa-tags"></i>
 									<span>@lang('category.categories') </span></a>
