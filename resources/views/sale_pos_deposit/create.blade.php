@@ -116,7 +116,7 @@
 									value="{{ $walk_in_customer['id']}}" >
 									<input type="hidden" id="default_customer_name" 
 									value="{{ $walk_in_customer['name']}}" >
-									{!! Form::select('contact_id', 
+									{!! Form::select('contact_id',
 										[], null, ['class' => 'form-control mousetrap', 'id' => 'customer_id', 'placeholder' => 'Enter Customer name / phone', 'required', 'style' => 'width: 100%;']); !!}
 									<span class="input-group-btn">
 										<button type="button" class="btn btn-default bg-white btn-flat add_new_customer" data-name=""  @if(!auth()->user()->can('customer.create')) disabled @endif><i class="fa fa-plus-circle text-primary fa-lg"></i></button>
@@ -222,6 +222,9 @@
 @stop
 
 @section('javascript')
+	<script>
+		const basic_bonus_rate = '{{session()->get('business')['basic_bonus']}}';
+	</script>
 	<script src="{{ asset('js/pos_deposit.js?v=' . $asset_v) }}"></script>
 	<script src="{{ asset('js/printer.js?v=' . $asset_v) }}"></script>
 	<script src="{{ asset('js/product.js?v=' . $asset_v) }}"></script>

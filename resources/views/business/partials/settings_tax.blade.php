@@ -56,5 +56,17 @@
                 </div>
             </div>
         </div>
+        <div class="clearfix"></div>
+        <div class="col-sm-4">
+            <div class="form-group">
+                {!! Form::label('basic_bonus', __('business.basic_bonus') . ':') !!}
+                <div class="input-group">
+                    <span class="input-group-addon">
+                        <i class="fa fa-percent"></i>
+                    </span>
+                    {!! Form::text('basic_bonus', $business->basic_bonus, ['class' => 'form-control']); !!}
+                </div>
+            </div>
+        </div>
     </div>
 </div>

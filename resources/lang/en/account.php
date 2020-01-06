@@ -4,6 +4,7 @@ return [
     'manage_your_account' => 'Manage your account',
     'all_accounts' => 'All accounts',
     'account_number' => 'Account Number',
+    'service_charge' => 'Service Charge',
     'is_safe' => 'Safe Account',
     'short_name' => 'Short Name',
     'add_account' => 'Add Account',

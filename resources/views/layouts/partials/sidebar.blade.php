@@ -219,7 +219,7 @@
             @if(Module::has('Manufacturing'))
                 @includeIf('manufacturing::layouts.partials.sidebar')
             @endif
-            @if(auth()->user()->can('purchase.view') || auth()->user()->can('purchase.create') || auth()->user()->can('purchase.update') )
+            @if( (auth()->user()->can('purchase.view') || auth()->user()->can('purchase.create') || auth()->user()->can('purchase.update') ) && $is_superadmin)
                 <li class="treeview {{in_array($request->segment(1), ['purchases', 'purchase-return']) ? 'active active-sub' : '' }}"
                     id="tour_step6">
                     <a href="#" id="tour_step6_menu"><i class="fa fa-arrow-circle-down"></i>
@@ -303,7 +303,7 @@
                 @includeIf('repair::layouts.partials.sidebar')
             @endif
 
-            @if(auth()->user()->can('purchase.view') || auth()->user()->can('purchase.create') )
+            @if( (auth()->user()->can('purchase.view') || auth()->user()->can('purchase.create')) && $is_superadmin )
                 <li class="treeview {{ $request->segment(1) == 'stock-transfers' ? 'active active-sub' : '' }}">
                     <a href="#"><i class="fa fa-truck" aria-hidden="true"></i>
                         <span>@lang('lang_v1.stock_transfers')</span>
@@ -326,7 +326,7 @@
                 </li>
             @endif
 
-            @if(auth()->user()->can('purchase.view') || auth()->user()->can('purchase.create') )
+            @if( (auth()->user()->can('purchase.view') || auth()->user()->can('purchase.create')) && $is_superadmin)
                 <li class="treeview {{ $request->segment(1) == 'stock-adjustments' ? 'active active-sub' : '' }}">
                     <a href="#"><i class="fa fa-database" aria-hidden="true"></i>
                         <span>@lang('stock_adjustment.stock_adjustment')</span>
@@ -409,7 +409,7 @@
                 </li>
             @endcan
 
-            @if(auth()->user()->can('purchase_n_sell_report.view')
+            @if((auth()->user()->can('purchase_n_sell_report.view')
               || auth()->user()->can('contacts_report.view')
               || auth()->user()->can('stock_report.view')
               || auth()->user()->can('tax_report.view')
@@ -417,7 +417,7 @@
               || auth()->user()->can('sales_representative.view')
               || auth()->user()->can('register_report.view')
               || auth()->user()->can('expense_report.view')
-              )
+              ) && $is_superadmin)
 
                 <li class="treeview {{  in_array( $request->segment(1), ['reports']) ? 'active active-sub' : '' }}"
                     id="tour_step8">
@@ -599,6 +599,7 @@
                 @endif
 
 
+                @if($is_superadmin)
                 @can('send_notifications')
                     <li class="treeview {{  $request->segment(1) == 'notification-templates' ? 'active active-sub' : '' }}">
                         <a href="{{action('NotificationTemplateController@index')}}"><i class="fa fa-envelope"></i>
@@ -606,6 +607,7 @@
                         </a>
                     </li>
                 @endcan
+                @endif
 
                 @if(auth()->user()->can('business_settings.access') ||
                 auth()->user()->can('barcode_settings.access') ||

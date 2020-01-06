@@ -26,6 +26,7 @@ return [
     'tax_1_no' => 'Tax 1 No.',
     'tax_2_name' => 'Tax 2 Name',
     'tax_2_no' => 'Tax 2 No.',
+    'basic_bonus' => 'Basic bonus',
     'tax_1_placeholder' => 'GST / VAT / Other',
     'prefix' => 'Prefix',
     'prefix_placeholder' => 'Mr / Mrs / Miss',

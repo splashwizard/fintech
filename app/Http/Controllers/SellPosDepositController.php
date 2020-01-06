@@ -1391,6 +1391,7 @@ class SellPosDepositController extends Controller
         $payment_data = [];
         $bonus_amount = 0;
         $is_direct_bonus = 0;
+        $bonus_rate = request()->session()->get('business')['basic_bonus'];
         foreach ($products as $product) {
             if(!isset($payment_data[$product['account_id']]['amount'] )){
                 $p_name = $product['p_name'];
@@ -1401,7 +1402,7 @@ class SellPosDepositController extends Controller
                 if($p_name == 'Bonus')
                     $is_direct_bonus = 1;
                 else if($product['category_id'] == 66){
-                    $bonus_amount += $product['amount'] * 0.1;
+                    $bonus_amount += $product['amount'] * $bonus_rate / 100;
                 }
             }
             else{
@@ -1409,7 +1410,7 @@ class SellPosDepositController extends Controller
 //                $payment_data[$product['account_id']]['amount'] += $this->productUtil->getPrice($product);
                 $payment_data[$product['account_id']]['amount'] += $product['amount'];
                 if($p_name != 'Bonus'){
-                    $bonus_amount += $product['amount'] * 0.1;
+                    $bonus_amount += $product['amount'] * $bonus_rate / 100;
                 }
             }
         }

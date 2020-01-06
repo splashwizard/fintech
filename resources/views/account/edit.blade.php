@@ -18,9 +18,26 @@
                 {!! Form::label('account_number', __( 'account.account_number' ) .":*") !!}
                 {!! Form::text('account_number', $account->account_number, ['class' => 'form-control', 'required','placeholder' => __( 'account.account_number' ) ]); !!}
             </div>
-            <div class="form-group">
-                {!! Form::checkbox('is_safe', 1, $account->is_safe,
-                        [ 'class' => 'input-icheck']); !!} {{ __( 'account.is_safe' ) }}
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        {!! Form::checkbox('is_safe', 1, $account->is_safe,
+                                [ 'class' => 'input-icheck']); !!} {{ __( 'account.is_safe' ) }}
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group row">
+                        {!! Form::label('service_charge', __('account.service_charge') . ':', ['class' => 'col-sm-6']) !!}
+                        <div class="col-sm-6">
+                            <div class="input-group">
+                                <span class="input-group-addon">
+                                    <i class="fa fa-info"></i>
+                                </span>
+                                {!! Form::text('service_charge', $account->service_charge, ['class' => 'form-control']); !!}
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
             {{--
             <div class="form-group">

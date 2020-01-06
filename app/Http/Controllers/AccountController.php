@@ -342,7 +342,7 @@ class AccountController extends Controller
 
         if (request()->ajax()) {
             try {
-                $input = $request->only(['name', 'account_number', 'note', 'is_safe']);
+                $input = $request->only(['name', 'account_number', 'note', 'is_safe', 'service_charge']);
 
                 $business_id = request()->session()->get('user.business_id');
                 $account = Account::where('business_id', $business_id)
@@ -351,6 +351,7 @@ class AccountController extends Controller
                 $account->account_number = $input['account_number'];
                 $account->is_safe = isset($input['is_safe']) ? 1 : 0;
                 $account->note = $input['note'];
+                $account->service_charge = $input['service_charge'];
                 $account->save();
 
                 $output = ['success' => true,
@@ -488,6 +489,7 @@ class AccountController extends Controller
                 $from = $request->input('from_account');
                 $to = $request->input('to_account');
                 $note = $request->input('note');
+                $date = new \DateTime('now');
                 if (!empty($amount)) {
                     $debit_data = [
                         'amount' => $amount,
@@ -497,7 +499,7 @@ class AccountController extends Controller
                         'created_by' => session()->get('user.id'),
                         'note' => $note,
                         'transfer_account_id' => $to,
-                        'operation_date' => $this->commonUtil->uf_date($request->input('operation_date'), true),
+                        'operation_date' => $date->format('Y-m-d H:i:s'),
                     ];
 
                     DB::beginTransaction();
@@ -512,7 +514,7 @@ class AccountController extends Controller
                             'note' => $note,
                             'transfer_account_id' => $from,
                             'transfer_transaction_id' => $debit->id,
-                            'operation_date' => $this->commonUtil->uf_date($request->input('operation_date'), true),
+                            'operation_date' => $date->format('Y-m-d H:i:s'),
                         ];
 
                     $credit = AccountTransaction::createAccountTransaction($credit_data);
@@ -689,8 +691,8 @@ class AccountController extends Controller
 
 //            $from_account = $request->input('from_account');
 //
-//            $account = Account::where('business_id', $business_id)
-//                ->findOrFail($account_id);
+            $account = Account::where('business_id', $business_id)
+                ->findOrFail($account_id);
 
             if (!empty($amount)) {
                 $user_id = $request->session()->get('user.id');
@@ -720,7 +722,7 @@ class AccountController extends Controller
                 $this->transactionUtil->updateCustomerRewardPoints($contact_id, 0, 0, $transaction->rp_redeemed);
 
                 $debit_data = [
-                    'amount' => $amount,
+                    'amount' => $amount + $account->service_charge,
                     'account_id' => $account_id,
                     'type' => 'debit',
                     'sub_type' => 'withdraw',

@@ -776,6 +776,11 @@ class ServiceController extends Controller
 //                    ];
 //
 //                    AccountTransaction::createAccountTransaction($debit_data);
+                    if(!$is_service){
+                        $account = Account::where('business_id', $business_id)
+                            ->findOrFail($bank_account_id);
+                        $amount += $account->service_charge;
+                    }
                     $credit_data = [
                         'amount' => $amount,
                         'account_id' => $bank_account_id,

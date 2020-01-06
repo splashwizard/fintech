@@ -1,4 +1,4 @@
-$(document).ready(function() {
+    $(document).ready(function() {
 
     customer_set = false;
     //Prevent enter key function except texarea
@@ -1508,7 +1508,6 @@ function pos_each_row(row_obj) {
 }
 
 function pos_total_row() {
-    const rate = 0.1;
     let credit = 0, basic_bonus = 0, special_bonus = 0, debit = 0;
 
     $('table#pos_table tbody tr').each(function() {
@@ -1519,7 +1518,7 @@ function pos_total_row() {
         } else if(category_id === 66){
             const line_total = __read_number($(this).find('input.pos_line_total'));
             credit += line_total;
-            basic_bonus += rate * line_total;
+            basic_bonus += basic_bonus_rate * line_total / 100;
         } else {
             const line_total = __read_number($(this).find('input.pos_line_total'));
             debit += line_total;
