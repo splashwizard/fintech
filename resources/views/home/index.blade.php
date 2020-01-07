@@ -47,7 +47,7 @@
 	</div>
 	<br>
 	<div class="row">
-    	<div class="col-md-3 col-sm-6 col-xs-12">
+    	<div class="col-lg-4 col-md-6 col-xs-12">
 	      <div class="info-box">
 	        <span class="info-box-icon bg-aqua"><i class="ion ion-cash"></i></span>
 
@@ -75,7 +75,7 @@
 	      <!-- /.info-box -->
 	    </div>
 	    <!-- /.col -->
-	    <div class="col-md-3 col-sm-6 col-xs-12">
+	    <div class="col-lg-4 col-md-6 col-xs-12">
 	      <div class="info-box">
 	        <span class="info-box-icon bg-aqua"><i class="ion ion-ios-cart-outline"></i></span>
 
@@ -103,7 +103,7 @@
 	      <!-- /.info-box -->
 	    </div>
 	    <!-- /.col -->
-	    <div class="col-md-3 col-sm-6 col-xs-12">
+	    <div class="col-lg-4 col-md-6 col-xs-12">
 	      <div class="info-box">
 	        <span class="info-box-icon bg-yellow">
 	        	<i class="fa fa-dollar"></i>
@@ -136,13 +136,13 @@
 	    <!-- /.col -->
 
 	    <!-- fix for small devices only -->
-	    <!-- <div class="clearfix visible-sm-block"></div> -->
-	    <div class="col-md-3 col-sm-6 col-xs-12">
+	    <div class="clearfix"></div>
+	    <div class="col-lg-4 col-md-6 col-xs-12">
 	      <div class="info-box">
               <div class="row" style="padding-top: 15px; padding-bottom: 15px">
                   <div class="col-md-8">
                       <div class="chart-responsive" id="chart_container">
-                          <canvas id="pieChart" height="165" width="250" style="width: 250px; height: 165px;"></canvas>
+                          <canvas id="pieChart" height="165" width="200" style="width: 200px; height: 165px;"></canvas>
                       </div>
                       <!-- ./chart-responsive -->
                   </div>
@@ -164,7 +164,7 @@
   	<br>
 	<div class="row" style="display: {{count($bank_accounts) ? 'block' : 'none'}}" id="bank_accounts">
         @foreach($bank_accounts as $bank_account)
-        <div class="col-md-3 col-sm-6 col-xs-12">
+        <div class="col-lg-4 col-md-6 col-xs-12">
             <div class="info-box">
                 <span class="custom-info-box bg-yellow">
                     {{$bank_account->name}}
@@ -214,7 +214,7 @@
 
     <div class="row" style="display: {{count($service_accounts) ? 'block' : 'none'}}" id="service_accounts">
         @foreach($service_accounts as $service_account)
-                <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="col-lg-4 col-md-6 col-xs-12">
                     <div class="info-box">
                         <span class="custom-info-box bg-green">
                             {{$service_account->name}}

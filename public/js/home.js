@@ -123,7 +123,7 @@ function update_statistics(start, end) {
             // -------------
             // Get context with jQuery - using jQuery's .get() method.
             $('#pieChart').remove();
-            $('#chart_container').append('<canvas id="pieChart" height="165" width="250" style="width: 250px; height: 165px;"></canvas>');
+            $('#chart_container').append('<canvas id="pieChart" height="165" width="200" style="width: 200px; height: 165px;"></canvas>');
             var pieChartCanvas = $('#pieChart').get(0).getContext('2d');
             var pieChart       = new Chart(pieChartCanvas);
             const registration_arr = data.registration_arr;
