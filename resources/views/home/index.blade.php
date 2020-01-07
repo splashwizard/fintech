@@ -139,19 +139,6 @@
 	    <!-- <div class="clearfix visible-sm-block"></div> -->
 	    <div class="col-md-3 col-sm-6 col-xs-12">
 	      <div class="info-box">
-{{--	        <span class="info-box-icon bg-yellow">--}}
-{{--	        	<i class="ion ion-ios-paper-outline"></i>--}}
-{{--	        	<i class="fa fa-exclamation"></i>--}}
-{{--	        </span>--}}
-
-{{--	        <div class="info-box-content">--}}
-{{--                <div style="margin-top: 10px">--}}
-{{--                    <span class="info-box-text">{{ __('home.new_registration').":" }}</span>--}}
-{{--                </div>--}}
-{{--                <div style="margin-top: 10px">--}}
-{{--                    <span class="info-box-number registration_cnt"><i class="fa fa-refresh fa-spin fa-fw margin-bottom"></i></span>--}}
-{{--                </div>--}}
-{{--	        </div>--}}
               <div class="row" style="padding-top: 15px; padding-bottom: 15px">
                   <div class="col-md-8">
                       <div class="chart-responsive" id="chart_container">
@@ -175,41 +162,104 @@
 	    <!-- /.col -->
   	</div>
   	<br>
-	<div class="row" style="display: <?php echo count($bank_accounts)||count($service_accounts) ? 'block' : 'none'; ?>">
-		<div class="col-sm-12">
-			<div class="box box-primary">
-				<div class="box-body">
-					<div style="display: flex;padding-left: 15px;margin-bottom: 10px">
-					@foreach($bank_accounts as $bank_account)
-						<div class="custom_bank_radio">
-							<div class="custom_label">
-								@php echo $bank_account->name;
-								@endphp
-							</div>
-							<div class="custom_value">
-								@php echo (!empty($bank_account->balance) ? $bank_account->balance : 0);
-								@endphp
-							</div>
-						</div>
-					@endforeach
-					</div>
-					<div style="display: flex;padding-left: 15px;margin-bottom: 10px">
-					@foreach($service_accounts as $service_account)
-						<div class="custom_service_radio">
-							<div class="custom_label">
-								@php echo $service_account->name;
-								@endphp
-							</div>
-							<div class="custom_value">
-								@php echo (!empty($service_account->balance) ? $service_account->balance : 0);
-								@endphp
-							</div>
-						</div>
-					@endforeach
-					</div>
-				</div>
-			</div>
-		</div>
+	<div class="row" style="display: {{count($bank_accounts) ? 'block' : 'none'}}" id="bank_accounts">
+        @foreach($bank_accounts as $bank_account)
+        <div class="col-md-3 col-sm-6 col-xs-12">
+            <div class="info-box">
+                <span class="custom-info-box bg-yellow">
+                    {{$bank_account->name}}
+                </span>
+
+                <div class="info-box-content">
+                    <div style="margin-top: 5px">
+                        <div style="width: 50%;float: left">
+                            <span class="info-box-text">
+                                Balance:
+                            </span>
+                        </div>
+                        <div style="width: 50%;float: left">
+                            <span class="info-box-number">{{(!empty($bank_account->balance) ? $bank_account->balance : 0)}}
+                            </span>
+                        </div>
+                    </div>
+                    <div style="margin-top: 10px">
+                        <div style="width: 50%;float: left">
+                            <span class="info-box-text">
+                                Dep.:
+                            </span>
+                        </div>
+                        <div style="width: 50%;float: left">
+                            <span class="info-box-number">{{(!empty($bank_account->total_deposit) ? $bank_account->total_deposit : 0)}}
+                            </span>
+                        </div>
+                    </div>
+                    <div style="margin-top: 10px">
+                        <div style="width: 50%;float: left">
+                            <span class="info-box-text">
+                                Wit.:
+                            </span>
+                        </div>
+                        <div style="width: 50%;float: left">
+                            <span class="info-box-number">{{(!empty($bank_account->total_withdraw) ? $bank_account->total_withdraw : 0)}}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <!-- /.info-box-content -->
+            </div>
+            <!-- /.info-box -->
+        </div>
+        @endforeach
+    </div>
+
+    <div class="row" style="display: {{count($service_accounts) ? 'block' : 'none'}}" id="service_accounts">
+        @foreach($service_accounts as $service_account)
+                <div class="col-md-3 col-sm-6 col-xs-12">
+                    <div class="info-box">
+                        <span class="custom-info-box bg-green">
+                            {{$service_account->name}}
+                        </span>
+
+                        <div class="info-box-content">
+                            <div style="margin-top: 5px">
+                                <div style="width: 50%;float: left">
+                                    <span class="info-box-text">
+                                        Balance:
+                                    </span>
+                                </div>
+                                <div style="width: 50%;float: left">
+                                    <span class="info-box-number">{{(!empty($service_account->balance) ? $service_account->balance : 0)}}
+                                    </span>
+                                </div>
+                            </div>
+                            <div style="margin-top: 10px">
+                                <div style="width: 50%;float: left">
+                                    <span class="info-box-text">
+                                        Dep.:
+                                    </span>
+                                </div>
+                                <div style="width: 50%;float: left">
+                                    <span class="info-box-number">{{(!empty($service_account->total_deposit) ? $service_account->total_deposit : 0)}}
+                                    </span>
+                                </div>
+                            </div>
+                            <div style="margin-top: 10px">
+                                <div style="width: 50%;float: left">
+                                    <span class="info-box-text">
+                                        Wit.:
+                                    </span>
+                                </div>
+                                <div style="width: 50%;float: left">
+                                    <span class="info-box-number">{{(!empty($service_account->total_withdraw) ? $service_account->total_withdraw : 0)}}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- /.info-box-content -->
+                    </div>
+                    <!-- /.info-box -->
+                </div>
+            @endforeach
 	</div>
     @if(!empty($widgets['after_sale_purchase_totals']))
       @foreach($widgets['after_sale_purchase_totals'] as $widget)

@@ -47,18 +47,18 @@
               </div>
           </div>
         </div>
-        <div class="col-md-4">
-          <div class="form-group">
-              {!! Form::label('contact_id', __('lang_v1.contact_id') . ':') !!}
-              <div class="input-group">
-                  <span class="input-group-addon">
-                      <i class="fa fa-id-badge"></i>
-                  </span>
-                  <input type="hidden" id="hidden_id" value="{{$contact->id}}">
-                  {!! Form::text('contact_id', $contact->contact_id, ['class' => 'form-control','placeholder' => __('lang_v1.contact_id')]); !!}
-              </div>
-          </div>
-        </div>
+{{--        <div class="col-md-4">--}}
+{{--          <div class="form-group">--}}
+{{--              {!! Form::label('contact_id', __('lang_v1.contact_id') . ':') !!}--}}
+{{--              <div class="input-group">--}}
+{{--                  <span class="input-group-addon">--}}
+{{--                      <i class="fa fa-id-badge"></i>--}}
+{{--                  </span>--}}
+{{--                  <input type="hidden" id="hidden_id" value="{{$contact->id}}">--}}
+{{--                  {!! Form::text('contact_id', $contact->contact_id, ['class' => 'form-control','placeholder' => __('lang_v1.contact_id')]); !!}--}}
+{{--              </div>--}}
+{{--          </div>--}}
+{{--        </div>--}}
         <div class="col-md-4">
           <div class="form-group">
               {!! Form::label('tax_number', __('contact.tax_no') . ':') !!}
@@ -81,6 +81,7 @@
               </div>
           </div>
         </div>
+          <div class="clearfix"></div>
 
         <div class="col-md-4">
           <div class="form-group">

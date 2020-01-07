@@ -187,12 +187,12 @@ class ContactController extends Controller
             )
             ->addColumn(
                 'due',
-                '<span class="display_currency contact_due" data-orig-value="{{$total_invoice - $invoice_received}}" data-currency_symbol=true data-highlight=true>{{($total_invoice)}}</span>'
+                '<span class="display_currency contact_due" data-orig-value="{{$total_invoice}}" data-currency_symbol=true data-highlight=true>{{($total_invoice)}}</span>'
 //                '<span class="display_currency contact_due" data-orig-value="{{$total_invoice - $invoice_received}}" data-currency_symbol=true data-highlight=true>{{($total_invoice - $invoice_received)}}</span>'
             )
             ->addColumn(
                 'return_due',
-                '<span class="display_currency return_due" data-orig-value="{{$total_sell_return - $sell_return_paid}}" data-currency_symbol=true data-highlight=false>{{$total_sell_return}}</span>'
+                '<span class="display_currency return_due" data-orig-value="{{$total_sell_return}}" data-currency_symbol=true data-highlight=false>{{$total_sell_return}}</span>'
 //                '<span class="display_currency return_due" data-orig-value="{{$total_sell_return - $sell_return_paid}}" data-currency_symbol=true data-highlight=false>{{$total_sell_return - $sell_return_paid }}</span>'
             )
             ->addColumn(
@@ -301,8 +301,9 @@ class ContactController extends Controller
                 return $this->moduleUtil->expiredResponse();
             }
 
-            $input = $request->only(['type', 'supplier_business_name',
+            $input = $request->only(['supplier_business_name',
                 'name', 'tax_number', 'pay_term_number', 'pay_term_type', 'mobile', 'landline', 'alternate_number', 'city', 'state', 'country', 'landmark', 'customer_group_id', 'contact_id', 'custom_field1', 'custom_field2', 'custom_field3', 'custom_field4', 'email']);
+            $input['type'] = 'customer';
             $input['business_id'] = $business_id;
             $input['created_by'] = $request->session()->get('user.id');
 

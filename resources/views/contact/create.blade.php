@@ -16,17 +16,17 @@
     <div class="modal-body">
       <div class="row">
 
-      <div class="col-md-6 contact_type_div">
-        <div class="form-group">
-            {!! Form::label('type', __('contact.contact_type') . ':*' ) !!}
-            <div class="input-group">
-                <span class="input-group-addon">
-                    <i class="fa fa-user"></i>
-                </span>
-                {!! Form::select('type', $types, null , ['class' => 'form-control', 'id' => 'contact_type','placeholder' => __('messages.please_select'), 'required']); !!}
-            </div>
-        </div>
-      </div>
+{{--      <div class="col-md-6 contact_type_div">--}}
+{{--        <div class="form-group">--}}
+{{--            {!! Form::label('type', __('contact.contact_type') . ':*' ) !!}--}}
+{{--            <div class="input-group">--}}
+{{--                <span class="input-group-addon">--}}
+{{--                    <i class="fa fa-user"></i>--}}
+{{--                </span>--}}
+{{--                {!! Form::select('type', $types, null , ['class' => 'form-control', 'id' => 'contact_type','placeholder' => __('messages.please_select'), 'required']); !!}--}}
+{{--            </div>--}}
+{{--        </div>--}}
+{{--      </div>--}}
       <div class="col-md-6">
         <div class="form-group">
             {!! Form::label('name', __('contact.name') . ':*') !!}

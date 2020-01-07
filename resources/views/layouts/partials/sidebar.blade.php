@@ -111,11 +111,13 @@
 				  </span>
                     </a>
                     <ul class="treeview-menu">
+                        @if($is_superadmin)
                         @can('supplier.view')
                             <li class="{{ $request->input('type') == 'supplier' ? 'active' : '' }}"><a
                                         href="{{action('ContactController@index', ['type' => 'supplier'])}}"><i
                                             class="fa fa-star"></i> @lang('report.supplier')</a></li>
                         @endcan
+                        @endif
 
                         @can('customer.view')
                             <li class="{{ $request->input('type') == 'customer' ? 'active' : '' }}"><a
