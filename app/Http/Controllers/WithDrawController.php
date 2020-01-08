@@ -253,7 +253,7 @@ class WithDrawController extends Controller
                                     <ul class="dropdown-menu dropdown-menu-right" role="menu">' ;
 
                         if (auth()->user()->can("sell.view") || auth()->user()->can("direct_sell.access") || auth()->user()->can("view_own_sell_only")) {
-                            $html .= '<li><a href="' . action("SellController@show", [$row->id]) . '" data-container=".view_modal"><i class="fa fa-external-link" aria-hidden="true"></i> ' . __("messages.view") . '</a></li>';
+                            $html .= '<li class="view_li"><a href="' . action("SellController@show", [$row->id]) . '" data-container=".view_modal"><i class="fa fa-external-link" aria-hidden="true"></i> ' . __("messages.view") . '</a></li>';
                         }
 
                         $document = $row->document;

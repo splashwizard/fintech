@@ -2056,7 +2056,7 @@ $(document).on('click', 'table.ajax_view tbody tr', function(e) {
         });
     }
 });
-$(document).on('click', 'td.clickable_td', function(e) {
+$(document).on('click', '.view_li', function(e) {
     e.preventDefault();
     e.stopPropagation();
     if (e.target.tagName == 'SPAN') {
