@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\User;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 
@@ -59,6 +60,10 @@ class LoginController extends Controller
 
     public function logout()
     {
+        $user_id = request()->session()->get('user.id');
+        $row = User::where('id', $user_id)->first();
+        $row->is_logged = false;
+        $row->update();
         request()->session()->flush();
         \Auth::logout();
         return redirect('/login');
@@ -90,7 +95,28 @@ class LoginController extends Controller
                       ['success' => 0, 'msg' => __('lang_v1.user_inactive')]
                   );
             }
+            elseif($user->ipaddr_restrict && $user->ipaddr_restrict != $request->ip()) {
+//                print_r($_SERVER['REMOTE_ADDR']);exit;
+                \Auth::logout();
+                return redirect('/login')
+                    ->with(
+                        'status',
+                        ['success' => 0, 'msg' => __('lang_v1.ipaddr_diff')]
+                    );
+            }
         }
+        if($user->is_logged){
+            \Auth::logout();
+            return redirect('/login')
+                ->with(
+                    'status',
+                    ['success' => 0, 'msg' => __('lang_v1.another_log')]
+                );
+        }
+        $date = new \DateTime('now');
+        $user->last_online = $date->format('Y-m-d H:i:s');
+        $user->is_logged = true;
+        $user->save();
     }
 
     protected function redirectTo()

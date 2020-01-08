@@ -270,7 +270,10 @@
             method: "POST",
             url: $(this).attr("action"),
             dataType: "json",
-            data: data,
+            data: new FormData(this),
+            contentType: false,
+            cache: false,
+            processData:false,
             success: function(result){
                 if(result.success == true){
                     $('div.view_modal').modal('hide');

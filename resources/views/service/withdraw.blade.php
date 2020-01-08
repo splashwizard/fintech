@@ -54,6 +54,12 @@
                 {!! Form::label('note', __( 'brand.note' )) !!}
                 {!! Form::textarea('note', null, ['class' => 'form-control', 'placeholder' => __( 'brand.note' ), 'rows' => 4]); !!}
             </div>
+
+            <div class="form-group">
+                {!! Form::label('document', __('purchase.attach_document') . ':') !!}
+                {!! Form::file('document', ['id' => 'service_document']); !!}
+                <p class="help-block">@lang('purchase.max_file_size', ['size' => (config('constants.document_size_limit') / 1000000)])</p>
+            </div>
         </div>
 
         <div class="modal-footer">
@@ -68,10 +74,19 @@
 
 <script type="text/javascript">
     $(document).ready(function () {
+
+        fileinput_setting = {
+            showUpload: false,
+            showPreview: false,
+            browseLabel: LANG.file_browse_label,
+            removeLabel: LANG.remove,
+        };
+        $('#service_document').fileinput(fileinput_setting);
         $('#service_div select').removeAttr('required');
         $('#od_datetimepicker').datetimepicker({
             format: moment_date_format + ' ' + moment_time_format
         });
+
         $('#withdraw_mode').change(function () {
             var withdraw_mode = $(this).val();
             if (withdraw_mode === 'b') {

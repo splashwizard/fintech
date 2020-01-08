@@ -93,6 +93,7 @@ class SellController extends Controller
                     'transactions.transaction_date',
                     'transactions.is_direct_sale',
                     'transactions.invoice_no',
+                    'transactions.document',
                     'contacts.name',
 //                    'accounts.name',
                     'transactions.payment_status',
@@ -253,45 +254,51 @@ class SellController extends Controller
                                     <ul class="dropdown-menu dropdown-menu-right" role="menu">' ;
 
                         if (auth()->user()->can("sell.view") || auth()->user()->can("direct_sell.access") || auth()->user()->can("view_own_sell_only")) {
-                            $html .= '<li><a href="#" data-href="' . action("SellController@show", [$row->id]) . '" class="btn-modal" data-container=".view_modal"><i class="fa fa-external-link" aria-hidden="true"></i> ' . __("messages.view") . '</a></li>';
+                            $html .= '<li><a href="' . action("SellController@show", [$row->id]) . '" data-container=".view_modal"><i class="fa fa-external-link" aria-hidden="true"></i> ' . __("messages.view") . '</a></li>';
+                        }
+                        $document = $row->document;
+                        if($document){
+                            $html .='<li><a href="{{ url(\'uploads/documents/\' . $document)}}" download=""><i class="fa fa-download" aria-hidden="true"></i> @lang("purchase.download_document")</a></li>';
+                            if(isFileImage($document))
+                                $html .= '<li><a href="#" data-href="{{ url(\'uploads/documents/\' . $document)}}" class="view_uploaded_document"><i class="fa fa-picture-o" aria-hidden="true"></i>@lang("lang_v1.view_document")</a></li>';
                         }
 
-                        if ($row->is_direct_sale == 0) {
-                            if (auth()->user()->can("sell.update")) {
-                                $html .= '<li><a target="_blank" href="' . action('SellPosController@edit', [$row->id]) . '"><i class="glyphicon glyphicon-edit"></i> ' . __("messages.edit") . '</a></li>';
-                            }
-                        } else {
-                            if (auth()->user()->can("direct_sell.access")) {
-                                $html .= '<li><a target="_blank" href="' . action('SellController@edit', [$row->id]) . '"><i class="glyphicon glyphicon-edit"></i> ' . __("messages.edit") . '</a></li>';
-                            }
-                        }
+//                        if ($row->is_direct_sale == 0) {
+//                            if (auth()->user()->can("sell.update")) {
+//                                $html .= '<li><a target="_blank" href="' . action('SellPosController@edit', [$row->id]) . '"><i class="glyphicon glyphicon-edit"></i> ' . __("messages.edit") . '</a></li>';
+//                            }
+//                        } else {
+//                            if (auth()->user()->can("direct_sell.access")) {
+//                                $html .= '<li><a target="_blank" href="' . action('SellController@edit', [$row->id]) . '"><i class="glyphicon glyphicon-edit"></i> ' . __("messages.edit") . '</a></li>';
+//                            }
+//                        }
 
                         if (auth()->user()->can("direct_sell.delete") || auth()->user()->can("sell.delete")) {
                             $html .= '<li><a href="' . action('SellPosController@destroy', [$row->id]) . '" class="delete-sale"><i class="fa fa-trash"></i> ' . __("messages.delete") . '</a></li>';
                         }
 
                         if (auth()->user()->can("sell.view") || auth()->user()->can("direct_sell.access")) {
-                            $html .= '<li><a href="#" class="print-invoice" data-href="' . route('sell.printInvoice', [$row->id]) . '"><i class="fa fa-print" aria-hidden="true"></i> ' . __("messages.print") . '</a></li>
-                                <li><a href="#" class="print-invoice" data-href="' . route('sell.printInvoice', [$row->id]) . '?package_slip=true"><i class="fa fa-file-text-o" aria-hidden="true"></i> ' . __("lang_v1.packing_slip") . '</a></li>';
+                            $html .= '<li><a href="#" class="print-invoice" data-href="' . route('sell.printInvoice', [$row->id]) . '"><i class="fa fa-print" aria-hidden="true"></i> ' . __("messages.print") . '</a></li>';
+//                                <li><a href="#" class="print-invoice" data-href="' . route('sell.printInvoice', [$row->id]) . '?package_slip=true"><i class="fa fa-file-text-o" aria-hidden="true"></i> ' . __("lang_v1.packing_slip") . '</a></li>;
                         }
-                        $html .= '<li class="divider"></li>';
-                        if ($row->payment_status != "paid" && (auth()->user()->can("sell.create") || auth()->user()->can("direct_sell.access"))) {
-                            $html .= '<li><a href="' . action('TransactionPaymentController@addPayment', [$row->id]) . '" class="add_payment_modal"><i class="fa fa-money"></i> ' . __("purchase.add_payment") . '</a></li>';
-                        }
-
-                        $html .= '<li><a href="' . action('TransactionPaymentController@show', [$row->id]) . '" class="view_payment_modal"><i class="fa fa-money"></i> ' . __("purchase.view_payments") . '</a></li>';
-
-                        if (auth()->user()->can("sell.create")) {
-                            $html .= '<li><a href="' . action('SellController@duplicateSell', [$row->id]) . '"><i class="fa fa-copy"></i> ' . __("lang_v1.duplicate_sell") . '</a></li>
-
-                            <li><a href="' . action('SellReturnController@add', [$row->id]) . '"><i class="fa fa-undo"></i> ' . __("lang_v1.sell_return") . '</a></li>
-
-                            <li><a href="' . action('SellPosController@showInvoiceUrl', [$row->id]) . '" class="view_invoice_url"><i class="fa fa-external-link"></i> ' . __("lang_v1.view_invoice_url") . '</a></li>';
-                        }
-
-                        if (auth()->user()->can("send_notification")) {
-                            $html .= '<li><a href="#" data-href="' . action('NotificationController@getTemplate', ["transaction_id" => $row->id,"template_for" => "new_sale"]) . '" class="btn-modal" data-container=".view_modal"><i class="fa fa-envelope" aria-hidden="true"></i>' . __("lang_v1.new_sale_notification") . '</a></li>';
-                        }
+//                        $html .= '<li class="divider"></li>';
+//                        if ($row->payment_status != "paid" && (auth()->user()->can("sell.create") || auth()->user()->can("direct_sell.access"))) {
+//                            $html .= '<li><a href="' . action('TransactionPaymentController@addPayment', [$row->id]) . '" class="add_payment_modal"><i class="fa fa-money"></i> ' . __("purchase.add_payment") . '</a></li>';
+//                        }
+//
+//                        $html .= '<li><a href="' . action('TransactionPaymentController@show', [$row->id]) . '" class="view_payment_modal"><i class="fa fa-money"></i> ' . __("purchase.view_payments") . '</a></li>';
+//
+//                        if (auth()->user()->can("sell.create")) {
+//                            $html .= '<li><a href="' . action('SellController@duplicateSell', [$row->id]) . '"><i class="fa fa-copy"></i> ' . __("lang_v1.duplicate_sell") . '</a></li>
+//
+//                            <li><a href="' . action('SellReturnController@add', [$row->id]) . '"><i class="fa fa-undo"></i> ' . __("lang_v1.sell_return") . '</a></li>
+//
+//                            <li><a href="' . action('SellPosController@showInvoiceUrl', [$row->id]) . '" class="view_invoice_url"><i class="fa fa-external-link"></i> ' . __("lang_v1.view_invoice_url") . '</a></li>';
+//                        }
+//
+//                        if (auth()->user()->can("send_notification")) {
+//                            $html .= '<li><a href="#" data-href="' . action('NotificationController@getTemplate', ["transaction_id" => $row->id,"template_for" => "new_sale"]) . '" class="btn-modal" data-container=".view_modal"><i class="fa fa-envelope" aria-hidden="true"></i>' . __("lang_v1.new_sale_notification") . '</a></li>';
+//                        }
 
                         $html .= '</ul></div>';
 

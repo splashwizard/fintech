@@ -2997,7 +2997,8 @@ class TransactionUtil extends Util
             'additional_notes' => !empty($input['additional_notes']) ? $input['additional_notes'] : null,
             'rp_redeemed' => !empty($final_total) ? $this->calculateRewardPoints($business_id, $final_total) : 0,
             'created_by' => $user_id,
-            'is_quotation' => isset($input['is_quotation']) ? $input['is_quotation'] : 0
+            'is_quotation' => isset($input['is_quotation']) ? $input['is_quotation'] : 0,
+            'document' => isset($input['document']) ? $input['document'] : null
         ]);
 
         return $transaction;

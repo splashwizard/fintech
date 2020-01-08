@@ -47,7 +47,7 @@ class ManageUserController extends Controller
             $users = User::where('business_id', $business_id)
                         ->where('id', '!=', $user_id)
                         ->where('is_cmmsn_agnt', 0)
-                        ->select(['id', 'username',
+                        ->select(['id', 'username', 'last_online',
                             DB::raw("CONCAT(COALESCE(surname, ''), ' ', COALESCE(first_name, ''), ' ', COALESCE(last_name, '')) as full_name"), 'email']);
 
             return Datatables::of($users)
@@ -276,7 +276,7 @@ class ManageUserController extends Controller
                 'blood_group', 'contact_number', 'fb_link', 'twitter_link', 'social_media_1',
                 'social_media_2', 'permanent_address', 'current_address',
                 'guardian_name', 'custom_field_1', 'custom_field_2',
-                'custom_field_3', 'custom_field_4', 'id_proof_name', 'id_proof_number', 'cmmsn_percent']);
+                'custom_field_3', 'custom_field_4', 'id_proof_name', 'id_proof_number', 'cmmsn_percent', 'ipaddr_restrict']);
 
             $user_data['status'] = !empty($request->input('is_active')) ? 'active' : 'inactive';
             $business_id = request()->session()->get('user.business_id');

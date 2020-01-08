@@ -14,7 +14,7 @@ return [
     'edit_account' => 'Edit Account',
     'account_closed_success' => 'Account closed successfully',
     'closed' => 'Closed',
-    'list_accounts' => 'List Accounts',
+    'bank_list' => 'Bank List',
     'service_list' => 'Service List',
     'opening_balance' => 'Opening Balance',
     'account_book' => 'Account Book',

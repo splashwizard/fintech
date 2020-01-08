@@ -38,7 +38,7 @@
         @endcan
         @if(auth()->user()->can('direct_sell.access') ||  auth()->user()->can('view_own_sell_only'))
             <div class="table-responsive">
-                <table class="table table-bordered table-striped ajax_view" id="sell_table">
+                <table class="table table-bordered table-striped" id="sell_table">
                     <thead>
                         <tr>
                             <th>@lang('messages.date')</th>
@@ -153,7 +153,7 @@ $(document).ready( function(){
             __currency_convert_recursively($('#sell_table'));
         },
         createdRow: function( row, data, dataIndex ) {
-            $( row ).find('td:eq(4)').attr('class', 'clickable_td');
+            // $( row ).find('td:eq(4)').attr('class', 'clickable_td');
         }
     });
 

@@ -683,16 +683,11 @@ class ServiceController extends Controller
 
             $amount = $this->commonUtil->num_uf($request->input('amount'));
             $account_id = $request->input('account_id');
-
-
-
-//            $from_account = $request->input('from_account');
-//
-//            $account = Account::where('business_id', $business_id)
-//                ->findOrFail($account_id);
-
             if (!empty($amount)) {
                 $user_id = $request->session()->get('user.id');
+                $request->validate([
+                    'document' => 'file|max:'. (config('constants.document_size_limit') / 1000)
+                ]);
 
                 $withdraw_mode = request()->get('withdraw_mode');
 
@@ -717,6 +712,11 @@ class ServiceController extends Controller
                 $input['additional_notes'] = $request->input('note');
                 $invoice_total = ['total_before_tax' => $amount, 'tax' => 0];
 //                $transaction = $this->transactionUtil->createSellReturnTransaction($business_id, $input, $invoice_total, $user_id);
+                //upload document
+                $document_name = $this->transactionUtil->uploadFile($request, 'document', 'service_documents');
+                if (!empty($document_name)) {
+                    $input['document'] = $document_name;
+                }
                 $transaction = $this->transactionUtil->createSellReturnTransaction($business_id, $input, $invoice_total, $user_id);
                 $this->transactionUtil->createWithDrawPaymentLine($transaction, $user_id, $account_id, 1);
                 $this->transactionUtil->updateCustomerRewardPoints($contact_id, $amount, 0, 0);

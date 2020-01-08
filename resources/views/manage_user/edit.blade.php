@@ -86,10 +86,24 @@
                 </div>
             </div>
 
+
+
             <div class="clearfix"></div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        {!! Form::label('ipaddr_restrict', __( 'lang_v1.ipaddr_restrict' ) . ':') !!}
+                        <div class="input-group">
+                            <div class="input-group-addon">
+                                <i class="fa fa-laptop"></i>
+                            </div>
+                            <input type="text" class="form-control" name="ipaddr_restrict" data-inputmask="'alias': 'ip'" data-mask="">
+                        </div>
+                    </div>
+                </div>
             <div class="col-md-4">
                 <div class="form-group">
                   <div class="checkbox">
+                      <br/>
                     <label>
                          {!! Form::checkbox('is_active', $user->status, $is_checked_checkbox, ['class' => 'input-icheck status']); !!} {{ __('lang_v1.status_for_user') }}
                     </label>
@@ -145,6 +159,10 @@
     {!! Form::close() !!}
   @stop
 @section('javascript')
+
+<script src="{{ asset('plugins/input-mask/jquery.inputmask.js?v=' . $asset_v) }}"></script>
+<script src="{{ asset('plugins/input-mask/jquery.inputmask.date.extensions.js?v=' . $asset_v) }}"></script>
+<script src="{{ asset('plugins/input-mask/jquery.inputmask.extensions.js?v=' . $asset_v) }}"></script>
 <script type="text/javascript">
   $(document).ready(function(){
     $('#selected_contacts').on('ifChecked', function(event){
@@ -153,6 +171,7 @@
     $('#selected_contacts').on('ifUnchecked', function(event){
       $('div.selected_contacts_div').addClass('hide');
     });
+      $('[data-mask]').inputmask();
   });
 
   $('form#user_edit_form').validate({

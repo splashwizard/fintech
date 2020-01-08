@@ -227,7 +227,6 @@ class ExpenseController extends Controller
         if (!auth()->user()->can('expense.access')) {
             abort(403, 'Unauthorized action.');
         }
-
         try {
             $business_id = $request->session()->get('user.business_id');
 

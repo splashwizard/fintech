@@ -35,6 +35,7 @@
                             <th>@lang( 'user.name' )</th>
                             <th>@lang( 'user.role' )</th>
                             <th>@lang( 'business.email' )</th>
+                            <th>@lang( 'user.last_online' )</th>
                             <th>@lang( 'messages.action' )</th>
                         </tr>
                     </thead>
@@ -59,7 +60,7 @@
                     serverSide: true,
                     ajax: '/users',
                     columnDefs: [ {
-                        "targets": [4],
+                        "targets": [5],
                         "orderable": false,
                         "searchable": false
                     } ],
@@ -68,6 +69,7 @@
                         {"data":"full_name"},
                         {"data":"role"},
                         {"data":"email"},
+                        {"data":"last_online"},
                         {"data":"action"}
                     ]
                 });

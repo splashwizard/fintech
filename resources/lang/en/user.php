@@ -17,6 +17,7 @@ return [
     'confirm_new_password' => 'Confirm new password',
     'user_management' => 'User Management',
     'roles' => 'Roles',
+    'last_online' => 'Last online',
     'users' => 'Users',
     'manage_roles' => 'Manage roles',
     'all_roles' => 'All roles',

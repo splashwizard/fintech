@@ -254,7 +254,7 @@
                 <li class="treeview {{  in_array( $request->segment(1), ['sells', 'withdraw', 'pos', 'sell-return', 'ecommerce', 'discount']) ? 'active active-sub' : '' }}"
                     id="tour_step7">
                     <a href="#" id="tour_step7_menu"><i class="fa fa-arrow-circle-up"></i>
-                        <span>@lang('sale.sale')</span>
+                        <span>@lang('lang_v1.transaction_log')</span>
                         <span class="pull-right-container">
 							<i class="fa fa-angle-left pull-right"></i>
 				  		</span>
@@ -384,7 +384,7 @@
                     <ul class="treeview-menu">
                         <li class="{{ $request->segment(1) == 'account' && $request->segment(2) == 'account' ? 'active' : '' }}">
                             <a href="{{action('AccountController@index')}}"><i
-                                        class="fa fa-list"></i>@lang('account.list_accounts')</a></li>
+                                        class="fa fa-list"></i>@lang('account.bank_list')</a></li>
 
                         <li class="{{ $request->segment(1) == 'account' && $request->segment(2) == 'service' ? 'active' : '' }}">
                             <a href="{{action('ServiceController@index')}}"><i

@@ -88,7 +88,7 @@ class MassOverviewController extends Controller
                     ->whereIn('business.id', $allowed_business_ids)
                     ->groupBy('business.id')
                     ->orderBy('business.id', 'asc')
-                    ->select('business.id', DB::raw("SUM(IF(t.type='sell', final_total, 0)) AS total_deposit"), DB::raw("SUM(IF(t.type='sell_return', final_total, 0)) AS total_withdrawal, business.name as company_name"));
+                    ->select('business.id', DB::raw("SUM(IF(t.type='sell', final_total, 0)) AS total_deposit"), DB::raw("SUM(IF(t.type='sell_return', IF( (SELECT method FROM transaction_payments AS tp WHERE tp.transaction_id = t.id) = 'bank_transfer', t.final_total, 0), 0)) AS total_withdrawal, business.name as company_name"));
 
                 //Check for permitted locations of a user
                 $permitted_locations = auth()->user()->permitted_locations();
