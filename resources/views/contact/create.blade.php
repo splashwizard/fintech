@@ -39,17 +39,17 @@
         </div>
       </div>
       <div class="clearfix"></div>
-      <div class="col-md-4 supplier_fields">
-        <div class="form-group">
-            {!! Form::label('supplier_business_name', __('business.business_name') . ':*') !!}
-            <div class="input-group">
-                <span class="input-group-addon">
-                    <i class="fa fa-briefcase"></i>
-                </span>
-                {!! Form::text('supplier_business_name', null, ['class' => 'form-control', 'required', 'placeholder' => __('business.business_name')]); !!}
-            </div>
-        </div>
-      </div>
+{{--      <div class="col-md-4 supplier_fields">--}}
+{{--        <div class="form-group">--}}
+{{--            {!! Form::label('supplier_business_name', __('business.business_name') . ':*') !!}--}}
+{{--            <div class="input-group">--}}
+{{--                <span class="input-group-addon">--}}
+{{--                    <i class="fa fa-briefcase"></i>--}}
+{{--                </span>--}}
+{{--                {!! Form::text('supplier_business_name', null, ['class' => 'form-control', 'required', 'placeholder' => __('business.business_name')]); !!}--}}
+{{--            </div>--}}
+{{--        </div>--}}
+{{--      </div>--}}
 {{--      <div class="col-md-4">--}}
 {{--        <div class="form-group">--}}
 {{--            {!! Form::label('contact_id', __('lang_v1.contact_id') . ':') !!}--}}

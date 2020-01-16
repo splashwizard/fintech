@@ -105,14 +105,14 @@ class LoginController extends Controller
                     );
             }
         }
-        if($user->is_logged){
-            \Auth::logout();
-            return redirect('/login')
-                ->with(
-                    'status',
-                    ['success' => 0, 'msg' => __('lang_v1.another_log')]
-                );
-        }
+//        if($user->is_logged){
+//            \Auth::logout();
+//            return redirect('/login')
+//                ->with(
+//                    'status',
+//                    ['success' => 0, 'msg' => __('lang_v1.another_log')]
+//                );
+//        }
         $date = new \DateTime('now');
         $user->last_online = $date->format('Y-m-d H:i:s');
         $user->is_logged = true;

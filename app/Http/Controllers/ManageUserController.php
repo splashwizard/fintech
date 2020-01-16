@@ -83,6 +83,17 @@ class ManageUserController extends Controller
         return view('manage_user.index');
     }
 
+    public function leaveSite(){
+        if (request()->ajax()) {
+            $user_id = request()->session()->get('user.id');
+            $row = User::where('id', $user_id)->first();
+            $row->is_logged = false;
+            $row->update();
+            request()->session()->flush();
+            return ['success'=>true];
+        }
+    }
+
     /**
      * Show the form for creating a new resource.
      *

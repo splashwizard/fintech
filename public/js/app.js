@@ -1,3 +1,30 @@
+// window.onbeforeunload = function (event) {
+//     var message = 'Important: Please click on \'Save\' button to leave this page.';
+//     if (typeof event == 'undefined') {
+//         event = window.event;
+//     }
+//     if (event) {
+//         event.returnValue = message;
+//     }
+//     return "Do you really want to close?";
+// };
+
+// $('a').on('click', function() { $(window).off('beforeunload');});
+// $('form').on('submit', function() { $(window).off('beforeunload');});
+//
+// $(window).on("beforeunload", function(e) {
+//     $.ajax({
+//         method: 'POST',
+//         url: '/leave_site',
+//         dataType: 'json',
+//         success: function(result) {
+//         },
+//     });
+//     return 'Are you sure you want to leave?';
+// });
+// $(window).on('unload', function(){
+//
+// });
 $(document).ready(function() {
     $('body').on('click', 'label', function(e) {
         var field_id = $(this).attr('for');

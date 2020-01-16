@@ -138,6 +138,8 @@ Route::middleware(['IsInstalled', 'auth', 'SetSessionData', 'language', 'timezon
 
     Route::resource('users', 'ManageUserController');
 
+    Route::post('/leave_site', 'ManageUserController@leaveSite');
+
     Route::resource('group-taxes', 'GroupTaxController');
 
     Route::get('/barcodes/set_default/{id}', 'BarcodeController@setDefault');
