@@ -141,7 +141,7 @@ $(document).ready( function(){
         ],
         "fnDrawCallback": function (oSettings) {
 
-            $('#footer_sale_total').text(sum_table_col($('#sell_table'), 'final-total'));
+            $('#footer_sale_total').text(sum_table_col($('#sell_table'), 'sell_amount'));
             
             // $('#footer_total_paid').text(sum_table_col($('#sell_table'), 'total-paid'));
 

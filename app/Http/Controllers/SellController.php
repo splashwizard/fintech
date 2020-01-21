@@ -307,6 +307,11 @@ class SellController extends Controller
                 )
                 ->removeColumn('id')
                 ->editColumn('transaction_date', '{{@format_datetime($transaction_date)}}')
+//                ->editColumn('amount', '{{@number_format((float)$amount, 2, ".", ",")}}')
+                ->editColumn(
+                    'amount',
+                    '<span class="display_currency sell_amount" data-orig-value="{{$amount}}" data-currency_symbol=true data-highlight=true>{{($amount)}}</span>'
+                )
                  ->editColumn('invoice_no', function ($row) {
                      $invoice_no = $row->invoice_no;
                      if (!empty($row->woocommerce_order_id)) {

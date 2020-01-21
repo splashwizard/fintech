@@ -1560,7 +1560,7 @@ class TransactionUtil extends Util
             $count = str_pad($count, $scheme->total_digits, '0', STR_PAD_LEFT);
 
             //Prefix + count
-            $invoice_no = $prefix . $count;
+            $invoice_no = 'w'.$prefix . $count;
 
             //Increment the invoice count
             $scheme->withdraw_count = $scheme->withdraw_count + 1;
