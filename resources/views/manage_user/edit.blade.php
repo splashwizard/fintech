@@ -1,5 +1,8 @@
 @extends('layouts.app')
-
+@php
+    $user = auth()->user();
+    $is_superadmin = $user->hasRole('Superadmin');
+@endphp
 @section('title', __( 'user.edit_user' ))
 
 @section('content')
@@ -56,12 +59,14 @@
             </div>
             <div class="clearfix"></div>
 
+            @if($is_superadmin)
             <div class="col-md-4">
                 <div class="form-group">
                   {!! Form::label('cmmsn_percent', __( 'lang_v1.cmmsn_percent' ) . ':') !!} @show_tooltip(__('lang_v1.commsn_percent_help'))
                     {!! Form::text('cmmsn_percent', $user->cmmsn_percent, ['class' => 'form-control input_number', 'placeholder' => __( 'lang_v1.cmmsn_percent' )]); !!}
                 </div>
             </div>
+            @endif
 
             <div class="col-md-4">
                 <div class="form-group">

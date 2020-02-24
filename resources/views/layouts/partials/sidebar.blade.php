@@ -88,7 +88,7 @@
                                 </a>
                             </li>
                         @endcan
-                        @can('user.create')
+                        @if($is_superadmin)
                             <li class="{{ $request->segment(1) == 'sales-commission-agents' ? 'active active-sub' : '' }}">
                                 <a href="{{action('SalesCommissionAgentController@index')}}">
                                     <i class="fa fa-handshake-o"></i>
@@ -97,7 +97,7 @@
 						  </span>
                                 </a>
                             </li>
-                        @endcan
+                        @endif
                     </ul>
                 </li>
             @endif
@@ -188,6 +188,7 @@
 											class="fa fa-download"></i><span>@lang('lang_v1.import_opening_stock')</span></a>
 							</li>
 						@endcan
+                        @if($is_superadmin)
 						@can('product.create')
 							<li class="{{ $request->segment(1) == 'selling-price-group' ? 'active' : '' }}"><a
 										href="{{action('SellingPriceGroupController@index')}}"><i
@@ -202,7 +203,7 @@
 							</li>
 						@endif
 
-						@if((auth()->user()->can('category.view') || auth()->user()->can('category.create')) && $is_superadmin)
+						@if((auth()->user()->can('category.view') || auth()->user()->can('category.create')))
 							<li class="{{ $request->segment(1) == 'categories' ? 'active' : '' }}">
 								<a href="{{action('CategoryController@index')}}"><i class="fa fa-tags"></i>
 									<span>@lang('category.categories') </span></a>
@@ -215,6 +216,7 @@
 									<span>@lang('brand.brands')</span></a>
 							</li>
 						@endif
+                        @endif
 					</ul>
                 </li>
             @endif
@@ -389,6 +391,7 @@
                         <li class="{{ $request->segment(1) == 'account' && $request->segment(2) == 'service' ? 'active' : '' }}">
                             <a href="{{action('ServiceController@index')}}"><i
                                         class="fa fa-list"></i>@lang('account.service_list')</a></li>
+                        @if($is_superadmin)
                         @can('account.balance_sheet_details')
                             <li class="{{ $request->segment(1) == 'account' && $request->segment(2) == 'balance-sheet' ? 'active' : '' }}">
                                 <a href="{{action('AccountReportsController@balanceSheet')}}"><i
@@ -406,7 +409,8 @@
                                 <a href="{{action('AccountReportsController@paymentAccountReport')}}"><i
                                             class="fa fa-file-text-o"></i>@lang('account.payment_account_report')</a>
                             </li>
-                            @endcan
+                        @endcan
+                        @endif
                     </ul>
                 </li>
             @endcan
