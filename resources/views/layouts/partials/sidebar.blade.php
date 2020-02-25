@@ -2,6 +2,7 @@
 @php
     $user = auth()->user();
     $is_superadmin = $user->hasRole('Superadmin');
+    $is_admin_or_super = auth()->user()->hasRole('Admin#' . $user->business_id) || $is_superadmin;
 @endphp
 <!-- Left side column. contains the logo and sidebar -->
 <aside class="main-sidebar">
@@ -52,12 +53,14 @@
 				@lang('home.home')</span>
                 </a>
             </li>
+            @if($is_admin_or_super)
             <li class="{{ $request->segment(1) == 'mass_overview' ? 'active' : '' }}">
                 <a href="{{action('MassOverviewController@index')}}">
                     <i class="fa fa-dashboard"></i> <span>
 				@lang('home.mass_overview')</span>
                 </a>
             </li>
+            @endif
             @if(auth()->user()->can('user.view') || auth()->user()->can('user.create') || auth()->user()->can('roles.view'))
                 <li class="treeview {{ in_array($request->segment(1), ['roles', 'users', 'sales-commission-agents']) ? 'active active-sub' : '' }}">
                     <a href="#">
