@@ -247,6 +247,18 @@
         pos_each_row(tr);
         pos_total_row();
         round_row_to_iraqi_dinnar(tr);
+        const data = $('#add_pos_sell_form').serialize();
+        $.ajax({
+            method:'POST',
+            url: '/sells/pos_deposit/get_payment_rows',
+            data: data,
+            dataType: 'html',
+            success: function(result) {
+                if(result){
+                    $('#payment_rows_div').html(result);
+                }
+            }
+        });
     });
 
     //If change in tax rate then update unit price according to it.
