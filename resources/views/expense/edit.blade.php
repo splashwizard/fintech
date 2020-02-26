@@ -58,7 +58,9 @@
         <div class="col-sm-4">
             <div class="form-group">
                 {!! Form::label('document', __('purchase.attach_document') . ':') !!}
-                {!! Form::file('document', ['id' => 'upload_document']); !!}
+              <textarea id="pasteArea" placeholder="Paste Image Here"></textarea>
+{{--                {!! Form::file('document', ['id' => 'upload_document']); !!}--}}
+                <input type="file" name="document" id="upload_document" style="display: none" />
                 <p class="help-block">@lang('purchase.max_file_size', ['size' => (config('constants.document_size_limit') / 1000000)])</p>
             </div>
         </div>
@@ -71,10 +73,41 @@
         <div class="col-sm-12">
           <button type="submit" class="btn btn-primary pull-right">@lang('messages.update')</button>
         </div>
+        <img id="pastedImage"/>
       </div>
     </div>
   </div> <!--box end-->
 
 {!! Form::close() !!}
 </section>
+@endsection
+@section('javascript')
+  <script>
+    const fileInput = document.getElementById("upload_document");
+    const pasteArea = document.getElementById("pasteArea");
+    pasteArea.addEventListener('paste', e => {
+      console.log('Hello');
+      console.log(e.clipboardData.files);
+      fileInput.files = e.clipboardData.files;
+
+      var items = (e.clipboardData  || e.originalEvent.clipboardData).items;
+      console.log(JSON.stringify(items)); // will give you the mime types
+      // find pasted image among pasted items
+      var blob = null;
+      for (var i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf("image") === 0) {
+          blob = items[i].getAsFile();
+        }
+      }
+      // load image if there is a pasted image
+      if (blob !== null) {
+        var reader = new FileReader();
+        reader.onload = function(event) {
+          console.log(event.target.result); // data url!
+          document.getElementById("pastedImage").src = event.target.result;
+        };
+        reader.readAsDataURL(blob);
+      }
+    });
+  </script>
 @endsection

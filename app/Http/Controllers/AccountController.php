@@ -696,6 +696,9 @@ class AccountController extends Controller
 
             if (!empty($amount)) {
                 $user_id = $request->session()->get('user.id');
+                $request->validate([
+                    'document' => 'file|max:'. (config('constants.document_size_limit') / 1000)
+                ]);
 
                 $business_locations = BusinessLocation::forDropdown($business_id, false, true);
                 $business_locations = $business_locations['locations'];
@@ -717,6 +720,10 @@ class AccountController extends Controller
                 $input['final_total'] = $amount;
                 $input['additional_notes'] = $request->input('note');
                 $invoice_total = ['total_before_tax' => $amount, 'tax' => 0];
+                $document_name = $this->transactionUtil->uploadFile($request, 'document', 'account_documents');
+                if (!empty($document_name)) {
+                    $input['document'] = $document_name;
+                }
                 $transaction = $this->transactionUtil->createSellReturnTransaction($business_id, $input, $invoice_total, $user_id);
                 $this->transactionUtil->createWithDrawPaymentLine($transaction, $user_id, $account_id);
                 $this->transactionUtil->updateCustomerRewardPoints($contact_id, 0, 0, $transaction->rp_redeemed);

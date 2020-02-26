@@ -99,6 +99,7 @@ class WithDrawController extends Controller
                     'transactions.rp_earned',
                     'transactions.rp_redeemed',
                     'tp.amount',
+                    'accounts.is_service as is_service',
 //                    'bl.name as business_location',
                     'accounts.name as business_location'
                 );
@@ -258,7 +259,10 @@ class WithDrawController extends Controller
 
                         $document = $row->document;
                         if($document){
-                            $document_path = 'uploads/service_documents/'.$document;
+                            if($row->is_service == 0)
+                                $document_path = 'uploads/account_documents/'.$document;
+                            else
+                                $document_path = 'uploads/service_documents/'.$document;
                             $html .='<li><a href="'.asset($document_path).'" download=""><i class="fa fa-download" aria-hidden="true"></i>'.__("purchase.download_document").'</a></li>';
                             if(isFileImage($document))
                                 $html .= '<li><a href="#" data-href="'.asset($document_path).'" class="view_uploaded_document"><i class="fa fa-picture-o" aria-hidden="true"></i> ' .__("lang_v1.view_document"). '</a></li>';

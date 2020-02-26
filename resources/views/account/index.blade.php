@@ -262,5 +262,30 @@
         });
     });
 
+    $(document).on('submit', 'form#withdraw_form', function(e){
+        e.preventDefault();
+        var data = $(this).serialize();
+
+        $.ajax({
+            method: "POST",
+            url: $(this).attr("action"),
+            dataType: "json",
+            data: new FormData(this),
+            contentType: false,
+            cache: false,
+            processData:false,
+            success: function(result){
+                if(result.success == true){
+                    $('div.view_modal').modal('hide');
+                    toastr.success(result.msg);
+                    capital_account_table.ajax.reload();
+                    other_account_table.ajax.reload();
+                } else {
+                    toastr.error(result.msg);
+                }
+            }
+        });
+    });
+
 </script>
 @endsection

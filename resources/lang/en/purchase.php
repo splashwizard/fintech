@@ -66,6 +66,7 @@ return [
     'diff_purchase_currency_help' => 'Purchase currency is set to <strong> :currency </strong>',
     'list_purchase' => 'List Purchases',
     'attach_document' => 'Attach Document',
+    'attach_receipt_image' => 'Attach Receipt Image',
     'download_document' => 'Download Document',
     'max_file_size' => 'Max File size: :sizeMB',
 ];

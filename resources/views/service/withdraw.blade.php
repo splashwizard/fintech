@@ -55,10 +55,14 @@
                 {!! Form::textarea('note', null, ['class' => 'form-control', 'placeholder' => __( 'brand.note' ), 'rows' => 4]); !!}
             </div>
 
-            <div class="form-group">
-                {!! Form::label('document', __('purchase.attach_document') . ':') !!}
-                {!! Form::file('document', ['id' => 'service_document']); !!}
-                <p class="help-block">@lang('purchase.max_file_size', ['size' => (config('constants.document_size_limit') / 1000000)])</p>
+            <div id="receipt_image_div">
+                <div class="form-group">
+                    {!! Form::label('document', __('purchase.attach_receipt_image') . ':*') !!}
+                    <textarea id="pasteArea" placeholder="Paste Image Here" required></textarea>
+                    {!! Form::file('document', ['id' => 'service_document']); !!}
+                    <p class="help-block">@lang('purchase.max_file_size', ['size' => (config('constants.document_size_limit') / 1000000)])</p>
+                </div>
+                <img id="pastedImage"/>
             </div>
         </div>
 
@@ -73,6 +77,31 @@
 </div><!-- /.modal-dialog -->
 
 <script type="text/javascript">
+    const fileInput = document.getElementById("service_document");
+    const pasteArea = document.getElementById("pasteArea");
+    pasteArea.addEventListener('paste', e => {
+        fileInput.files = e.clipboardData.files;
+        pasteArea.value = "image.png";
+
+        var items = (e.clipboardData  || e.originalEvent.clipboardData).items;
+        console.log(JSON.stringify(items)); // will give you the mime types
+        // find pasted image among pasted items
+        var blob = null;
+        for (var i = 0; i < items.length; i++) {
+            if (items[i].type.indexOf("image") === 0) {
+                blob = items[i].getAsFile();
+            }
+        }
+        // load image if there is a pasted image
+        if (blob !== null) {
+            var reader = new FileReader();
+            reader.onload = function(event) {
+                console.log(event.target.result); // data url!
+                document.getElementById("pastedImage").src = event.target.result;
+            };
+            reader.readAsDataURL(blob);
+        }
+    });
     $(document).ready(function () {
 
         fileinput_setting = {
@@ -93,10 +122,13 @@
                 $('#bank_div').show();
                 $('#service_div').hide();
                 $('#service_div select').removeAttr('required');
+                $('#receipt_image_div').show();
             } else {
                 $('#bank_div').hide();
                 $('#bank_div select').removeAttr('required');
                 $('#service_div').show();
+                $('#receipt_image_div').hide();
+                $('#pasteArea').removeAttr('required');
             }
         });
         $('#withdraw_to').select2({

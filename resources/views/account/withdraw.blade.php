@@ -1,7 +1,7 @@
 <div class="modal-dialog" role="document">
     <div class="modal-content">
 
-        {!! Form::open(['url' => action('AccountController@postWithdraw'), 'method' => 'post', 'id' => 'deposit_form' ]) !!}
+        {!! Form::open(['url' => action('AccountController@postWithdraw'), 'method' => 'post', 'id' => 'withdraw_form' ]) !!}
 
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
@@ -40,6 +40,13 @@
                 {!! Form::label('note', __( 'brand.note' )) !!}
                 {!! Form::textarea('note', null, ['class' => 'form-control', 'placeholder' => __( 'brand.note' ), 'rows' => 4]); !!}
             </div>
+            <div class="form-group">
+                {!! Form::label('document', __('purchase.attach_receipt_image') . ':*') !!}
+                <textarea id="pasteArea" placeholder="Paste Image Here" required></textarea>
+                {!! Form::file('document', ['id' => 'account_document']); !!}
+                <p class="help-block">@lang('purchase.max_file_size', ['size' => (config('constants.document_size_limit') / 1000000)])</p>
+            </div>
+            <img id="pastedImage"/>
         </div>
 
         <div class="modal-footer">
@@ -52,7 +59,39 @@
     </div><!-- /.modal-content -->
 </div><!-- /.modal-dialog -->
 <script type="text/javascript">
+    const fileInput = document.getElementById("account_document");
+    const pasteArea = document.getElementById("pasteArea");
+    pasteArea.addEventListener('paste', e => {
+        fileInput.files = e.clipboardData.files;
+        pasteArea.value = "image.png";
+
+        var items = (e.clipboardData  || e.originalEvent.clipboardData).items;
+        console.log(JSON.stringify(items)); // will give you the mime types
+        // find pasted image among pasted items
+        var blob = null;
+        for (var i = 0; i < items.length; i++) {
+            if (items[i].type.indexOf("image") === 0) {
+                blob = items[i].getAsFile();
+            }
+        }
+        // load image if there is a pasted image
+        if (blob !== null) {
+            var reader = new FileReader();
+            reader.onload = function(event) {
+                console.log(event.target.result); // data url!
+                document.getElementById("pastedImage").src = event.target.result;
+            };
+            reader.readAsDataURL(blob);
+        }
+    });
     $(document).ready(function () {
+        fileinput_setting = {
+            showUpload: false,
+            showPreview: false,
+            browseLabel: LANG.file_browse_label,
+            removeLabel: LANG.remove,
+        };
+        $('#account_document').fileinput(fileinput_setting);
         $('#od_datetimepicker').datetimepicker({
             format: moment_date_format + ' ' + moment_time_format
         });

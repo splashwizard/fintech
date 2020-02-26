@@ -678,7 +678,7 @@ class ServiceController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        try {
+//        try {
             $business_id = session()->get('user.business_id');
 
             $amount = $this->commonUtil->num_uf($request->input('amount'));
@@ -714,6 +714,8 @@ class ServiceController extends Controller
 //                $transaction = $this->transactionUtil->createSellReturnTransaction($business_id, $input, $invoice_total, $user_id);
                 //upload document
                 $document_name = $this->transactionUtil->uploadFile($request, 'document', 'service_documents');
+                print_r($request->hasFile('document'));
+                exit;
                 if (!empty($document_name)) {
                     $input['document'] = $document_name;
                 }
@@ -821,19 +823,19 @@ class ServiceController extends Controller
 //                $credit->save();
             }
 
-            $output = ['success' => true,
-                'msg' => __("account.deposited_successfully")
-            ];
-        } catch (\Exception $e) {
-            DB::rollBack();
-            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+//            $output = ['success' => true,
+//                'msg' => __("account.deposited_successfully")
+//            ];
+//        } catch (\Exception $e) {
+//            DB::rollBack();
+//            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+//
+//            $output = ['success' => false,
+//                'msg' => __("messages.something_went_wrong")
+//            ];
+//        }
 
-            $output = ['success' => false,
-                'msg' => __("messages.something_went_wrong")
-            ];
-        }
-
-        return $output;
+//        return $output;
     }
 
     /**
