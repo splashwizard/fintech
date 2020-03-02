@@ -51,7 +51,7 @@ class PayrollController extends Controller
             $payrolls = Transaction::where('transactions.business_id', $business_id)
                 ->where('type', 'payroll')
                 ->join('users as u', 'u.id', '=', 'transactions.expense_for')
-                ->join('transaction_payments as p', 'p.transaction_id', '=', 'transactions.id')
+                ->leftjoin('transaction_payments as p', 'p.transaction_id', '=', 'transactions.id')
                 ->select([
                     'transactions.id',
                     DB::raw("CONCAT(COALESCE(u.surname, ''), ' ', COALESCE(u.first_name, ''), ' ', COALESCE(u.last_name, '')) as user"),

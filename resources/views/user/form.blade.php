@@ -6,32 +6,32 @@
     {!! Form::label('marital_status', __( 'lang_v1.marital_status' ) . ':') !!}
     {!! Form::select('marital_status', ['married' => __( 'lang_v1.married'), 'unmarried' => __( 'lang_v1.unmarried' ), 'divorced' => __( 'lang_v1.divorced' )], !empty($user->marital_status) ? $user->marital_status : null, ['class' => 'form-control', 'placeholder' => __( 'lang_v1.marital_status') ]); !!}
 </div>
-<div class="form-group col-md-3">
-    {!! Form::label('blood_group', __( 'lang_v1.blood_group' ) . ':') !!}
-    {!! Form::text('blood_group', !empty($user->blood_group) ? $user->blood_group : null, ['class' => 'form-control', 'placeholder' => __( 'lang_v1.blood_group') ]); !!}
-</div>
+{{--<div class="form-group col-md-3">--}}
+{{--    {!! Form::label('blood_group', __( 'lang_v1.blood_group' ) . ':') !!}--}}
+{{--    {!! Form::text('blood_group', !empty($user->blood_group) ? $user->blood_group : null, ['class' => 'form-control', 'placeholder' => __( 'lang_v1.blood_group') ]); !!}--}}
+{{--</div>--}}
 <div class="form-group col-md-3">
     {!! Form::label('contact_number', __( 'lang_v1.contact_no' ) . ':') !!}
     {!! Form::text('contact_number', !empty($user->contact_number) ? $user->contact_number : null, ['class' => 'form-control', 'placeholder' => __( 'lang_v1.contact_no') ]); !!}
 </div>
 <div class="clearfix"></div>
-<div class="form-group col-md-3">
-    {!! Form::label('fb_link', __( 'lang_v1.fb_link' ) . ':') !!}
-    {!! Form::text('fb_link', !empty($user->fb_link) ? $user->fb_link : null, ['class' => 'form-control', 'placeholder' => __( 'lang_v1.fb_link') ]); !!}
-</div>
-<div class="form-group col-md-3">
-    {!! Form::label('twitter_link', __( 'lang_v1.twitter_link' ) . ':') !!}
-    {!! Form::text('twitter_link', !empty($user->twitter_link) ? $user->twitter_link : null, ['class' => 'form-control', 'placeholder' => __( 'lang_v1.twitter_link') ]); !!}
-</div>
-<div class="form-group col-md-3">
-    {!! Form::label('social_media_1', __( 'lang_v1.social_media', ['number' => 1] ) . ':') !!}
-    {!! Form::text('social_media_1', !empty($user->social_media_1) ? $user->social_media_1 : null, ['class' => 'form-control', 'placeholder' => __( 'lang_v1.social_media', ['number' => 1] ) ]); !!}
-</div>
-<div class="form-group col-md-3">
-    {!! Form::label('social_media_2', __( 'lang_v1.social_media', ['number' => 2] ) . ':') !!}
-    {!! Form::text('social_media_2', !empty($user->social_media_2) ? $user->social_media_2 : null, ['class' => 'form-control', 'placeholder' => __( 'lang_v1.social_media', ['number' => 2] ) ]); !!}
-</div>
-<div class="clearfix"></div>
+{{--<div class="form-group col-md-3">--}}
+{{--    {!! Form::label('fb_link', __( 'lang_v1.fb_link' ) . ':') !!}--}}
+{{--    {!! Form::text('fb_link', !empty($user->fb_link) ? $user->fb_link : null, ['class' => 'form-control', 'placeholder' => __( 'lang_v1.fb_link') ]); !!}--}}
+{{--</div>--}}
+{{--<div class="form-group col-md-3">--}}
+{{--    {!! Form::label('twitter_link', __( 'lang_v1.twitter_link' ) . ':') !!}--}}
+{{--    {!! Form::text('twitter_link', !empty($user->twitter_link) ? $user->twitter_link : null, ['class' => 'form-control', 'placeholder' => __( 'lang_v1.twitter_link') ]); !!}--}}
+{{--</div>--}}
+{{--<div class="form-group col-md-3">--}}
+{{--    {!! Form::label('social_media_1', __( 'lang_v1.social_media', ['number' => 1] ) . ':') !!}--}}
+{{--    {!! Form::text('social_media_1', !empty($user->social_media_1) ? $user->social_media_1 : null, ['class' => 'form-control', 'placeholder' => __( 'lang_v1.social_media', ['number' => 1] ) ]); !!}--}}
+{{--</div>--}}
+{{--<div class="form-group col-md-3">--}}
+{{--    {!! Form::label('social_media_2', __( 'lang_v1.social_media', ['number' => 2] ) . ':') !!}--}}
+{{--    {!! Form::text('social_media_2', !empty($user->social_media_2) ? $user->social_media_2 : null, ['class' => 'form-control', 'placeholder' => __( 'lang_v1.social_media', ['number' => 2] ) ]); !!}--}}
+{{--</div>--}}
+{{--<div class="clearfix"></div>--}}
 <div class="form-group col-md-3">
     {!! Form::label('custom_field_1', __( 'lang_v1.custom_field', ['number' => 1] ) . ':') !!}
     {!! Form::text('custom_field_1', !empty($user->custom_field_1) ? $user->custom_field_1 : null, ['class' => 'form-control', 'placeholder' => __( 'lang_v1.custom_field', ['number' => 1] ) ]); !!}
@@ -48,27 +48,27 @@
     {!! Form::label('custom_field_4', __( 'lang_v1.custom_field', ['number' => 4] ) . ':') !!}
     {!! Form::text('custom_field_4', !empty($user->custom_field_4) ? $user->custom_field_4 : null, ['class' => 'form-control', 'placeholder' => __( 'lang_v1.custom_field', ['number' => 4] ) ]); !!}
 </div>
-<div class="form-group col-md-3">
-    {!! Form::label('guardian_name', __( 'lang_v1.guardian_name') . ':') !!}
-    {!! Form::text('guardian_name', !empty($user->guardian_name) ? $user->guardian_name : null, ['class' => 'form-control', 'placeholder' => __( 'lang_v1.guardian_name' ) ]); !!}
-</div>
-<div class="form-group col-md-3">
-    {!! Form::label('id_proof_name', __( 'lang_v1.id_proof_name') . ':') !!}
-    {!! Form::text('id_proof_name', !empty($user->id_proof_name) ? $user->id_proof_name : null, ['class' => 'form-control', 'placeholder' => __( 'lang_v1.id_proof_name' ) ]); !!}
-</div>
-<div class="form-group col-md-3">
-    {!! Form::label('id_proof_number', __( 'lang_v1.id_proof_number') . ':') !!}
-    {!! Form::text('id_proof_number', !empty($user->id_proof_number) ? $user->id_proof_number : null, ['class' => 'form-control', 'placeholder' => __( 'lang_v1.id_proof_number' ) ]); !!}
-</div>
+{{--<div class="form-group col-md-3">--}}
+{{--    {!! Form::label('guardian_name', __( 'lang_v1.guardian_name') . ':') !!}--}}
+{{--    {!! Form::text('guardian_name', !empty($user->guardian_name) ? $user->guardian_name : null, ['class' => 'form-control', 'placeholder' => __( 'lang_v1.guardian_name' ) ]); !!}--}}
+{{--</div>--}}
+{{--<div class="form-group col-md-3">--}}
+{{--    {!! Form::label('id_proof_name', __( 'lang_v1.id_proof_name') . ':') !!}--}}
+{{--    {!! Form::text('id_proof_name', !empty($user->id_proof_name) ? $user->id_proof_name : null, ['class' => 'form-control', 'placeholder' => __( 'lang_v1.id_proof_name' ) ]); !!}--}}
+{{--</div>--}}
+{{--<div class="form-group col-md-3">--}}
+{{--    {!! Form::label('id_proof_number', __( 'lang_v1.id_proof_number') . ':') !!}--}}
+{{--    {!! Form::text('id_proof_number', !empty($user->id_proof_number) ? $user->id_proof_number : null, ['class' => 'form-control', 'placeholder' => __( 'lang_v1.id_proof_number' ) ]); !!}--}}
+{{--</div>--}}
 <div class="clearfix"></div>
 <div class="form-group col-md-6">
     {!! Form::label('permanent_address', __( 'lang_v1.permanent_address') . ':') !!}
     {!! Form::textarea('permanent_address', !empty($user->permanent_address) ? $user->permanent_address : null, ['class' => 'form-control', 'placeholder' => __( 'lang_v1.permanent_address'), 'rows' => 3 ]); !!}
 </div>
-<div class="form-group col-md-6">
-    {!! Form::label('current_address', __( 'lang_v1.current_address') . ':') !!}
-    {!! Form::textarea('current_address', !empty($user->current_address) ? $user->current_address : null, ['class' => 'form-control', 'placeholder' => __( 'lang_v1.current_address'), 'rows' => 3 ]); !!}
-</div>
+{{--<div class="form-group col-md-6">--}}
+{{--    {!! Form::label('current_address', __( 'lang_v1.current_address') . ':') !!}--}}
+{{--    {!! Form::textarea('current_address', !empty($user->current_address) ? $user->current_address : null, ['class' => 'form-control', 'placeholder' => __( 'lang_v1.current_address'), 'rows' => 3 ]); !!}--}}
+{{--</div>--}}
 <div class="col-md-12">
     <hr>
     <h4>@lang('lang_v1.bank_details'):</h4>
@@ -96,14 +96,14 @@
     <h4>@lang('lang_v1.emergency_contact'):</h4>
 </div>
 <div class="form-group col-md-3">
-    {!! Form::label('account_holder_name', __( 'lang_v1.account_holder_name') . ':') !!}
+    {!! Form::label('account_holder_name', __( 'lang_v1.name') . ':') !!}
     {!! Form::text('emergency_contact[name]', !empty($emergency_contact['name']) ? $emergency_contact['name'] : null , ['class' => 'form-control', 'id' => 'name', 'placeholder' => __( 'lang_v1.name') ]); !!}
 </div>
 <div class="form-group col-md-3">
-    {!! Form::label('account_number', __( 'lang_v1.account_number') . ':') !!}
+    {!! Form::label('account_number', __( 'lang_v1.contact_number') . ':') !!}
     {!! Form::text('emergency_contact[contact_number]', !empty($emergency_contact['contact_number']) ? $emergency_contact['contact_number'] : null, ['class' => 'form-control', 'id' => 'contact_number', 'placeholder' => __( 'lang_v1.contact_number') ]); !!}
 </div>
 <div class="form-group col-md-3">
-    {!! Form::label('bank_name', __( 'lang_v1.bank_name') . ':') !!}
+    {!! Form::label('bank_name', __( 'lang_v1.relationship') . ':') !!}
     {!! Form::text('emergency_contact[relationship]', !empty($emergency_contact['relationship']) ? $emergency_contact['relationship'] : null, ['class' => 'form-control', 'id' => 'relationship', 'placeholder' => __( 'lang_v1.relationship') ]); !!}
 </div>

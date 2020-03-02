@@ -598,7 +598,7 @@
             toastr.warning(LANG.no_products_added);
             return false;
         }
-        if($('#total_earned').val() !== $('#total_redeemed').val()){
+        if($('#total_earned').html() !== $('#total_redeemed').html()){
             toastr.warning(LANG.deposit_incoincidence_error);
             return false;
         }
