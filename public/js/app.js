@@ -400,9 +400,9 @@ $(document).ready(function() {
     //Start: CRUD for Contacts
     //contacts table
     var contact_table_type = $('#contact_type').val();
-    var targets = 5;
+    var targets = 8;
     if (contact_table_type == 'supplier') {
-        targets = [5, 6, 7];
+        targets = [8,9,10];
     }
     var contact_table = $('#contact_table').DataTable({
         processing: true,
@@ -414,6 +414,19 @@ $(document).ready(function() {
                 orderable: false,
                 searchable: false,
             },
+        ],
+        columns: [
+            {data: 'contact_id', width: "10%"},
+            {data: 'name', width: "10%"},
+            {data: 'mobile', width: "10%"},
+            {data: 'email', width: "10%"},
+            {data: 'customer_group', width: "10%"},
+            {data: 'due', width: "10%"},
+            {data: 'return_due', width: "10%"},
+            {data: 'total_rp', width: "10%"},
+            {data: 'landmark', width: "10%"},
+            {data: 'created_at', width: "10%"},
+            {data: 'action', width: "10%"},
         ],
         fnDrawCallback: function(oSettings) {
             var total_due = sum_table_col($('#contact_table'), 'contact_due');
@@ -877,7 +890,7 @@ $(document).ready(function() {
     }
     //bussiness settings end
 
-    $('#upload_document').fileinput(fileinput_setting);
+    // $('#upload_document').fileinput(fileinput_setting);
 
     //user profile
     $('form#edit_user_profile_form').validate();
@@ -1473,6 +1486,37 @@ $(document).ready(function() {
                         if (result.success === true) {
                             toastr.success(result.msg);
                             expense_table.ajax.reload();
+                        } else {
+                            toastr.error(result.msg);
+                        }
+                    },
+                });
+            }
+        });
+    });
+
+    $(document).on('click', 'a.delete_payroll', function(e) {
+        e.preventDefault();
+        swal({
+            title: LANG.sure,
+            text: LANG.confirm_delete_payroll,
+            icon: 'warning',
+            buttons: true,
+            dangerMode: true,
+        }).then(willDelete => {
+            if (willDelete) {
+                var href = $(this).data('href');
+                var data = $(this).serialize();
+
+                $.ajax({
+                    method: 'DELETE',
+                    url: href,
+                    dataType: 'json',
+                    data: data,
+                    success: function(result) {
+                        if (result.success === true) {
+                            toastr.success(result.msg);
+                            payrolls_table.ajax.reload();
                         } else {
                             toastr.error(result.msg);
                         }

@@ -9,6 +9,7 @@ $(document).ready(function() {
             success: function(result) {
                 if (result.status == 'due') {
                     container.html(result.view).modal('show');
+
                     __currency_convert_recursively(container);
                     $('#paid_on').datepicker({
                         autoclose: true,

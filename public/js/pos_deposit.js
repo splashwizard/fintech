@@ -598,6 +598,10 @@
             toastr.warning(LANG.no_products_added);
             return false;
         }
+        if($('#total_earned').val() !== $('#total_redeemed').val()){
+            toastr.warning(LANG.deposit_incoincidence_error);
+            return false;
+        }
         $('#add_pos_sell_form').submit();
         // if ($('#reward_point_enabled').length) {
         //     var validate_rp = isValidatRewardPoint();

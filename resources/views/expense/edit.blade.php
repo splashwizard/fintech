@@ -71,9 +71,9 @@
           </div>
         </div>
         <div class="col-sm-12">
+          <img id="pastedImage"/>
           <button type="submit" class="btn btn-primary pull-right">@lang('messages.update')</button>
         </div>
-        <img id="pastedImage"/>
       </div>
     </div>
   </div> <!--box end-->
@@ -86,7 +86,6 @@
     const fileInput = document.getElementById("upload_document");
     const pasteArea = document.getElementById("pasteArea");
     pasteArea.addEventListener('paste', e => {
-      console.log('Hello');
       console.log(e.clipboardData.files);
       fileInput.files = e.clipboardData.files;
 

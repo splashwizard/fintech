@@ -156,6 +156,9 @@ class ManageUserController extends Controller
             if (!empty($request->input('bank_details'))) {
                 $user_details['bank_details'] = json_encode($request->input('bank_details'));
             }
+            if (!empty($request->input('emergency_contact'))) {
+                $user_details['emergency_contact'] = json_encode($request->input('emergency_contact'));
+            }
 
             $business_id = $request->session()->get('user.business_id');
             $user_details['business_id'] = $business_id;
@@ -309,6 +312,10 @@ class ManageUserController extends Controller
 
             if (!empty($request->input('bank_details'))) {
                 $user_data['bank_details'] = json_encode($request->input('bank_details'));
+            }
+
+            if (!empty($request->input('emergency_contact'))) {
+                $user_data['emergency_contact'] = json_encode($request->input('emergency_contact'));
             }
 
             $user = User::where('business_id', $business_id)

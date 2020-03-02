@@ -43,10 +43,10 @@
             <div class="form-group">
                 {!! Form::label('document', __('purchase.attach_receipt_image') . ':*') !!}
                 <textarea id="pasteArea" placeholder="Paste Image Here" required></textarea>
-                {!! Form::file('document', ['id' => 'account_document']); !!}
+                {!! Form::file('document', ['id' => 'account_document', 'style' => 'display:none']); !!}
                 <p class="help-block">@lang('purchase.max_file_size', ['size' => (config('constants.document_size_limit') / 1000000)])</p>
             </div>
-            <img id="pastedImage"/>
+            <img id="pastedImage" style="max-width: 570px"/>
         </div>
 
         <div class="modal-footer">
@@ -85,13 +85,13 @@
         }
     });
     $(document).ready(function () {
-        fileinput_setting = {
-            showUpload: false,
-            showPreview: false,
-            browseLabel: LANG.file_browse_label,
-            removeLabel: LANG.remove,
-        };
-        $('#account_document').fileinput(fileinput_setting);
+        // fileinput_setting = {
+        //     showUpload: false,
+        //     showPreview: false,
+        //     browseLabel: LANG.file_browse_label,
+        //     removeLabel: LANG.remove,
+        // };
+        // $('#account_document').fileinput(fileinput_setting);
         $('#od_datetimepicker').datetimepicker({
             format: moment_date_format + ' ' + moment_time_format
         });

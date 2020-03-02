@@ -729,8 +729,11 @@ return [
     'guardian_name' => 'Guardian Name',
     'custom_field' => 'Custom Field :number',
     'bank_details' => 'Bank Details',
+    'emergency_contact' => 'Emergency Contact',
     'account_holder_name' => "Account Holder's Name",
     'account_number' => 'Account Number',
+    'contact_number' => 'Contact Number',
+    'relationship' => 'Relationship',
     'bank_name' => 'Bank Name',
     'bank_code' => 'Bank Identifier Code',
     'bank_code_help' => 'A unique code to identify the bank in your country, for example: IFSC code',
@@ -789,5 +792,6 @@ return [
     'pay_reference_no' => 'Pay reference no.',
     'search_settings' => 'Search Settings',
     'custom_labels' => 'Custom Labels',
-    'labels_for_custom_payments' => 'Labels for custom payments'
+    'labels_for_custom_payments' => 'Labels for custom payments',
+    'payroll_delete_success' => 'Payroll deleted successfully'
 ];

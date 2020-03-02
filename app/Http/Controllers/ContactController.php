@@ -238,13 +238,13 @@ class ContactController extends Controller
             ->removeColumn('total_sell_return')
             ->removeColumn('sell_return_paid');
         $reward_enabled = (request()->session()->get('business.enable_rp') == 1) ? true : false;
-        $raw = [8, 9, 10];
+        $raw = ['due', 'return_due', 'action'];
         if (!$reward_enabled) {
             $contacts->removeColumn('total_rp');
             $raw = [7, 8, 9];
         }
-        return $contacts->rawColumns($raw)
-                        ->make(false);
+        return $contacts->rawColumns($raw)->toJson();
+//                        ->make(false);
     }
 
     /**

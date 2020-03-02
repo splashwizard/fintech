@@ -20,9 +20,9 @@
 		<input type="hidden" name="products[{{$row_count}}][account_id]" value="{{$product->account_id}}">
 		<input type="hidden" name="products[{{$row_count}}][category_id]" class="category_id" value="{{$product->category_id}}">
 		<input type="hidden" name="products[{{$row_count}}][p_name]" class="p_name" value="{{$product->p_name}}">
-		<div data-toggle="tooltip" data-placement="bottom" title="@lang('lang_v1.add_description')">
-			<i class="fa fa-commenting cursor-pointer text-primary add-pos-row-description" data-toggle="modal" data-target="#row_description_modal_{{$row_count}}"></i>
-		</div>
+{{--		<div data-toggle="tooltip" data-placement="bottom" title="@lang('lang_v1.add_description')">--}}
+{{--			<i class="fa fa-commenting cursor-pointer text-primary add-pos-row-description" data-toggle="modal" data-target="#row_description_modal_{{$row_count}}"></i>--}}
+{{--		</div>--}}
 
 		@php
 			$hide_tax = 'hide';
@@ -121,7 +121,7 @@
 
 	</td>
 
-	<td>
+	<td style="display: none">
 		{{-- If edit then transaction sell lines will be present --}}
 		@if(!empty($product->transaction_sell_lines_id))
 			<input type="hidden" name="products[{{$row_count}}][transaction_sell_lines_id]" class="form-control" value="{{$product->transaction_sell_lines_id}}">
@@ -190,8 +190,8 @@
 		
 		<input type="hidden" name="products[{{$row_count}}][product_unit_id]" value="{{$product->unit_id}}">
 		@if(count($sub_units) > 0)
-			<br>
-			<select name="products[{{$row_count}}][sub_unit_id]" class="form-control input-sm sub_unit">
+{{--			<br>--}}
+			<select name="products[{{$row_count}}][sub_unit_id]" class="form-control input-sm sub_unit" style="display: none">
                 @foreach($sub_units as $key => $value)
                     <option value="{{$key}}" data-multiplier="{{$value['multiplier']}}" data-unit_name="{{$value['name']}}" data-allow_decimal="{{$value['allow_decimal']}}" @if(!empty($product->sub_unit_id) && $product->sub_unit_id == $key) selected @endif>
                         {{$value['name']}}
@@ -271,7 +271,7 @@
 		<i class="fa fa-close text-danger pos_remove_row cursor-pointer" aria-hidden="true"></i>
 	</td>
 </tr>
-<tr class="bank_account_row">
+<tr class="bank_account_row" style="display: none">
 	<td colspan="3">
 		<div style="display: flex">
 			<div style="width: 100%; margin-right: 10px">

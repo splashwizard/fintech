@@ -101,13 +101,15 @@
         @endif
         <div class="col-md-4">
           <div class="form-group">
-            {!! Form::label('document', __('purchase.attach_document') . ':') !!}
-            {!! Form::file('document'); !!}
+            {!! Form::label('document', __('purchase.attach_receipt_image') . ':') !!}
+            <textarea id="pasteArea" placeholder="Paste Image Here"></textarea>
+            {!! Form::file('document', ['style' => 'display:none']); !!}
           </div>
         </div>
         <div class="clearfix"></div>
           @include('transaction_payment.payment_type_details')
         <div class="col-md-12">
+          <img id="pastedImage"/>
           <div class="form-group">
             {!! Form::label("note",'Payment Note:') !!}
             {!! Form::textarea("note", $payment_line->note, ['class' => 'form-control', 'rows' => 3]); !!}
@@ -125,3 +127,30 @@
 
   </div><!-- /.modal-content -->
 </div><!-- /.modal-dialog -->
+<script>
+  const fileInput = document.getElementById("document");
+  const pasteArea = document.getElementById("pasteArea");
+  pasteArea.addEventListener('paste', e => {
+    console.log(e.clipboardData.files);
+    fileInput.files = e.clipboardData.files;
+
+    var items = (e.clipboardData  || e.originalEvent.clipboardData).items;
+    console.log(JSON.stringify(items)); // will give you the mime types
+    // find pasted image among pasted items
+    var blob = null;
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].type.indexOf("image") === 0) {
+        blob = items[i].getAsFile();
+      }
+    }
+    // load image if there is a pasted image
+    if (blob !== null) {
+      var reader = new FileReader();
+      reader.onload = function(event) {
+        console.log(event.target.result); // data url!
+        document.getElementById("pastedImage").src = event.target.result;
+      };
+      reader.readAsDataURL(blob);
+    }
+  });
+</script>

@@ -51,13 +51,15 @@ class PayrollController extends Controller
             $payrolls = Transaction::where('transactions.business_id', $business_id)
                 ->where('type', 'payroll')
                 ->join('users as u', 'u.id', '=', 'transactions.expense_for')
+                ->join('transaction_payments as p', 'p.transaction_id', '=', 'transactions.id')
                 ->select([
                     'transactions.id',
                     DB::raw("CONCAT(COALESCE(u.surname, ''), ' ', COALESCE(u.first_name, ''), ' ', COALESCE(u.last_name, '')) as user"),
-                    'final_total',
-                    'transaction_date',
-                    'ref_no',
+                    'transactions.final_total',
+                    'transactions.transaction_date',
+                    'transactions.ref_no',
                     'transactions.payment_status',
+                    'p.document'
                 ]);
 
             if ($is_admin && !empty(request()->input('user_id'))) {
@@ -98,6 +100,14 @@ class PayrollController extends Controller
                         }
 
                         $html .= '<li><a href="' . action('TransactionPaymentController@show', [$row->id]) . '" class="view_payment_modal"><i class="fa fa-money"></i> ' . __("purchase.view_payments") . '</a></li>';
+                        $html .=' <li><a data-href="'.action('\Modules\Essentials\Http\Controllers\PayrollController@destroy', [$row->id]).'" class="delete_payroll"><i class="glyphicon glyphicon-trash"></i>'.__("messages.delete").'</a></li>';
+                        if($row->document){
+                            $html .= '
+                            <li><a href="'.url('/uploads/documents/' . $row->document).'"
+                            download=""><i class="fa fa-download" aria-hidden="true"></i>'.__("purchase.download_document").'</a></li>';
+                            if(isFileImage($row->document))
+                                $html .='<li><a href="#" data-href="'.url('/uploads/documents/' . $row->document).'" class="view_uploaded_document"><i class="fa fa-picture-o" aria-hidden="true"></i>'.__("lang_v1.view_document").'</a></li>';
+                        }
 
                         if ($row->payment_status != "paid" && $is_admin) {
                             $html .= '<li><a href="' . action('TransactionPaymentController@addPayment', [$row->id]) . '" class="add_payment_modal"><i class="fa fa-money"></i> ' . __("purchase.add_payment") . '</a></li>';
@@ -395,9 +405,35 @@ class PayrollController extends Controller
 
     /**
      * Remove the specified resource from storage.
-     * @return Response
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
      */
-    public function destroy()
+    public function destroy($id)
     {
+
+        if (request()->ajax()) {
+            try {
+                $business_id = request()->session()->get('user.business_id');
+
+                $payroll = Transaction::where('business_id', $business_id)
+                    ->where('type', 'payroll')
+                    ->where('id', $id)
+                    ->first();
+                $payroll->delete();
+
+                $output = ['success' => true,
+                    'msg' => __("lang_v1.payroll_delete_success")
+                ];
+            } catch (\Exception $e) {
+                \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+
+                $output = ['success' => false,
+                    'msg' => __("messages.something_went_wrong")
+                ];
+            }
+
+            return $output;
+        }
     }
 }
