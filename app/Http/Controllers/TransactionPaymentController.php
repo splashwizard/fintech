@@ -15,7 +15,7 @@ use App\Utils\ModuleUtil;
 use App\Utils\TransactionUtil;
 
 use Datatables;
-use DB;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 
 class TransactionPaymentController extends Controller
@@ -111,11 +111,12 @@ class TransactionPaymentController extends Controller
                 $inputs['document'] = $this->transactionUtil->uploadFile($request, 'document', 'documents');
 
                 $tp = TransactionPayment::create($inputs);
-                
+
+
                 //update payment status
                 $this->transactionUtil->updatePaymentStatus($transaction_id, $transaction->final_total);
-                $inputs['transaction_type'] = $transaction->type;
-                event(new TransactionPaymentAdded($tp, $inputs));
+//                $inputs['transaction_type'] = $transaction->type;
+//                event(new TransactionPaymentAdded($tp, $inputs));
                 DB::commit();
             }
 
