@@ -465,6 +465,7 @@ $(document).ready(function() {
 
         $('form#contact_add_form, form#contact_edit_form')
             .submit(function(e) {
+                console.log('editing form');
                 e.preventDefault();
             })
             .validate({
@@ -518,9 +519,49 @@ $(document).ready(function() {
             });
     });
 
+    //On display of add contact modal
+    $('.blacklist_modal').on('shown.bs.modal', function(e) {
+        $('form#contact_edit_blacklist_form')
+            .submit(function(e) {
+                console.log('editing form');
+                e.preventDefault();
+            })
+            .validate({
+                submitHandler: function(form) {
+                    e.preventDefault();
+                    var data = $(form).serialize();
+                    $(form)
+                        .find('button[type="submit"]')
+                        .attr('disabled', true);
+                    $.ajax({
+                        method: 'POST',
+                        url: $(form).attr('action'),
+                        dataType: 'json',
+                        data: data,
+                        success: function(result) {
+                            if (result.success == true) {
+                                $('div.blacklist_modal').modal('hide');
+                                toastr.success(result.msg);
+                                contact_table.ajax.reload();
+                            } else {
+                                toastr.error(result.msg);
+                            }
+                        },
+                    });
+                },
+            });
+    });
+
     $(document).on('click', '.edit_contact_button', function(e) {
         e.preventDefault();
         $('div.contact_modal').load($(this).attr('href'), function() {
+            $(this).modal('show');
+        });
+    });
+
+    $(document).on('click', '.edit_blacklist_button', function(e) {
+        e.preventDefault();
+        $('div.blacklist_modal').load($(this).attr('href'), function() {
             $(this).modal('show');
         });
     });

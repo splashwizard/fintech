@@ -255,6 +255,26 @@ class HomeController extends Controller
         });
         $bank_accounts = $bank_accounts_sql->get();
 
+        $total_bank_sql = Account::leftjoin('account_transactions as AT', function ($join) {
+            $join->on('AT.account_id', '=', 'accounts.id');
+            $join->whereNull('AT.deleted_at');
+        })
+            ->where('is_service', 0)
+            ->where('is_safe', 0)
+            ->where('name', '!=', 'Bonus Account')
+            ->where('business_id', $business_id)
+            ->select(['name', 'account_number', 'accounts.note', 'accounts.id',
+                'is_closed', DB::raw("SUM( IF(AT.type='credit', amount, -1*amount) ) as balance")
+                , DB::raw("SUM( IF(AT.type='credit', amount, 0) ) as total_deposit")
+                , DB::raw("SUM( IF(AT.type='debit', amount, 0) ) as total_withdraw")]);
+
+        $total_bank_sql->where(function ($q) {
+            $q->where('account_type', '!=', 'capital');
+            $q->orWhereNull('account_type');
+        });
+
+        $total_bank = $total_bank_sql->get()[0];
+
         $service_accounts_sql = Account::leftjoin('account_transactions as AT', function ($join) {
             $join->on('AT.account_id', '=', 'accounts.id');
             $join->whereNull('AT.deleted_at');
@@ -271,7 +291,7 @@ class HomeController extends Controller
         });
         $service_accounts = $service_accounts_sql->get();
 
-        return view('home.index', compact('date_filters', 'sells_chart_1', 'sells_chart_2', 'widgets', 'bank_accounts', 'service_accounts'));
+        return view('home.index', compact('date_filters', 'sells_chart_1', 'sells_chart_2', 'widgets', 'bank_accounts', 'service_accounts', 'total_bank'));
     }
 
     /**

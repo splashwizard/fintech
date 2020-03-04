@@ -34,7 +34,7 @@
                     <thead>
                         <tr>
                             <th>@lang('lang_v1.contact_id')</th>
-                            @if($type == 'supplier') 
+                            @if($type == 'supplier')
                                     <th>@lang('business.business_name')</th>
                                 <th>@lang('contact.name')</th>
                                 <th>@lang('lang_v1.added_on')</th>
@@ -74,6 +74,9 @@
 
     <div class="modal fade contact_modal" tabindex="-1" role="dialog" 
     	aria-labelledby="gridSystemModalLabel">
+    </div>
+    <div class="modal fade blacklist_modal" tabindex="-1" role="dialog"
+         aria-labelledby="gridSystemModalLabel">
     </div>
     <div class="modal fade pay_contact_due_modal" tabindex="-1" role="dialog" 
         aria-labelledby="gridSystemModalLabel">

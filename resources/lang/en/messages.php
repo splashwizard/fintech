@@ -13,6 +13,7 @@ return [
 
     'add' => 'Add',
     'edit' => 'Edit',
+    'blacklist' => 'Blacklist',
     'save' => 'Save',
     'update' => 'Update',
     'action' => 'Action',

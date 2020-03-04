@@ -19,6 +19,8 @@ return [
     'deposit_tickets' => 'Deposit Tickets',
     'total_withdrawal' => 'Total Withdrawal',
     'total_bonus' => 'Total Bonus',
+    'basic_bonus' => 'Basic Bonus',
+    'free_credit' => 'Free Credit',
     'total_profit' => 'Total Profit',
     'new_registration' => 'New Registration',
     'withdrawal_tickets' => 'Withdrawal Tickets',

@@ -13,6 +13,7 @@ return [
 
     'contacts' => 'Contacts',
     'name' => 'Name',
+    'remark' => 'Remark',
     'contact' => 'Contact',
     'manage_your_contact' => 'Manage your :contacts',
     'all_your_contact' => 'All your :contacts',

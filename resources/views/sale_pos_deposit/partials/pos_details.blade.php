@@ -20,7 +20,7 @@
 							</div>
 
 							<div class="col-sm-2 col-xs-3 d-inline-table">
-								Special Bonus
+								Free Credit
 								<br/>
 								<span id="special_bonus">0</span>
 							</div>

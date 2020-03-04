@@ -113,7 +113,7 @@
 	        <div class="info-box-content">
                 <div style="margin-top: 10px">
                     <div style="width: 60%;float: left">
-                        <span class="info-box-text">{{ __('home.total_bonus').":" }}</span>
+                        <span class="info-box-text">{{ __('home.basic_bonus').":" }}</span>
                     </div>
                     <div style="width: 40%;float: left">
                         <span class="info-box-number total_bonus"><i class="fa fa-refresh fa-spin fa-fw margin-bottom"></i></span>
@@ -122,7 +122,7 @@
                 <span style="clear: left"></span>
                 <div style="margin-top: 40px">
                     <div style="width: 60%;float: left">
-                        <span class="info-box-text">{{ __('home.total_profit').":" }}</span>
+                        <span class="info-box-text">{{ __('home.free_credit').":" }}</span>
                     </div>
                     <div style="width: 40%;float: left">
                         <span class="info-box-number total_profit"><i class="fa fa-refresh fa-spin fa-fw margin-bottom"></i></span>
@@ -159,6 +159,51 @@
 	      </div>
 	      <!-- /.info-box -->
 	    </div>
+        <div class="col-lg-4 col-md-6 col-xs-12">
+        <div class="info-box">
+            <span class="custom-info-box bg-yellow">
+                Total Bank Transaction
+            </span>
+
+            <div class="info-box-content">
+                <div style="margin-top: 5px">
+                    <div style="width: 50%;float: left">
+                        <span class="info-box-text">
+                            Balance:
+                        </span>
+                    </div>
+                    <div style="width: 50%;float: left">
+                        <span class="info-box-number">{{(!empty($total_bank->balance) ? $total_bank->balance : 0)}}
+                        </span>
+                    </div>
+                </div>
+                <div style="margin-top: 10px">
+                    <div style="width: 50%;float: left">
+                        <span class="info-box-text">
+                            Dep.:
+                        </span>
+                    </div>
+                    <div style="width: 50%;float: left">
+                        <span class="info-box-number">{{(!empty($total_bank->total_deposit) ? $total_bank->total_deposit : 0)}}
+                        </span>
+                    </div>
+                </div>
+                <div style="margin-top: 10px">
+                    <div style="width: 50%;float: left">
+                        <span class="info-box-text">
+                            Wit.:
+                        </span>
+                    </div>
+                    <div style="width: 50%;float: left">
+                        <span class="info-box-number">{{(!empty($total_bank->total_withdraw) ? $total_bank->total_withdraw : 0)}}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <!-- /.info-box-content -->
+        </div>
+        <!-- /.info-box -->
+    </div>
 	    <!-- /.col -->
   	</div>
   	<br>

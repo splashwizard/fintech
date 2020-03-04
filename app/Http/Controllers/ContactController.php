@@ -216,6 +216,7 @@ class ContactController extends Controller
                 @endcan
                 @can("customer.update")
                     <li><a href="{{action(\'ContactController@edit\', [$id])}}" class="edit_contact_button"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</a></li>
+                    <li><a href="{{action(\'ContactController@blacklist\', [$id])}}" class="edit_blacklist_button"><i class="glyphicon glyphicon-edit"></i> @lang("messages.blacklist")</a></li>
                 @endcan
                 @if(!$is_default)
                 @can("customer.delete")
@@ -438,6 +439,53 @@ class ContactController extends Controller
         }
     }
 
+    public function blacklist($id)
+    {
+        if (!auth()->user()->can('supplier.update') && !auth()->user()->can('customer.update')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        if (request()->ajax()) {
+            $business_id = request()->session()->get('user.business_id');
+            $contact = Contact::where('business_id', $business_id)->find($id);
+
+            if (!$this->moduleUtil->isSubscribed($business_id)) {
+                return $this->moduleUtil->expiredResponse();
+            }
+
+            $types = [];
+            if (auth()->user()->can('supplier.create')) {
+                $types['supplier'] = __('report.supplier');
+            }
+            if (auth()->user()->can('customer.create')) {
+                $types['customer'] = __('report.customer');
+            }
+            if (auth()->user()->can('supplier.create') && auth()->user()->can('customer.create')) {
+                $types['both'] = __('lang_v1.both_supplier_customer');
+            }
+
+            $customer_groups = CustomerGroup::forDropdown($business_id);
+
+            $ob_transaction =  Transaction::where('contact_id', $id)
+                ->where('type', 'opening_balance')
+                ->first();
+            $opening_balance = !empty($ob_transaction->final_total) ? $ob_transaction->final_total : 0;
+
+            //Deduct paid amount from opening balance.
+            if (!empty($opening_balance)) {
+                $opening_balance_paid = $this->transactionUtil->getTotalAmountPaid($ob_transaction->id);
+                if (!empty($opening_balance_paid)) {
+                    $opening_balance = $opening_balance - $opening_balance_paid;
+                }
+
+                $opening_balance = $this->commonUtil->num_f($ob_transaction->final_total);
+            }
+
+            return view('contact.blacklist')
+                ->with(compact('contact', 'types', 'customer_groups', 'opening_balance'));
+        }
+    }
+
     /**
      * Update the specified resource in storage.
      *
@@ -515,6 +563,35 @@ class ContactController extends Controller
                 $output = ['success' => false,
                             'msg' => __("messages.something_went_wrong")
                         ];
+            }
+
+            return $output;
+        }
+    }
+
+    public function updateBlackList($id)
+    {
+        if (!auth()->user()->can('supplier.update') && !auth()->user()->can('customer.update')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        if (request()->ajax()) {
+            try {
+                $business_id = request()->session()->get('user.business_id');
+                $contact = Contact::where('business_id', $business_id)->findOrFail($id);
+                $contact->remark = request()->get('remark');
+                $contact->blacked_by_user = request()->session()->get('user.first_name').' '.request()->session()->get('user.last_name');
+                $contact->save();
+
+                $output = ['success' => true,
+                    'msg' => __("contact.updated_success")
+                ];
+            } catch (\Exception $e) {
+                \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+
+                $output = ['success' => false,
+                    'msg' => __("messages.something_went_wrong")
+                ];
             }
 
             return $output;
