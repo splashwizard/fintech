@@ -136,6 +136,8 @@ Route::middleware(['IsInstalled', 'auth', 'SetSessionData', 'language', 'timezon
     Route::get('/sells/pos_deposit/get-product-suggestion', 'SellPosDepositController@getProductSuggestion');
     Route::resource('pos_deposit', 'SellPosDepositController');
 
+    Route::get('/sells/pos_deposit/ledger', 'SellPosDepositController@getLedger');
+
     Route::resource('roles', 'RoleController');
 
     Route::resource('users', 'ManageUserController');

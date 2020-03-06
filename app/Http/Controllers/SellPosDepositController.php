@@ -35,11 +35,13 @@ use App\BusinessLocation;
 use App\Category;
 use App\Contact;
 use App\CustomerGroup;
+use App\GameId;
 use App\Media;
 use App\Product;
 use App\SellingPriceGroup;
 use App\TaxRate;
 use App\Transaction;
+use App\TransactionPayment;
 use App\TransactionSellLine;
 use App\User;
 use App\Utils\BusinessUtil;
@@ -94,6 +96,14 @@ class SellPosDepositController extends Controller
 
         $this->dummyPaymentLine = ['method' => 'bank_transfer', 'amount' => 0, 'note' => '', 'card_transaction_number' => '', 'card_number' => '', 'card_type' => '', 'card_holder_name' => '', 'card_month' => '', 'card_year' => '', 'card_security' => '', 'cheque_number' => '', 'bank_account_number' => '',
         'is_return' => 0, 'transaction_no' => ''];
+        $this->transactionTypes = [
+            'sell' => __('sale.sale'),
+            'purchase' => __('lang_v1.purchase'),
+            'sell_return' => __('lang_v1.sell_return'),
+            'purchase_return' =>  __('lang_v1.purchase_return'),
+            'opening_balance' => __('lang_v1.opening_balance'),
+            'payment' => __('lang_v1.payment')
+        ];
     }
 
     /**
@@ -1648,6 +1658,133 @@ class SellPosDepositController extends Controller
             return view('sale_pos_deposit.partials.product_list')
                 ->with(compact('products'));
         }
+    }
+
+
+    public function getLedger()
+    {
+        if (!auth()->user()->can('supplier.view') && !auth()->user()->can('customer.view')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $business_id = request()->session()->get('user.business_id');
+        $contact_id = request()->input('contact_id');
+        $selected_bank = request()->input('selected_bank');
+        $bank_list = Account::where('is_service', 0)->where('business_id', $business_id)->get();
+        if(empty($selected_bank))
+            $selected_bank = $bank_list[0]->id;
+        $transaction_types = explode(',', request()->input('transaction_types'));
+//        $show_payments = request()->input('show_payments') == 'true' ? true : false;
+
+        //Get transactions
+        $query1 = Transaction::where('transactions.business_id', $business_id)
+//            where('transactions.contact_id', $contact_id)
+            ->where('status', '!=', 'draft')
+            ->whereIn('type', $transaction_types)
+            ->with(['location']);
+
+        if (!empty(request()->start_date) && !empty(request()->end_date)) {
+            $start = request()->start_date;
+            $end =  request()->end_date;
+            $query1->whereDate('transactions.transaction_date', '>=', $start)
+                ->whereDate('transactions.transaction_date', '<=', $end);
+        }
+
+        $transactions = $query1->get();
+
+        $ledger = [];
+//        foreach ($transactions as $transaction) {
+//            $ledger[] = [
+//                'date' => $transaction->transaction_date,
+//                'ref_no' => in_array($transaction->type, ['sell', 'sell_return']) ? $transaction->invoice_no : $transaction->ref_no,
+//                'type' => $this->transactionTypes[$transaction->type],
+//                'location' => $transaction->location->name,
+//                'payment_status' =>  __('lang_v1.' . $transaction->payment_status),
+//                'total' => $transaction->final_total,
+//                'payment_method' => '',
+//                'debit' => '',
+//                'credit' => '',
+//                'others' => $transaction->additional_notes
+//            ];
+//        }
+
+        $query2 = TransactionPayment::join(
+            'transactions as t',
+            'transaction_payments.transaction_id',
+            '=',
+            't.id'
+        )
+            ->leftJoin('business_locations as bl', 't.location_id', '=', 'bl.id')
+            ->join('contacts as c', 'c.id', 't.contact_id')
+            ->join('accounts as a', 'a.id', 'transaction_payments.account_id')
+            ->where('t.contact_id', $contact_id)
+            ->where('t.business_id', $business_id)
+            ->where('t.status', '!=', 'draft');
+
+        $start = date('Y-m-d', strtotime('now'));
+        $end = date('Y-m-d', strtotime('now'));
+        $query1->whereDate('transactions.transaction_date', '>=', $start)
+            ->whereDate('transactions.transaction_date', '<=', $end);
+
+        $query2->whereDate('paid_on', '>=', $start)
+            ->whereDate('paid_on', '<=', $end);
+
+        $payments = $query2->select('transaction_payments.*', 't.id as transaction_id', 'bl.name as location_name', 't.type as transaction_type', 't.ref_no', 't.invoice_no'
+            , 'c.id as contact_primary_key', 'c.contact_id as contact_id', 'a.id as account_id', 'a.name as account_name')->get();
+//        $total_deposit = $query2->where('t.type', 'sell')->where('transaction_payments.method', '!=', 'service_transfer')->where('transaction_payments.method','!=', 'bonus')->sum('transaction_payments.amount');
+        $paymentTypes = $this->transactionUtil->payment_types();
+        $ledger_by_payment = [];
+        foreach ($payments as $payment) {
+            if(empty($ledger_by_payment[$payment->transaction_id])){
+                $ref_no = in_array($payment->transaction_type, ['sell', 'sell_return']) ?  $payment->invoice_no :  $payment->ref_no;
+                $ledger_by_payment[$payment->transaction_id] = [
+                    'date' => $payment->paid_on,
+                    'ref_no' => $payment->payment_ref_no,
+                    'type' => $this->transactionTypes['payment'],
+                    'location' => $payment->location_name,
+                    'contact_id' => $payment->contact_id,
+                    'payment_method' => !empty($paymentTypes[$payment->method]) ? $paymentTypes[$payment->method] : '',
+                    'debit' => ($payment->transaction_type == 'sell_return' && $payment->method != 'service_transfer') ? $payment->amount : 0,
+                    'credit' => ($payment->transaction_type == 'sell' && $payment->method == 'bank_transfer') ? $payment->amount : 0,
+                    'bonus' => ($payment->transaction_type == 'sell' && $payment->method == 'bonus') ? $payment->amount : 0 ,
+                    'service_debit' => ($payment->transaction_type == 'sell_return' && $payment->method == 'service_transfer') ? $payment->amount : 0,
+                    'service_credit' => ($payment->transaction_type == 'sell' && $payment->method == 'service_transfer' ) ? $payment->amount : 0,
+                    'others' => '<small>' . $ref_no . '</small>'
+                ];
+            } else {
+                $ledger_by_payment[$payment->transaction_id]['debit'] += ($payment->transaction_type == 'sell_return' && $payment->method != 'service_transfer') ? $payment->amount : 0;
+                $ledger_by_payment[$payment->transaction_id]['credit'] += ($payment->transaction_type == 'sell' && $payment->method == 'bank_transfer') ? $payment->amount : 0;
+                $ledger_by_payment[$payment->transaction_id]['bonus'] += ($payment->transaction_type == 'sell' && $payment->method == 'bonus') ? $payment->amount : 0;
+                $ledger_by_payment[$payment->transaction_id]['service_debit'] += ($payment->transaction_type == 'sell_return' && $payment->method == 'service_transfer') ? $payment->amount : 0;
+                $ledger_by_payment[$payment->transaction_id]['service_credit'] += ($payment->transaction_type == 'sell' && $payment->method == 'service_transfer' ) ? $payment->amount : 0;
+            }
+            if($payment->transaction_type == 'sell' && $payment->method == 'service_transfer'){
+                $ledger_by_payment[$payment->transaction_id]['service_name'] = $payment->account_name;
+                $game_data = GameId::where('contact_id', $payment->contact_primary_key)->where('service_id', $payment->account_id)->get();
+                if(count($game_data) >= 1){
+                    $game_id = $game_data[0]->game_id;
+                    $ledger_by_payment[$payment->transaction_id]['game_id'] = $game_id;
+                }
+            }
+            if($payment->method == 'bank_transfer') {
+                $ledger_by_payment[$payment->transaction_id]['bank_id'] = $payment->account_id;
+            }
+        }
+        foreach ($ledger_by_payment as $item){
+            if($item['bank_id'] == $selected_bank)
+                $ledger[] = $item;
+        }
+
+        //Sort by date
+        if (!empty($ledger)) {
+            usort($ledger, function ($a, $b) {
+                $t1 = strtotime($a['date']);
+                $t2 = strtotime($b['date']);
+                return $t2 - $t1;
+            });
+        }
+        return view('sale_pos_deposit.ledger')
+            ->with(compact('ledger', 'bank_list', 'selected_bank'));
     }
 
     /**

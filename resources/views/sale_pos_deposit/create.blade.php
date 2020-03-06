@@ -207,6 +207,14 @@
 			@include('sale_pos_deposit.partials.right_div')
 		</div>
 	</div>
+
+	@component('components.widget', ['class' => 'box-primary', 'title' => __('lang_v1.ledger')])
+		<div class="row">
+			<div class="col-md-12">
+				<div id="contact_ledger_div"></div>
+			</div>
+		</div>
+	@endcomponent
 </section>
 
 <!-- This will be printed1 -->

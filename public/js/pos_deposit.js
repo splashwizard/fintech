@@ -1,4 +1,4 @@
-    $(document).ready(function() {
+$(document).ready(function() {
 
     customer_set = false;
     //Prevent enter key function except texarea
@@ -1270,8 +1270,74 @@
                 return null;
             }
         }
-    }
+    };
+    get_contact_ledger();
 });
+
+var selected_bank = 0;
+function get_contact_ledger() {
+
+    var start_date = '';
+    var end_date = '';
+    var transaction_types = $('input.transaction_types:checked').map(function(i, e) {return e.value}).toArray();
+    var show_payments = $('input#show_payments').is(':checked');
+
+    if($('#ledger_date_range').val()) {
+        start_date = $('#ledger_date_range').data('daterangepicker').startDate.format('YYYY-MM-DD');
+        end_date = $('#ledger_date_range').data('daterangepicker').endDate.format('YYYY-MM-DD');
+    }
+    $.ajax({
+        url: '/sells/pos_deposit/ledger?contact_id=' + $('#customer_id').val()+ '&transaction_types=' + transaction_types + '&show_payments=' + show_payments + '&selected_bank=' + selected_bank,
+        dataType: 'html',
+        success: function(result) {
+            $('#contact_ledger_div')
+                .html(result);
+            __currency_convert_recursively($('#ledger_table'));
+
+            $('#ledger_table').DataTable({
+                searchable: false,
+                ordering:false,
+                "footerCallback": function ( row, data, start, end, display ) {
+                    var api = this.api(), data;
+
+                    // Remove the formatting to get integer data for summation
+                    var intVal = function ( i ) {
+                        // if(typeof i === 'string' && i)
+                        //     console.log($(i).text());
+                        return typeof i === 'string' && i?
+                            // i.replace(/[\$,]/g, '')*1
+                            parseFloat($(i).text().replace(/[RM ]/g, ''))
+                            :
+                            typeof i === 'number' ?
+                                i : 0;
+                        return 1;
+                    };
+
+                    // Total over this page
+                    let columns = [2,3,6,7,8];
+                    for(let i = 0; i < columns.length; i++){
+                        console.log(columns[i]);
+                        pageTotal = api
+                            .column( columns[i], { page: 'current'} )
+                            .data()
+                            .reduce( function (a, b) {
+                                return intVal(a) + intVal(b);
+                            }, 0 );
+
+                        // Update footer
+                        $( api.column( columns[i] ).footer() ).html(
+                            __currency_trans_from_en(pageTotal, true, false,  __currency_precision, true)
+                        );
+                    }
+                }
+            });
+            $('.nav-link').click(function (e) {
+                selected_bank = $(this).data('bank_id');
+                get_contact_ledger();
+            });
+        },
+    });
+}
 
 function get_product_suggestion_list(category_id, product_id, brand_id, location_id, url = null) {
 
