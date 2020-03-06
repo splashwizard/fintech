@@ -282,7 +282,9 @@ class HomeController extends Controller
             ->where('is_service', 1)
             ->where('business_id', $business_id)
             ->select(['name', 'account_number', 'accounts.note', 'accounts.id',
-                'is_closed', DB::raw("SUM( IF(AT.type='credit', amount, -1*amount) ) as balance")])
+                'is_closed', DB::raw("SUM( IF(AT.type='credit', amount, -1*amount) ) as balance")
+                , DB::raw("SUM( IF(AT.type='credit', amount, 0) ) as total_deposit")
+                , DB::raw("SUM( IF(AT.type='debit', amount, 0) ) as total_withdraw")])
             ->groupBy('accounts.id');
 
         $service_accounts_sql->where(function ($q) {
