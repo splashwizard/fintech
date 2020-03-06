@@ -1587,6 +1587,13 @@ class SellPosDepositController extends Controller
                         }
                     }
                 )
+                ->join('accounts', 'p.account_id', 'accounts.id')
+                ->leftjoin('account_transactions as AT', function ($join) {
+                    $join->on('AT.account_id', '=', 'accounts.id');
+                    $join->whereNull('AT.deleted_at');
+                })
+                ->groupBy('accounts.id')
+                ->groupBy('variations.id')
                 ->where('p.business_id', $business_id)
                 ->where('p.type', '!=', 'modifier')
                 ->where('p.is_inactive', 0)
@@ -1621,13 +1628,14 @@ class SellPosDepositController extends Controller
 
 
             $products = $products->select(
+                DB::raw("SUM( IF(AT.type='credit', AT.amount, -1*AT.amount) ) as balance"),
                 'p.id as product_id',
                 'p.name',
                 'p.type',
                 'p.enable_stock',
                 'variations.id',
-                'account_id',
-                'category_id',
+                'p.account_id',
+                'p.category_id',
                 'variations.name as variation',
                 'VLD.qty_available',
                 'variations.default_sell_price as selling_price',
