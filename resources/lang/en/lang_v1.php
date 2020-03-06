@@ -109,6 +109,7 @@ return [
     'days' => 'Days',
     'suppliers' => 'Suppliers',
     'customers' => 'Customers',
+    'blacklisted_customers'=> 'Blacklisted Customers',
     'enter_product_name_to_print_labels' => 'Enter products name to print labels',
     'manage_product_variations' => 'Manage product variations',
     'all_variations' => 'All variations',

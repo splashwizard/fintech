@@ -27,9 +27,14 @@ Route::group(['middleware' => ['web','IsInstalled', 'auth', 'SetSessionData', 'l
     Route::group(['prefix' => 'hrm'], function () {
         Route::resource('/leave-type', 'EssentialsLeaveTypeController');
         Route::resource('/leave', 'EssentialsLeaveController');
-        Route::post('/change-status', 'EssentialsLeaveController@changeStatus');
+        Route::post('/leave/change-status', 'EssentialsLeaveController@changeStatus');
         Route::get('/leave/activity/{id}', 'EssentialsLeaveController@activity');
         Route::get('/user-leave-summary', 'EssentialsLeaveController@getUserLeaveSummary');
+
+        Route::resource('/request', 'EssentialsRequestController');
+        Route::post('/request/change-status', 'EssentialsRequestController@changeStatus');
+        Route::get('/request/activity/{id}', 'EssentialsRequestController@activity');
+        Route::get('/request/user-leave-summary', 'EssentialsRequestController@getUserLeaveSummary');
 
         Route::get('/settings', 'EssentialsSettingsController@edit');
         Route::post('/settings', 'EssentialsSettingsController@update');

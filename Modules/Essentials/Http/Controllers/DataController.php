@@ -60,17 +60,47 @@ class DataController extends Controller
                 'created_at' => $notification->created_at->diffForHumans()
             ];
         } elseif ($notification->type ==
+            'Modules\Essentials\Notifications\NewRequestNotification') {
+            $data = $notification->data;
+
+            $employee = User::find($data['applied_by']);
+
+            $msg = __('essentials::lang.new_request_notification', ['employee' => $employee->user_full_name, 'ref_no' => $data['ref_no']]);
+
+            $notification_data = [
+                'msg' => $msg,
+                'icon_class' => 'fa fa-user-times text-success',
+                'link' => action('\Modules\Essentials\Http\Controllers\EssentialsRequestController@index'),
+                'read_at' => $notification->read_at,
+                'created_at' => $notification->created_at->diffForHumans()
+            ];
+        } elseif ($notification->type ==
             'Modules\Essentials\Notifications\LeaveStatusNotification') {
             $data = $notification->data;
 
             $admin = User::find($data['changed_by']);
 
-            $msg = __('essentials::lang.status_change_notification', ['status' => $data['status'], 'ref_no' => $data['ref_no'], 'admin' => $admin->user_full_name]);
+            $msg = __('essentials::lang.leave_status_change_notification', ['status' => $data['status'], 'ref_no' => $data['ref_no'], 'admin' => $admin->user_full_name]);
 
             $notification_data = [
                 'msg' => $msg,
                 'icon_class' => 'fa fa-user-times text-success',
                 'link' => action('\Modules\Essentials\Http\Controllers\EssentialsLeaveController@index'),
+                'read_at' => $notification->read_at,
+                'created_at' => $notification->created_at->diffForHumans()
+            ];
+        }elseif ($notification->type ==
+            'Modules\Essentials\Notifications\RequestStatusNotification') {
+            $data = $notification->data;
+
+            $admin = User::find($data['changed_by']);
+
+            $msg = __('essentials::lang.request_status_change_notification', ['status' => $data['status'], 'ref_no' => $data['ref_no'], 'admin' => $admin->user_full_name]);
+
+            $notification_data = [
+                'msg' => $msg,
+                'icon_class' => 'fa fa-user-times text-success',
+                'link' => action('\Modules\Essentials\Http\Controllers\EssentialsRequestController@index'),
                 'read_at' => $notification->read_at,
                 'created_at' => $notification->created_at->diffForHumans()
             ];

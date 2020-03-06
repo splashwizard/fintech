@@ -44,4 +44,6 @@ return [
     'total_bank_deposit' => 'Total Bank Deposit',
     'total_service_deposit' => 'Total Service Deposit',
     'customer' => 'Customer',
+    'blacklist_by' => 'Blacklist by',
+    'remarks' => 'remarks'
 ];

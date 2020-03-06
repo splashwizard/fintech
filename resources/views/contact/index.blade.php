@@ -56,15 +56,36 @@
                                 <th>@lang('business.address')</th>
                                 <th>@lang('lang_v1.added_on')</th>
                                 <th>@lang('messages.action')</th>
+                            @elseif( $type == 'blacklisted_customer')
+                                <th>@lang('user.name')</th>
+                                <th>@lang('contact.contact')</th>
+                                <th>@lang('user.email')</th>
+                                <th>@lang('lang_v1.customer_group')</th>
+                                <th>@lang('contact.total_sale_due')</th>
+                                <th>@lang('lang_v1.total_sell_return_due')</th>
+                                @if($reward_enabled)
+                                    {{--                                    <th>{{session('business.rp_name')}}</th>--}}
+                                    <th>@lang('user.rp_name')</th>
+                                @endif
+                                <th>@lang('business.address')</th>
+                                <th>@lang('lang_v1.added_on')</th>
+                                <th>@lang('contact.blacklist_by')</th>
+                                <th>@lang('contact.remarks')</th>
+                                <th>@lang('messages.action')</th>
                             @endif
                         </tr>
                     </thead>
                     <tfoot>
                         <tr class="bg-gray font-17 text-center footer-total">
-                            <td @if($type == 'supplier') colspan="5" @elseif( $type == 'customer') @if($reward_enabled) colspan="8" @else colspan="6" @endif @endif><strong>@lang('sale.total'):</strong></td>
+                            <td @if($type == 'supplier') colspan="2"
+                                @elseif( $type == 'customer') @if($reward_enabled) colspan="5" @else colspan="3" @endif
+                                @elseif( $type == 'blacklisted_customer') @if($reward_enabled) colspan="5" @else colspan="5" @endif
+                                @endif>
+                                <strong>@lang('sale.total'):</strong>
+                            </td>
                             <td><span class="display_currency" id="footer_contact_due" data-currency_symbol ="true"></span></td>
                             <td><span class="display_currency" id="footer_contact_return_due" data-currency_symbol ="true"></span></td>
-                            <td></td>
+                            <td @if( $type == 'blacklisted_customer') colspan="6" @else colspan="4" @endif></td>
                         </tr>
                     </tfoot>
                 </table>
@@ -85,4 +106,224 @@
 </section>
 <!-- /.content -->
 
+@endsection
+
+@section('javascript')
+    <script>
+        //Start: CRUD for Contacts
+        //contacts table
+        var contact_table_type = $('#contact_type').val();
+        var targets = 8;
+        if (contact_table_type == 'supplier') {
+            targets = [8,9,10];
+        }
+        var contact_table = $('#contact_table').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: '/contacts?type=' + $('#contact_type').val(),
+            columnDefs: [
+                {
+                    targets: targets,
+                    orderable: false,
+                    searchable: false,
+                },
+            ],
+            columns: contact_table_type === 'blacklisted_customer'? [
+                {data: 'contact_id', width: "10%"},
+                {data: 'name', width: "10%"},
+                {data: 'mobile', width: "10%"},
+                {data: 'email', width: "10%"},
+                {data: 'customer_group', width: "10%"},
+                {data: 'due', width: "10%"},
+                {data: 'return_due', width: "10%"},
+                {data: 'total_rp', width: "10%"},
+                {data: 'landmark', width: "10%"},
+                {data: 'created_at', width: "10%"},
+                {data: 'blacked_by_user', width: "10%"},
+                {data: 'remark', width: "10%"},
+                {data: 'action', width: "10%"}
+            ] : [
+                {data: 'contact_id', width: "10%"},
+                {data: 'name', width: "10%"},
+                {data: 'mobile', width: "10%"},
+                {data: 'email', width: "10%"},
+                {data: 'customer_group', width: "10%"},
+                {data: 'due', width: "10%"},
+                {data: 'return_due', width: "10%"},
+                {data: 'total_rp', width: "10%"},
+                {data: 'landmark', width: "10%"},
+                {data: 'created_at', width: "10%"},
+                {data: 'action', width: "10%"}
+            ],
+            fnDrawCallback: function(oSettings) {
+                var total_due = sum_table_col($('#contact_table'), 'contact_due');
+                $('#footer_contact_due').text(total_due);
+
+                var total_return_due = sum_table_col($('#contact_table'), 'return_due');
+                $('#footer_contact_return_due').text(total_return_due);
+                __currency_convert_recursively($('#contact_table'));
+            },
+        });
+
+
+
+        //On display of add contact modal
+        $('.contact_modal').on('shown.bs.modal', function(e) {
+            if ($('select#contact_type').val() == 'customer') {
+                $('div.supplier_fields').hide();
+                $('div.customer_fields').show();
+            } else if ($('select#contact_type').val() == 'supplier') {
+                $('div.supplier_fields').show();
+                $('div.customer_fields').hide();
+            }
+
+            $('select#contact_type').change(function() {
+                var t = $(this).val();
+
+                if (t == 'supplier') {
+                    $('div.supplier_fields').fadeIn();
+                    $('div.customer_fields').fadeOut();
+                } else if (t == 'both') {
+                    $('div.supplier_fields').fadeIn();
+                    $('div.customer_fields').fadeIn();
+                } else if (t == 'customer') {
+                    $('div.customer_fields').fadeIn();
+                    $('div.supplier_fields').fadeOut();
+                }
+            });
+
+            $('form#contact_add_form, form#contact_edit_form')
+                .submit(function(e) {
+                    console.log('editing form');
+                    e.preventDefault();
+                })
+                .validate({
+                    rules: {
+                        contact_id: {
+                            remote: {
+                                url: '/contacts/check-contact-id',
+                                type: 'post',
+                                data: {
+                                    contact_id: function() {
+                                        return $('#contact_id').val();
+                                    },
+                                    hidden_id: function() {
+                                        if ($('#hidden_id').length) {
+                                            return $('#hidden_id').val();
+                                        } else {
+                                            return '';
+                                        }
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    messages: {
+                        contact_id: {
+                            remote: LANG.contact_id_already_exists,
+                        },
+                    },
+                    submitHandler: function(form) {
+                        e.preventDefault();
+                        var data = $(form).serialize();
+                        $(form)
+                            .find('button[type="submit"]')
+                            .attr('disabled', true);
+                        $.ajax({
+                            method: 'POST',
+                            url: $(form).attr('action'),
+                            dataType: 'json',
+                            data: data,
+                            success: function(result) {
+                                if (result.success == true) {
+                                    $('div.contact_modal').modal('hide');
+                                    toastr.success(result.msg);
+                                    contact_table.ajax.reload();
+                                } else {
+                                    toastr.error(result.msg);
+                                }
+                            },
+                        });
+                    },
+                });
+        });
+
+        //On display of add contact modal
+        $('.blacklist_modal').on('shown.bs.modal', function(e) {
+            $('form#contact_edit_blacklist_form')
+                .submit(function(e) {
+                    console.log('editing form');
+                    e.preventDefault();
+                })
+                .validate({
+                    submitHandler: function(form) {
+                        e.preventDefault();
+                        var data = $(form).serialize();
+                        $(form)
+                            .find('button[type="submit"]')
+                            .attr('disabled', true);
+                        $.ajax({
+                            method: 'POST',
+                            url: $(form).attr('action'),
+                            dataType: 'json',
+                            data: data,
+                            success: function(result) {
+                                if (result.success == true) {
+                                    $('div.blacklist_modal').modal('hide');
+                                    toastr.success(result.msg);
+                                    contact_table.ajax.reload();
+                                } else {
+                                    toastr.error(result.msg);
+                                }
+                            },
+                        });
+                    },
+                });
+        });
+
+        $(document).on('click', '.edit_contact_button', function(e) {
+            e.preventDefault();
+            $('div.contact_modal').load($(this).attr('href'), function() {
+                $(this).modal('show');
+            });
+        });
+
+        $(document).on('click', '.edit_blacklist_button', function(e) {
+            e.preventDefault();
+            $('div.blacklist_modal').load($(this).attr('href'), function() {
+                $(this).modal('show');
+            });
+        });
+
+        $(document).on('click', '.delete_contact_button', function(e) {
+            e.preventDefault();
+            swal({
+                title: LANG.sure,
+                text: LANG.confirm_delete_contact,
+                icon: 'warning',
+                buttons: true,
+                dangerMode: true,
+            }).then(willDelete => {
+                if (willDelete) {
+                    var href = $(this).attr('href');
+                    var data = $(this).serialize();
+
+                    $.ajax({
+                        method: 'DELETE',
+                        url: href,
+                        dataType: 'json',
+                        data: data,
+                        success: function(result) {
+                            if (result.success == true) {
+                                toastr.success(result.msg);
+                                contact_table.ajax.reload();
+                            } else {
+                                toastr.error(result.msg);
+                            }
+                        },
+                    });
+                }
+            });
+        });
+    </script>
 @endsection

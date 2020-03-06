@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Account;
 use App\Business;
 use App\Contact;
 use App\CustomerGroup;
+use App\GameId;
 use App\Transaction;
 use App\TransactionPayment;
 use App\User;
@@ -55,7 +57,7 @@ class ContactController extends Controller
     {
         $type = request()->get('type');
 
-        $types = ['supplier', 'customer'];
+        $types = ['supplier', 'customer', 'blacklisted_customer'];
 
         if (empty($type) || !in_array($type, $types)) {
             return redirect()->back();
@@ -66,12 +68,14 @@ class ContactController extends Controller
                 return $this->indexSupplier();
             } elseif ($type == 'customer') {
                 return $this->indexCustomer();
+            } elseif ($type == 'blacklisted_customer') {
+                return $this->indexBlacklistedCustomer();
             } else {
                 die("Not Found");
             }
         }
 
-        $reward_enabled = (request()->session()->get('business.enable_rp') == 1 && in_array($type, ['customer'])) ? true : false;
+        $reward_enabled = (request()->session()->get('business.enable_rp') == 1 && in_array($type, ['customer', 'blacklisted_customer'])) ? true : false;
 
         return view('contact.index')
             ->with(compact('type', 'reward_enabled'));
@@ -168,9 +172,10 @@ class ContactController extends Controller
         $query = Contact::leftjoin('transactions AS t', 'contacts.id', '=', 't.contact_id')
                     ->leftjoin('customer_groups AS cg', 'contacts.customer_group_id', '=', 'cg.id')
                     ->where('contacts.business_id', $business_id)
+                    ->where('contacts.blacked_by_user', '=', null)
                     ->onlyCustomers()
                     ->addSelect(['contacts.contact_id', 'contacts.name', 'contacts.email', 'contacts.created_at', 'total_rp', 'cg.name as customer_group', 'city', 'state', 'country', 'landmark', 'mobile', 'contacts.id', 'is_default',
-                        DB::raw("SUM(IF(t.type = 'sell' AND t.status = 'final', final_total, 0)) as total_invoice"),
+                        DB::raw("SUM(IF(t.type = 'sell'  AND t.status = 'final', final_total, 0)) as total_invoice"),
 //                        DB::raw("1000 as total_invoice"),
                         DB::raw("SUM(IF(t.type = 'sell' AND t.status = 'final', (SELECT SUM(IF(is_return = 1,-1*amount,amount)) FROM transaction_payments WHERE transaction_payments.transaction_id=t.id), 0)) as invoice_received"),
                         DB::raw("SUM(IF( t.type = 'sell_return' AND (SELECT transaction_payments.method FROM transaction_payments WHERE transaction_payments.transaction_id=t.id) = 'bank_transfer', final_total, 0)) as total_sell_return"),
@@ -202,6 +207,104 @@ class ContactController extends Controller
                         data-toggle="dropdown" aria-expanded="false">' .
                         __("messages.actions") .
                         '<span class="caret"></span><span class="sr-only">Toggle Dropdown
+                        </span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                @if(($total_invoice + $opening_balance - $invoice_received - $opening_balance_paid)  > 0)
+                    <li><a href="{{action(\'TransactionPaymentController@getPayContactDue\', [$id])}}?type=sell" class="pay_sale_due"><i class="fa fa-money" aria-hidden="true"></i>@lang("contact.pay_due_amount")</a></li>
+                @endif
+                @if(($total_sell_return - $sell_return_paid)  > 0)
+                    <li><a href="{{action(\'TransactionPaymentController@getPayContactDue\', [$id])}}?type=sell_return" class="pay_purchase_due"><i class="fa fa-money" aria-hidden="true"></i>@lang("lang_v1.pay_sell_return_due")</a></li>
+                @endif
+                @can("customer.view")
+                    <li><a href="{{action(\'ContactController@show\', [$id])}}"><i class="fa fa-external-link" aria-hidden="true"></i> @lang("messages.view")</a></li>
+                @endcan
+                @can("customer.update")
+                    <li><a href="{{action(\'ContactController@edit\', [$id])}}" class="edit_contact_button"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</a></li>
+                    <li><a href="{{action(\'ContactController@blacklist\', [$id])}}" class="edit_blacklist_button"><i class="glyphicon glyphicon-edit"></i> @lang("messages.blacklist")</a></li>
+                @endcan
+                @if(!$is_default)
+                @can("customer.delete")
+                    <li><a href="{{action(\'ContactController@destroy\', [$id])}}" class="delete_contact_button"><i class="glyphicon glyphicon-trash"></i> @lang("messages.delete")</a></li>
+                @endcan
+                @endif </ul></div>'
+            )
+            ->editColumn('total_rp', '{{$total_rp ?? 0}}')
+            ->editColumn('created_at', '{{@format_date($created_at)}}')
+            ->removeColumn('total_invoice')
+            ->removeColumn('opening_balance')
+            ->removeColumn('opening_balance_paid')
+            ->removeColumn('invoice_received')
+            ->removeColumn('state')
+            ->removeColumn('country')
+            ->removeColumn('city')
+            ->removeColumn('type')
+            ->removeColumn('id')
+            ->removeColumn('is_default')
+            ->removeColumn('total_sell_return')
+            ->removeColumn('sell_return_paid');
+        $reward_enabled = (request()->session()->get('business.enable_rp') == 1) ? true : false;
+        $raw = ['due', 'return_due', 'action'];
+        if (!$reward_enabled) {
+            $contacts->removeColumn('total_rp');
+            $raw = [7, 8, 9];
+        }
+        return $contacts->rawColumns($raw)->toJson();
+//                        ->make(false);
+    }
+
+
+    /**
+     * Returns the database object for blacklisted customer
+     *
+     * @return \Illuminate\Http\Response
+     */
+    private function indexBlacklistedCustomer()
+    {
+        if (!auth()->user()->can('customer.view')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $business_id = request()->session()->get('user.business_id');
+
+        $query = Contact::leftjoin('transactions AS t', 'contacts.id', '=', 't.contact_id')
+            ->leftjoin('customer_groups AS cg', 'contacts.customer_group_id', '=', 'cg.id')
+            ->where('contacts.business_id', $business_id)
+            ->where('contacts.blacked_by_user', '!=', null)
+            ->onlyCustomers()
+            ->addSelect(['contacts.contact_id', 'contacts.name', 'contacts.email', 'contacts.created_at', 'total_rp', 'cg.name as customer_group', 'city', 'state', 'country', 'landmark', 'mobile', 'contacts.id', 'is_default', 'contacts.blacked_by_user', 'contacts.remark',
+                DB::raw("SUM(IF(t.type = 'sell' AND t.status = 'final', final_total, 0)) as total_invoice"),
+//                        DB::raw("1000 as total_invoice"),
+                DB::raw("SUM(IF(t.type = 'sell' AND t.status = 'final', (SELECT SUM(IF(is_return = 1,-1*amount,amount)) FROM transaction_payments WHERE transaction_payments.transaction_id=t.id), 0)) as invoice_received"),
+                DB::raw("SUM(IF( t.type = 'sell_return' AND (SELECT transaction_payments.method FROM transaction_payments WHERE transaction_payments.transaction_id=t.id) = 'bank_transfer', final_total, 0)) as total_sell_return"),
+                DB::raw("SUM(IF(t.type = 'sell_return', (SELECT SUM(amount) FROM transaction_payments WHERE transaction_payments.transaction_id=t.id), 0)) as sell_return_paid"),
+                DB::raw("SUM(IF(t.type = 'opening_balance', final_total, 0)) as opening_balance"),
+                DB::raw("SUM(IF(t.type = 'opening_balance', (SELECT SUM(IF(is_return = 1,-1*amount,amount)) FROM transaction_payments WHERE transaction_payments.transaction_id=t.id), 0)) as opening_balance_paid")
+            ])
+            ->groupBy('contacts.id');
+
+        $contacts = Datatables::of($query)
+            ->editColumn(
+                'landmark',
+                '{{implode(array_filter([$landmark, $city, $state, $country]), ", ")}}'
+            )
+            ->addColumn(
+                'due',
+                '<span class="display_currency contact_due" data-orig-value="{{$total_invoice}}" data-currency_symbol=true data-highlight=true>{{($total_invoice)}}</span>'
+//                '<span class="display_currency contact_due" data-orig-value="{{$total_invoice - $invoice_received}}" data-currency_symbol=true data-highlight=true>{{($total_invoice - $invoice_received)}}</span>'
+            )
+            ->addColumn(
+                'return_due',
+                '<span class="display_currency return_due" data-orig-value="{{$total_sell_return}}" data-currency_symbol=true data-highlight=false>{{$total_sell_return}}</span>'
+//                '<span class="display_currency return_due" data-orig-value="{{$total_sell_return - $sell_return_paid}}" data-currency_symbol=true data-highlight=false>{{$total_sell_return - $sell_return_paid }}</span>'
+            )
+            ->addColumn(
+                'action',
+                '<div class="btn-group">
+                    <button type="button" class="btn btn-info dropdown-toggle btn-xs" 
+                        data-toggle="dropdown" aria-expanded="false">' .
+                __("messages.actions") .
+                '<span class="caret"></span><span class="sr-only">Toggle Dropdown
                         </span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-right" role="menu">
@@ -382,8 +485,14 @@ class ContactController extends Controller
 
         $reward_enabled = (request()->session()->get('business.enable_rp') == 1 && in_array($contact->type, ['customer', 'both'])) ? true : false;
 
+
+        $game_data = GameId::join('accounts', 'accounts.id', 'game_ids.service_id')->where('game_ids.contact_id', $id)
+            ->select('accounts.name', 'game_ids.game_id')
+            ->get();
+//        print_r($game_data);exit;
+
         return view('contact.show')
-             ->with(compact('contact', 'reward_enabled'));
+             ->with(compact('contact', 'game_data', 'reward_enabled'));
     }
 
     /**
@@ -419,6 +528,8 @@ class ContactController extends Controller
 
             $customer_groups = CustomerGroup::forDropdown($business_id);
 
+            $services = Account::where('business_id', $business_id)->where('is_service', 1)->get();
+
             $ob_transaction =  Transaction::where('contact_id', $id)
                                             ->where('type', 'opening_balance')
                                             ->first();
@@ -433,9 +544,14 @@ class ContactController extends Controller
 
                 $opening_balance = $this->commonUtil->num_f($ob_transaction->final_total);
             }
+            $game_data = GameId::where('contact_id', $id)->get();
+            $game_ids = [];
+            foreach ($game_data as $game){
+                $game_ids[$game->service_id] = $game->game_id;
+            }
 
             return view('contact.edit')
-                ->with(compact('contact', 'types', 'customer_groups', 'opening_balance'));
+                ->with(compact('contact', 'types', 'customer_groups', 'opening_balance', 'services', 'game_ids'));
         }
     }
 
@@ -522,11 +638,26 @@ class ContactController extends Controller
                 }
                 
                 if ($count == 0) {
+                    $game_ids = $request->get('game_ids');
                     $contact = Contact::where('business_id', $business_id)->findOrFail($id);
                     foreach ($input as $key => $value) {
                         $contact->$key = $value;
                     }
                     $contact->save();
+                    foreach ($game_ids as $service_id => $game_id){
+                        if(!empty($game_id)){
+                            $game_cnt = GameId::where('service_id', $service_id)->where('contact_id', $id)->count();
+                            if($game_cnt == 0){
+                                GameId::create([
+                                    'service_id' => $service_id,
+                                    'contact_id' => $id,
+                                    'game_id' => $game_id
+                                ]);
+                            } else{
+                                GameId::where('service_id', $service_id)->where('contact_id', $id)->update(['game_id' => $game_id]);
+                            }
+                        }
+                    }
 
                     //Get opening balance if exists
                     $ob_transaction =  Transaction::where('contact_id', $id)

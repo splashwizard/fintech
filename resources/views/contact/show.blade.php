@@ -40,7 +40,7 @@
         <div class="box-header">
         	<h3 class="box-title">
                 <i class="fa fa-user margin-r-5"></i>
-                @if($contact->type == 'both') 
+                @if($contact->type == 'both')
                     @lang( 'contact.contact_info', ['contact' => __('contact.contact') ])
                 @else
                     @lang( 'contact.contact_info', ['contact' => ucfirst($contact->type) ])
@@ -70,6 +70,12 @@
                 <div class="col-sm-3">
                     <div class="well well-sm">
                         @include('contact.contact_payment_info')
+                    </div>
+                </div>
+
+                <div class="col-sm-3">
+                    <div class="well well-sm">
+                        @include('contact.contact_game_info')
                     </div>
                 </div>
                 @if($reward_enabled)
@@ -158,7 +164,7 @@
     @if( in_array($contact->type, ['customer', 'both']) && session('business.enable_rp'))
         @component('components.widget', ['class' => 'box-primary', 'title' => session('business.rp_name')])
             <div class="table-responsive">
-                <table class="table table-bordered table-striped" 
+                <table class="table table-bordered table-striped"
                 id="rp_log_table">
                     <thead>
                         <tr>
@@ -174,13 +180,13 @@
     @endif
 </section>
 <!-- /.content -->
-<div class="modal fade payment_modal" tabindex="-1" role="dialog" 
+<div class="modal fade payment_modal" tabindex="-1" role="dialog"
         aria-labelledby="gridSystemModalLabel">
 </div>
-<div class="modal fade edit_payment_modal" tabindex="-1" role="dialog" 
+<div class="modal fade edit_payment_modal" tabindex="-1" role="dialog"
     aria-labelledby="gridSystemModalLabel">
 </div>
-<div class="modal fade pay_contact_due_modal" tabindex="-1" role="dialog" 
+<div class="modal fade pay_contact_due_modal" tabindex="-1" role="dialog"
         aria-labelledby="gridSystemModalLabel"></div>
 @stop
 @section('javascript')

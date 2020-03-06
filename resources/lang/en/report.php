@@ -25,6 +25,7 @@ return [
     'sell_minus_purchase' => 'Sale - Purchase',
     'difference_due' => 'Due amount',
     'customer' => 'Customers',
+    'blacklisted_customer' => 'Blacklisted Customers',
     'supplier' => 'Suppliers',
     'total_due' => 'Due',
     'contacts' => 'Supplier & Customer Report',

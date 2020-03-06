@@ -1587,10 +1587,10 @@ class SellPosDepositController extends Controller
                         }
                     }
                 )
-                        ->where('p.business_id', $business_id)
-                        ->where('p.type', '!=', 'modifier')
-                        ->where('p.is_inactive', 0)
-                        ->where('p.not_for_selling', 0);
+                ->where('p.business_id', $business_id)
+                ->where('p.type', '!=', 'modifier')
+                ->where('p.is_inactive', 0)
+                ->where('p.not_for_selling', 0);
 
             //Include search
             if (!empty($term)) {
@@ -1605,7 +1605,7 @@ class SellPosDepositController extends Controller
             if ($check_qty) {
                 $products->where('VLD.qty_available', '>', 0);
             }
-            
+
             if ($category_id != 'all') {
                 $products->where(function ($query) use ($category_id) {
                     $query->where('p.category_id', $category_id);
@@ -1627,17 +1627,18 @@ class SellPosDepositController extends Controller
                 'p.enable_stock',
                 'variations.id',
                 'account_id',
+                'category_id',
                 'variations.name as variation',
                 'VLD.qty_available',
                 'variations.default_sell_price as selling_price',
                 'variations.sub_sku'
             )
-            ->with(['media'])
-            ->orderBy('p.name', 'asc')
-            ->paginate(20);
+                ->with(['media'])
+                ->orderBy('p.name', 'asc')
+                ->paginate(20);
 
             return view('sale_pos_deposit.partials.product_list')
-                    ->with(compact('products'));
+                ->with(compact('products'));
         }
     }
 

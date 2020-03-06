@@ -126,6 +126,9 @@
                             <li class="{{ $request->input('type') == 'customer' ? 'active' : '' }}"><a
                                         href="{{action('ContactController@index', ['type' => 'customer'])}}"><i
                                             class="fa fa-star"></i> @lang('report.customer')</a></li>
+                                <li class="{{ $request->input('type') == 'blacklisted_customer' ? 'active' : '' }}"><a
+                                            href="{{action('ContactController@index', ['type' => 'blacklisted_customer'])}}"><i
+                                                class="fa fa-star"></i> @lang('report.blacklisted_customer')</a></li>
 
                             <li class="{{ $request->segment(1) == 'customer-group' ? 'active' : '' }}"><a
                                         href="{{action('CustomerGroupController@index')}}"><i

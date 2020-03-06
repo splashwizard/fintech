@@ -23,6 +23,12 @@
                 <span class="title">@lang('essentials::lang.leave')</span>
             </a>
         </li>
+        <li class="{{ $request->segment(2) == 'request' ? 'active active-sub' : '' }}">
+            <a href="{{action('\Modules\Essentials\Http\Controllers\EssentialsRequestController@index')}}">
+                <i class="fa fa-user-times"></i>
+                <span class="title">@lang('essentials::lang.request')</span>
+            </a>
+        </li>
 
         <li class="{{ $request->segment(2) == 'attendance' ? 'active active-sub' : '' }}">
             <a href="{{action('\Modules\Essentials\Http\Controllers\AttendanceController@index')}}">
