@@ -44,6 +44,7 @@
                             <th>@lang('messages.date')</th>
                             <th>@lang('sale.invoice_no')</th>
                             <th>@lang('sale.customer_name')</th>
+                            <th>@lang('sale.payment_status')</th>
                             <th>@lang('sale.total_amount')</th>
 {{--                            <th>@lang('sale.total_paid')</th>--}}
 {{--                            <th>@lang('purchase.payment_due')</th>--}}
@@ -52,7 +53,7 @@
                     </thead>
                     <tfoot>
                         <tr class="bg-gray font-17 footer-total text-center">
-                            <td colspan="2"><strong>@lang('sale.total'):</strong></td>
+                            <td colspan="3"><strong>@lang('sale.total'):</strong></td>
                             <td id="footer_payment_status_count"></td>
                             <td><span class="display_currency" id="footer_sale_total" data-currency_symbol ="true"></span></td>
 {{--                            <td><span class="display_currency" id="footer_total_paid" data-currency_symbol ="true"></span></td>--}}
@@ -134,6 +135,7 @@ $(document).ready( function(){
             { data: 'transaction_date', name: 'transaction_date'  },
             { data: 'invoice_no', name: 'invoice_no'},
             { data: 'name', name: 'contacts.name'},
+            { data: 'payment_status', name: 'payment_status'},
             // { data: 'business_location', name: 'bl.name'},
             // { data: 'payment_status', name: 'payment_status'},
             { data: 'amount', name: 'amount'},

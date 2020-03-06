@@ -1175,35 +1175,37 @@ class SellPosController extends Controller
 
                 if (!empty($transaction)) {
                     //If status is draft direct delete transaction
-                    if ($transaction->status == 'draft') {
-                        $transaction->delete();
-                    } else {
-                        $deleted_sell_lines = $transaction->sell_lines;
-                        $deleted_sell_lines_ids = $deleted_sell_lines->pluck('id')->toArray();
-                        $this->transactionUtil->deleteSellLines(
-                            $deleted_sell_lines_ids,
-                            $transaction->location_id
-                        );
-
-                        $this->transactionUtil->updateCustomerRewardPoints($transaction->contact_id, 0, $transaction->rp_earned, 0, $transaction->rp_redeemed);
-
-                        $transaction->status = 'draft';
-                        $business = ['id' => $business_id,
-                                'accounting_method' => request()->session()->get('business.accounting_method'),
-                                'location_id' => $transaction->location_id
-                            ];
-
-                        $this->transactionUtil->adjustMappingPurchaseSell('final', $transaction, $business, $deleted_sell_lines_ids);
-
-                        //Delete Cash register transactions
-                        $transaction->cash_register_payments()->delete();
-
-                        $transaction->delete();
-                    }
+                    $transaction->payment_status = 'cancelled';
+                    $transaction->save();
+//                    if ($transaction->status == 'draft') {
+//                        $transaction->delete();
+//                    } else {
+//                        $deleted_sell_lines = $transaction->sell_lines;
+//                        $deleted_sell_lines_ids = $deleted_sell_lines->pluck('id')->toArray();
+//                        $this->transactionUtil->deleteSellLines(
+//                            $deleted_sell_lines_ids,
+//                            $transaction->location_id
+//                        );
+//
+//                        $this->transactionUtil->updateCustomerRewardPoints($transaction->contact_id, 0, $transaction->rp_earned, 0, $transaction->rp_redeemed);
+//
+//                        $transaction->status = 'draft';
+//                        $business = ['id' => $business_id,
+//                                'accounting_method' => request()->session()->get('business.accounting_method'),
+//                                'location_id' => $transaction->location_id
+//                            ];
+//
+//                        $this->transactionUtil->adjustMappingPurchaseSell('final', $transaction, $business, $deleted_sell_lines_ids);
+//
+//                        //Delete Cash register transactions
+//                        $transaction->cash_register_payments()->delete();
+//
+//                        $transaction->delete();
+//                    }
                 }
 
                 //Delete account transactions
-                AccountTransaction::where('transaction_id', $transaction->id)->delete();
+//                AccountTransaction::where('transaction_id', $transaction->id)->delete();
 
                 DB::commit();
                 $output = [

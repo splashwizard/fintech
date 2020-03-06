@@ -72,6 +72,8 @@ class AppServiceProvider extends ServiceProvider
                 echo 'bg-red';
             }elseif ($status == 'paid') {
                 echo 'bg-light-green';
+            }elseif ($status == 'cancelled') {
+                echo 'bg-yellow';
             }?>";
         });
 
