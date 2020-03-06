@@ -26,6 +26,7 @@ return [
     'withdrawal_tickets' => 'Withdrawal Tickets',
     'invoice_due' => 'Invoice due',
     'purchase_due' => 'Purchase due',
+    'daily_report' => 'Daily Report',
     'today' => 'Today',
     'this_week' => 'This Week',
     'this_month' => 'This Month',

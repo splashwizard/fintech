@@ -194,6 +194,8 @@ Route::middleware(['IsInstalled', 'auth', 'SetSessionData', 'language', 'timezon
     Route::get('/reports/adjust-product-stock', 'ReportController@adjustProductStock');
     Route::get('/reports/get-profit/{by?}', 'ReportController@getProfit');
     Route::get('/reports/items-report', 'ReportController@itemsReport');
+
+    Route::get('/dailly_report', 'DailyReportController@index');
     
     //Business Location Settings...
     Route::prefix('business-location/{location_id}')->name('location.')->group(function () {
