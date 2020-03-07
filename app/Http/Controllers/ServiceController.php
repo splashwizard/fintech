@@ -759,10 +759,10 @@ class ServiceController extends Controller
                     }
                     $input['additional_notes'] = $request->input('note');
                     $invoice_total = ['total_before_tax' => $amount, 'tax' => 0];
-                    if($withdraw_mode == 's')
-                        $transaction = $this->transactionUtil->createSellTransaction($business_id, $input, $invoice_total, $user_id);
-                    else
-                        $transaction = $this->transactionUtil->createSellReturnTransaction($business_id, $input, $invoice_total, $user_id);
+//                    if($withdraw_mode == 's')
+//                        $transaction = $this->transactionUtil->createSellTransaction($business_id, $input, $invoice_total, $user_id);
+//                    else
+//                        $transaction = $this->transactionUtil->createSellReturnTransaction($business_id, $input, $invoice_total, $user_id);
                     $is_service = $withdraw_mode == 'b' ? 0 : 1;
                     $this->transactionUtil->createWithDrawPaymentLine($transaction, $user_id, $bank_account_id, $is_service);
                     $this->transactionUtil->updateCustomerRewardPoints($contact_id, 0, 0, $amount);

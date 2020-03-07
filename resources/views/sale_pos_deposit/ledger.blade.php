@@ -34,7 +34,7 @@
 			<td>{!! $data['contact_id'] !!}</td>
 			<td>@if($data['credit'] != '') <span class="display_currency" data-currency_symbol="true">{{$data['credit']}}</span> @endif</td>
 			<td>@if($data['debit'] != '') <span class="display_currency" data-currency_symbol="true">{{$data['debit']}}</span> @endif</td>
-			<td>{!! $data['service_name'] !!}</td>
+			<td>@if(isset($data['service_name'])){!! $data['service_name'] !!}@endif</td>
 			<td>{!! isset($data['game_id']) ? $data['game_id'] : null !!}</td>
 			<td>@if($data['bonus'] != '') <span class="display_currency" data-currency_symbol="true">{{$data['bonus']}}</span> @endif</td>
 			<td>@if($data['service_credit'] != '') <span class="display_currency" data-currency_symbol="true">{{$data['service_credit']}}</span> @endif</td>

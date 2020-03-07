@@ -1714,15 +1714,15 @@ class SellPosDepositController extends Controller
             '=',
             't.id'
         )
+            ->join('accounts as a', 'a.id', 'transaction_payments.account_id')
             ->leftJoin('business_locations as bl', 't.location_id', '=', 'bl.id')
             ->join('contacts as c', 'c.id', 't.contact_id')
-            ->join('accounts as a', 'a.id', 'transaction_payments.account_id')
             ->where('t.contact_id', $contact_id)
             ->where('t.business_id', $business_id)
             ->where('t.status', '!=', 'draft');
 
-        $start = date('Y-m-d', strtotime('now'));
-        $end = date('Y-m-d', strtotime('now'));
+        $start = date('Y-m-d', strtotime('today'));
+        $end = date('Y-m-d', strtotime('today'));
         $query1->whereDate('transactions.transaction_date', '>=', $start)
             ->whereDate('transactions.transaction_date', '<=', $end);
 
@@ -1758,7 +1758,7 @@ class SellPosDepositController extends Controller
                 $ledger_by_payment[$payment->transaction_id]['service_debit'] += ($payment->transaction_type == 'sell_return' && $payment->method == 'service_transfer') ? $payment->amount : 0;
                 $ledger_by_payment[$payment->transaction_id]['service_credit'] += ($payment->transaction_type == 'sell' && $payment->method == 'service_transfer' ) ? $payment->amount : 0;
             }
-            if($payment->transaction_type == 'sell' && $payment->method == 'service_transfer'){
+            if(($payment->transaction_type == 'sell' || $payment->transaction_type == 'sell_return' ) && $payment->method == 'service_transfer'){
                 $ledger_by_payment[$payment->transaction_id]['service_name'] = $payment->account_name;
                 $game_data = GameId::where('contact_id', $payment->contact_primary_key)->where('service_id', $payment->account_id)->get();
                 if(count($game_data) >= 1){
@@ -1770,11 +1770,12 @@ class SellPosDepositController extends Controller
                 $ledger_by_payment[$payment->transaction_id]['bank_id'] = $payment->account_id;
             }
         }
+//        print_r($ledger_by_payment);exit;
         foreach ($ledger_by_payment as $item){
-            if($item['bank_id'] == $selected_bank)
+            if(isset($item['bank_id']) && $item['bank_id'] == $selected_bank)
                 $ledger[] = $item;
         }
-
+//        print_r($ledger_by_payment);exit;
         //Sort by date
         if (!empty($ledger)) {
             usort($ledger, function ($a, $b) {
