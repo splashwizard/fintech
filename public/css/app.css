@@ -216,7 +216,7 @@ input[type=number]::-webkit-outer-spin-button {
     cursor: pointer !important;
 }
 .pos_product_div{
-    min-height: 50vh;
+    min-height: 280px;
     max-height: 50vh;
     overflow-y: auto;
     margin-bottom: 20px;
