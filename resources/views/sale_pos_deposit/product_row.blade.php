@@ -7,10 +7,11 @@
 
 		@if($edit_price || $edit_discount )
 		<div data-toggle="tooltip" data-placement="bottom" title="@lang('lang_v1.pos_edit_product_price_help')">
-		<span class="text-link text-info cursor-pointer" data-toggle="modal" data-target="#row_edit_product_price_modal_{{$row_count}}">
-			{!! $product_name !!}
-			&nbsp;<i class="fa fa-info-circle"></i>
-		</span>
+			<span class="text-link text-info cursor-pointer" data-toggle="modal" data-target="#row_edit_product_price_modal_{{$row_count}}" style="width:60%;display:inline-block">
+				{!! $product_name !!}
+				&nbsp;<i class="fa fa-info-circle"></i>
+			</span>
+			<span>{{isset($game_id)? $product->product_name.' - '.$game_id : null}}</span>
 		</div>
 		@else
 			{!! $product_name !!}

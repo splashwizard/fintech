@@ -12,47 +12,60 @@
 <section class="content">
     <div class="row">
         <div class="col-md-12">
-            @component('components.widget', ['class' => 'box-primary', 'title' => __('daily_report.all_banks')])
-                <table class="table table-bordered">
-                    <thead>
-                    <tr>
-                        @foreach($banks_obj as $bank)
-                            <th>{{$bank}}</th>
-                        @endforeach
-                    </tr>
-                    </thead>
-                    <tbody>
-                    @foreach($bank_accounts_obj as $bank_obj)
-                    <tr>
-                        @foreach($banks_obj as $key => $bank)
-                            <td>{{ isset($bank_obj[$key]) ? $bank_obj[$key]: 0}}</td>
-                        @endforeach
-                    </tr>
-                    @endforeach
-                    </tbody>
-                </table>
+            @component('components.filters', ['title' => __('report.filters')])
+                <div class="col-md-3">
+                    <div class="form-group">
+                        {!! Form::label('daily_report_date_range', __('report.date_range') . ':') !!}
+                        {!! Form::text('date_range', @format_date('today') . ' ~ ' . @format_date('today') , ['placeholder' => __('lang_v1.select_a_date_range'), 'class' => 'form-control', 'id' => 'daily_report_date_range', 'readonly']); !!}
+                    </div>
+                </div>
             @endcomponent
-                @component('components.widget', ['class' => 'box-primary', 'title' => __('daily_report.all_services')])
-                    <table class="table table-bordered">
-                        <thead>
-                        <tr>
-                            @foreach($services_obj as $service)
-                                <th>{{$service}}</th>
-                            @endforeach
-                        </tr>
-                        </thead>
-                        <tbody>
-                        @foreach($service_accounts_obj as $service_obj)
-                            <tr>
-                                @foreach($services_obj as $key => $service)
-                                    <td>{{ isset($service_obj[$key]) ? $service_obj[$key]: 0}}</td>
-                                @endforeach
-                            </tr>
-                        @endforeach
-                        </tbody>
-                    </table>
-                @endcomponent
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12" id="report_container">
+            {{-- @include('daily_report.report_table') --}}
         </div>
     </div>
 </section>
+@endsection
+@section('javascript')
+<script>
+    $(document).ready(function(){
+        console.log('je;;p');
+        reloadTable();
+    })
+    $('#daily_report_date_range').daterangepicker(dateRangeSettings, function(start, end) {
+        $('#daily_report_date_range').val(
+            start.format(moment_date_format) + ' ~ ' + end.format(moment_date_format)
+        );
+        reloadTable();
+        // expense_table.ajax.reload();
+    });
+    function reloadTable(){
+        var start_date = $('input#daily_report_date_range')
+            .data('daterangepicker')
+            .startDate.format('YYYY-MM-DD');
+        var end_date = $('input#daily_report_date_range')
+            .data('daterangepicker')
+            .endDate.format('YYYY-MM-DD');
+        $.ajax({
+            url: '/daily_report/get_table_data?start_date=' + start_date + '&end_date=' + end_date,
+            dataType: 'json',
+            success: function(result) {
+                $('#report_container').html(result.html_content);
+            },
+        });
+    }
+    // $('#daily_report_date_range').on('cancel.daterangepicker', function(ev, picker) {
+    //     $('#product_sr_date_filter').val('');
+    //     expense_table.ajax.reload();
+    // });
+    // $('#daily_report_date_range')
+    //     .data('daterangepicker')
+    //     .setStartDate(moment().startOf('month'));
+    // $('#daily_report_date_range')
+    //     .data('daterangepicker')
+    //     .setEndDate(moment().endOf('month'));
+</script>
 @endsection

@@ -15,6 +15,10 @@ $(document).ready(function() {
     $('#service_accounts .info-box-number').each(function () {
         $(this).html(__currency_trans_from_en(parseFloat($(this).html()), true, false,  __currency_precision, true));
     });
+
+    $('#total_bank_transaction .info-box-number').each(function () {
+        $(this).html(__currency_trans_from_en(parseFloat($(this).html()), true, false,  __currency_precision, true));
+    });
     //atock alert datatables
     var stock_alert_table = $('#stock_alert_table').DataTable({
         processing: true,

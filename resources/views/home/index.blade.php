@@ -160,7 +160,7 @@
 	      <!-- /.info-box -->
 	    </div>
         <div class="col-lg-4 col-md-6 col-xs-12">
-        <div class="info-box">
+        <div class="info-box" id="total_bank_transaction">
             <span class="custom-info-box bg-yellow">
                 Total Bank Transaction
             </span>

@@ -1,6 +1,6 @@
 
 <div class="box box-widget">
-	<div class="box-header with-border">
+	<div class="box-header with-border" style="display: none">
 
 {{--		@if(!empty($categories))--}}
 {{--			<select class="select2" id="product_category" style="width:45% !important" name="product_category">--}}
@@ -32,19 +32,19 @@
 {{--		</select>--}}
 		{!! Form::select('bank_products', $bank_products, null, ['id' => 'bank_products', 'class' => 'select form-control', 'name' => null, 'style' => 'width:45% !important; display:inline-block;margin-left:30px']) !!}
 
-	@if(!empty($brands))
-		&nbsp;
-		{!! Form::select('size', $brands, null, ['id' => 'product_brand', 'class' => 'select2', 'name' => null, 'style' => 'width:45% !important']) !!}
+		@if(!empty($brands))
+			&nbsp;
+			{!! Form::select('size', $brands, null, ['id' => 'product_brand', 'class' => 'select2', 'name' => null, 'style' => 'width:45% !important']) !!}
 
-	@endif
+		@endif
 
 
 
-	<div class="box-tools pull-right">
-		<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
-	</div>
+		<div class="box-tools pull-right">
+			<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+		</div>
 
-	<!-- /.box-tools -->
+		<!-- /.box-tools -->
 	</div>
 	<!-- /.box-header -->
 	<input type="hidden" id="suggestion_page" value="1">
@@ -63,7 +63,7 @@
 
 
 <div class="box box-widget">
-	<div class="box-header with-border">
+	<div class="box-header with-border" style="display:none">
 
 {{--		@if(!empty($service_categories))--}}
 {{--			<select class="select2" id="product_category2" style="width:45% !important" name="product_category">--}}

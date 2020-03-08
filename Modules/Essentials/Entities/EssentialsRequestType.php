@@ -11,8 +11,8 @@ class EssentialsRequestType extends Model
 
     public static function forDropdown($business_id)
     {
-        $leave_types = EssentialsLeaveType::where('business_id', $business_id)
-            ->pluck('leave_type', 'id');
+        $leave_types = EssentialsRequestType::where('business_id', $business_id)
+            ->pluck('request_type', 'id');
 
         return $leave_types;
     }

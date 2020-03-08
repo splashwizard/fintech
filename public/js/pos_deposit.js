@@ -759,7 +759,7 @@ $(document).ready(function() {
             // var total_payble = __read_number($('input#final_total_input'));
             // var total_paying = __read_number($('input#total_paying_input'));
             var cnf = true;
-
+            
             //Ignore if the difference is less than 0.5
             if ($('input#in_balance_due').val() >= 0.5) {
                 cnf = confirm(LANG.paid_amount_is_less_than_payable);
@@ -790,6 +790,7 @@ $(document).ready(function() {
                             reset_pos_form();
 
                             $('#modal_success').modal('show');
+                            get_contact_ledger();
 
                             //Check if enabled or not
                             // if (result.receipt.is_enabled) {
@@ -1272,6 +1273,31 @@ $(document).ready(function() {
         }
     };
     get_contact_ledger();
+
+    $(document).on('submit', 'form#withdraw_form', function(e){
+        e.preventDefault();
+        var data = $(this).serialize();
+
+        $.ajax({
+            method: "POST",
+            url: $(this).attr("action"),
+            dataType: "json",
+            data: new FormData(this),
+            contentType: false,
+            cache: false,
+            processData:false,
+            success: function(result){
+                if(result.success == true){
+                    $('div.view_modal').modal('hide');
+                    toastr.success(result.msg);
+                    get_contact_ledger();
+                } else {
+                    toastr.error(result.msg);
+                }
+            }
+        });
+    });
+
 });
 
 var selected_bank = 0;

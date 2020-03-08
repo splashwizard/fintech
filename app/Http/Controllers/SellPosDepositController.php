@@ -1344,9 +1344,16 @@ class SellPosDepositController extends Controller
                 if(request()->get('is_service')){
                     $amount = request()->get('amount');
                 }
+                $cnt = GameId::where('service_id', $product->account_id)->count();
+                // print_r($game_id);exit;
+                if($cnt >= 1)
+                    $game_id = GameId::where('service_id', $product->account_id)->get()[0]->game_id;
+                else
+                    $game_id = null;
+
 
                 $output['html_content'] =  view('sale_pos_deposit.product_row')
-                            ->with(compact('product', 'row_count', 'tax_dropdown', 'enabled_modules', 'pos_settings', 'sub_units', 'discount', 'waiters', 'edit_discount', 'edit_price', 'amount'))
+                            ->with(compact('product', 'row_count', 'tax_dropdown', 'enabled_modules', 'pos_settings', 'sub_units', 'discount', 'waiters', 'edit_discount', 'edit_price', 'amount', 'game_id'))
                             ->render();
             }
             
@@ -1717,7 +1724,7 @@ class SellPosDepositController extends Controller
             ->join('accounts as a', 'a.id', 'transaction_payments.account_id')
             ->leftJoin('business_locations as bl', 't.location_id', '=', 'bl.id')
             ->join('contacts as c', 'c.id', 't.contact_id')
-            ->where('t.contact_id', $contact_id)
+            // ->where('t.contact_id', $contact_id)
             ->where('t.business_id', $business_id)
             ->where('t.status', '!=', 'draft');
 

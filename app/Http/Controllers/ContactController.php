@@ -173,12 +173,13 @@ class ContactController extends Controller
                     ->leftjoin('customer_groups AS cg', 'contacts.customer_group_id', '=', 'cg.id')
                     ->where('contacts.business_id', $business_id)
                     ->where('contacts.blacked_by_user', '=', null)
-                    ->onlyCustomers()
+//                    ->onlyCustomers()
                     ->addSelect(['contacts.contact_id', 'contacts.name', 'contacts.email', 'contacts.created_at', 'total_rp', 'cg.name as customer_group', 'city', 'state', 'country', 'landmark', 'mobile', 'contacts.id', 'is_default',
                         DB::raw("SUM(IF(t.type = 'sell'  AND t.status = 'final', final_total, 0)) as total_invoice"),
 //                        DB::raw("1000 as total_invoice"),
                         DB::raw("SUM(IF(t.type = 'sell' AND t.status = 'final', (SELECT SUM(IF(is_return = 1,-1*amount,amount)) FROM transaction_payments WHERE transaction_payments.transaction_id=t.id), 0)) as invoice_received"),
-                        DB::raw("SUM(IF( t.type = 'sell_return' AND (SELECT transaction_payments.method FROM transaction_payments WHERE transaction_payments.transaction_id=t.id) = 'bank_transfer', final_total, 0)) as total_sell_return"),
+//                        DB::raw("SUM(IF( t.type = 'sell_return' AND (SELECT transaction_payments.method FROM transaction_payments WHERE transaction_payments.transaction_id=t.id) = 'bank_transfer', final_total, 0)) as total_sell_return"),
+                        DB::raw("SUM(IF(t.type = 'sell_return', final_total, 0)) as total_sell_return"),
                         DB::raw("SUM(IF(t.type = 'sell_return', (SELECT SUM(amount) FROM transaction_payments WHERE transaction_payments.transaction_id=t.id), 0)) as sell_return_paid"),
                         DB::raw("SUM(IF(t.type = 'opening_balance', final_total, 0)) as opening_balance"),
                         DB::raw("SUM(IF(t.type = 'opening_balance', (SELECT SUM(IF(is_return = 1,-1*amount,amount)) FROM transaction_payments WHERE transaction_payments.transaction_id=t.id), 0)) as opening_balance_paid")

@@ -26,9 +26,9 @@
 							</div>
 
 							<div class="col-sm-3 col-xs-3 d-inline-table">
-								<b>Total Earned</b>
-								<br/>
+								<b style="width:50%;display:inline-block">Total Earned</b>
 								<span id="total_earned" class="text-success lead text-bold">0</span>
+								<br/>
 								<input type="hidden" name="discount_type" id="discount_type" value="@if(empty($edit)){{'percentage'}}@else{{$transaction->discount_type}}@endif" data-default="percentage">
 
 								<input type="hidden" name="discount_amount" id="discount_amount" value="@if(empty($edit)) {{@num_format($business_details->default_sales_discount)}} @else {{@num_format($transaction->discount_amount)}} @endif" data-default="{{$business_details->default_sales_discount}}">
@@ -40,9 +40,27 @@
 									   id="tax_rate_id"
 									   value="@if(empty($edit)) {{$business_details->default_sales_tax}} @else {{$transaction->tax_id}} @endif"
 									   data-default="{{$business_details->default_sales_tax}}">
+
+								<b style="width:50%;display:inline-block">Redeemed</b>
+								<input type="hidden" name="final_total"
+									id="final_total_input" value=0>
+								<span id="total_redeemed" class="text-success lead text-bold">0</span>
+								@if(empty($edit))
+									<button type="button" class="btn btn-danger btn-flat btn-xs pull-right" id="pos-cancel" style="margin-right: 10px">@lang('sale.cancel')</button>
+								@else
+									<button type="button" class="btn btn-danger btn-flat hide btn-xs pull-right" id="pos-delete" style="margin-right: 10px">@lang('messages.delete')</button>
+								@endif
+							</div>
+							<div class="col-sm-3 col-xs-12 d-inline-table">
+								<button type="button" class="btn btn-success  btn-block btn-flat btn-lg no-print @if($pos_settings['disable_pay_checkout'] != 0) hide @endif pos-express-btn" id="pos-finalize" title="@lang('lang_v1.tooltip_checkout_multi_pay')">
+									<div class="text-center">
+										<i class="fa fa-check" aria-hidden="true"></i>
+										<b>@lang('lang_v1.deposit')</b>
+									</div>
+									</button>
 							</div>
 							
-							<div class="col-sm-3 col-xs-12 d-inline-table">
+							{{-- <div class="col-sm-3 col-xs-12 d-inline-table">
 								<b>Redeemed</b>
 								<br/>
 								<input type="hidden" name="final_total" 
@@ -53,25 +71,7 @@
 								@else
 									<button type="button" class="btn btn-danger btn-flat hide btn-xs pull-right" id="pos-delete">@lang('messages.delete')</button>
 								@endif
-							</div>
-						</td>
-					</tr>
-
-					<tr>
-						<td>
-							<div class="col-sm-9 col-xs-6 col-2px-padding">
-							</div>
-
-							<div class="col-sm-3 col-xs-12 col-2px-padding">
-								<button type="button" class="btn btn-success  btn-block btn-flat btn-lg no-print @if($pos_settings['disable_pay_checkout'] != 0) hide @endif pos-express-btn" id="pos-finalize" title="@lang('lang_v1.tooltip_checkout_multi_pay')">
-								<div class="text-center">
-									<i class="fa fa-check" aria-hidden="true"></i>
-    								<b>@lang('lang_v1.deposit')</b>
-    							</div>
-								</button>
-							</div>
-
-							<div class="div-overlay pos-processing"></div>
+							</div> --}}
 						</td>
 					</tr>
 
