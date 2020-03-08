@@ -263,15 +263,15 @@ class SellController extends Controller
                                 $html .= '<li><a href="#" data-href="{{ url(\'uploads/documents/\' . $document)}}" class="view_uploaded_document"><i class="fa fa-picture-o" aria-hidden="true"></i>@lang("lang_v1.view_document")</a></li>';
                         }
 
-//                        if ($row->is_direct_sale == 0) {
-//                            if (auth()->user()->can("sell.update")) {
-//                                $html .= '<li><a target="_blank" href="' . action('SellPosController@edit', [$row->id]) . '"><i class="glyphicon glyphicon-edit"></i> ' . __("messages.edit") . '</a></li>';
-//                            }
-//                        } else {
-//                            if (auth()->user()->can("direct_sell.access")) {
-//                                $html .= '<li><a target="_blank" href="' . action('SellController@edit', [$row->id]) . '"><i class="glyphicon glyphicon-edit"></i> ' . __("messages.edit") . '</a></li>';
-//                            }
-//                        }
+                       if ($row->is_direct_sale == 0) {
+                           if (auth()->user()->can("sell.update")) {
+                               $html .= '<li><a target="_blank" href="' . action('SellPosDepositController@edit', [$row->id]) . '"><i class="glyphicon glyphicon-edit"></i> ' . __("messages.edit") . '</a></li>';
+                           }
+                       } else {
+                           if (auth()->user()->can("direct_sell.access")) {
+                               $html .= '<li><a target="_blank" href="' . action('SellController@edit', [$row->id]) . '"><i class="glyphicon glyphicon-edit"></i> ' . __("messages.edit") . '</a></li>';
+                           }
+                       }
 
                         if (auth()->user()->can("direct_sell.delete") || auth()->user()->can("sell.delete")) {
                             $html .= '<li><a href="' . action('SellPosController@destroy', [$row->id]) . '" class="delete-sale"><i class="fa fa-trash"></i> ' . __("messages.cancel") . '</a></li>';
