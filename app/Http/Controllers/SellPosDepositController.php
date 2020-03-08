@@ -708,12 +708,12 @@ class SellPosDepositController extends Controller
         $taxes = TaxRate::forBusinessDropdown($business_id, true, true);
         $payment_types = $this->productUtil->payment_types();
 
-        $payment_lines = $this->transactionUtil->getPaymentDetails($id);
-        //If no payment lines found then add dummy payment line.
-        if (empty($payment_lines)) {
-            $payment_lines[] = $this->dummyPaymentLine;
-        }
-        // $payment_lines[] = $this->dummyPaymentLine;
+        // $payment_lines = $this->transactionUtil->getPaymentDetails($id);
+        // //If no payment lines found then add dummy payment line.
+        // if (empty($payment_lines)) {
+        //     $payment_lines[] = $this->dummyPaymentLine;
+        // }
+        $payment_lines[] = $this->dummyPaymentLine;
 
         $transaction = Transaction::where('business_id', $business_id)
                             ->where('type', 'sell')
