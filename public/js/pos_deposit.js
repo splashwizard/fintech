@@ -1072,11 +1072,11 @@ $(document).ready(function() {
                 is_service = 1;
             pos_product_row($(this).data('variation_id'), is_service);
 
-            const data = $('#add_pos_sell_form').serialize();
+            const data = pos_form_obj.serialize();
             $.ajax({
                 method:'POST',
                 url: '/sells/pos_deposit/get_payment_rows',
-                data: data,
+                data: new FormData(pos_form_obj),
                 dataType: 'html',
                 success: function(result) {
                     if(result){

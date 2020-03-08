@@ -677,10 +677,11 @@ class SellPosDepositController extends Controller
      */
     public function edit($id)
     {
-        if (!auth()->user()->can('sell.edit')) {
+        if (!auth()->user()->can('sell.update')) {
             abort(403, 'Unauthorized action.');
         }
 
+        //Check if the transaction can be edited or not.
         $edit_days = request()->session()->get('business.transaction_edit_days');
         if (!$this->transactionUtil->canBeEdited($id, $edit_days)) {
             return back()
@@ -688,36 +689,188 @@ class SellPosDepositController extends Controller
                     'msg' => __('messages.transaction_edit_not_allowed', ['days' => $edit_days])]);
         }
 
-        $business_id = request()->session()->get('user.business_id');
-
-        //Check if subscribed or not, then check for users quota
-        if (!$this->moduleUtil->isSubscribed($business_id)) {
-            return $this->moduleUtil->expiredResponse(action('HomeController@index'));
-        } elseif (!$this->moduleUtil->isQuotaAvailable('invoices', $business_id)) {
-            return $this->moduleUtil->quotaExpiredResponse('invoices', $business_id, action('SellPosController@index'));
-        }
-        
         //Check if there is a open register, if no then redirect to Create Register screen.
         if ($this->cashRegisterUtil->countOpenedRegister() == 0) {
             return redirect()->action('CashRegisterController@create');
         }
+        
+        //Check if return exist then not allowed
+        if ($this->transactionUtil->isReturnExist($id)) {
+            return back()->with('status', ['success' => 0,
+                    'msg' => __('lang_v1.return_exist')]);
+        }
 
+        $business_id = request()->session()->get('user.business_id');
         $walk_in_customer = $this->contactUtil->getWalkInCustomer($business_id);
         
         $business_details = $this->businessUtil->getDetails($business_id);
         $taxes = TaxRate::forBusinessDropdown($business_id, true, true);
         $payment_types = $this->productUtil->payment_types();
 
-        // $payment_lines = $this->transactionUtil->getPaymentDetails($id);
-        // //If no payment lines found then add dummy payment line.
-        // if (empty($payment_lines)) {
-        //     $payment_lines[] = $this->dummyPaymentLine;
-        // }
-        $payment_lines[] = $this->dummyPaymentLine;
-
         $transaction = Transaction::where('business_id', $business_id)
                             ->where('type', 'sell')
                             ->findorfail($id);
+
+        $location_id = $transaction->location_id;
+        $location_printer_type = BusinessLocation::find($location_id)->receipt_printer_type;
+
+        $sell_details = TransactionSellLine::
+                        join(
+                            'products AS p',
+                            'transaction_sell_lines.product_id',
+                            '=',
+                            'p.id'
+                        )
+                        ->join(
+                            'variations AS variations',
+                            'transaction_sell_lines.variation_id',
+                            '=',
+                            'variations.id'
+                        )
+                        ->join(
+                            'product_variations AS pv',
+                            'variations.product_variation_id',
+                            '=',
+                            'pv.id'
+                        )
+                        ->leftjoin('variation_location_details AS vld', function ($join) use ($location_id) {
+                            $join->on('variations.id', '=', 'vld.variation_id')
+                                ->where('vld.location_id', '=', $location_id);
+                        })
+                        ->leftjoin('units', 'units.id', '=', 'p.unit_id')
+                        ->where('transaction_sell_lines.transaction_id', $id)
+                        ->select(
+                            DB::raw("IF(pv.is_dummy = 0, CONCAT(p.name, ' (', pv.name, ':',variations.name, ')'), p.name) AS product_name"),
+                            'p.id as product_id',
+                            'p.enable_stock',
+                            // 'p.name as product_actual_name',
+                            'p.name as p_name',
+                            'p.account_id as account_id',
+                            'p.category_id as category_id',
+                            'p.type as product_type',
+                            'pv.name as product_variation_name',
+                            'pv.is_dummy as is_dummy',
+                            'variations.name as variation_name',
+                            'variations.sub_sku',
+                            'p.barcode_type',
+                            'p.enable_sr_no',
+                            'variations.id as variation_id',
+                            'units.short_name as unit',
+                            'units.allow_decimal as unit_allow_decimal',
+                            'transaction_sell_lines.tax_id as tax_id',
+                            'transaction_sell_lines.item_tax as item_tax',
+                            'transaction_sell_lines.unit_price as default_sell_price',
+                            'transaction_sell_lines.unit_price_before_discount as unit_price_before_discount',
+                            'transaction_sell_lines.unit_price_inc_tax as sell_price_inc_tax',
+                            'transaction_sell_lines.id as transaction_sell_lines_id',
+                            'transaction_sell_lines.quantity as quantity_ordered',
+                            'transaction_sell_lines.sell_line_note as sell_line_note',
+                            'transaction_sell_lines.parent_sell_line_id',
+                            'transaction_sell_lines.lot_no_line_id',
+                            'transaction_sell_lines.line_discount_type',
+                            'transaction_sell_lines.line_discount_amount',
+                            'transaction_sell_lines.res_service_staff_id',
+                            'units.id as unit_id',
+                            'transaction_sell_lines.sub_unit_id',
+                            DB::raw('vld.qty_available + transaction_sell_lines.quantity AS qty_available')
+                        )
+                        ->get();
+        if (!empty($sell_details)) {
+            foreach ($sell_details as $key => $value) {
+
+                //If modifier or combo sell line then unset
+                if (!empty($sell_details[$key]->parent_sell_line_id)) {
+                    unset($sell_details[$key]);
+                } else {
+                    if ($transaction->status != 'final') {
+                        $actual_qty_avlbl = $value->qty_available - $value->quantity_ordered;
+                        $sell_details[$key]->qty_available = $actual_qty_avlbl;
+                        $value->qty_available = $actual_qty_avlbl;
+                    }
+
+                    $sell_details[$key]->formatted_qty_available = $this->productUtil->num_f($value->qty_available, false, null, true);
+
+                    //Add available lot numbers for dropdown to sell lines
+                    $lot_numbers = [];
+                    if (request()->session()->get('business.enable_lot_number') == 1 || request()->session()->get('business.enable_product_expiry') == 1) {
+                        $lot_number_obj = $this->transactionUtil->getLotNumbersFromVariation($value->variation_id, $business_id, $location_id);
+                        foreach ($lot_number_obj as $lot_number) {
+                            //If lot number is selected added ordered quantity to lot quantity available
+                            if ($value->lot_no_line_id == $lot_number->purchase_line_id) {
+                                $lot_number->qty_available += $value->quantity_ordered;
+                            }
+
+                            $lot_number->qty_formated = $this->productUtil->num_f($lot_number->qty_available);
+                            $lot_numbers[] = $lot_number;
+                        }
+                    }
+                    $sell_details[$key]->lot_numbers = $lot_numbers;
+                    
+                    if (!empty($value->sub_unit_id)) {
+                        $value = $this->productUtil->changeSellLineUnit($business_id, $value);
+                        $sell_details[$key] = $value;
+                    }
+
+                    $sell_details[$key]->formatted_qty_available = $this->productUtil->num_f($value->qty_available, false, null, true);
+
+                    if ($this->transactionUtil->isModuleEnabled('modifiers')) {
+                        //Add modifier details to sel line details
+                        $sell_line_modifiers = TransactionSellLine::where('parent_sell_line_id', $sell_details[$key]->transaction_sell_lines_id)
+                            ->where('children_type', 'modifier')
+                            ->get();
+                        $modifiers_ids = [];
+                        if (count($sell_line_modifiers) > 0) {
+                            $sell_details[$key]->modifiers = $sell_line_modifiers;
+                            foreach ($sell_line_modifiers as $sell_line_modifier) {
+                                $modifiers_ids[] = $sell_line_modifier->variation_id;
+                            }
+                        }
+                        $sell_details[$key]->modifiers_ids = $modifiers_ids;
+
+                        //add product modifier sets for edit
+                        $this_product = Product::find($sell_details[$key]->product_id);
+                        if (count($this_product->modifier_sets) > 0) {
+                            $sell_details[$key]->product_ms = $this_product->modifier_sets;
+                        }
+                    }
+
+                    //Get details of combo items
+                    if ($sell_details[$key]->product_type == 'combo') {
+                        $sell_line_combos = TransactionSellLine::where('parent_sell_line_id', $sell_details[$key]->transaction_sell_lines_id)
+                            ->where('children_type', 'combo')
+                            ->get()
+                            ->toArray();
+                        if (!empty($sell_line_combos)) {
+                            $sell_details[$key]->combo_products = $sell_line_combos;
+                        }
+
+                        //calculate quantity available if combo product
+                        $combo_variations = [];
+                        foreach ($sell_line_combos as $combo_line) {
+                            $combo_variations[] = [
+                                'variation_id' => $combo_line['variation_id'],
+                                'quantity' => $combo_line['quantity'] / $sell_details[$key]->quantity_ordered,
+                                'unit_id' => null
+                            ];
+                        }
+                        $sell_details[$key]->qty_available =
+                        $this->productUtil->calculateComboQuantity($location_id, $combo_variations);
+                        
+                        if ($transaction->status == 'final') {
+                            $sell_details[$key]->qty_available = $sell_details[$key]->qty_available + $sell_details[$key]->quantity_ordered;
+                        }
+                        
+                        $sell_details[$key]->formatted_qty_available = $this->productUtil->num_f($sell_details[$key]->qty_available, false, null, true);
+                    }
+                }
+            }
+        }
+
+        $payment_lines = $this->transactionUtil->getPaymentDetails($id);
+        //If no payment lines found then add dummy payment line.
+        if (empty($payment_lines)) {
+            $payment_lines[] = $this->dummyPaymentLine;
+        }
 
         $business_locations = BusinessLocation::forDropdown($business_id, false, true);
         $bl_attributes = $business_locations['attributes'];
@@ -730,10 +883,15 @@ class SellPosDepositController extends Controller
             }
         }
 
-        //Shortcuts
+        //If brands, category are enabled then send else false.
+        $bank_categories = (request()->session()->get('business.enable_category') == 1) ? Category::bankCatAndSubCategories($business_id) : false;
+        $service_categories = (request()->session()->get('business.enable_category') == 1) ? Category::serviceCatAndSubCategories($business_id) : false;
+        $bank_products = Product::forDropDown($business_id, 0);
+        $service_products = Product::forDropDown($business_id, 1);
+
         $shortcuts = json_decode($business_details->keyboard_shortcuts, true);
         $pos_settings = empty($business_details->pos_settings) ? $this->businessUtil->defaultPosSettings() : json_decode($business_details->pos_settings, true);
-        
+
         $commsn_agnt_setting = $business_details->sales_cmsn_agnt;
         $commission_agent = [];
         if ($commsn_agnt_setting == 'user') {
@@ -743,11 +901,7 @@ class SellPosDepositController extends Controller
         }
 
         //If brands, category are enabled then send else false.
-        $bank_categories = (request()->session()->get('business.enable_category') == 1) ? Category::bankCatAndSubCategories($business_id) : false;
-        $service_categories = (request()->session()->get('business.enable_category') == 1) ? Category::serviceCatAndSubCategories($business_id) : false;
-        $bank_products = Product::forDropDown($business_id, 0);
-        $service_products = Product::forDropDown($business_id, 1);
-
+        $categories = (request()->session()->get('business.enable_category') == 1) ? Category::catAndSubCategories($business_id) : false;
         $brands = (request()->session()->get('business.enable_brand') == 1) ? Brands::where('business_id', $business_id)
                     ->pluck('name', 'id')
                     ->prepend(__('lang_v1.all_brands'), 'all') : false;
@@ -774,31 +928,27 @@ class SellPosDepositController extends Controller
         //Selling Price Group Dropdown
         $price_groups = SellingPriceGroup::forDropdown($business_id);
 
+        $waiters = [];
+        if ($this->productUtil->isModuleEnabled('service_staff') && !empty($pos_settings['inline_service_staff'])) {
+            $waiters_enabled = true;
+            $waiters = $this->productUtil->serviceStaffDropdown($business_id);
+        }
+        $redeem_details = [];
+        if (request()->session()->get('business.enable_rp') == 1) {
+            $redeem_details = $this->transactionUtil->getRewardRedeemDetails($business_id, $transaction->contact_id);
+
+            $redeem_details['points'] += $transaction->rp_redeemed;
+            $redeem_details['points'] -= $transaction->rp_earned;
+        }
+
+        $edit_discount = auth()->user()->can('edit_product_discount_from_pos_screen');
+        $edit_price = auth()->user()->can('edit_product_price_from_pos_screen');
+        
         return view('sale_pos_deposit.edit')
-            ->with(compact(
-                'business_details',
-                'taxes',
-                'payment_types',
-                'walk_in_customer',
-                'payment_lines',
-                'business_locations',
-                'bl_attributes',
-                'default_location',
-                'shortcuts',
-                'commission_agent',
-                'bank_categories',
-                'service_categories',
-                'bank_products',
-                'service_products',
-                'brands',
-                'pos_settings',
-                'change_return',
-                'types',
-                'customer_groups',
-                'accounts',
-                'price_groups',
-                'transaction'
-            ));
+            ->with(compact('business_details', 'taxes', 'payment_types', 'default_location', 'walk_in_customer', 'sell_details', 'transaction', 'payment_lines', 'location_printer_type', 'shortcuts', 'commission_agent', 'bank_categories',
+            'service_categories',
+            'bank_products',
+            'service_products', 'pos_settings', 'change_return', 'types', 'customer_groups', 'brands', 'accounts', 'price_groups', 'waiters', 'redeem_details', 'edit_price', 'edit_discount'));
     }
 
     /**
