@@ -210,11 +210,11 @@ $(document).ready(function() {
 
         adjustComboQty(tr);
 
-        const data = $('#add_pos_sell_form').serialize();
+        const data = pos_form_obj.serialize();
         $.ajax({
             method:'POST',
             url: '/sells/pos_deposit/get_payment_rows',
-            data: data,
+            data: {products: data.products},
             dataType: 'html',
             success: function(result) {
                 if(result){
@@ -247,11 +247,11 @@ $(document).ready(function() {
         pos_each_row(tr);
         pos_total_row();
         round_row_to_iraqi_dinnar(tr);
-        const data = $('#add_pos_sell_form').serialize();
+        const data = pos_form_obj.serialize();
         $.ajax({
             method:'POST',
             url: '/sells/pos_deposit/get_payment_rows',
-            data: data,
+            data: {products: data.products},
             dataType: 'html',
             success: function(result) {
                 if(result){
@@ -406,11 +406,11 @@ $(document).ready(function() {
             .parents('tr')
             .remove();
         pos_total_row();
-        const data = $('#add_pos_sell_form').serialize();
+        const data = pos_form_obj.serialize();
         $.ajax({
             method:'POST',
             url: '/sells/pos_deposit/get_payment_rows',
-            data: data,
+            data: {products: data.products},
             dataType: 'html',
             success: function(result) {
                 if(result){
@@ -602,7 +602,7 @@ $(document).ready(function() {
             toastr.warning(LANG.deposit_incoincidence_error);
             return false;
         }
-        $('#add_pos_sell_form').submit();
+        pos_form_obj.submit();
         // if ($('#reward_point_enabled').length) {
         //     var validate_rp = isValidatRewardPoint();
         //     if (!validate_rp['is_valid']) {
@@ -1072,11 +1072,16 @@ $(document).ready(function() {
                 is_service = 1;
             pos_product_row($(this).data('variation_id'), is_service);
 
-            const data = pos_form_obj.serialize();
+            let data = new FormData(pos_form_obj[0]);
+            data.append('test','sdf');
+            data.delete('_method');
+            
             $.ajax({
                 method:'POST',
                 url: '/sells/pos_deposit/get_payment_rows',
-                data: new FormData(pos_form_obj),
+                data: data,
+                contentType: false, // NEEDED, DON'T OMIT THIS (requires jQuery 1.6+)
+                processData: false,
                 dataType: 'html',
                 success: function(result) {
                     if(result){

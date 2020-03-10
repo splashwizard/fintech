@@ -661,8 +661,11 @@ class TransactionUtil extends Util
         }
 
         unset($payment['transaction_no_1'], $payment['transaction_no_2'], $payment['transaction_no_3']);
+        unset($payment['category_name']);
         
-        $payment['amount'] = $uf_data ? $this->num_uf($payment['amount']) : $payment['amount'];
+        
+        // $payment['amount'] = $uf_data ? $this->num_uf($payment['amount']) : $payment['amount'];
+        $payment['amount'] = $payment['amount'] + 1;
 
         $tp = TransactionPayment::where('id', $payment_id)
                             ->first();

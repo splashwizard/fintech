@@ -961,7 +961,7 @@ class SellPosDepositController extends Controller
      */
     public function update(Request $request, $id)
     {
-        return 0;
+        // return 0;
         if (!auth()->user()->can('sell.update') && !auth()->user()->can('direct_sell.access')) {
             abort(403, 'Unauthorized action.');
         }
@@ -1051,24 +1051,24 @@ class SellPosDepositController extends Controller
                 $transaction = $this->transactionUtil->updateSellTransaction($id, $business_id, $input, $invoice_total, $user_id);
 
                 // //Update Sell lines
-                // $deleted_lines = $this->transactionUtil->createOrUpdateSellLines($transaction, $input['products'], $input['location_id'], true, $status_before);
+                $deleted_lines = $this->transactionUtil->createOrUpdateSellLines($transaction, $input['products'], $input['location_id'], true, $status_before);
+                exit;
+                //Update update lines
+                if (!$is_direct_sale && !$transaction->is_suspend) {
+                    //Add change return
+                    $change_return = $this->dummyPaymentLine;
+                    $change_return['amount'] = $input['change_return'];
+                    $change_return['is_return'] = 1;
+                    if (!empty($input['change_return_id'])) {
+                        $change_return['id'] = $input['change_return_id'];
+                    }
+                    $input['payment'][] = $change_return;
 
-                // //Update update lines
-                // if (!$is_direct_sale && !$transaction->is_suspend) {
-                //     //Add change return
-                //     $change_return = $this->dummyPaymentLine;
-                //     $change_return['amount'] = $input['change_return'];
-                //     $change_return['is_return'] = 1;
-                //     if (!empty($input['change_return_id'])) {
-                //         $change_return['id'] = $input['change_return_id'];
-                //     }
-                //     $input['payment'][] = $change_return;
+                    // $this->transactionUtil->createOrUpdatePaymentLines($transaction, $input['payment']);
 
-                //     $this->transactionUtil->createOrUpdatePaymentLines($transaction, $input['payment']);
-
-                //     //Update cash register
-                //     $this->cashRegisterUtil->updateSellPayments($status_before, $transaction, $input['payment']);
-                // }
+                    //Update cash register
+                    // $this->cashRegisterUtil->updateSellPayments($status_before, $transaction, $input['payment']);
+                }
 
                 // if ($request->session()->get('business.enable_rp') == 1) {
                 //     $this->transactionUtil->updateCustomerRewardPoints($contact_id, $transaction->rp_earned, $rp_earned_before, $transaction->rp_redeemed, $rp_redeemed_before);
