@@ -1466,13 +1466,13 @@ class SellPosDepositController extends Controller
         }
         $payment_lines = [];
         foreach ($payment_data as $key => $payment){
-            if($payment['p_name'] == 'Bonus')
-                $payment['amount'] += $bonus_amount;
+            // if($payment['p_name'] == 'Bonus')
+            //     $payment['amount'] += $bonus_amount;
             $query = Category::where('id', $payment['category_id']);
             $data = $query->get()[0];
             if($data->name == 'Banking'){
                 if($payment['p_name'] == 'Bonus')
-                    $method = 'bonus';
+                    $method = 'free_credit';
                 else
                     $method = 'bank_transfer';
             } else{
@@ -1481,14 +1481,13 @@ class SellPosDepositController extends Controller
             $payment_lines[] = ['account_id' => $key, 'method' => $method, 'amount' => $payment['amount'], 'note' => '', 'card_transaction_number' => '', 'card_number' => '', 'card_type' => '', 'card_holder_name' => '', 'card_month' => '', 'card_year' => '', 'card_security' => '', 'cheque_number' => '', 'bank_account_number' => '',
                 'is_return' => 0, 'transaction_no' => '', 'category_name' => $data->name];
         }
-        if($is_direct_bonus == 0){
+        if(!empty($bonus_amount)){
             $bonus_key = 20;
             $query = Category::where('name', 'Banking');
             $data = $query->get()[0];
-            $payment_lines[] = ['account_id' => $bonus_key, 'method' => 'bonus', 'amount' => $bonus_amount, 'note' => '', 'card_transaction_number' => '', 'card_number' => '', 'card_type' => '', 'card_holder_name' => '', 'card_month' => '', 'card_year' => '', 'card_security' => '', 'cheque_number' => '', 'bank_account_number' => '',
+            $payment_lines[] = ['account_id' => $bonus_key, 'method' => 'basic_bonus', 'amount' => $bonus_amount, 'note' => '', 'card_transaction_number' => '', 'card_number' => '', 'card_type' => '', 'card_holder_name' => '', 'card_month' => '', 'card_year' => '', 'card_security' => '', 'cheque_number' => '', 'bank_account_number' => '',
                 'is_return' => 0, 'transaction_no' => '', 'category_name' => $data->name];
         }
-
         $payment_types = $this->productUtil->payment_types();
         //Accounts
         $accounts = [];

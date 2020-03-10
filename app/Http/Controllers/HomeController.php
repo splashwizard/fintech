@@ -22,6 +22,8 @@ use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+use App\TransactionPayment;
+
 class HomeController extends Controller
 {
     /**
@@ -398,14 +400,17 @@ class HomeController extends Controller
                 ->select(DB::raw('COUNT(contacts.id) as cnt'), 'g.name')
                 ->groupBy('contacts.customer_group_id');
 
+            $data = TransactionPayment::where('business_id', $business_id)
+                ->whereBetween(\Illuminate\Support\Facades\DB::raw('date(created_at)'), [$start, $end])
+                ->select(DB::raw("SUM(IF(method='free_credit', amount, 0)) as free_credit"), DB::raw("SUM(IF(method='basic_bonus', amount, 0)) as basic_bonus"))->get()[0];
 
             $output['total_withdraw'] = $total_sell_return_inc_tax;
             $output['deposit_count'] = $deposit_count;
             $output['withdraw_count'] = $withdraw_count;
 //            $output['total_sell'] = $total_sell_inc_tax - $total_sell_return_inc_tax;
             $output['total_deposit'] = $total_sell_inc_tax;
-            $output['total_bonus'] = $sell_details['total_bonus'];
-            $output['total_profit'] = $output['total_deposit'] - $output['total_withdraw'];
+            $output['total_bonus'] = $data['basic_bonus'];
+            $output['total_profit'] = $data['free_credit'];;
             $output['registration_arr'] = $query->get();
 
             $output['invoice_due'] = $sell_details['invoice_due'];

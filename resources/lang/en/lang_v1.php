@@ -132,6 +132,8 @@ return [
     'bank_transfer' => 'Bank Transfer',
     'service_transfer' => 'Service Transfer',
     'bonus' => 'Bonus',
+    'basic_bonus' => 'Basic Bonus',
+    'free_credit' => 'Free Credit',
     'other' => 'Other',
     'payment' => 'Payment',
     'total_items' => 'Total Items',
