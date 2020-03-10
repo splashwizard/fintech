@@ -124,7 +124,8 @@ class EssentialsRequestController extends Controller
                     $diff += 1;
                     $start_date_formated = $this->moduleUtil->format_date($start_date);
                     $end_date_formated = $this->moduleUtil->format_date($end_date);
-                    return $start_date_formated . ' - ' . $end_date_formated . ' (' . $diff . str_plural(__('lang_v1.day'), $diff).')';
+                    // return $start_date_formated . ' - ' . $end_date_formated . ' (' . $diff . str_plural(__('lang_v1.day'), $diff).')';
+                    return $start_date_formated;
                 })
                 ->editColumn('status', function ($row) use ($is_admin) {
                     $status = '<span class="label ' . $this->request_statuses[$row->status]['class'] . '">'

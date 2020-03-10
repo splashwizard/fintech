@@ -171,7 +171,10 @@ class ContactController extends Controller
 
         $query = Contact::leftjoin('transactions AS t', 'contacts.id', '=', 't.contact_id')
                     ->leftjoin('customer_groups AS cg', 'contacts.customer_group_id', '=', 'cg.id')
-                    ->where('contacts.business_id', $business_id)
+                    ->where(function($q) use ($business_id) {
+                        $q->where('contacts.business_id', $business_id);
+                        $q->orWhere('contacts.business_id', 0);
+                    })  
                     ->where('contacts.blacked_by_user', '=', null)
 //                    ->onlyCustomers()
                     ->addSelect(['contacts.contact_id', 'contacts.name', 'contacts.email', 'contacts.created_at', 'total_rp', 'cg.name as customer_group', 'city', 'state', 'country', 'landmark', 'mobile', 'contacts.id', 'is_default',
@@ -789,15 +792,17 @@ class ContactController extends Controller
             $business_id = request()->session()->get('user.business_id');
             $user_id = request()->session()->get('user.id');
 
-            $contacts = Contact::where('business_id', $business_id);
+            if (empty($term)) {
+                $contacts = Contact::where('business_id', 0);
+            } else{
+                $contacts = Contact::where('business_id', $business_id);
 
-            $selected_contacts = User::isSelectedContacts($user_id);
-            if ($selected_contacts) {
-                $contacts->join('user_contact_access AS uca', 'contacts.id', 'uca.contact_id')
-                ->where('uca.user_id', $user_id);
-            }
-
-            if (!empty($term)) {
+                $selected_contacts = User::isSelectedContacts($user_id);
+                if ($selected_contacts) {
+                    $contacts->join('user_contact_access AS uca', 'contacts.id', 'uca.contact_id')
+                    ->where('uca.user_id', $user_id);
+                }
+                $contacts->where('blacked_by_user', null);
                 $contacts->where(function ($query) use ($term) {
                     $query->where('name', 'like', '%' . $term .'%')
                             ->orWhere('supplier_business_name', 'like', '%' . $term .'%')
@@ -805,6 +810,9 @@ class ContactController extends Controller
                             ->orWhere('contacts.contact_id', 'like', '%' . $term .'%');
                 });
             }
+            // else {
+            //     $contacts->where('business_id', 0);
+            // }
 
             $contacts->select(
                 'contacts.id',

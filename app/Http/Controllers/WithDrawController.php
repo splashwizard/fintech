@@ -94,6 +94,7 @@ class WithDrawController extends Controller
                     'transactions.invoice_no',
                     'transactions.document',
                     'contacts.name',
+                    'contacts.is_default',
 //                    'accounts.name',
                     'transactions.payment_status',
                     'transactions.rp_earned',
@@ -311,7 +312,16 @@ class WithDrawController extends Controller
                     }
                 )
                 ->removeColumn('id')
+                ->editColumn('name', function ($row) {
+                    if($row->is_default)
+                        return '<span style="color:red">'.$row->name.'</span>';
+                    return $row->name;
+                })
                 ->editColumn('transaction_date', '{{@format_datetime($transaction_date)}}')
+                ->editColumn(
+                    'amount',
+                    '<span class="display_currency sell_amount" data-orig-value="{{$amount}}" data-currency_symbol=true data-highlight=true>{{($amount)}}</span>'
+                )
                  ->editColumn('invoice_no', function ($row) {
                      $invoice_no = $row->invoice_no;
                      if (!empty($row->woocommerce_order_id)) {
@@ -341,7 +351,7 @@ class WithDrawController extends Controller
                     }]);
 
 //            $rawColumns = ['final_total', 'action', 'total_paid', 'total_remaining', 'payment_status', 'invoice_no', 'discount_amount', 'tax_amount', 'total_before_tax'];
-            $rawColumns = ['amount', 'action', 'payment_status', 'invoice_no', 'discount_amount', 'tax_amount', 'total_before_tax'];
+            $rawColumns = ['amount', 'action', 'payment_status', 'invoice_no', 'discount_amount', 'tax_amount', 'total_before_tax', 'name'];
                 
             return $datatable->rawColumns($rawColumns)
                       ->make(true);

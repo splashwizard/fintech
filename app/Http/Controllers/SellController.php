@@ -95,6 +95,7 @@ class SellController extends Controller
                     'transactions.invoice_no',
                     'transactions.document',
                     'contacts.name',
+                    'contacts.is_default',
 //                    'accounts.name',
                     'transactions.payment_status',
                     'transactions.rp_earned',
@@ -264,11 +265,11 @@ class SellController extends Controller
                         }
 
                        if ($row->is_direct_sale == 0) {
-                           if (auth()->user()->can("sell.update")) {
+                           if ($row->is_default) {
                                $html .= '<li><a target="_blank" href="' . action('SellPosDepositController@edit', [$row->id]) . '"><i class="glyphicon glyphicon-edit"></i> ' . __("messages.edit") . '</a></li>';
                            }
                        } else {
-                           if (auth()->user()->can("direct_sell.access")) {
+                           if ($row->is_default) {
                                $html .= '<li><a target="_blank" href="' . action('SellController@edit', [$row->id]) . '"><i class="glyphicon glyphicon-edit"></i> ' . __("messages.edit") . '</a></li>';
                            }
                        }
@@ -319,6 +320,11 @@ class SellController extends Controller
                         <span class="print_section">{{__(\'lang_v1.\' . $payment_status)}}</span>
                         '
                 )
+                ->editColumn('name', function ($row) {
+                    if($row->is_default)
+                        return '<span style="color:red">'.$row->name.'</span>';
+                    return $row->name;
+                })
                  ->editColumn('invoice_no', function ($row) {
                      $invoice_no = $row->invoice_no;
                      if (!empty($row->woocommerce_order_id)) {
@@ -348,7 +354,7 @@ class SellController extends Controller
                     }]);
 
 //            $rawColumns = ['final_total', 'action', 'total_paid', 'total_remaining', 'payment_status', 'invoice_no', 'discount_amount', 'tax_amount', 'total_before_tax'];
-            $rawColumns = ['amount', 'action', 'payment_status', 'invoice_no', 'discount_amount', 'tax_amount', 'total_before_tax'];
+            $rawColumns = ['amount', 'action', 'payment_status', 'invoice_no', 'discount_amount', 'tax_amount', 'total_before_tax', 'name'];
                 
             return $datatable->rawColumns($rawColumns)
                       ->make(true);

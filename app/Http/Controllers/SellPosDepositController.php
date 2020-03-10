@@ -677,9 +677,9 @@ class SellPosDepositController extends Controller
      */
     public function edit($id)
     {
-        if (!auth()->user()->can('sell.update')) {
-            abort(403, 'Unauthorized action.');
-        }
+        // if (!auth()->user()->can('sell.update')) {
+        //     abort(403, 'Unauthorized action.');
+        // }
 
         //Check if the transaction can be edited or not.
         $edit_days = request()->session()->get('business.transaction_edit_days');
@@ -962,9 +962,9 @@ class SellPosDepositController extends Controller
     public function update(Request $request, $id)
     {
         // return 0;
-        if (!auth()->user()->can('sell.update') && !auth()->user()->can('direct_sell.access')) {
-            abort(403, 'Unauthorized action.');
-        }
+        // if (!auth()->user()->can('sell.update') && !auth()->user()->can('direct_sell.access')) {
+        //     abort(403, 'Unauthorized action.');
+        // }
         
         try {
             $input = $request->except('_token');
@@ -974,182 +974,192 @@ class SellPosDepositController extends Controller
             if (!empty($input['products'])) {
                 //Get transaction value before updating.
                 $transaction_before = Transaction::find($id);
-                $status_before =  $transaction_before->status;
-                $rp_earned_before = $transaction_before->rp_earned;
-                $rp_redeemed_before = $transaction_before->rp_redeemed;
-
-                if ($transaction_before->is_direct_sale == 1) {
-                    $is_direct_sale = true;
-                }
-
-                //Check Customer credit limit
-                $is_credit_limit_exeeded = $this->transactionUtil->isCustomerCreditLimitExeeded($input, $id);
-
-                if ($is_credit_limit_exeeded !== false) {
-                    $credit_limit_amount = $this->transactionUtil->num_f($is_credit_limit_exeeded, true);
-                    $output = ['success' => 0,
-                                'msg' => __('lang_v1.cutomer_credit_limit_exeeded', ['credit_limit' => $credit_limit_amount])
-                            ];
-                    if (!$is_direct_sale) {
-                        return $output;
-                    } else {
-                        return redirect()
-                            ->action('SellController@index')
-                            ->with('status', $output);
-                    }
-                }
-
-                //Check if there is a open register, if no then redirect to Create Register screen.
-                if (!$is_direct_sale && $this->cashRegisterUtil->countOpenedRegister() == 0) {
-                    return redirect()->action('CashRegisterController@create');
-                }
-
+                
                 $business_id = $request->session()->get('user.business_id');
-                $user_id = $request->session()->get('user.id');
-                $commsn_agnt_setting = $request->session()->get('business.sales_cmsn_agnt');
-
-                $discount = ['discount_type' => $input['discount_type'],
-                                'discount_amount' => $input['discount_amount']
-                            ];
-                $invoice_total = $this->productUtil->calculateInvoiceTotal($input['products'], $input['tax_rate_id'], $discount);
-
-                if (!empty($request->input('transaction_date'))) {
-                    $input['transaction_date'] = $this->productUtil->uf_date($request->input('transaction_date'), true);
+                $is_admin = $this->moduleUtil->is_admin(auth()->user(), $business_id);
+                if(strtotime($transaction_before->transaction_date) < strtotime('1 day ago') && !$is_admin){
+                    $output = ['success' => 0,
+                            'msg' => trans("messages.transaction_date_error")
+                        ];
                 }
+                else{
 
-                $input['commission_agent'] = !empty($request->input('commission_agent')) ? $request->input('commission_agent') : null;
-                if ($commsn_agnt_setting == 'logged_in_user') {
-                    $input['commission_agent'] = $user_id;
-                }
+                    $status_before =  $transaction_before->status;
+                    $rp_earned_before = $transaction_before->rp_earned;
+                    $rp_redeemed_before = $transaction_before->rp_redeemed;
 
-                if (isset($input['exchange_rate']) && $this->transactionUtil->num_uf($input['exchange_rate']) == 0) {
-                    $input['exchange_rate'] = 1;
-                }
-
-                //Customer group details
-                $contact_id = $request->get('contact_id', null);
-                $cg = $this->contactUtil->getCustomerGroup($business_id, $contact_id);
-                $input['customer_group_id'] = (empty($cg) || empty($cg->id)) ? null : $cg->id;
-                
-                //set selling price group id
-                if ($request->has('price_group')) {
-                    $input['selling_price_group_id'] = $request->input('price_group');
-                }
-
-                $input['is_suspend'] = isset($input['is_suspend']) && 1 == $input['is_suspend']  ? 1 : 0;
-                if ($input['is_suspend']) {
-                    $input['sale_note'] = !empty($input['additional_notes']) ? $input['additional_notes'] : null;
-                }
-
-                if ($is_direct_sale && $status_before == 'draft') {
-                    $input['invoice_scheme_id'] = $request->input('invoice_scheme_id');
-                }
-
-                //Begin transaction
-                DB::beginTransaction();
-
-                $transaction = $this->transactionUtil->updateSellTransaction($id, $business_id, $input, $invoice_total, $user_id);
-
-                // //Update Sell lines
-                $deleted_lines = $this->transactionUtil->createOrUpdateSellLines($transaction, $input['products'], $input['location_id'], true, $status_before);
-                exit;
-                //Update update lines
-                if (!$is_direct_sale && !$transaction->is_suspend) {
-                    //Add change return
-                    $change_return = $this->dummyPaymentLine;
-                    $change_return['amount'] = $input['change_return'];
-                    $change_return['is_return'] = 1;
-                    if (!empty($input['change_return_id'])) {
-                        $change_return['id'] = $input['change_return_id'];
+                    if ($transaction_before->is_direct_sale == 1) {
+                        $is_direct_sale = true;
                     }
-                    $input['payment'][] = $change_return;
 
-                    // $this->transactionUtil->createOrUpdatePaymentLines($transaction, $input['payment']);
+                    //Check Customer credit limit
+                    $is_credit_limit_exeeded = $this->transactionUtil->isCustomerCreditLimitExeeded($input, $id);
 
-                    //Update cash register
-                    // $this->cashRegisterUtil->updateSellPayments($status_before, $transaction, $input['payment']);
-                }
+                    if ($is_credit_limit_exeeded !== false) {
+                        $credit_limit_amount = $this->transactionUtil->num_f($is_credit_limit_exeeded, true);
+                        $output = ['success' => 0,
+                                    'msg' => __('lang_v1.cutomer_credit_limit_exeeded', ['credit_limit' => $credit_limit_amount])
+                                ];
+                        if (!$is_direct_sale) {
+                            return $output;
+                        } else {
+                            return redirect()
+                                ->action('SellController@index')
+                                ->with('status', $output);
+                        }
+                    }
 
-                // if ($request->session()->get('business.enable_rp') == 1) {
-                //     $this->transactionUtil->updateCustomerRewardPoints($contact_id, $transaction->rp_earned, $rp_earned_before, $transaction->rp_redeemed, $rp_redeemed_before);
-                // }
+                    //Check if there is a open register, if no then redirect to Create Register screen.
+                    if (!$is_direct_sale && $this->cashRegisterUtil->countOpenedRegister() == 0) {
+                        return redirect()->action('CashRegisterController@create');
+                    }
 
-                // //Update payment status
-                // $this->transactionUtil->updatePaymentStatus($transaction->id, $transaction->final_total);
+                    // $business_id = $request->session()->get('user.business_id');
+                    $user_id = $request->session()->get('user.id');
+                    $commsn_agnt_setting = $request->session()->get('business.sales_cmsn_agnt');
 
-                // //Update product stock
-                // $this->productUtil->adjustProductStockForInvoice($status_before, $transaction, $input);
+                    $discount = ['discount_type' => $input['discount_type'],
+                                    'discount_amount' => $input['discount_amount']
+                                ];
+                    $invoice_total = $this->productUtil->calculateInvoiceTotal($input['products'], $input['tax_rate_id'], $discount);
 
-                // //Allocate the quantity from purchase and add mapping of
-                // //purchase & sell lines in
-                // //transaction_sell_lines_purchase_lines table
-                // $business_details = $this->businessUtil->getDetails($business_id);
-                // $pos_settings = empty($business_details->pos_settings) ? $this->businessUtil->defaultPosSettings() : json_decode($business_details->pos_settings, true);
+                    if (!empty($request->input('transaction_date'))) {
+                        $input['transaction_date'] = $this->productUtil->uf_date($request->input('transaction_date'), true);
+                    }
 
-                // $business = ['id' => $business_id,
-                //                 'accounting_method' => $request->session()->get('business.accounting_method'),
-                //                 'location_id' => $input['location_id'],
-                //                 'pos_settings' => $pos_settings
-                //             ];
-                // $this->transactionUtil->adjustMappingPurchaseSell($status_before, $transaction, $business, $deleted_lines);
-                
-                // if ($this->transactionUtil->isModuleEnabled('tables')) {
-                //     $transaction->res_table_id = request()->get('res_table_id');
-                //     $transaction->save();
-                // }
-                // if ($this->transactionUtil->isModuleEnabled('service_staff')) {
-                //     $transaction->res_waiter_id = request()->get('res_waiter_id');
-                //     $transaction->save();
-                // }
-                // $log_properties = [];
-                // if (isset($input['repair_completed_on'])) {
-                //     $completed_on = !empty($input['repair_completed_on']) ? $this->transactionUtil->uf_date($input['repair_completed_on'], true) : null;
-                //     if ($transaction->repair_completed_on != $completed_on) {
-                //         $log_properties['completed_on_from'] = $transaction->repair_completed_on;
-                //         $log_properties['completed_on_to'] = $completed_on;
-                //     }
-                // }
+                    $input['commission_agent'] = !empty($request->input('commission_agent')) ? $request->input('commission_agent') : null;
+                    if ($commsn_agnt_setting == 'logged_in_user') {
+                        $input['commission_agent'] = $user_id;
+                    }
 
-                // //Set Module fields
-                // if (!empty($input['has_module_data'])) {
-                //     $this->moduleUtil->getModuleData('after_sale_saved', ['transaction' => $transaction, 'input' => $input]);
-                // }
+                    if (isset($input['exchange_rate']) && $this->transactionUtil->num_uf($input['exchange_rate']) == 0) {
+                        $input['exchange_rate'] = 1;
+                    }
 
-                // if (!empty($input['update_note'])) {
-                //     $log_properties['update_note'] = $input['update_note'];
-                // }
-
-                // Media::uploadMedia($business_id, $transaction, $request, 'documents');
-
-                // activity()
-                // ->performedOn($transaction)
-                // ->withProperties($log_properties)
-                // ->log('edited');
-
-                DB::commit();
+                    //Customer group details
+                    $contact_id = $request->get('contact_id', null);
+                    $cg = $this->contactUtil->getCustomerGroup($business_id, $contact_id);
+                    $input['customer_group_id'] = (empty($cg) || empty($cg->id)) ? null : $cg->id;
                     
-                $msg = '';
-                $receipt = '';
-
-                if ($input['status'] == 'draft' && $input['is_quotation'] == 0) {
-                    $msg = trans("sale.draft_added");
-                } elseif ($input['status'] == 'draft' && $input['is_quotation'] == 1) {
-                    $msg = trans("lang_v1.quotation_updated");
-                    if (!$is_direct_sale) {
-                        $receipt = $this->receiptContent($business_id, $input['location_id'], $transaction->id);
-                    } else {
-                        $receipt = '';
+                    //set selling price group id
+                    if ($request->has('price_group')) {
+                        $input['selling_price_group_id'] = $request->input('price_group');
                     }
-                } elseif ($input['status'] == 'final') {
-                    $msg = trans("sale.pos_sale_updated");
+
+                    $input['is_suspend'] = isset($input['is_suspend']) && 1 == $input['is_suspend']  ? 1 : 0;
+                    if ($input['is_suspend']) {
+                        $input['sale_note'] = !empty($input['additional_notes']) ? $input['additional_notes'] : null;
+                    }
+
+                    if ($is_direct_sale && $status_before == 'draft') {
+                        $input['invoice_scheme_id'] = $request->input('invoice_scheme_id');
+                    }
+
+                    //Begin transaction
+                    DB::beginTransaction();
+
+                    $transaction = $this->transactionUtil->updateSellTransaction($id, $business_id, $input, $invoice_total, $user_id);
+
+                    // //Update Sell lines
+                    $deleted_lines = $this->transactionUtil->createOrUpdateSellLines($transaction, $input['products'], $input['location_id'], true, $status_before);
+                    //Update update lines
                     if (!$is_direct_sale && !$transaction->is_suspend) {
-                        $receipt = $this->receiptContent($business_id, $input['location_id'], $transaction->id);
-                    } else {
-                        $receipt = '';
-                    }
-                }
+                        //Add change return
+                        $change_return = $this->dummyPaymentLine;
+                        $change_return['amount'] = $input['change_return'];
+                        $change_return['is_return'] = 1;
+                        if (!empty($input['change_return_id'])) {
+                            $change_return['id'] = $input['change_return_id'];
+                        }
+                        $input['payment'][] = $change_return;
 
-                $output = ['success' => 1, 'msg' => $msg, 'receipt' => $receipt ];
+                        $this->transactionUtil->createOrUpdatePaymentLines($transaction, $input['payment']);
+
+                        //Update cash register
+                        $this->cashRegisterUtil->updateSellPayments($status_before, $transaction, $input['payment']);
+                    }
+
+                    if ($request->session()->get('business.enable_rp') == 1) {
+                        $this->transactionUtil->updateCustomerRewardPoints($contact_id, $transaction->rp_earned, $rp_earned_before, $transaction->rp_redeemed, $rp_redeemed_before);
+                    }
+
+                    //Update payment status
+                    $this->transactionUtil->updatePaymentStatus($transaction->id, $transaction->final_total);
+
+                    //Update product stock
+                    $this->productUtil->adjustProductStockForInvoice($status_before, $transaction, $input);
+
+                    //Allocate the quantity from purchase and add mapping of
+                    //purchase & sell lines in
+                    //transaction_sell_lines_purchase_lines table
+                    $business_details = $this->businessUtil->getDetails($business_id);
+                    $pos_settings = empty($business_details->pos_settings) ? $this->businessUtil->defaultPosSettings() : json_decode($business_details->pos_settings, true);
+
+                    $business = ['id' => $business_id,
+                                    'accounting_method' => $request->session()->get('business.accounting_method'),
+                                    'location_id' => $input['location_id'],
+                                    'pos_settings' => $pos_settings
+                                ];
+                    $this->transactionUtil->adjustMappingPurchaseSell($status_before, $transaction, $business, $deleted_lines);
+                    
+                    if ($this->transactionUtil->isModuleEnabled('tables')) {
+                        $transaction->res_table_id = request()->get('res_table_id');
+                        $transaction->save();
+                    }
+                    if ($this->transactionUtil->isModuleEnabled('service_staff')) {
+                        $transaction->res_waiter_id = request()->get('res_waiter_id');
+                        $transaction->save();
+                    }
+                    $log_properties = [];
+                    if (isset($input['repair_completed_on'])) {
+                        $completed_on = !empty($input['repair_completed_on']) ? $this->transactionUtil->uf_date($input['repair_completed_on'], true) : null;
+                        if ($transaction->repair_completed_on != $completed_on) {
+                            $log_properties['completed_on_from'] = $transaction->repair_completed_on;
+                            $log_properties['completed_on_to'] = $completed_on;
+                        }
+                    }
+
+                    //Set Module fields
+                    if (!empty($input['has_module_data'])) {
+                        $this->moduleUtil->getModuleData('after_sale_saved', ['transaction' => $transaction, 'input' => $input]);
+                    }
+
+                    if (!empty($input['update_note'])) {
+                        $log_properties['update_note'] = $input['update_note'];
+                    }
+
+                    Media::uploadMedia($business_id, $transaction, $request, 'documents');
+
+                    activity()
+                    ->performedOn($transaction)
+                    ->withProperties($log_properties)
+                    ->log('edited');
+
+                    DB::commit();
+                        
+                    $msg = '';
+                    $receipt = '';
+
+                    if ($input['status'] == 'draft' && $input['is_quotation'] == 0) {
+                        $msg = trans("sale.draft_added");
+                    } elseif ($input['status'] == 'draft' && $input['is_quotation'] == 1) {
+                        $msg = trans("lang_v1.quotation_updated");
+                        if (!$is_direct_sale) {
+                            $receipt = $this->receiptContent($business_id, $input['location_id'], $transaction->id);
+                        } else {
+                            $receipt = '';
+                        }
+                    } elseif ($input['status'] == 'final') {
+                        $msg = trans("sale.pos_sale_updated");
+                        if (!$is_direct_sale && !$transaction->is_suspend) {
+                            $receipt = $this->receiptContent($business_id, $input['location_id'], $transaction->id);
+                        } else {
+                            $receipt = '';
+                        }
+                    }
+
+                    $output = ['success' => 1, 'msg' => $msg, 'receipt' => $receipt ];
+                }
             } else {
                 $output = ['success' => 0,
                             'msg' => trans("messages.something_went_wrong")
@@ -1695,7 +1705,7 @@ class SellPosDepositController extends Controller
         $business_id = request()->session()->get('user.business_id');
         $contact_id = request()->input('contact_id');
         $selected_bank = request()->input('selected_bank');
-        $bank_list = Account::where('is_service', 0)->where('business_id', $business_id)->get();
+        $bank_list = Account::where('is_service', 0)->where('business_id', $business_id)->where('is_safe', 0)->where('name', '!=', 'Bonus Account')->get();
         if(empty($selected_bank))
             $selected_bank = $bank_list[0]->id;
         $transaction_types = explode(',', request()->input('transaction_types'));

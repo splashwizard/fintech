@@ -210,11 +210,12 @@ $(document).ready(function() {
 
         adjustComboQty(tr);
 
-        const data = pos_form_obj.serialize();
+        let data = new FormData(pos_form_obj[0]);
+        data.delete('_method');
         $.ajax({
             method:'POST',
             url: '/sells/pos_deposit/get_payment_rows',
-            data: {products: data.products},
+            data: data,
             dataType: 'html',
             success: function(result) {
                 if(result){
@@ -247,11 +248,12 @@ $(document).ready(function() {
         pos_each_row(tr);
         pos_total_row();
         round_row_to_iraqi_dinnar(tr);
-        const data = pos_form_obj.serialize();
+        let data = new FormData(pos_form_obj[0]);
+        data.delete('_method');
         $.ajax({
             method:'POST',
             url: '/sells/pos_deposit/get_payment_rows',
-            data: {products: data.products},
+            data: data,
             dataType: 'html',
             success: function(result) {
                 if(result){
@@ -406,11 +408,12 @@ $(document).ready(function() {
             .parents('tr')
             .remove();
         pos_total_row();
-        const data = pos_form_obj.serialize();
+        let data = new FormData(pos_form_obj[0]);
+        data.delete('_method');
         $.ajax({
             method:'POST',
             url: '/sells/pos_deposit/get_payment_rows',
-            data: {products: data.products},
+            data: data,
             dataType: 'html',
             success: function(result) {
                 if(result){
@@ -1075,7 +1078,7 @@ $(document).ready(function() {
             let data = new FormData(pos_form_obj[0]);
             data.append('test','sdf');
             data.delete('_method');
-            
+            console.log('Here');
             $.ajax({
                 method:'POST',
                 url: '/sells/pos_deposit/get_payment_rows',
