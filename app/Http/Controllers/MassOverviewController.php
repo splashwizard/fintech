@@ -55,9 +55,9 @@ class MassOverviewController extends Controller
     {
         $business_id = auth()->user()->hasRole('Superadmin') ? 0 : request()->session()->get('user.business_id');
 
-        if (!auth()->user()->can('dashboard.data') && !auth()->user()->hasRole('Superadmin')) {
-            return view('home.index');
-        }
+        // if (!auth()->user()->can('dashboard.data') && !auth()->user()->hasRole('Superadmin')) {
+        //     return view('home.index');
+        // }
 
         $fy = $this->businessUtil->getCurrentFinancialYear($business_id);
         $date_filters['this_fy'] = $fy;
@@ -73,7 +73,8 @@ class MassOverviewController extends Controller
                     ->groupBy('business.id')
                     ->orderBy('business.id', 'asc')
                     ->select('business.id', DB::raw("SUM(IF(t.type='sell', final_total, 0)) AS total_deposit"), DB::raw("SUM(IF(t.type='sell_return', final_total, 0)) AS total_withdrawal, business.name as company_name"));
-            } else{
+            } 
+            else{
                 $business_id = request()->session()->get('user.business_id');
                 $user_id = request()->session()->get('user.id');
                 $data = AdminHasBusiness::where('user_id', $user_id)->get();
@@ -81,20 +82,25 @@ class MassOverviewController extends Controller
                 foreach ($data as $row){
                     $allowed_business_ids[] = $row->business_id;
                 }
-                if(!array_search($business_id, $allowed_business_ids))
+                if(array_search($business_id, $allowed_business_ids) === FALSE)
                     $allowed_business_ids[] = $business_id;
 
-                $query = Business::leftjoin(DB::raw('(SELECT * FROM transactions WHERE DATE(transactions.`transaction_date`) BETWEEN "'. $start_date .'" AND "'. $end_date.'"  AND transactions.`type` IN ("sell", "sell_return") AND transactions.`status` = "final") AS t'), 't.business_id', '=', 'business.id')
-                    ->whereIn('business.id', $allowed_business_ids)
-                    ->groupBy('business.id')
-                    ->orderBy('business.id', 'asc')
-                    ->select('business.id', DB::raw("SUM(IF(t.type='sell', final_total, 0)) AS total_deposit"), DB::raw("SUM(IF(t.type='sell_return', IF( (SELECT method FROM transaction_payments AS tp WHERE tp.transaction_id = t.id) = 'bank_transfer', t.final_total, 0), 0)) AS total_withdrawal, business.name as company_name"));
-
+                // $query = Business::leftjoin(DB::raw('(SELECT * FROM transactions WHERE DATE(transactions.`transaction_date`) BETWEEN "'. $start_date .'" AND "'. $end_date.'"  AND transactions.`type` IN ("sell", "sell_return") AND transactions.`status` = "final") AS t'), 't.business_id', '=', 'business.id')
+                //     ->whereIn('business.id', $allowed_business_ids)
+                //     ->groupBy('business.id')
+                //     ->orderBy('business.id', 'asc')
+                //     ->select('business.id', DB::raw("SUM(IF(t.type='sell', final_total, 0)) AS total_deposit"), DB::raw("SUM(IF(t.type='sell_return', IF( (SELECT method FROM transaction_payments AS tp WHERE tp.transaction_id = t.id) = 'bank_transfer', t.final_total, 0), 0)) AS total_withdrawal, business.name as company_name"));
+                $query = Business::leftjoin(DB::raw('(SELECT * FROM transactions WHERE DATE(transactions.`transaction_date`) BETWEEN "'. $start_date .'" AND "'. $end_date.'" AND transactions.`type` IN ("sell", "sell_return") AND transactions.`status` = "final" ) AS t'), 't.business_id', '=', 'business.id')
+                ->groupBy('business.id')
+                ->whereIn('business.id', $allowed_business_ids)
+                ->orderBy('business.id', 'asc')
+                ->select('business.id', DB::raw("SUM(IF(t.type='sell', final_total, 0)) AS total_deposit"), DB::raw("SUM(IF(t.type='sell_return', final_total, 0)) AS total_withdrawal, business.name as company_name"));
+                
                 //Check for permitted locations of a user
-                $permitted_locations = auth()->user()->permitted_locations();
-                if ($permitted_locations != 'all') {
-                    $query->whereIn('transactions.location_id', $permitted_locations);
-                }
+                // $permitted_locations = auth()->user()->permitted_locations();
+                // if ($permitted_locations != 'all') {
+                //     $query->whereIn('transactions.location_id', $permitted_locations);
+                // }
             }
             $datatable = Datatables::of($query)->addColumn(
                 'action',
