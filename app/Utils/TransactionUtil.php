@@ -621,12 +621,27 @@ class TransactionUtil extends Util
     }
 
 
-    public function createWithDrawPaymentLine($transaction, $user_id = null, $account_id = null, $is_service = 0)
+    public function createWithDrawPaymentLine($transaction, $user_id = null, $account_id = null, $service_charge = 0, $is_service = 0)
     {
         $payment_data = [
             'transaction_id' => $transaction->id,
             'amount' => $transaction->final_total,
             'method' => $is_service == 0 ? 'bank_transfer' : 'service_transfer',
+            'business_id' => $transaction->business_id,
+            'is_return' => 0,
+            'paid_on' => !empty($transaction->transaction_date) ? $transaction->transaction_date : \Carbon::now()->toDateTimeString(),
+            'created_by' => empty($user_id) ? auth()->user()->id : $user_id,
+            'payment_for' => $transaction->contact_id,
+            'account_id' => !empty($account_id) ? $account_id : null
+        ];
+
+        $transaction_payment = new TransactionPayment($payment_data);
+        $transaction_payment->save();
+
+        $payment_data = [
+            'transaction_id' => $transaction->id,
+            'amount' => $service_charge,
+            'method' => $is_service == 0 ? 'bank_charge' : 'service_charge',
             'business_id' => $transaction->business_id,
             'is_return' => 0,
             'paid_on' => !empty($transaction->transaction_date) ? $transaction->transaction_date : \Carbon::now()->toDateTimeString(),

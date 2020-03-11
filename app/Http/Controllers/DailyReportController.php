@@ -100,7 +100,7 @@ class DailyReportController extends Controller
             ->join('transactions as t', 't.id', 'tp.transaction_id')
             ->where('accounts.is_service', 0)
             ->where('accounts.business_id', $business_id)
-            ->select('accounts.id as account_id', DB::raw("SUM( IF(t.type='sell', amount, IF(t.type='sell_return', -amount, 0)) ) as back"))
+            ->select('accounts.id as account_id', DB::raw("SUM( IF(t.type = 'sell' && t.payment_status = 'cancelled', final_total, 0) ) as back"))
             ->groupBy('accounts.id');
         if (!empty(request()->start_date) && !empty(request()->end_date)) {
             $bank_accounts_sql->whereDate('t.transaction_date', '>=', $start)
@@ -136,6 +136,35 @@ class DailyReportController extends Controller
         }
         foreach ($withdraws as $row) {
             $bank_accounts_obj['out_ticket'][$row['account_id']] = $row['out_ticket'];
+        }
+        // service charge 
+        $withdraws = Transaction::join('transaction_payments as tp', 'transactions.id', '=', 'tp.transaction_id')
+        ->leftJoin('accounts', 'tp.account_id', '=', 'accounts.id')
+        ->where('transactions.business_id', $business_id)
+        ->where('transactions.type', 'sell_return')
+        ->where('transactions.status', 'final')
+        ->where('tp.method', 'bank_charge')
+        ->where('accounts.is_service', 0)
+        ->whereDate('transactions.transaction_date', '>=', $start)
+                    ->whereDate('transactions.transaction_date', '<=', $end)
+        ->groupBy('accounts.id')
+        ->select('accounts.id as account_id', DB::raw("SUM(tp.amount) as bank_charge"))->get();
+
+        foreach ($withdraws as $row) {
+            $bank_accounts_obj['service'][$row['account_id']] = $row['bank_charge'];
+        }
+        // expenses
+        $expenses = Transaction::join('transaction_payments AS tp', 'transactions.id', '=','tp.transaction_id')
+                        ->leftJoin('accounts', 'tp.account_id', '=', 'accounts.id')
+                        ->where('transactions.business_id', $business_id)
+                        ->where('transactions.type', 'expense')
+                        ->whereDate('transactions.transaction_date', '>=', $start)
+                        ->whereDate('transactions.transaction_date', '<=', $end)
+                        ->select('accounts.id as account_id', DB::raw('SUM(transactions.final_total) as final_total'))
+                        ->groupBy('accounts.id')->get();
+
+        foreach ($expenses as $row) {
+            $bank_accounts_obj['expenses'][$row['account_id']] = $row['final_total'];
         }
         // services start
 
