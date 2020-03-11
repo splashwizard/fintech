@@ -100,8 +100,8 @@ class SellController extends Controller
                     'transactions.payment_status',
                     'transactions.rp_earned',
                     'transactions.rp_redeemed',
-                    'transactions.final_total as amount',
-                    // 'tp.amount',
+                    // 'transactions.final_total as amount',
+                    'tp.amount',
 //                    'bl.name as business_location',
                     'accounts.name as business_location'
                 );

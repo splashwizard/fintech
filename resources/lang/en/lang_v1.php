@@ -729,7 +729,7 @@ return [
     'fb_link' => 'Facebook Link',
     'twitter_link' => 'Twitter Link',
     'social_media' => 'Social Media :number',
-    'permanent_address' => 'Permanent Address',
+    'permanent_address' => 'Address',
     'current_address' => 'Current Address',
     'guardian_name' => 'Guardian Name',
     'custom_field' => 'Custom Field :number',

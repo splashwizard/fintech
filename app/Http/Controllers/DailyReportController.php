@@ -54,6 +54,7 @@ class DailyReportController extends Controller
         foreach ($banks as $row){
             $banks_obj[$row->id] = $row->name;
         }
+
         $bank_accounts_obj = [];
         foreach ($this->bank_columns as $key=>$bank_column){
             $bank_accounts_obj[$key][0] = $bank_column;
@@ -245,6 +246,32 @@ class DailyReportController extends Controller
             }
         }
         // print_r($service_accounts_obj);exit;
+        // calc total
+        end($banks_obj);
+        $bank_last_key = key($banks_obj);
+        $banks_obj[$bank_last_key + 1] = 'Total';
+
+        foreach($bank_accounts_obj as $bank_key => $bank_obj){
+            $total = 0;
+            foreach($bank_obj as $key => $item){
+                if($key != 0)
+                    $total += $item;
+            }
+            $bank_accounts_obj[$bank_key][$bank_last_key + 1] = $total;
+        }
+
+        end($services_obj);
+        $service_last_key = key($services_obj);
+        $services_obj[$service_last_key + 1] = 'Total';
+
+        foreach($service_accounts_obj as $service_key => $service_obj){
+            $total = 0;
+            foreach($service_obj as $key => $item){
+                if($key != 0)
+                    $total += $item;
+            }
+            $service_accounts_obj[$service_key][$service_last_key + 1] = $total;
+        }
 
         $output['html_content'] = view('daily_report.report_table')->with(compact('banks_obj', 'bank_accounts_obj', 'services_obj', 'service_accounts_obj'))->render();
         return json_encode($output);
