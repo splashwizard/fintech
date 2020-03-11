@@ -161,7 +161,7 @@ class TransactionPaymentController extends Controller
             }
 
             $payments = $payments_query->get();
-                                    
+
             $payment_types = $this->transactionUtil->payment_types();
             
             return view('transaction_payment.show_payments')
