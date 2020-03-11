@@ -69,8 +69,8 @@ class DailyReportController extends Controller
             ->where('business_id', $business_id)
             ->select(['name', 'account_number', 'accounts.note', 'accounts.id as account_id',
                 'is_closed', DB::raw("SUM( IF(AT.type='credit', amount, -1*amount) ) as balance")
-                , DB::raw("SUM( IF(AT.type='credit', amount, 0) ) as total_deposit")
-                , DB::raw("SUM( IF(AT.type='debit', amount, 0) ) as total_withdraw")
+                , DB::raw("SUM( IF(AT.type='credit' AND AT.sub_type !='fund_transfer', amount, 0) ) as total_deposit")
+                , DB::raw("SUM( IF(AT.type='debit' AND AT.sub_type !='fund_transfer', amount, 0) ) as total_withdraw")
                 , DB::raw("SUM( IF(AT.type='credit' AND AT.sub_type='fund_transfer', amount, 0) ) as transfer_in")
                 , DB::raw("SUM( IF(AT.type='debit' AND AT.sub_type='fund_transfer', amount, 0) ) as transfer_out")])
             ->groupBy('accounts.id');
