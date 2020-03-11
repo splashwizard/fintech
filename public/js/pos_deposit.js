@@ -794,6 +794,15 @@ $(document).ready(function() {
 
                             $('#modal_success').modal('show');
                             get_contact_ledger();
+                            
+                            var location_id = $('input#location_id').val();
+                            var category_id = $('select#product_category').val();
+                            var category_id2 = $('select#product_category2').val();
+                            var product_id = $('select#bank_products').val();
+                            var brand_id = $('select#product_brand').val();
+
+                            get_product_suggestion_list(category_id, product_id, brand_id, location_id);
+                            get_product2_suggestion_list(category_id2, product_id, brand_id, location_id);
 
                             //Check if enabled or not
                             // if (result.receipt.is_enabled) {
@@ -1064,7 +1073,9 @@ $(document).ready(function() {
         }
     });
 
-    $(document).on('click', 'div.product_box', function() {
+    $(document).on('click', 'div.product_box', function(e) {
+        if(e.target.tagName == 'BUTTON')
+            return;
         //Check if location is not set then show error message.
         if ($('input#location_id').val() == '') {
             toastr.warning(LANG.select_location);
@@ -1329,6 +1340,7 @@ function get_contact_ledger() {
             __currency_convert_recursively($('#ledger_table'));
 
             $('#ledger_table').DataTable({
+                "dom": 't<"bottom"iflp>', 
                 searchable: false,
                 ordering:false,
                 "footerCallback": function ( row, data, start, end, display ) {

@@ -15,6 +15,7 @@
 	<thead>
 	<tr>
 		<th>Ticket #</th>
+		<th>Bank-in Time</th>
 		<th>ID</th>
 		<th>@lang('account.credit')</th>
 		<th>@lang('account.debit')</th>
@@ -25,12 +26,14 @@
 		<th>@lang('account.service_debit')</th>
 		{{--			<th>@lang('lang_v1.payment_method')</th>--}}
 		<th>Date/Time</th>
+		<th>User</th>
 	</tr>
 	</thead>
 	<tbody>
 	@foreach($ledger as $data)
 		<tr>
 			<td>{!! $data['others'] !!}</td>
+			<td>{!! $data['bank_in_time'] !!}</td>
 			<td>{!! $data['contact_id'] !!}</td>
 			<td>@if($data['credit'] != '') <span class="display_currency" data-currency_symbol="true">{{$data['credit']}}</span> @endif</td>
 			<td>@if($data['debit'] != '') <span class="display_currency" data-currency_symbol="true">{{$data['debit']}}</span> @endif</td>
@@ -41,6 +44,7 @@
 			<td>@if($data['service_debit'] != '') <span class="display_currency" data-currency_symbol="true">{{$data['service_debit']}}</span> @endif</td>
 			{{--				<td>{{$data['payment_method']}}</td>--}}
 			<td>{{@format_datetime($data['date'])}}</td>
+			<td>{{ request()->session()->get('user.first_name').' '.request()->session()->get('user.last_name') }}</td>
 		</tr>
 	@endforeach
 	</tbody>

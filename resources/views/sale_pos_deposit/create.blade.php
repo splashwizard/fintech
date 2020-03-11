@@ -208,7 +208,7 @@
 		</div>
 	</div>
 
-	@component('components.widget', ['class' => 'box-primary', 'title' => __('lang_v1.ledger')])
+	@component('components.widget', ['class' => 'box-primary', 'title' => ''])
 		<div class="row">
 			<div class="col-md-12">
 				<div id="contact_ledger_div"></div>

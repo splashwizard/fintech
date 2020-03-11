@@ -1763,7 +1763,7 @@ class SellPosDepositController extends Controller
         $query2->whereDate('paid_on', '>=', $start)
             ->whereDate('paid_on', '<=', $end);
 
-        $payments = $query2->select('transaction_payments.*', 't.id as transaction_id', 'bl.name as location_name', 't.type as transaction_type', 't.ref_no', 't.invoice_no'
+        $payments = $query2->select('transaction_payments.*', 't.id as transaction_id', 't.bank_in_time as bank_in_time', 'bl.name as location_name', 't.type as transaction_type', 't.ref_no', 't.invoice_no'
             , 'c.id as contact_primary_key', 'c.contact_id as contact_id', 'a.id as account_id', 'a.name as account_name')->get();
 //        $total_deposit = $query2->where('t.type', 'sell')->where('transaction_payments.method', '!=', 'service_transfer')->where('transaction_payments.method','!=', 'bonus')->sum('transaction_payments.amount');
         $paymentTypes = $this->transactionUtil->payment_types();
@@ -1783,7 +1783,8 @@ class SellPosDepositController extends Controller
                     'bonus' => ($payment->transaction_type == 'sell' && $payment->method == 'bonus') ? $payment->amount : 0 ,
                     'service_debit' => ($payment->transaction_type == 'sell_return' && $payment->method == 'service_transfer') ? $payment->amount : 0,
                     'service_credit' => ($payment->transaction_type == 'sell' && $payment->method == 'service_transfer' ) ? $payment->amount : 0,
-                    'others' => '<small>' . $ref_no . '</small>'
+                    'others' => '<small>' . $ref_no . '</small>',
+                    'bank_in_time' => $payment->bank_in_time
                 ];
             } else {
                 $ledger_by_payment[$payment->transaction_id]['debit'] += ($payment->transaction_type == 'sell_return' && $payment->method != 'service_transfer') ? $payment->amount : 0;
