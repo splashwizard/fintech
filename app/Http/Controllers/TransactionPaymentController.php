@@ -9,6 +9,7 @@ use App\Events\TransactionPaymentDeleted;
 
 use App\Events\TransactionPaymentUpdated;
 use App\Transaction;
+use App\User;
 use App\TransactionPayment;
 
 use App\Utils\ModuleUtil;
@@ -362,14 +363,18 @@ class TransactionPaymentController extends Controller
 
                 $payment_line = new TransactionPayment();
                 $payment_line->amount = $amount;
-                $payment_line->method = 'cash';
+                $payment_line->method = 'bank_transfer';
                 $payment_line->paid_on = \Carbon::now()->toDateString();
+
+                $user = User::where('id', $transaction->expense_for)->get()[0];
+                $bank_account_detail_obj = !empty($user->bank_details) ? json_decode($user->bank_details, true) : null;
+                $bank_account_detail = !empty($bank_account_detail_obj) ? $bank_account_detail_obj['account_holder_name'].':'.$bank_account_detail_obj['account_number'] : null;
 
                 //Accounts
                 $accounts = $this->moduleUtil->accountsDropdown($business_id, true);
 
                 $view = view('transaction_payment.payment_row')
-                ->with(compact('transaction', 'payment_types', 'payment_line', 'amount_formated', 'accounts'))->render();
+                ->with(compact('transaction', 'payment_types', 'payment_line', 'amount_formated', 'accounts', 'bank_account_detail'))->render();
 
                 $output = [ 'status' => 'due',
                                     'view' => $view];

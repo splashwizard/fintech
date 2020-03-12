@@ -115,6 +115,12 @@
             {!! Form::textarea("note", $payment_line->note, ['class' => 'form-control', 'rows' => 3]); !!}
           </div>
         </div>
+        {{-- <div class="col-md-12">
+          <div class="form-group">
+            {!! Form::label("note",'Bank Account Detail:') !!}
+            {!! Form::text("note", '', ['class' => 'form-control', 'readonly']); !!}
+          </div>
+        </div> --}}
       </div>
     </div>
 

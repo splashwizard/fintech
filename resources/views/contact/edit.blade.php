@@ -119,6 +119,21 @@
               </div>
           </div>
       @endforeach
+      <div class="col-md-12">
+        <hr/>
+      </div>
+      <div class="form-group col-md-3">
+        {!! Form::label('account_holder_name', __( 'lang_v1.account_holder_name') . ':') !!}
+        {!! Form::text('bank_details[account_holder_name]', !empty($bank_details['account_holder_name']) ? $bank_details['account_holder_name'] : null , ['class' => 'form-control', 'id' => 'account_holder_name', 'placeholder' => __( 'lang_v1.account_holder_name') ]); !!}
+      </div>
+      <div class="form-group col-md-3">
+          {!! Form::label('account_number', __( 'lang_v1.account_number') . ':') !!}
+          {!! Form::text('bank_details[account_number]', !empty($bank_details['account_number']) ? $bank_details['account_number'] : null, ['class' => 'form-control', 'id' => 'account_number', 'placeholder' => __( 'lang_v1.account_number') ]); !!}
+      </div>
+      <div class="form-group col-md-3">
+          {!! Form::label('bank_name', __( 'lang_v1.bank_name') . ':') !!}
+          {!! Form::text('bank_details[bank_name]', !empty($bank_details['bank_name']) ? $bank_details['bank_name'] : null, ['class' => 'form-control', 'id' => 'bank_name', 'placeholder' => __( 'lang_v1.bank_name') ]); !!}
+      </div>
     </div>
     </div>
 

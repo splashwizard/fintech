@@ -387,7 +387,7 @@ class ContactController extends Controller
         $customer_groups = CustomerGroup::forDropdown($business_id);
 
         return view('contact.create')
-            ->with(compact('types', 'customer_groups'));
+            ->with(compact('types', 'customer_groups', 'type'));
     }
 
     /**
@@ -416,6 +416,8 @@ class ContactController extends Controller
             $input['created_by'] = $request->session()->get('user.id');
 
             $input['credit_limit'] = $request->input('credit_limit') != '' ? $this->commonUtil->num_uf($request->input('credit_limit')) : null;
+            $bank_details = $request->get('bank_details');
+            $input['bank_details'] = !empty($bank_details) ? json_encode($bank_details) : null;
 
             //Check Contact id
             $count = 0;
@@ -553,9 +555,10 @@ class ContactController extends Controller
             foreach ($game_data as $game){
                 $game_ids[$game->service_id] = $game->game_id;
             }
+            $bank_details = !empty($contact->bank_details) ? json_decode($contact->bank_details, true) : null;
 
             return view('contact.edit')
-                ->with(compact('contact', 'types', 'customer_groups', 'opening_balance', 'services', 'game_ids'));
+                ->with(compact('contact', 'bank_details', 'types', 'customer_groups', 'opening_balance', 'services', 'game_ids'));
         }
     }
 
@@ -621,7 +624,8 @@ class ContactController extends Controller
 
         if (request()->ajax()) {
             try {
-                $input = $request->only(['type', 'supplier_business_name', 'name', 'tax_number', 'pay_term_number', 'pay_term_type', 'mobile', 'landline', 'alternate_number', 'city', 'state', 'country', 'landmark', 'customer_group_id', 'contact_id', 'custom_field1', 'custom_field2', 'custom_field3', 'custom_field4', 'email']);
+                $input = $request->only(['type', 'supplier_business_name', 'name', 'tax_number', 'pay_term_number', 'pay_term_type', 'mobile', 'landline', 'alternate_number', 
+                    'city', 'state', 'country', 'landmark', 'customer_group_id', 'contact_id', 'custom_field1', 'custom_field2', 'custom_field3', 'custom_field4', 'email']);
 
                 $input['credit_limit'] = $request->input('credit_limit') != '' ? $this->commonUtil->num_uf($request->input('credit_limit')) : null;
                 
@@ -647,6 +651,7 @@ class ContactController extends Controller
                     foreach ($input as $key => $value) {
                         $contact->$key = $value;
                     }
+                    $contact->bank_details = json_encode($request->get('bank_details'));
                     $contact->save();
                     foreach ($game_ids as $service_id => $game_id){
                         if(!empty($game_id)){
@@ -1113,6 +1118,17 @@ class ContactController extends Controller
         }
 
         return redirect()->action('ContactController@index', ['type' => 'supplier'])->with('status', $output);
+    }
+
+    public function getBankDetail()
+    {
+        if(request()->ajax()){
+            $user_id = request()->get('user_id');
+            $user = Contact::find($user_id);
+            $bank_account_detail_obj = !empty($user->bank_details) ? json_decode($user->bank_details, true) : null;
+            $bank_account_detail = !empty($bank_account_detail_obj) ? $bank_account_detail_obj['account_holder_name'].':'.$bank_account_detail_obj['account_number'] : null;
+            return json_encode(['bank_account_detail'=> $bank_account_detail]);
+        }
     }
 
     /**

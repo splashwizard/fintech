@@ -109,6 +109,7 @@ function update_statistics(start, end) {
         dataType: 'json',
         data: data,
         success: function(data) {
+            $('#bank_service_part').html(data.bank_service_part_html);
             //purchase details
             $('.total_deposit').html(__currency_trans_from_en(data.total_deposit, true));
             $('.deposit_tickets').html(data.deposit_count);

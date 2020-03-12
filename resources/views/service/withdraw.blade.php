@@ -22,19 +22,28 @@
             </div>
 
             <div class="form-group">
+                {!! Form::label('withdraw_mode', __( 'account.withdraw_mode' ) .":*") !!}
+                {!! Form::select('withdraw_mode', $withdraw_mode, null, ['class' => 'form-control', 'required' ]); !!}
+            </div>
+
+            <div class="form-group">
                 {!! Form::label('withdraw_to', __( 'account.withdraw_to' ) .":*") !!}
                 {!! Form::select('withdraw_to', $to_users, null, ['class' => 'form-control', 'required', 'style' => 'width:100%' ]); !!}
             </div>
 
-            <div class="form-group">
-                {!! Form::label('withdraw_mode', __( 'account.withdraw_mode' ) .":*") !!}
-                {!! Form::select('withdraw_mode', $withdraw_mode, null, ['class' => 'form-control', 'required' ]); !!}
+            <div class="col-md-12">
+                <div class="form-group">
+                    {!! Form::label("bank_account_detail",'Bank Account Detail') !!}
+                    {{-- {!! Form::text( "bank_account_number", $payment_line->bank_account_number, ['class' => 'form-control', 'placeholder' => 'Bank Account No', 'readonly']); !!} --}}
+                    {!! Form::text( "bank_account_detail", '', ['id' => 'bank_account_detail', 'class' => 'form-control', 'placeholder' => 'Bank Account Detail', 'readonly']); !!}
+                </div>
             </div>
 
             <div class="form-group" id="bank_div">
                 {!! Form::label('bank_account_id', __( 'account.via_account' ) .":*") !!}
                 {!! Form::select('bank_account_id', $bank_accounts, null, ['class' => 'form-control', 'required' ]); !!}
             </div>
+
             <div class="form-group" id="service_div" style="display: none">
                 {!! Form::label('service_id', __( 'account.via_account' ) .":*") !!}
                 {!! Form::select('service_id', $service_accounts, null, ['class' => 'form-control', 'required' ]); !!}
@@ -176,6 +185,27 @@
             escapeMarkup: function (markup) {
                 return markup;
             },
+        });
+        $.ajax({
+                method: $(this).attr('method'),
+                url: '/contacts/bank_detail',
+                dataType: 'json',
+                data: {user_id: $('#withdraw_to').val()},
+                success: function(result) {
+                    $('#bank_account_detail').val(result.bank_account_detail);
+                }
+            });
+        $('#withdraw_to').on("select2:select", function(e) {
+            // what you would like to happen
+            $.ajax({
+                method: $(this).attr('method'),
+                url: '/contacts/bank_detail',
+                dataType: 'json',
+                data: {user_id: $('#withdraw_to').val()},
+                success: function(result) {
+                    $('#bank_account_detail').val(result.bank_account_detail);
+                }
+            });
         });
     });
 </script>

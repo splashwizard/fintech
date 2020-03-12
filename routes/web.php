@@ -66,6 +66,7 @@ Route::middleware(['IsInstalled', 'auth', 'SetSessionData', 'language', 'timezon
     Route::resource('units', 'UnitController');
 
     Route::get('/contacts/ledger', 'ContactController@getLedger');
+    Route::get('/contacts/bank_detail', 'ContactController@getBankDetail');
     Route::get('/contacts/import', 'ContactController@getImportContacts')->name('contacts.import');
     Route::post('/contacts/import', 'ContactController@postImportContacts');
     Route::post('/contacts/check-contact-id', 'ContactController@checkContactId');

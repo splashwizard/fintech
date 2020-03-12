@@ -56,8 +56,9 @@
 <div class="payment_details_div @if( $payment_line->method !== 'bank_transfer' ) {{ 'hide' }} @endif" data-type="bank_transfer" >
 	<div class="col-md-12">
 		<div class="form-group">
-			{!! Form::label("bank_account_number",'Bank Account No') !!}
-			{!! Form::text( "bank_account_number", $payment_line->bank_account_number, ['class' => 'form-control', 'placeholder' => 'Bank Account No']); !!}
+			{!! Form::label("bank_account_detail",'Bank Account Detail') !!}
+			{{-- {!! Form::text( "bank_account_number", $payment_line->bank_account_number, ['class' => 'form-control', 'placeholder' => 'Bank Account No', 'readonly']); !!} --}}
+			{!! Form::text( "bank_account_detail", $bank_account_detail, ['class' => 'form-control', 'placeholder' => 'Bank Account Detail', 'readonly']); !!}
 		</div>
 	</div>
 </div>
