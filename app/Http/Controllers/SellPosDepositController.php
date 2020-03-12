@@ -1755,7 +1755,7 @@ class SellPosDepositController extends Controller
             ->where('t.business_id', $business_id)
             ->where('t.status', '!=', 'draft');
 
-        $start = date('Y-m-d', strtotime('today'));
+        $start = date('Y-m-d', strtotime('yesterday'));
         $end = date('Y-m-d', strtotime('today'));
         $query1->whereDate('transactions.transaction_date', '>=', $start)
             ->whereDate('transactions.transaction_date', '<=', $end);
@@ -1764,13 +1764,14 @@ class SellPosDepositController extends Controller
             ->whereDate('paid_on', '<=', $end);
 
         $payments = $query2->select('transaction_payments.*', 't.id as transaction_id', 't.bank_in_time as bank_in_time', 'bl.name as location_name', 't.type as transaction_type', 't.ref_no', 't.invoice_no'
-            , 'c.id as contact_primary_key', 'c.contact_id as contact_id', 'a.id as account_id', 'a.name as account_name')->get();
+            , 'c.id as contact_primary_key', 'c.contact_id as contact_id', 'a.id as account_id', 'a.name as account_name', 't.created_by as created_by')->get();
 //        $total_deposit = $query2->where('t.type', 'sell')->where('transaction_payments.method', '!=', 'service_transfer')->where('transaction_payments.method','!=', 'bonus')->sum('transaction_payments.amount');
         $paymentTypes = $this->transactionUtil->payment_types();
         $ledger_by_payment = [];
         foreach ($payments as $payment) {
             if(empty($ledger_by_payment[$payment->transaction_id])){
                 $ref_no = in_array($payment->transaction_type, ['sell', 'sell_return']) ?  $payment->invoice_no :  $payment->ref_no;
+                $user = User::find($payment->created_by);
                 $ledger_by_payment[$payment->transaction_id] = [
                     'date' => $payment->paid_on,
                     'ref_no' => $payment->payment_ref_no,
@@ -1784,7 +1785,8 @@ class SellPosDepositController extends Controller
                     'service_debit' => ($payment->transaction_type == 'sell_return' && $payment->method == 'service_transfer') ? $payment->amount : 0,
                     'service_credit' => ($payment->transaction_type == 'sell' && $payment->method == 'service_transfer' ) ? $payment->amount : 0,
                     'others' => '<small>' . $ref_no . '</small>',
-                    'bank_in_time' => $payment->bank_in_time
+                    'bank_in_time' => $payment->bank_in_time,
+                    'user' => $user['first_name'].' '.$user['last_name']
                 ];
             } else {
                 $ledger_by_payment[$payment->transaction_id]['debit'] += ($payment->transaction_type == 'sell_return' && $payment->method != 'service_transfer') ? $payment->amount : 0;

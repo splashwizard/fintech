@@ -48,7 +48,7 @@ class DailyReportController extends Controller
     function getTableData(){
         $categories = null;
         $business_id = request()->session()->get('user.business_id');
-        $banks = Account::where('business_id', $business_id)->where('is_service', 0)->get();
+        $banks = Account::where('business_id', $business_id)->where('is_service', 0)->where('name', '!=', 'Bonus Account')->get();
         $banks_obj = [];
         $banks_obj[0] = '';
         foreach ($banks as $row){
@@ -67,6 +67,7 @@ class DailyReportController extends Controller
             $join->whereNull('AT.deleted_at');
         })
             ->where('is_service', 0)
+            ->where('name', '!=', 'Bonus Account')
             ->where('business_id', $business_id)
             ->select(['name', 'account_number', 'accounts.note', 'accounts.id as account_id',
                 'is_closed', DB::raw("SUM( IF(AT.type='credit', amount, -1*amount) ) as balance")

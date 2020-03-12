@@ -44,7 +44,7 @@
 			<td>@if($data['service_debit'] != '') <span class="display_currency" data-currency_symbol="true">{{$data['service_debit']}}</span> @endif</td>
 			{{--				<td>{{$data['payment_method']}}</td>--}}
 			<td>{{@format_datetime($data['date'])}}</td>
-			<td>{{ request()->session()->get('user.first_name').' '.request()->session()->get('user.last_name') }}</td>
+			<td>{{ $data['user'] }}</td>
 		</tr>
 	@endforeach
 	</tbody>

@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @php
-    $user = auth()->user();
-    $is_superadmin = $user->hasRole('Superadmin');
+    $login_user = auth()->user();
+    $is_superadmin = $login_user->hasRole('Superadmin');
 @endphp
 @section('title', __( 'user.edit_user' ))
 

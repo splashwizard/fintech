@@ -13,12 +13,8 @@
 				@if($product->type == 'variable')
 					- {{$product->variation}}
 				@endif
+					<span class="text-red">({{$product->balance}})</span>
 				</small>
-			</div>
-			<div>
-			<small class="text-muted product_balance">
-				({{$product->balance}})
-			</small>
 			</div>
 			@if($product->category_id === 67)
 				<button data-href="{{action('ServiceController@getWithdraw',[$product->account_id])}}" style="margin: 5px 0 5px 0" class="btn btn-xs btn-primary btn-modal" data-container=".view_modal"><i class="fa fa-money"></i> @lang("account.withdraw")</button>

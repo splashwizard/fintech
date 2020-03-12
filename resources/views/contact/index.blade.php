@@ -18,7 +18,7 @@
 <section class="content">
     <input type="hidden" value="{{$type}}" id="contact_type">
     @component('components.widget', ['class' => 'box-primary', 'title' => __( 'contact.all_your_contact', ['contacts' => __('lang_v1.'.$type.'s') ])])
-        @if(auth()->user()->can('supplier.create') || auth()->user()->can('customer.create'))
+        @if( (auth()->user()->can('supplier.create') || auth()->user()->can('customer.create')) && $type != 'blacklisted_customer' )
             @slot('tool')
                 <div class="box-tools">
                     <button type="button" class="btn btn-block btn-primary btn-modal" 
