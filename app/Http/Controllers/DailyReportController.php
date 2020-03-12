@@ -70,8 +70,8 @@ class DailyReportController extends Controller
             ->where('business_id', $business_id)
             ->select(['name', 'account_number', 'accounts.note', 'accounts.id as account_id',
                 'is_closed', DB::raw("SUM( IF(AT.type='credit', amount, -1*amount) ) as balance")
-                , DB::raw("SUM( IF(AT.type='credit' AND AT.sub_type !='fund_transfer', amount, 0) ) as total_deposit")
-                , DB::raw("SUM( IF(AT.type='debit' AND AT.sub_type !='fund_transfer', amount, 0) ) as total_withdraw")
+                , DB::raw("SUM( IF( AT.type='credit' AND (AT.sub_type IS NULL OR AT.`sub_type` != 'fund_transfer'), AT.amount, 0) ) as total_deposit")
+                , DB::raw("SUM( IF( AT.type='debit' AND (AT.sub_type IS NULL OR AT.`sub_type` != 'fund_transfer'), AT.amount, 0) ) as total_withdraw")
                 , DB::raw("SUM( IF(AT.type='credit' AND AT.sub_type='fund_transfer', amount, 0) ) as transfer_in")
                 , DB::raw("SUM( IF(AT.type='debit' AND AT.sub_type='fund_transfer', amount, 0) ) as transfer_out")])
             ->groupBy('accounts.id');
@@ -101,7 +101,7 @@ class DailyReportController extends Controller
             ->join('transactions as t', 't.id', 'tp.transaction_id')
             ->where('accounts.is_service', 0)
             ->where('accounts.business_id', $business_id)
-            ->select('accounts.id as account_id', DB::raw("SUM( IF(t.type = 'sell' && t.payment_status = 'cancelled', final_total, 0) ) as back"))
+            ->select('accounts.id as account_id', DB::raw("SUM( IF(t.type = 'sell' AND t.payment_status = 'cancelled' , tp.amount, 0) ) as back"))
             ->groupBy('accounts.id');
         if (!empty(request()->start_date) && !empty(request()->end_date)) {
             $bank_accounts_sql->whereDate('t.transaction_date', '>=', $start)
@@ -159,8 +159,8 @@ class DailyReportController extends Controller
                         ->leftJoin('accounts', 'tp.account_id', '=', 'accounts.id')
                         ->where('transactions.business_id', $business_id)
                         ->where('transactions.type', 'expense')
-                        ->whereDate('transactions.transaction_date', '>=', $start)
-                        ->whereDate('transactions.transaction_date', '<=', $end)
+                        ->whereDate('tp.paid_on', '>=', $start)
+                        ->whereDate('tp.paid_on', '<=', $end)
                         ->select('accounts.id as account_id', DB::raw('SUM(transactions.final_total) as final_total'))
                         ->groupBy('accounts.id')->get();
 

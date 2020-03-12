@@ -1210,7 +1210,7 @@ class SellPosController extends Controller
                 DB::commit();
                 $output = [
                     'success' => true,
-                    'msg' => __('lang_v1.sale_delete_success')
+                    'msg' => __('lang_v1.sale_cancel_success')
                 ];
             } catch (\Exception $e) {
                 DB::rollBack();

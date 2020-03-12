@@ -116,8 +116,8 @@ class TransactionPaymentController extends Controller
 
                 //update payment status
                 $this->transactionUtil->updatePaymentStatus($transaction_id, $transaction->final_total);
-//                $inputs['transaction_type'] = $transaction->type;
-//                event(new TransactionPaymentAdded($tp, $inputs));
+               $inputs['transaction_type'] = $transaction->type;
+               event(new TransactionPaymentAdded($tp, $inputs));
                 DB::commit();
             }
 
