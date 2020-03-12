@@ -2,6 +2,7 @@
   <div class="modal-content">
 
     {!! Form::open(['url' => action('ContactController@update', [$contact->id]), 'method' => 'PUT', 'id' => 'contact_edit_form']) !!}
+    {!! Form::hidden('customer_type', $customer_type); !!}
 
     <div class="modal-header">
       <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -70,6 +71,12 @@
                 </span>
                 {!! Form::text('mobile', $contact->mobile, ['class' => 'form-control', 'required', 'placeholder' => __('contact.mobile')]); !!}
             </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="form-group">
+          {!! Form::label('remark', __('contact.remark') . ':*') !!}
+          {!! Form::text('remark', $contact->remark, ['class' => 'form-control','placeholder' => __('contact.remark'), 'required']); !!}
         </div>
       </div>
 

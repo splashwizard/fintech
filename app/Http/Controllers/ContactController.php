@@ -224,7 +224,7 @@ class ContactController extends Controller
                     <li><a href="{{action(\'ContactController@show\', [$id])}}"><i class="fa fa-external-link" aria-hidden="true"></i> @lang("messages.view")</a></li>
                 @endcan
                 @can("customer.update")
-                    <li><a href="{{action(\'ContactController@edit\', [$id])}}" class="edit_contact_button"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</a></li>
+                    <li><a href="{{action(\'ContactController@edit\', [$id])}}?type=customer" class="edit_contact_button"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</a></li>
                     <li><a href="{{action(\'ContactController@blacklist\', [$id])}}" class="edit_blacklist_button"><i class="glyphicon glyphicon-edit"></i> @lang("messages.blacklist")</a></li>
                 @endcan
                 @if(!$is_default)
@@ -322,7 +322,7 @@ class ContactController extends Controller
                     <li><a href="{{action(\'ContactController@show\', [$id])}}"><i class="fa fa-external-link" aria-hidden="true"></i> @lang("messages.view")</a></li>
                 @endcan
                 @can("customer.update")
-                    <li><a href="{{action(\'ContactController@edit\', [$id])}}" class="edit_contact_button"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</a></li>
+                    <li><a href="{{action(\'ContactController@edit\', [$id])}}?type=blacklisted_customer" class="edit_contact_button"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</a></li>
                     <li><a href="{{action(\'ContactController@blacklist\', [$id])}}" class="edit_blacklist_button"><i class="glyphicon glyphicon-edit"></i> @lang("messages.blacklist")</a></li>
                 @endcan
                 @if(!$is_default)
@@ -367,6 +367,7 @@ class ContactController extends Controller
         }
 
         $business_id = request()->session()->get('user.business_id');
+        $type = request()->get('type');
 
         //Check if subscribed or not
         if (!$this->moduleUtil->isSubscribed($business_id)) {
@@ -418,6 +419,12 @@ class ContactController extends Controller
             $input['credit_limit'] = $request->input('credit_limit') != '' ? $this->commonUtil->num_uf($request->input('credit_limit')) : null;
             $bank_details = $request->get('bank_details');
             $input['bank_details'] = !empty($bank_details) ? json_encode($bank_details) : null;
+            
+            $type = $request->get('type');
+            if($type == 'blacklisted_customer'){
+                $input['remark'] = $request->get('remark');
+                $input['blacked_by_user'] = $request->session()->get('user.first_name').' '.$request->session()->get('user.last_name');
+            }
 
             //Check Contact id
             $count = 0;
@@ -521,6 +528,7 @@ class ContactController extends Controller
                 return $this->moduleUtil->expiredResponse();
             }
 
+            $customer_type = request()->get('type');
             $types = [];
             if (auth()->user()->can('supplier.create')) {
                 $types['supplier'] = __('report.supplier');
@@ -558,7 +566,7 @@ class ContactController extends Controller
             $bank_details = !empty($contact->bank_details) ? json_decode($contact->bank_details, true) : null;
 
             return view('contact.edit')
-                ->with(compact('contact', 'bank_details', 'types', 'customer_groups', 'opening_balance', 'services', 'game_ids'));
+                ->with(compact('contact', 'bank_details', 'types', 'customer_groups', 'opening_balance', 'services', 'game_ids', 'customer_type'));
         }
     }
 
@@ -652,6 +660,12 @@ class ContactController extends Controller
                         $contact->$key = $value;
                     }
                     $contact->bank_details = json_encode($request->get('bank_details'));
+                    $type = $request->get('customer_type');
+                    if($type == 'blacklisted_customer'){
+                        $contact->remark = $request->get('remark');
+                        $contact->blacked_by_user = $request->session()->get('user.first_name').' '.$request->session()->get('user.last_name');
+                    }
+
                     $contact->save();
                     foreach ($game_ids as $service_id => $game_id){
                         if(!empty($game_id)){

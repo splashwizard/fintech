@@ -7,6 +7,7 @@
     }
   @endphp
     {!! Form::open(['url' => action('ContactController@store'), 'method' => 'post', 'id' => $form_id ]) !!}
+    {!! Form::hidden('type', $type); !!}
 
     <div class="modal-header">
       <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -72,6 +73,12 @@
                 </span>
                 {!! Form::text('mobile', null, ['class' => 'form-control', 'required', 'placeholder' => __('contact.mobile')]); !!}
             </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="form-group">
+          {!! Form::label('remark', __('contact.remark') . ':*') !!}
+          {!! Form::text('remark', null, ['class' => 'form-control','placeholder' => __('contact.remark'), 'required']); !!}
         </div>
       </div>
       <div class="clearfix"></div>
