@@ -5,6 +5,9 @@
     if(isset($quick_add)){
     $form_id = 'quick_add_contact';
     }
+    if(!isset($type)){
+      $type = 'customer';
+    }
   @endphp
     {!! Form::open(['url' => action('ContactController@store'), 'method' => 'post', 'id' => $form_id ]) !!}
     {!! Form::hidden('type', $type); !!}
