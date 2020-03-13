@@ -57,8 +57,18 @@
 	<div class="col-md-12">
 		<div class="form-group">
 			{!! Form::label("bank_account_detail",'Bank Account Detail') !!}
+			<div class="row">
 			{{-- {!! Form::text( "bank_account_number", $payment_line->bank_account_number, ['class' => 'form-control', 'placeholder' => 'Bank Account No', 'readonly']); !!} --}}
-			{!! Form::text( "bank_account_detail", $bank_account_detail, ['class' => 'form-control', 'placeholder' => 'Bank Account Detail', 'readonly']); !!}
+				<div class="col-md-4">
+					{!! Form::text( "account_holder", $account_holder, ['class' => 'form-control', 'placeholder' => 'Account Holder Name', 'readonly']); !!}
+				</div>
+				<div class="col-md-4">
+					{!! Form::text( "account_number", $account_number, ['class' => 'form-control', 'placeholder' => 'Account Number', 'readonly']); !!}
+				</div>
+				<div class="col-md-4">
+					{!! Form::text( "bank_name", $bank_name, ['class' => 'form-control', 'placeholder' => 'Bank Name', 'readonly']); !!}
+				</div>
+			</div>
 		</div>
 	</div>
 </div>

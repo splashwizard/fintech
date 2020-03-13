@@ -223,6 +223,8 @@ class DailyReportController extends Controller
 
         $service_accounts_sql = Account::join('transaction_payments as tp', 'tp.account_id', 'accounts.id')
             ->where('accounts.business_id', $business_id)
+            ->whereDate('tp.paid_on', '>=', $start)
+            ->whereDate('tp.paid_on', '<=', $end)
             ->select('method', 'tp.amount', 'account_id', 'transaction_id');
         $payments_data = $service_accounts_sql->get();
         $temp = [];

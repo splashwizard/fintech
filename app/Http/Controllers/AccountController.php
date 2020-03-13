@@ -725,12 +725,12 @@ class AccountController extends Controller
                     $input['document'] = $document_name;
                 }
                 $transaction = $this->transactionUtil->createSellReturnTransaction($business_id, $input, $invoice_total, $user_id);
-                $this->transactionUtil->createWithDrawPaymentLine($transaction, $user_id, $account_id, $account->service_charge);
+                $this->transactionUtil->createWithDrawPaymentLine($transaction, $user_id, $account_id, 0);
                 $this->transactionUtil->updateCustomerRewardPoints($contact_id, 0, 0, $transaction->rp_redeemed);
 
                 $debit_data = [
-                    // 'amount' => $amount + $account->service_charge,
-                    'amount' => $amount,
+                    'amount' => $amount + $account->service_charge,
+                    // 'amount' => $amount,
                     'account_id' => $account_id,
                     'type' => 'debit',
                     'sub_type' => 'withdraw',
