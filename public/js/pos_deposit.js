@@ -72,6 +72,21 @@ $(document).ready(function() {
         },
     });
     $('#customer_id').on('select2:select', function(e) {
+        var text = $('#customer_id').select2('data')[0].text;
+        if( text == "Unclaimed Trans") {
+            $('#service_box').hide();
+            $('#bank_in_time').attr('readonly', '');
+        } else {
+            $('#service_box').show();
+            $('#bank_in_time').removeAttr('readonly');
+        }
+
+        var location_id = $('input#location_id').val();
+        var category_id = $('select#product_category').val();
+        var product_id = $('select#bank_products').val();
+        var brand_id = $('select#product_brand').val();
+
+        get_product_suggestion_list(category_id, product_id, brand_id, location_id);
         // var data = e.params.data;
         // if (data.pay_term_number) {
         //     $('input#pay_term_number').val(data.pay_term_number);
@@ -87,6 +102,15 @@ $(document).ready(function() {
     });
 
     set_default_customer();
+
+    var text = $('#customer_id').select2('data')[0].text;
+    if( text == "Unclaimed Trans" && !edit_page) {
+        $('#service_box').hide();
+        $('#bank_in_time').attr('readonly', '');
+    } else {
+        $('#service_box').show();
+        $('#bank_in_time').removeAttr('readonly');
+    }
 
     //Add Product
     // $('#search_product')
@@ -401,6 +425,11 @@ $(document).ready(function() {
 
     //Remove row on click on remove row
     $('table#pos_table tbody').on('click', 'i.pos_remove_row', function() {
+        if($('#customer_id').select2('data')[0].text == "Unclaimed Trans" && edit_page){
+            var parentTr = $(this).parents('tr');
+            if(parentTr.find('.category_id').val() == 66 && parentTr.find('.p_name').val() != 'Bonus')
+                return;
+        }
         $(this)
             .parents('tr').next()
             .remove();
@@ -601,7 +630,7 @@ $(document).ready(function() {
             toastr.warning(LANG.no_products_added);
             return false;
         }
-        if($('#total_earned').html() !== $('#total_redeemed').html()){
+        if($('#customer_id').select2('data')[0].text != "Unclaimed Trans" && $('#total_earned').html() !== $('#total_redeemed').html()){
             toastr.warning(LANG.deposit_incoincidence_error);
             return false;
         }
@@ -1089,7 +1118,6 @@ $(document).ready(function() {
             let data = new FormData(pos_form_obj[0]);
             data.append('test','sdf');
             data.delete('_method');
-            console.log('Here');
             $.ajax({
                 method:'POST',
                 url: '/sells/pos_deposit/get_payment_rows',
@@ -1403,6 +1431,8 @@ function get_product_suggestion_list(category_id, product_id, brand_id, location
         $('#suggestion_page_loader').fadeOut(700);
         return false;
     }
+    console.log($('#customer_id').select2('data')[0].text);
+    var is_unclaimed = $('#customer_id').select2('data')[0].text == "Unclaimed Trans" ? 1 : 0;
     $.ajax({
         method: 'GET',
         url: url,
@@ -1412,6 +1442,8 @@ function get_product_suggestion_list(category_id, product_id, brand_id, location
             brand_id: brand_id,
             location_id: location_id,
             page: page,
+            is_unclaimed: is_unclaimed,
+            edit_page: edit_page
         },
         dataType: 'html',
         success: function(result) {

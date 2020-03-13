@@ -238,6 +238,7 @@
 @section('javascript')
 	<script>
 		const basic_bonus_rate = '{{session()->get('business')['basic_bonus']}}';
+		const edit_page = 0;
 	</script>
 	<script src="{{ asset('js/pos_deposit.js?v=' . $asset_v) }}"></script>
 	<script src="{{ asset('js/printer.js?v=' . $asset_v) }}"></script>

@@ -136,7 +136,7 @@
 						<div class="@if(!empty($commission_agent)) col-sm-8 @else col-sm-6 @endif">
 							<div style="float: right">
 								{!! Form::label('bank_in_time', 'Bank-in Time:') !!}
-								<input type="time" name="bank_in_time" value="@php echo date("h:i", strtotime('now')); @endphp">
+								<input type="time" name="bank_in_time" id="bank_in_time" value="@php echo date("h:i", strtotime('now')); @endphp">
 							</div>
 						</div>
 						<input type="hidden" name="pay_term_number" id="pay_term_number" value="{{$transaction->pay_term_number}}">
@@ -259,6 +259,7 @@
 @section('javascript')
 	<script>
 		const basic_bonus_rate = '{{session()->get('business')['basic_bonus']}}';
+		const edit_page = 1;
 	</script>
 	<script src="{{ asset('js/pos_deposit.js?v=' . $asset_v) }}"></script>
 	<script src="{{ asset('js/printer.js?v=' . $asset_v) }}"></script>

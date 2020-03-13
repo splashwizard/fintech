@@ -1609,6 +1609,8 @@ class SellPosDepositController extends Controller
             $brand_id = $request->get('brand_id');
             $location_id = $request->get('location_id');
             $term = $request->get('term');
+            $is_unclaimed = $request->get('is_unclaimed');
+            $edit_page = $request->get('edit_page');
 
             $check_qty = false;
             $business_id = $request->session()->get('user.business_id');
@@ -1642,6 +1644,12 @@ class SellPosDepositController extends Controller
                 ->where('p.type', '!=', 'modifier')
                 ->where('p.is_inactive', 0)
                 ->where('p.not_for_selling', 0);
+            if($is_unclaimed){
+                if($edit_page)
+                    $products->where('accounts.name', '=', 'Bonus Account');
+                else
+                    $products->where('accounts.name', '!=', 'Bonus Account');
+            }
 
             //Include search
             if (!empty($term)) {
