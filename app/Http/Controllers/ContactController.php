@@ -280,7 +280,8 @@ class ContactController extends Controller
                 DB::raw("SUM(IF(t.type = 'sell' AND t.status = 'final', final_total, 0)) as total_invoice"),
 //                        DB::raw("1000 as total_invoice"),
                 DB::raw("SUM(IF(t.type = 'sell' AND t.status = 'final', (SELECT SUM(IF(is_return = 1,-1*amount,amount)) FROM transaction_payments WHERE transaction_payments.transaction_id=t.id), 0)) as invoice_received"),
-                DB::raw("SUM(IF( t.type = 'sell_return' AND (SELECT transaction_payments.method FROM transaction_payments WHERE transaction_payments.transaction_id=t.id) = 'bank_transfer', final_total, 0)) as total_sell_return"),
+                // DB::raw("SUM(IF( t.type = 'sell_return' AND (SELECT transaction_payments.method FROM transaction_payments WHERE transaction_payments.transaction_id=t.id) = 'bank_transfer', final_total, 0)) as total_sell_return"),
+                DB::raw("SUM(IF(t.type = 'sell_return', final_total, 0)) as total_sell_return"),
                 DB::raw("SUM(IF(t.type = 'sell_return', (SELECT SUM(amount) FROM transaction_payments WHERE transaction_payments.transaction_id=t.id), 0)) as sell_return_paid"),
                 DB::raw("SUM(IF(t.type = 'opening_balance', final_total, 0)) as opening_balance"),
                 DB::raw("SUM(IF(t.type = 'opening_balance', (SELECT SUM(IF(is_return = 1,-1*amount,amount)) FROM transaction_payments WHERE transaction_payments.transaction_id=t.id), 0)) as opening_balance_paid")
