@@ -1372,6 +1372,66 @@ class ReportController extends Controller
             ->with(compact('customer_group', 'business_locations'));
     }
 
+
+    /**
+     * Shows product stock expiry report
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function getDisplayGroup(Request $request)
+    {
+        if (!auth()->user()->can('contacts_report.view')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $business_id = $request->session()->get('user.business_id');
+
+        if ($request->ajax()) {
+            $query = Transaction::leftjoin('customer_groups AS CG', 'transactions.customer_group_id', '=', 'CG.id')
+                ->where('transactions.business_id', $business_id)
+                ->where('transactions.type', 'sell')
+                ->where('transactions.status', 'final')
+                ->groupBy('transactions.customer_group_id')
+                ->select(DB::raw("SUM(final_total) as total_sell"), 'CG.name');
+
+            $group_id = $request->get('customer_group_id', null);
+            if (!empty($group_id)) {
+                $query->where('transactions.customer_group_id', $group_id);
+            }
+
+            $permitted_locations = auth()->user()->permitted_locations();
+            if ($permitted_locations != 'all') {
+                $query->whereIn('transactions.location_id', $permitted_locations);
+            }
+
+            $location_id = $request->get('location_id', null);
+            if (!empty($location_id)) {
+                $query->where('transactions.location_id', $location_id);
+            }
+
+            $start_date = $request->get('start_date');
+            $end_date = $request->get('end_date');
+
+            if (!empty($start_date) && !empty($end_date)) {
+                $query->whereBetween(DB::raw('date(transaction_date)'), [$start_date, $end_date]);
+            }
+
+
+            return Datatables::of($query)
+                ->editColumn('total_sell', function ($row) {
+                    return '<span class="display_currency" data-currency_symbol = true>' . $row->total_sell . '</span>';
+                })
+                ->rawColumns(['total_sell'])
+                ->make(true);
+        }
+
+        $customer_group = CustomerGroup::forDropdown($business_id, false, true);
+        $business_locations = BusinessLocation::forDropdown($business_id, true);
+
+        return view('report.customer_group')
+            ->with(compact('customer_group', 'business_locations'));
+    }
+
     /**
      * Shows product purchase report
      *

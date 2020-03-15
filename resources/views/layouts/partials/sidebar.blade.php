@@ -132,10 +132,9 @@
                             <li class="{{ $request->input('type') == 'customer' ? 'active' : '' }}"><a
                                         href="{{action('ContactController@index', ['type' => 'customer'])}}"><i
                                             class="fa fa-star"></i> @lang('report.customer')</a></li>
-                                <li class="{{ $request->input('type') == 'blacklisted_customer' ? 'active' : '' }}"><a
-                                            href="{{action('ContactController@index', ['type' => 'blacklisted_customer'])}}"><i
-                                                class="fa fa-star"></i> @lang('report.blacklisted_customer')</a></li>
-
+                            <li class="{{ $request->input('type') == 'blacklisted_customer' ? 'active' : '' }}"><a
+                                        href="{{action('ContactController@index', ['type' => 'blacklisted_customer'])}}"><i
+                                            class="fa fa-star"></i> @lang('report.blacklisted_customer')</a></li>
                             <li class="{{ $request->segment(1) == 'customer-group' ? 'active' : '' }}"><a
                                         href="{{action('CustomerGroupController@index')}}"><i
                                             class="fa fa-users"></i> @lang('lang_v1.customer_groups')</a></li>
@@ -634,7 +633,7 @@
                 auth()->user()->can('tax_rate.create'))
 
 
-                    <li class="treeview @if( in_array($request->segment(1), ['business', 'tax-rates', 'barcodes', 'invoice-schemes', 'business-location', 'invoice-layouts', 'printers', 'subscription']) || in_array($request->segment(2), ['tables', 'modifiers']) ) {{'active active-sub'}} @endif">
+                    <li class="treeview @if( in_array($request->segment(1), ['business', 'tax-rates', 'barcodes', 'invoice-schemes', 'business-location', 'invoice-layouts', 'printers', 'subscription', 'display-group']) || in_array($request->segment(2), ['tables', 'modifiers']) ) {{'active active-sub'}} @endif">
 
                         <a href="#" id="tour_step2_menu"><i class="fa fa-cog"></i>
                             <span>@lang('business.settings')</span>
@@ -680,6 +679,10 @@
                                         <span>@lang('tax_rate.tax_rates')</span></a>
                                 </li>
                             @endif
+
+                            <li class="{{ $request->segment(1) == 'display-group' ? 'active' : '' }}">
+                                <a href="{{action('DisplayGroupController@index')}}"><i class="fa fa-users"></i> @lang('lang_v1.display_groups')</a></li>
+
 
                             @if(in_array('tables', $enabled_modules))
                                 @can('business_settings.access')

@@ -185,6 +185,7 @@ Route::middleware(['IsInstalled', 'auth', 'SetSessionData', 'language', 'timezon
     Route::get('/reports/stock-expiry-edit-modal/{purchase_line_id}', 'ReportController@getStockExpiryReportEditModal');
     Route::post('/reports/stock-expiry-update', 'ReportController@updateStockExpiryReport')->name('updateStockExpiryReport');
     Route::get('/reports/customer-group', 'ReportController@getCustomerGroup');
+    Route::get('/reports/display-group', 'ReportController@getDisplayGroup');
     Route::get('/reports/product-purchase-report', 'ReportController@getproductPurchaseReport');
     Route::get('/reports/product-sell-report', 'ReportController@getproductSellReport');
     Route::get('/reports/product-sell-grouped-report', 'ReportController@getproductSellGroupedReport');
@@ -255,6 +256,9 @@ Route::middleware(['IsInstalled', 'auth', 'SetSessionData', 'language', 'timezon
 
     //Customer Groups
     Route::resource('customer-group', 'CustomerGroupController');
+
+    //Display Groups
+    Route::resource('display-group', 'DisplayGroupController');
 
     //Import opening stock
     Route::get('/import-opening-stock', 'ImportOpeningStockController@index');

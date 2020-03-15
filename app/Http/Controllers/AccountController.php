@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\BusinessLocation;
 use App\Contact;
+use App\CustomerGroup;
 use App\User;
 use App\Utils\Util;
 use App\Utils\TransactionUtil;
@@ -141,8 +142,11 @@ class AccountController extends Controller
 
         $account_types = Account::accountTypes();
 
+        $business_id = request()->session()->get('user.business_id');
+        $display_groups = CustomerGroup::forDropdown($business_id);
+
         return view('account.create')
-                ->with(compact('account_types'));
+                ->with(compact('account_types', 'display_groups'));
     }
 
     /**
