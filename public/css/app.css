@@ -41,7 +41,7 @@
   margin-top: 20px;
 }
 #product_list_body {
-  max-height: 350px;
+  max-height: 260px;
   overflow-y: scroll;
   overflow-x: hidden;
 }

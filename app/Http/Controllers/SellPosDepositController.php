@@ -1076,7 +1076,7 @@ class SellPosDepositController extends Controller
                         $this->transactionUtil->createOrUpdatePaymentLines($transaction, $input['payment']);
 
                         //Update cash register
-                        $this->cashRegisterUtil->updateSellPayments($status_before, $transaction, $input['payment']);
+                        // $this->cashRegisterUtil->updateSellPayments($status_before, $transaction, $input['payment']);
                     }
 
                     if ($request->session()->get('business.enable_rp') == 1) {
@@ -1192,10 +1192,10 @@ class SellPosDepositController extends Controller
                         ->action('\Modules\Repair\Http\Controllers\RepairController@index')
                         ->with('status', $output);
                 }
-
-                return redirect()
-                    ->action('SellController@index')
-                    ->with('status', $output);
+                return $output;
+                // return redirect()
+                //     ->action('SellController@index')
+                //     ->with('status', $output);
             }
         }
     }
@@ -1695,7 +1695,7 @@ class SellPosDepositController extends Controller
             )
                 ->with(['media'])
                 ->orderBy('p.name', 'asc')
-                ->paginate(20);
+                ->paginate(40);
 
             return view('sale_pos_deposit.partials.product_list')
                 ->with(compact('products'));

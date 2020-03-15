@@ -1839,10 +1839,10 @@ function reset_pos_form(){
 
 	//If on edit page then redirect to Add POS page
 	if($('form#edit_pos_sell_form').length > 0){
-		setTimeout(function() {
-			window.location = $("input#pos_redirect_url").val();
-		}, 4000);
-		return true;
+		// setTimeout(function() {
+		// 	window.location = $("input#pos_redirect_url").val();
+		// }, 4000);
+		// return true;
 	}
 	
 	if(pos_form_obj[0]){
