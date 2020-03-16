@@ -55,6 +55,15 @@
                 </div>
             </div>
             <div class="form-group">
+                {!! Form::label('currency_id', __('business.currency') . ':') !!}
+                <div class="input-group">
+                        <span class="input-group-addon">
+                            <i class="fa fa-money"></i>
+                        </span>
+                    {!! Form::select('currency_id', $currencies, isset($account->currency_id) ? $account->currency_id : null, ['class' => 'form-control select2','placeholder' => __('business.currency'), 'required']); !!}
+                </div>
+            </div>
+            <div class="form-group">
                 {!! Form::label('note', __( 'brand.note' )) !!}
                 {!! Form::textarea('note', $account->note, ['class' => 'form-control', 'placeholder' => __( 'brand.note' ), 'rows' => 4]); !!}
             </div>

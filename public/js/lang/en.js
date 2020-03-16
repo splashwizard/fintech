@@ -23,6 +23,7 @@ LANG = {
     'no_products_added': 'No Products added, add some products first',
     'deposit_incoincidence_error': 'Total Earned and Redeemed should be same',
     'customer_not_changed': 'Please select the customer',
+    'game_id_empty': 'Please insert a Game ID for this customer!',
     'some_error_in_input_field': 'Invalid inputs, Check & try again!!',
     'confirm_delete_expense_category': 'This category along with all expenses under this category will be deleted.',
     'confirm_delete_expense': 'This expense will be deleted.',

@@ -7,6 +7,7 @@ use App\Contact;
 use App\CustomerGroup;
 use App\DisplayGroup;
 use App\User;
+use App\Utils\BusinessUtil;
 use App\Utils\Util;
 use App\Utils\TransactionUtil;
 use App\Utils\ContactUtil;
@@ -36,9 +37,11 @@ class AccountController extends Controller
      */
     public function __construct(Util $commonUtil,
                                 TransactionUtil $transactionUtil,
-                                ContactUtil $contactUtil
+                                ContactUtil $contactUtil,
+                                BusinessUtil $businessUtil
     ) {
         $this->commonUtil = $commonUtil;
+        $this->businessUtil = $businessUtil;
         $this->transactionUtil = $transactionUtil;
         $this->contactUtil = $contactUtil;
     }
@@ -145,9 +148,10 @@ class AccountController extends Controller
 
         $business_id = request()->session()->get('user.business_id');
         $display_groups = DisplayGroup::forDropdown($business_id);
+        $currencies = $this->businessUtil->allCurrencies();
 
         return view('account.create')
-                ->with(compact('account_types', 'display_groups'));
+                ->with(compact('account_types', 'display_groups', 'currencies'));
     }
 
     /**
@@ -163,9 +167,11 @@ class AccountController extends Controller
 
         if (request()->ajax()) {
             try {
-                $input = $request->only(['name', 'account_number', 'note', 'display_group_id']);
+                $input = $request->only(['name', 'account_number', 'note', 'display_group_id', 'currency_id']);
                 $business_id = $request->session()->get('user.business_id');
                 $user_id = $request->session()->get('user.id');
+                if(empty($input['display_group_id']))
+                    $input['display_group_id'] = 0;
                 $input['business_id'] = $business_id;
                 $input['created_by'] = $user_id;
                 $input['account_type'] = 'saving_current';
@@ -338,9 +344,10 @@ class AccountController extends Controller
             $account_types = Account::accountTypes();
 
             $display_groups = DisplayGroup::forDropdown($business_id);
+            $currencies = $this->businessUtil->allCurrencies();
 
             return view('account.edit')
-                ->with(compact('account', 'account_types', 'display_groups'));
+                ->with(compact('account', 'account_types', 'display_groups', 'currencies'));
         }
     }
 
@@ -357,8 +364,10 @@ class AccountController extends Controller
 
         if (request()->ajax()) {
             try {
-                $input = $request->only(['name', 'account_number', 'note', 'is_safe', 'service_charge', 'display_group_id']);
+                $input = $request->only(['name', 'account_number', 'note', 'is_safe', 'service_charge', 'display_group_id', 'currency_id']);
 
+                if(empty($input['display_group_id']))
+                    $input['display_group_id'] = 0;
                 $business_id = request()->session()->get('user.business_id');
                 $account = Account::where('business_id', $business_id)
                                                     ->findOrFail($id);
@@ -368,6 +377,7 @@ class AccountController extends Controller
                 $account->note = $input['note'];
                 $account->service_charge = $input['service_charge'];
                 $account->display_group_id = $input['display_group_id'];
+                $account->currency_id = $input['currency_id'];
                 $account->save();
 
                 $output = ['success' => true,

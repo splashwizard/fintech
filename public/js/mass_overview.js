@@ -21,6 +21,9 @@ $(document).ready(function() {
             { data: 'company_name', name: 'company_name'},
             { data: 'total_deposit', name: 'total_deposit'},
             { data: 'total_withdrawal', name: 'total_withdrawal'},
+            { data: 'expense', name: 'expense'},
+            { data: 'kiosk', name: 'kiosk'},
+            { data: 'borrow', name: 'borrow'},
             { data: 'action', name: 'action'}
         ]
     });

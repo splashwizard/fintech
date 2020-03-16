@@ -40,6 +40,16 @@
                     {!! Form::select('display_group_id', $display_groups, '', ['class' => 'form-control']); !!}
                 </div>
             </div>
+
+            <div class="form-group">
+                {!! Form::label('currency_id', __('business.currency') . ':') !!}
+                <div class="input-group">
+                    <span class="input-group-addon">
+                        <i class="fa fa-money"></i>
+                    </span>
+                    {!! Form::select('currency_id', $currencies, null, ['class' => 'form-control select2','placeholder' => __('business.currency'), 'required']); !!}
+                </div>
+            </div>
         
             <div class="form-group">
                 {!! Form::label('note', __( 'brand.note' )) !!}

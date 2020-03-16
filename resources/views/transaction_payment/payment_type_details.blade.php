@@ -60,13 +60,13 @@
 			<div class="row">
 			{{-- {!! Form::text( "bank_account_number", $payment_line->bank_account_number, ['class' => 'form-control', 'placeholder' => 'Bank Account No', 'readonly']); !!} --}}
 				<div class="col-md-4">
-					{!! Form::text( "account_holder", $account_holder, ['class' => 'form-control', 'placeholder' => 'Account Holder Name', 'readonly']); !!}
+					<button class="form-control account_detail">{{isset($account_holder) ? $account_holder : 'Account Holder Name'}}</button>
 				</div>
 				<div class="col-md-4">
-					{!! Form::text( "account_number", $account_number, ['class' => 'form-control', 'placeholder' => 'Account Number', 'readonly']); !!}
+					<button class="form-control account_detail">{{isset($account_number) ? $account_number : 'Account Number'}}</button>
 				</div>
 				<div class="col-md-4">
-					{!! Form::text( "bank_name", $bank_name, ['class' => 'form-control', 'placeholder' => 'Bank Name', 'readonly']); !!}
+					<button class="form-control account_detail">{{isset($bank_name) ? $bank_name : 'Bank Name'}}</button>
 				</div>
 			</div>
 		</div>

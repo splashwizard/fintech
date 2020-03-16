@@ -1,4 +1,21 @@
 $(document).ready(function() {
+    function copyTextToClipboard(text) {
+
+
+        $('.payment_modal').find('.modal-body').append('<textarea id="copy_clipboard">'+ text+'</textarea>');
+        $('#copy_clipboard').focus();
+        $('#copy_clipboard').select();
+
+        try {
+            var successful = document.execCommand('copy');
+            var msg = successful ? 'successful' : 'unsuccessful';
+            console.log('Copying text command was ' + msg);
+        } catch (err) {
+            console.log('Oops, unable to copy');
+        }
+
+        $('#copy_clipboard').remove();
+    }
     $(document).on('click', '.add_payment_modal', function(e) {
         e.preventDefault();
         var container = $('.payment_modal');
@@ -9,6 +26,13 @@ $(document).ready(function() {
             success: function(result) {
                 if (result.status == 'due') {
                     container.html(result.view).modal('show');
+                    console.log('Add Modal');
+                    $('.account_detail').click(function (e) {
+                        console.log('Clicked');
+                        console.log($(this).text());
+                        e.preventDefault();
+                        copyTextToClipboard($(this).text());
+                    });
 
                     __currency_convert_recursively(container);
                     $('#paid_on').datepicker({

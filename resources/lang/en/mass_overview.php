@@ -14,6 +14,9 @@ return [
     'company_name' => 'Company Name',
     'total_deposit' => 'Total Deposit',
     'total_withdrawal' => 'Total Withdrawal',
+    'expense' => 'Expenses',
+    'kiosk' => 'Kiosk',
+    'borrow' => 'Borrow',
     'action' => 'Action',
     'all_companies' => 'All companies',
     'admin_added_success' => 'Admin added successfully'

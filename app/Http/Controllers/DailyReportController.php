@@ -32,7 +32,7 @@ class DailyReportController extends Controller
     {
         $this->transactionUtil = $transactionUtil;
         $this->moduleUtil = $moduleUtil;
-        $this->bank_columns = ['balance' => 'Balance B/F', 'deposit' => 'In', 'withdraw' => 'Out', 'service' => 'Service', 'transfer_in' => 'Transfer + ', 'transfer_out' => 'Transfer - ', 'kiosk' => 'Kiosk', 'back' => 'Back',
+        $this->bank_columns = ['currency' => 'Currency', 'balance' => 'Balance B/F', 'deposit' => 'In', 'withdraw' => 'Out', 'service' => 'Service', 'transfer_in' => 'Transfer + ', 'transfer_out' => 'Transfer - ', 'kiosk' => 'Kiosk', 'back' => 'Back',
                             'in_ticket' => 'In Ticket', 'out_ticket' => 'Out Ticket', 'overall' => 'Overall Total', 'win_loss' => 'Win/Loss', 'expenses' => 'Expenses', 'unclaim' => 'Unclaim'];
         $this->service_columns = ['balance' => 'Balance B/F', 'deposit' => 'In', 'withdraw' => 'Out', 'bonus' => 'Bonus', 'luckydraw' => 'Luckydraw', 'free_credit' => 'Free Credit', 'advance_credit' => 'Advance credit', 'transfer_in' => 'Transfer + ', 'transfer_out' => 'Transfer - '];
     }
@@ -59,6 +59,17 @@ class DailyReportController extends Controller
         foreach ($this->bank_columns as $key=>$bank_column){
             $bank_accounts_obj[$key][0] = $bank_column;
         }
+        //currency
+        $bank_accounts_sql = Account::leftjoin('currencies AS c', 'c.id', 'accounts.currency_id')->where('is_service', 0)
+            ->where('accounts.name', '!=', 'Bonus Account')
+            ->where('accounts.business_id', $business_id)
+            ->select(['c.code as code', 'accounts.id as account_id']);
+        $bank_account_currencies = $bank_accounts_sql->get();
+        foreach ($bank_account_currencies as $bank_account) {
+            $bank_accounts_obj['currency'][$bank_account['account_id']] = $bank_account['code'];
+        }
+//        print_r($bank_accounts_obj);exit;
+
         $start = request()->start_date;
         $end =  request()->end_date;
         // balance, deposit, withdraw

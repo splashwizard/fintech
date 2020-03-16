@@ -69,10 +69,12 @@ class MassOverviewController extends Controller
             $start_date = request()->start_date;
             $end_date = request()->end_date;
             if(auth()->user()->hasRole('Superadmin')){
-                $query = Business::leftjoin(DB::raw('(SELECT * FROM transactions WHERE DATE(transactions.`transaction_date`) BETWEEN "'. $start_date .'" AND "'. $end_date.'" AND transactions.`type` IN ("sell", "sell_return") AND transactions.`status` = "final" ) AS t'), 't.business_id', '=', 'business.id')
+                $query = Business::leftjoin(DB::raw('(SELECT * FROM transactions WHERE DATE(transactions.`transaction_date`) BETWEEN "'. $start_date .'" AND "'. $end_date.'" AND transactions.`type` IN ("sell", "sell_return", "expense") AND transactions.`status` = "final" ) AS t'), 't.business_id', '=', 'business.id')
                     ->groupBy('business.id')
                     ->orderBy('business.id', 'asc')
-                    ->select('business.id', DB::raw("SUM(IF(t.type='sell', final_total, 0)) AS total_deposit"), DB::raw("SUM(IF(t.type='sell_return', final_total, 0)) AS total_withdrawal, business.name as company_name"));
+                    ->select('business.id', DB::raw("SUM(IF(t.type='sell', final_total, 0)) AS total_deposit"),
+                        DB::raw("SUM(IF(t.type='sell_return', final_total, 0)) AS total_withdrawal, business.name as company_name"),
+                        DB::raw("SUM(IF(t.type='expense', final_total, 0)) AS expense"));
             } 
             else{
                 $business_id = request()->session()->get('user.business_id');
@@ -90,11 +92,13 @@ class MassOverviewController extends Controller
                 //     ->groupBy('business.id')
                 //     ->orderBy('business.id', 'asc')
                 //     ->select('business.id', DB::raw("SUM(IF(t.type='sell', final_total, 0)) AS total_deposit"), DB::raw("SUM(IF(t.type='sell_return', IF( (SELECT method FROM transaction_payments AS tp WHERE tp.transaction_id = t.id) = 'bank_transfer', t.final_total, 0), 0)) AS total_withdrawal, business.name as company_name"));
-                $query = Business::leftjoin(DB::raw('(SELECT * FROM transactions WHERE DATE(transactions.`transaction_date`) BETWEEN "'. $start_date .'" AND "'. $end_date.'" AND transactions.`type` IN ("sell", "sell_return") AND transactions.`status` = "final" ) AS t'), 't.business_id', '=', 'business.id')
+                $query = Business::leftjoin(DB::raw('(SELECT * FROM transactions WHERE DATE(transactions.`transaction_date`) BETWEEN "'. $start_date .'" AND "'. $end_date.'" AND transactions.`type` IN ("sell", "sell_return", "expense") AND transactions.`status` = "final" ) AS t'), 't.business_id', '=', 'business.id')
                 ->groupBy('business.id')
                 ->whereIn('business.id', $allowed_business_ids)
                 ->orderBy('business.id', 'asc')
-                ->select('business.id', DB::raw("SUM(IF(t.type='sell', final_total, 0)) AS total_deposit"), DB::raw("SUM(IF(t.type='sell_return', final_total, 0)) AS total_withdrawal, business.name as company_name"));
+                ->select('business.id', DB::raw("SUM(IF(t.type='sell', final_total, 0)) AS total_deposit"),
+                    DB::raw("SUM(IF(t.type='sell_return', final_total, 0)) AS total_withdrawal, business.name as company_name"),
+                    DB::raw("SUM(IF(t.type='expense', final_total, 0)) AS expense"));
                 
                 //Check for permitted locations of a user
                 // $permitted_locations = auth()->user()->permitted_locations();
@@ -111,6 +115,8 @@ class MassOverviewController extends Controller
                         $html = '<a href="'.action("MassOverviewController@show", [$row->id]).'" class="btn btn-info btn-xs">View</a>';
                     return $html;
                 })
+                ->addColumn('kiosk', null)
+                ->addColumn('borrow', null)
                 ->editColumn(
                 'total_deposit',
                 function ($row) {
@@ -123,8 +129,14 @@ class MassOverviewController extends Controller
                     if(!isset($row->total_withdrawal))
                         return 0;
                     return $row->total_withdrawal;
-                });
-            $rawColumns = ['id', 'company_name', 'total_deposit', 'total_withdrawal', 'action'];
+                })->editColumn(
+                    'expense',
+                    function ($row) {
+                        if(!isset($row->expense))
+                            return 0;
+                        return $row->expense;
+                    });
+            $rawColumns = ['id', 'company_name', 'total_deposit', 'total_withdrawal', 'expense', 'kiosk', 'borrow', 'action'];
 
             return $datatable->rawColumns($rawColumns)
                 ->make(true);

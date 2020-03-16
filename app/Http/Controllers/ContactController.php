@@ -388,8 +388,10 @@ class ContactController extends Controller
 
         $customer_groups = CustomerGroup::forDropdown($business_id);
 
+
+        $services = Account::where('business_id', $business_id)->where('is_service', 1)->get();
         return view('contact.create')
-            ->with(compact('types', 'customer_groups', 'type'));
+            ->with(compact('types', 'customer_groups', 'type', 'services'));
     }
 
     /**
@@ -446,6 +448,18 @@ class ContactController extends Controller
 
 
                 $contact = Contact::create($input);
+
+
+                $game_ids = request()->get('game_ids');
+                foreach ($game_ids as $service_id => $game_id){
+                    if(!empty($game_id)){
+                        GameId::create([
+                            'service_id' => $service_id,
+                            'contact_id' => $contact->id,
+                            'game_id' => $game_id
+                        ]);
+                    }
+                }
 
                 //Add opening balance
                 if (!empty($request->input('opening_balance'))) {

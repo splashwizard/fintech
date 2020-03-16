@@ -25,19 +25,24 @@
                         $total = 0;
                     @endphp
                     @foreach($banks_obj as $bank_id => $bank_name)
-                        @if(!in_array($bank_column, array('in_ticket', 'out_ticket')))
+                        @if(!in_array($bank_column, array('in_ticket', 'out_ticket', 'currency')))
                             <td><span class="display_currency" data-orig-value="{{isset($bank_obj[$bank_id]) ? $bank_obj[$bank_id]: 0}}" data-highlight=true>{{(isset($bank_obj[$bank_id]) ? $bank_obj[$bank_id]: 0)}}</span></td>
+                        @elseif($bank_column == 'currency')
+                            <td>{{ isset($bank_obj[$bank_id]) ? $bank_obj[$bank_id]: null}}</td>
                         @else
                             <td>{{ isset($bank_obj[$bank_id]) ? $bank_obj[$bank_id]: 0}}</td>
                         @endif
                         @php
-                            $total += (isset($bank_obj[$bank_id]) ? $bank_obj[$bank_id]: 0);
+                            if($bank_column != 'currency')
+                                $total += (isset($bank_obj[$bank_id]) ? $bank_obj[$bank_id]: 0);
                         @endphp
                     @endforeach
-                    @if(!in_array($bank_column, array('in_ticket', 'out_ticket')))
-                        <td><span class="display_currency sell_amount" data-orig-value="{{$total}}" data-highlight=true>{{$total}}</span></td>
-                    @else
+                    @if($bank_column == 'currency')
+                        <td></td>
+                    @elseif(in_array($bank_column, array('in_ticket', 'out_ticket')))
                         <td>{{$total}}</td>
+                    @else
+                        <td><span class="display_currency sell_amount" data-orig-value="{{$total}}" data-highlight=true>{{$total}}</span></td>
                     @endif
                 @endforeach
             </tr>

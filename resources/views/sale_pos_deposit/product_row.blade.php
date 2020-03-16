@@ -11,7 +11,10 @@
 				{!! $product_name !!}
 				&nbsp;<i class="fa fa-info-circle"></i>
 			</span>
-			<span>{{isset($game_id)? $product->product_name.' - '.$game_id : null}}</span>
+			@if(isset($game_id))
+				<span>{{ $product->product_name.' - '}}</span>
+				<button class="game_id_but">{{$game_id}}</button>
+			@endif
 		</div>
 		@else
 			{!! $product_name !!}

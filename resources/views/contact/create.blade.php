@@ -121,6 +121,18 @@
       </div>
       <div class="clearfix"></div>
       <div class="col-md-12">
+          <hr/>
+      </div>
+
+      @foreach($services as $key => $service)
+          <div class="col-md-3">
+              <div class="form-group">
+                  {!! Form::label('game_ids['.$service->id.']', $service->name) !!}
+                  {!! Form::text('game_ids['.$service->id.']', null, ['class' => 'form-control']) !!}
+              </div>
+          </div>
+      @endforeach
+      <div class="col-md-12">
         <hr/>
       </div>
       <div class="form-group col-md-3">
