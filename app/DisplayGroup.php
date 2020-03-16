@@ -31,7 +31,7 @@ class DisplayGroup extends Model
      */
     public static function forDropdown($business_id, $prepend_none = true, $prepend_all = false)
     {
-        $all_cg = CustomerGroup::where('business_id', $business_id);
+        $all_cg = DisplayGroup::where('business_id', $business_id);
         $all_cg = $all_cg->pluck('name', 'id');
 
         //Prepend none

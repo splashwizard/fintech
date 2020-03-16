@@ -107,7 +107,7 @@
 	</div>
 	<!-- /.box-header -->
 	<input type="hidden" id="suggestion_page2" value="1">
-	<div class="box-body" id="service_box" style="display: none">
+	<div class="box-body" id="service_box">
 		<div class="row">
 			<div class="col-md-12">
 				<div class="eq-height-row" id="product_list_body2"></div>

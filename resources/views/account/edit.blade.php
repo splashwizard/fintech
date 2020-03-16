@@ -45,7 +45,15 @@
                 {!! Form::select('account_type', $account_types, $account->account_type, ['class' => 'form-control']); !!}
             </div>
             --}}
-
+            <div class="form-group">
+                {!! Form::label('display_group_id', __('lang_v1.display_group') . ':') !!}
+                <div class="input-group">
+                      <span class="input-group-addon">
+                          <i class="fa fa-users"></i>
+                      </span>
+                    {!! Form::select('display_group_id', $display_groups, $account->display_group_id, ['class' => 'form-control']); !!}
+                </div>
+            </div>
             <div class="form-group">
                 {!! Form::label('note', __( 'brand.note' )) !!}
                 {!! Form::textarea('note', $account->note, ['class' => 'form-control', 'placeholder' => __( 'brand.note' ), 'rows' => 4]); !!}

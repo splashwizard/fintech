@@ -104,12 +104,8 @@ $(document).ready(function() {
     set_default_customer();
 
     var text = $('#customer_id').select2('data')[0].text;
-    if( text == "Unclaimed Trans" && !edit_page) {
-        $('#service_box').hide();
+    if( text == "Unclaimed Trans" && edit_page) {
         $('#bank_in_time').attr('readonly', '');
-    } else {
-        $('#service_box').show();
-        $('#bank_in_time').removeAttr('readonly');
     }
 
     //Add Product
@@ -634,6 +630,11 @@ $(document).ready(function() {
             toastr.warning(LANG.deposit_incoincidence_error);
             return false;
         }
+        if($('#customer_id').select2('data')[0].text == "Unclaimed Trans" && edit_page) {
+            toastr.warning(LANG.customer_not_changed);
+            return false;
+        }
+
         pos_form_obj.submit();
         // if ($('#reward_point_enabled').length) {
         //     var validate_rp = isValidatRewardPoint();
@@ -819,7 +820,7 @@ $(document).ready(function() {
                             $('#modal_payment').modal('hide');
                             toastr.success(result.msg);
 
-                            reset_pos_form();
+                            // reset_pos_form();
 
                             $('#modal_success').modal('show');
                             get_contact_ledger();

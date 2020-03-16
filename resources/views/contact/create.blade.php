@@ -81,7 +81,7 @@
       <div class="col-md-3">
         <div class="form-group">
           {!! Form::label('remark', __('contact.remark') . ':*') !!}
-          {!! Form::text('remark', null, ['class' => 'form-control','placeholder' => __('contact.remark'), 'required']); !!}
+          {!! Form::text('remark', null, ['class' => 'form-control','placeholder' => __('contact.remark')]); !!}
         </div>
       </div>
       <div class="clearfix"></div>

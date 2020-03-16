@@ -1372,10 +1372,10 @@ class SellPosDepositController extends Controller
                 if(request()->get('is_service')){
                     $amount = request()->get('amount');
                 }
-                $cnt = GameId::where('service_id', $product->account_id)->count();
+                $cnt = GameId::where('service_id', $product->account_id)->where('contact_id', $customer_id)->count();
                 // print_r($game_id);exit;
-                if($cnt >= 1)
-                    $game_id = GameId::where('service_id', $product->account_id)->get()[0]->game_id;
+                if($cnt > 0)
+                    $game_id = GameId::where('service_id', $product->account_id)->where('contact_id', $customer_id)->get()[0]->game_id;
                 else
                     $game_id = null;
 

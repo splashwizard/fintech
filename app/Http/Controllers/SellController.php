@@ -126,8 +126,9 @@ class SellController extends Controller
 
             if (!empty(request()->input('account_id'))) {
                 $sells->where('accounts.id', request()->input('account_id'));
-            } else
-                $sells->where('accounts.id', -1);
+            }
+//            else
+//                $sells->where('accounts.id', -1);
 
             if (!empty(request()->input('payment_status'))) {
                 $sells->where('transactions.payment_status', request()->input('payment_status'));

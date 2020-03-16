@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\BusinessLocation;
 use App\Contact;
 use App\CustomerGroup;
+use App\DisplayGroup;
 use App\User;
 use App\Utils\Util;
 use App\Utils\TransactionUtil;
@@ -143,7 +144,7 @@ class AccountController extends Controller
         $account_types = Account::accountTypes();
 
         $business_id = request()->session()->get('user.business_id');
-        $display_groups = CustomerGroup::forDropdown($business_id);
+        $display_groups = DisplayGroup::forDropdown($business_id);
 
         return view('account.create')
                 ->with(compact('account_types', 'display_groups'));
@@ -162,7 +163,7 @@ class AccountController extends Controller
 
         if (request()->ajax()) {
             try {
-                $input = $request->only(['name', 'account_number', 'note']);
+                $input = $request->only(['name', 'account_number', 'note', 'display_group_id']);
                 $business_id = $request->session()->get('user.business_id');
                 $user_id = $request->session()->get('user.id');
                 $input['business_id'] = $business_id;
@@ -286,6 +287,14 @@ class AccountController extends Controller
                                         } elseif ($row->transaction->type == 'sell') {
                                             $details = '<b>' . __('contact.customer') . ':</b> ' . $row->transaction->contact->name . '<br><b>'.
                                             __('sale.invoice_no') . ':</b> ' . $row->transaction->invoice_no;
+                                        } elseif ($row->transaction->type == 'expense') {
+                                            $user = User::find($row->transaction->expense_for);
+                                            $details = '<b>' . __('sale.expense_for') . ':</b> ' . $user->first_name.' '.$user->last_name . '<br><b>'.
+                                                __('sale.reference_no') . ':</b> ' . $row->transaction->ref_no;
+                                        } elseif ($row->transaction->type == 'payroll') {
+                                            $user = User::find($row->transaction->expense_for);
+                                            $details = '<b>' . __('sale.payroll_for') . ':</b> ' . $user->first_name.' '.$user->last_name . '<br><b>'.
+                                                __('sale.reference_no') . ':</b> ' . $row->transaction->ref_no;
                                         }
                                     }
                                 }
@@ -328,8 +337,10 @@ class AccountController extends Controller
 
             $account_types = Account::accountTypes();
 
+            $display_groups = DisplayGroup::forDropdown($business_id);
+
             return view('account.edit')
-                ->with(compact('account', 'account_types'));
+                ->with(compact('account', 'account_types', 'display_groups'));
         }
     }
 
@@ -346,7 +357,7 @@ class AccountController extends Controller
 
         if (request()->ajax()) {
             try {
-                $input = $request->only(['name', 'account_number', 'note', 'is_safe', 'service_charge']);
+                $input = $request->only(['name', 'account_number', 'note', 'is_safe', 'service_charge', 'display_group_id']);
 
                 $business_id = request()->session()->get('user.business_id');
                 $account = Account::where('business_id', $business_id)
@@ -356,6 +367,7 @@ class AccountController extends Controller
                 $account->is_safe = isset($input['is_safe']) ? 1 : 0;
                 $account->note = $input['note'];
                 $account->service_charge = $input['service_charge'];
+                $account->display_group_id = $input['display_group_id'];
                 $account->save();
 
                 $output = ['success' => true,

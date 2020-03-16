@@ -6,6 +6,7 @@ use App\Account;
 use App\AccountTransaction;
 
 use App\BusinessLocation;
+use App\DisplayGroup;
 use App\ExpenseCategory;
 use App\Transaction;
 use App\User;
@@ -48,11 +49,10 @@ class DailyReportController extends Controller
     function getTableData(){
         $categories = null;
         $business_id = request()->session()->get('user.business_id');
-        $banks = Account::where('business_id', $business_id)->where('is_service', 0)->where('name', '!=', 'Bonus Account')->get();
-        $banks_obj = [];
-        $banks_obj[0] = '';
+        $banks = Account::where('business_id', $business_id)->where('is_service', 0)->where('name', '!=', 'Bonus Account')->where('display_group_id', '!=', 0)->orderBy('display_group_id', 'asc')->get();
+        $banks_group_obj = [];
         foreach ($banks as $row){
-            $banks_obj[$row->id] = $row->name;
+            $banks_group_obj[$row->display_group_id][$row->id] = $row->name;
         }
 
         $bank_accounts_obj = [];
@@ -96,6 +96,30 @@ class DailyReportController extends Controller
             $bank_accounts_obj['transfer_out'][$bank_account['account_id']] = $bank_account['transfer_out'];
             $bank_accounts_obj['overall'][$bank_account['account_id']] = $bank_account['balance'] + $bank_account['total_deposit'] - $bank_account['total_withdraw'];
             $bank_accounts_obj['win_loss'][$bank_account['account_id']] = $bank_account['total_deposit'] - $bank_account['total_withdraw'];
+        }
+        //unclaimed trans
+        $bank_accounts_sql = Account::leftjoin('account_transactions as AT', function ($join) {
+                $join->on('AT.account_id', '=', 'accounts.id');
+                $join->whereNull('AT.deleted_at');
+            })->join('transactions AS T', 'T.id', 'AT.transaction_id')
+            ->join('contacts AS C', 'C.id', 'T.contact_id')
+            ->where('is_service', 0)
+            ->where('accounts.name', '!=', 'Bonus Account')
+            ->where('C.name', 'Unclaimed Trans')
+            ->where('accounts.business_id', $business_id)
+            ->select(['accounts.id as account_id', DB::raw("SUM( IF( AT.type='credit' AND (AT.sub_type IS NULL OR AT.`sub_type` != 'fund_transfer'), AT.amount, 0) ) as unclaim")])
+            ->groupBy('accounts.id');
+        $bank_accounts_sql->where(function ($q) {
+            $q->where('account_type', '!=', 'capital');
+            $q->orWhereNull('account_type');
+        });
+        if (!empty($start) && !empty($end)) {
+            $bank_accounts_sql->whereDate('AT.operation_date', '>=', $start)
+                ->whereDate('AT.operation_date', '<=', $end);
+        }
+        $bank_accounts = $bank_accounts_sql->get();
+        foreach ($bank_accounts as $bank_account) {
+            $bank_accounts_obj['unclaim'][$bank_account['account_id']] = $bank_account['unclaim'];
         }
         // back
         $bank_accounts_sql = Account::join('transaction_payments as tp', 'tp.account_id', 'accounts.id')
@@ -250,18 +274,18 @@ class DailyReportController extends Controller
         }
         // print_r($service_accounts_obj);exit;
         // calc total
-        end($banks_obj);
-        $bank_last_key = key($banks_obj);
-        $banks_obj[$bank_last_key + 1] = 'Total';
+//        end($banks_obj);
+//        $bank_last_key = key($banks_obj);
+//        $banks_obj[$bank_last_key + 1] = 'Total';
 
-        foreach($bank_accounts_obj as $bank_key => $bank_obj){
-            $total = 0;
-            foreach($bank_obj as $key => $item){
-                if($key != 0)
-                    $total += $item;
-            }
-            $bank_accounts_obj[$bank_key][$bank_last_key + 1] = $total;
-        }
+//        foreach($bank_accounts_obj as $bank_key => $bank_obj){
+//            $total = 0;
+//            foreach($bank_obj as $key => $item){
+//                if($key != 0)
+//                    $total += $item;
+//            }
+//            $bank_accounts_obj[$bank_key][$bank_last_key + 1] = $total;
+//        }
 
         end($services_obj);
         $service_last_key = key($services_obj);
@@ -276,7 +300,11 @@ class DailyReportController extends Controller
             $service_accounts_obj[$service_key][$service_last_key + 1] = $total;
         }
 
-        $output['html_content'] = view('daily_report.report_table')->with(compact('banks_obj', 'bank_accounts_obj', 'services_obj', 'service_accounts_obj'))->render();
+        $group_names = DisplayGroup::join('accounts', 'accounts.display_group_id', 'display_groups.id')
+            ->select('display_groups.name as group_name', DB::raw('COUNT(accounts.id) as bank_cnt'))
+            ->groupBy('display_groups.id')->get();
+
+        $output['html_content'] = view('daily_report.report_table')->with(compact('banks_group_obj', 'bank_accounts_obj', 'services_obj', 'service_accounts_obj', 'group_names'))->render();
         return json_encode($output);
     }
 }

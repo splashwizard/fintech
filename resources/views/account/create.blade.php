@@ -31,15 +31,13 @@
                 {!! Form::text('opening_balance', 0, ['class' => 'form-control input_number','placeholder' => __( 'account.opening_balance' ) ]); !!}
             </div>
 
-            <div class="col-md-4 customer_fields">
-                <div class="form-group">
-                    {!! Form::label('display_group_id', __('lang_v1.display_group') . ':') !!}
-                    <div class="input-group">
-                      <span class="input-group-addon">
-                          <i class="fa fa-users"></i>
-                      </span>
-                        {!! Form::select('display_group_id', $display_groups, '', ['class' => 'form-control']); !!}
-                    </div>
+            <div class="form-group">
+                {!! Form::label('display_group_id', __('lang_v1.display_group') . ':') !!}
+                <div class="input-group">
+                  <span class="input-group-addon">
+                      <i class="fa fa-users"></i>
+                  </span>
+                    {!! Form::select('display_group_id', $display_groups, '', ['class' => 'form-control']); !!}
                 </div>
             </div>
         
