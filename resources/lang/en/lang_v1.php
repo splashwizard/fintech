@@ -145,6 +145,7 @@ return [
     'total_items' => 'Total Items',
     'total_paying' => 'Total Paying',
     'balance' => 'Balance',
+    'currency' => 'Currency',
     'payment_method' => 'Payment Method',
     'card_no' => 'Card Number',
     'card_holder_name' => 'Card Holder Name',

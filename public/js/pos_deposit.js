@@ -56,7 +56,6 @@ function copyTextToClipboard(text) {
     document.body.removeChild(textArea);
 }
 $(document).ready(function() {
-
     customer_set = false;
     //Prevent enter key function except texarea
     $('form').on('keyup keypress', function(e) {
@@ -161,9 +160,14 @@ $(document).ready(function() {
     set_default_customer();
 
     var text = $('#customer_id').select2('data')[0].text;
-    if( text == "Unclaimed Trans" && edit_page) {
-        $('#bank_in_time').attr('readonly', '');
+    if( text === "Unclaimed Trans") {
+        if(edit_page)
+            $('#bank_in_time').attr('readonly', '');
+        else
+            $('#service_box').hide();
     }
+
+
 
     //Add Product
     // $('#search_product')
@@ -682,15 +686,16 @@ $(document).ready(function() {
             toastr.warning(LANG.no_products_added);
             return false;
         }
-        if($('#customer_id').select2('data')[0].text != "Unclaimed Trans" && $('#total_earned').html() !== $('#total_redeemed').html()){
-            toastr.warning(LANG.deposit_incoincidence_error);
-            return false;
-        }
-        if($('#customer_id').select2('data')[0].text == "Unclaimed Trans" && edit_page) {
+        var customer = $('#customer_id').select2('data')[0].text;
+        if(customer === "Unclaimed Trans" && edit_page) {
             toastr.warning(LANG.customer_not_changed);
             return false;
         }
-        if($('.game_id_but').length === 0){
+        if(customer !== "Unclaimed Trans" && $('#total_earned').html() !== $('#total_redeemed').html()){
+            toastr.warning(LANG.deposit_incoincidence_error);
+            return false;
+        }
+        if(customer !== "Unclaimed Trans" && $('.game_id_but').length === 0){
             toastr.warning(LANG.game_id_empty);
             return false;
         }
@@ -879,7 +884,8 @@ $(document).ready(function() {
                             $('#modal_payment').modal('hide');
                             toastr.success(result.msg);
 
-                            // reset_pos_form();
+                            if(!edit_page)
+                                reset_pos_form();
 
                             $('#modal_success').modal('show');
                             get_contact_ledger();

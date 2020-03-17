@@ -946,11 +946,13 @@ class SellPosDepositController extends Controller
 
         $edit_discount = auth()->user()->can('edit_product_discount_from_pos_screen');
         $edit_price = auth()->user()->can('edit_product_price_from_pos_screen');
+
+        $services = Account::where('business_id', $business_id)->where('is_service', 1)->get();
         
         return view('sale_pos_deposit.edit')
             ->with(compact('business_details', 'taxes', 'payment_types', 'default_location', 'walk_in_customer', 'sell_details', 'transaction', 'payment_lines', 'location_printer_type', 'shortcuts', 'commission_agent', 'bank_categories',
             'service_categories',
-            'bank_products',
+            'bank_products', 'services',
             'service_products', 'pos_settings', 'change_return', 'types', 'customer_groups', 'brands', 'accounts', 'price_groups', 'waiters', 'redeem_details', 'edit_price', 'edit_discount'));
     }
 

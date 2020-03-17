@@ -62,9 +62,10 @@ class AccountController extends Controller
                 $join->on('AT.account_id', '=', 'accounts.id');
                 $join->whereNull('AT.deleted_at');
             })
+                ->leftjoin('currencies', 'currencies.id', 'accounts.currency_id')
                                 ->where('is_service', 0)
                                 ->where('business_id', $business_id)
-                                ->select(['name', 'account_number', 'accounts.note', 'accounts.id',
+                                ->select(['name', 'account_number', 'accounts.note', 'accounts.id', 'currencies.code as currency',
                                     'is_closed', DB::raw("SUM( IF(AT.type='credit', amount, -1*amount) ) as balance")])
                                 ->groupBy('accounts.id');
 
@@ -106,7 +107,7 @@ class AccountController extends Controller
                                 }
                             })
                             ->editColumn('balance', function ($row) {
-                                return '<span class="display_currency" data-currency_symbol="true">' . $row->balance . '</span>';
+                                return '<span class="display_currency">' . $row->balance . '</span>';
                             })
                             ->removeColumn('id')
                             ->removeColumn('is_closed')

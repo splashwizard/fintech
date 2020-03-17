@@ -63,6 +63,7 @@
                                     <th>@lang('account.account_number')</th>
                                     <th>@lang( 'brand.note' )</th>
                                     <th>@lang('lang_v1.balance')</th>
+                                    <th>@lang('lang_v1.currency')</th>
                                     <th>@lang( 'messages.action' )</th>
                                 </tr>
                             </thead>
@@ -209,6 +210,7 @@
                             {data: 'name', name: 'name'},
                             {data: 'account_number', name: 'account_number'},
                             {data: 'note', name: 'note'},
+                            {data: 'currency', name: 'currency'},
                             {data: 'balance', name: 'balance', searchable: false},
                             {data: 'action', name: 'action'}
                         ],
