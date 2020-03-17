@@ -227,6 +227,8 @@ class SellPosDepositController extends Controller
         //Selling Price Group Dropdown
         $price_groups = SellingPriceGroup::forDropdown($business_id);
 
+        $services = Account::where('business_id', $business_id)->where('is_service', 1)->get();
+
         return view('sale_pos_deposit.create')
             ->with(compact(
                 'business_details',
@@ -249,7 +251,8 @@ class SellPosDepositController extends Controller
                 'types',
                 'customer_groups',
                 'accounts',
-                'price_groups'
+                'price_groups',
+                'services'
             ));
     }
 
