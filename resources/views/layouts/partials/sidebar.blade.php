@@ -633,7 +633,7 @@
                 auth()->user()->can('tax_rate.create'))
 
 
-                    <li class="treeview @if( in_array($request->segment(1), ['business', 'tax-rates', 'barcodes', 'invoice-schemes', 'business-location', 'invoice-layouts', 'printers', 'subscription', 'display-group']) || in_array($request->segment(2), ['tables', 'modifiers']) ) {{'active active-sub'}} @endif">
+                    <li class="treeview @if( in_array($request->segment(1), ['business', 'tax-rates', 'barcodes', 'invoice-schemes', 'business-location', 'invoice-layouts', 'printers', 'subscription', 'display-group', 'activity']) || in_array($request->segment(2), ['tables', 'modifiers']) ) {{'active active-sub'}} @endif">
 
                         <a href="#" id="tour_step2_menu"><i class="fa fa-cog"></i>
                             <span>@lang('business.settings')</span>
@@ -682,6 +682,9 @@
 
                             <li class="{{ $request->segment(1) == 'display-group' ? 'active' : '' }}">
                                 <a href="{{action('DisplayGroupController@index')}}"><i class="fa fa-users"></i> @lang('lang_v1.display_groups')</a></li>
+
+                            <li class="{{ $request->segment(1) == 'activity' ? 'active' : '' }}">
+                                <a href="{{route('activity')}}"><i class="fa fa-users"></i> @lang('lang_v1.audit_log')</a></li>
 
 
                             @if(in_array('tables', $enabled_modules))

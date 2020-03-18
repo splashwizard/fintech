@@ -14,6 +14,8 @@ use Modules\Essentials\Notifications\NewRequestNotification;
 use Modules\Essentials\Notifications\RequestStatusNotification;
 use Spatie\Activitylog\Models\Activity;
 use Yajra\DataTables\Facades\DataTables;
+use \jeremykenedy\LaravelLogger\App\Http\Traits\ActivityLogger;
+
 
 class EssentialsRequestController extends Controller
 {
@@ -201,9 +203,10 @@ class EssentialsRequestController extends Controller
             if (empty($input['ref_no'])) {
                 $settings = request()->session()->get('business.essentials_settings');
                 $settings = !empty($settings) ? json_decode($settings, true) : [];
-                $prefix = !empty($settings['leave_ref_no_prefix']) ? $settings['leave_ref_no_prefix'] : '';
-                $input['ref_no'] = $this->moduleUtil->generateReferenceNumber('leave', $ref_count, null, $prefix);
+//                $prefix = !empty($settings['leave_ref_no_prefix']) ? $settings['leave_ref_no_prefix'] : '';
+                $input['ref_no'] = $this->moduleUtil->generateReferenceNumber('leave', $ref_count, null, 'req');
             }
+            ActivityLogger::activity("Created request, reference no ".$input['ref_no']);
 
             $leave = EssentialsRequest::create($input);
 

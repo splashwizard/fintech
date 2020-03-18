@@ -16,6 +16,7 @@ use App\AccountTransaction;
 use App\TransactionPayment;
 
 use Yajra\DataTables\Facades\DataTables;
+use \jeremykenedy\LaravelLogger\App\Http\Traits\ActivityLogger;
 
 
 use DB;
@@ -718,6 +719,7 @@ class ServiceController extends Controller
                     $input['document'] = $document_name;
                 }
                 $transaction = $this->transactionUtil->createSellReturnTransaction($business_id, $input, $invoice_total, $user_id);
+                ActivityLogger::activity("Created transaction, ticket # ".$transaction->invoice_no);
                 $this->transactionUtil->createWithDrawPaymentLine($transaction, $user_id, $account_id, 1);
                 $this->transactionUtil->updateCustomerRewardPoints($contact_id, $amount, 0, 0);
 

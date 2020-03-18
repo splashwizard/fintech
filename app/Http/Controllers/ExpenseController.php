@@ -17,6 +17,7 @@ use DB;
 use Illuminate\Http\Request;
 
 use Yajra\DataTables\Facades\DataTables;
+use \jeremykenedy\LaravelLogger\App\Http\Traits\ActivityLogger;
 
 class ExpenseController extends Controller
 {
@@ -268,6 +269,7 @@ class ExpenseController extends Controller
             }
 
             $transaction = Transaction::create($transaction_data);
+            ActivityLogger::activity("Created expense, reference no ".$transaction->ref_no);
 
 
 

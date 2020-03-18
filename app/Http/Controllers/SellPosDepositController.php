@@ -56,6 +56,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\Facades\DataTables;
+use \jeremykenedy\LaravelLogger\App\Http\Traits\ActivityLogger;
 
 class SellPosDepositController extends Controller
 {
@@ -404,6 +405,7 @@ class SellPosDepositController extends Controller
                 }
 
                 $transaction = $this->transactionUtil->createSellTransaction($business_id, $input, $invoice_total, $user_id);
+                ActivityLogger::activity("Created transaction, ticket # ".$transaction->invoice_no);
 
                 $this->transactionUtil->createOrUpdateSellLines($transaction, $input['products'], $input['location_id']);
 
@@ -1064,6 +1066,7 @@ class SellPosDepositController extends Controller
                     DB::beginTransaction();
 
                     $transaction = $this->transactionUtil->updateSellTransaction($id, $business_id, $input, $invoice_total, $user_id);
+                    ActivityLogger::activity("Edited transaction, ticket # ".$transaction->invoice_no);
 
                     // //Update Sell lines
                     $deleted_lines = $this->transactionUtil->createOrUpdateSellLines($transaction, $input['products'], $input['location_id'], true, $status_before);

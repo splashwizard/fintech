@@ -87,6 +87,7 @@ return [
     'calculation_percentage' => 'Calculation Percentage (%)',
     'tooltip_calculation_percentage' => '<b>Selling price = Selling price Set For the product + Calculation percentage </b> <br/><br/> You can specify percentage as positive to increase and negtive to decrease selling price.',
     'display_groups' => 'Display Groups',
+    'audit_log' => 'Audit Log',
     'display_group' => 'Display Group',
     'all_your_display_groups' => 'All Display Groups',
     'display_group_name' => 'Display Group Name',

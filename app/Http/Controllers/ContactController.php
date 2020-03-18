@@ -17,6 +17,7 @@ use DB;
 use Excel;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
+use \jeremykenedy\LaravelLogger\App\Http\Traits\ActivityLogger;
 
 class ContactController extends Controller
 {
@@ -405,7 +406,6 @@ class ContactController extends Controller
         if (!auth()->user()->can('supplier.create') && !auth()->user()->can('customer.create')) {
             abort(403, 'Unauthorized action.');
         }
-
         try {
             $business_id = $request->session()->get('user.business_id');
 
@@ -422,7 +422,7 @@ class ContactController extends Controller
             $input['credit_limit'] = $request->input('credit_limit') != '' ? $this->commonUtil->num_uf($request->input('credit_limit')) : null;
             $bank_details = $request->get('bank_details');
             $input['bank_details'] = !empty($bank_details) ? json_encode($bank_details) : null;
-            
+
             $type = $request->get('type');
             if($type == 'blacklisted_customer'){
                 $input['remark'] = $request->get('remark');
@@ -448,6 +448,8 @@ class ContactController extends Controller
 
 
                 $contact = Contact::create($input);
+
+                ActivityLogger::activity("Created customer, contact ID ".$contact->contact_id);
 
 
                 $game_ids = request()->get('game_ids');
@@ -475,7 +477,7 @@ class ContactController extends Controller
             }
         } catch (\Exception $e) {
             \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-            
+
             $output = ['success' => false,
                             'msg' =>__("messages.something_went_wrong")
                         ];

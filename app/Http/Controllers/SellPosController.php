@@ -54,6 +54,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\Facades\DataTables;
+use \jeremykenedy\LaravelLogger\App\Http\Traits\ActivityLogger;
+
 
 class SellPosController extends Controller
 {
@@ -1177,6 +1179,8 @@ class SellPosController extends Controller
                     //If status is draft direct delete transaction
                     $transaction->payment_status = 'cancelled';
                     $transaction->save();
+                    ActivityLogger::activity("Cancelled transaction, ticket # ".$transaction->invoice_no);
+
 //                    if ($transaction->status == 'draft') {
 //                        $transaction->delete();
 //                    } else {
