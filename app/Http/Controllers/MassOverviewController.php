@@ -115,8 +115,15 @@ class MassOverviewController extends Controller
                         $html = '<a href="'.action("MassOverviewController@show", [$row->id]).'" class="btn btn-info btn-xs">View</a>';
                     return $html;
                 })
+                ->addColumn('currency', null)
+                ->addColumn('service', null)
+                ->addColumn('transfer_in', null)
+                ->addColumn('transfer_out', null)
                 ->addColumn('kiosk', null)
+                ->addColumn('cancel', null)
+                ->addColumn('expense', null)
                 ->addColumn('borrow', null)
+                ->addColumn('return', null)
                 ->editColumn(
                 'total_deposit',
                 function ($row) {

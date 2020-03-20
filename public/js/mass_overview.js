@@ -19,11 +19,17 @@ $(document).ready(function() {
         columns: [
             { data: 'id', name: 'id'},
             { data: 'company_name', name: 'company_name'},
+            { data: 'currency', name: 'currency'},
             { data: 'total_deposit', name: 'total_deposit'},
             { data: 'total_withdrawal', name: 'total_withdrawal'},
-            { data: 'expense', name: 'expense'},
+            { data: 'service', name: 'service'},
+            { data: 'transfer_in', name: 'transfer_in'},
+            { data: 'transfer_out', name: 'transfer_out'},
             { data: 'kiosk', name: 'kiosk'},
+            { data: 'cancel', name: 'cancel'},
+            { data: 'expense', name: 'expense'},
             { data: 'borrow', name: 'borrow'},
+            { data: 'return', name: 'return'},
             { data: 'action', name: 'action'}
         ]
     });

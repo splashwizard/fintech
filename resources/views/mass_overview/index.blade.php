@@ -63,11 +63,17 @@
                 <tr>
                     <th>@lang('mass_overview.serial')</th>
                     <th>@lang('mass_overview.company_name')</th>
+					<th>@lang('mass_overview.currency')</th>
                     <th>@lang('mass_overview.total_deposit')</th>
                     <th>@lang('mass_overview.total_withdrawal')</th>
-					<th>@lang('mass_overview.expense')</th>
+					<th>@lang('mass_overview.service')</th>
+					<th>@lang('mass_overview.transfer_in')</th>
+					<th>@lang('mass_overview.transfer_out')</th>
 					<th>@lang('mass_overview.kiosk')</th>
+					<th>@lang('mass_overview.cancel')</th>
+					<th>@lang('mass_overview.expense')</th>
 					<th>@lang('mass_overview.borrow')</th>
+					<th>@lang('mass_overview.return')</th>
                     <th>@lang('mass_overview.action')</th>
                 </tr>
                 </thead>
