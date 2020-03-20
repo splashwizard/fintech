@@ -48,38 +48,42 @@
             </div>
 		</div>
 	</div>
-    @component('components.widget', ['class' => 'box-primary', 'title' => __( 'lang_v1.all_sales')])
-        @can('sell.create')
-            @slot('tool')
-                <div class="box-tools">
-                    <a class="btn btn-block btn-primary" href="{{action('SellController@create')}}">
-                        <i class="fa fa-plus"></i> @lang('messages.add')</a>
-                </div>
-            @endslot
-        @endcan
-        <div class="table-responsive">
-            <table class="table table-bordered table-striped ajax_view" id="company_table">
-                <thead>
-                <tr>
-                    <th>@lang('mass_overview.serial')</th>
-                    <th>@lang('mass_overview.company_name')</th>
-					<th>@lang('mass_overview.currency')</th>
-                    <th>@lang('mass_overview.total_deposit')</th>
-                    <th>@lang('mass_overview.total_withdrawal')</th>
-					<th>@lang('mass_overview.service')</th>
-					<th>@lang('mass_overview.transfer_in')</th>
-					<th>@lang('mass_overview.transfer_out')</th>
-					<th>@lang('mass_overview.kiosk')</th>
-					<th>@lang('mass_overview.cancel')</th>
-					<th>@lang('mass_overview.expense')</th>
-					<th>@lang('mass_overview.borrow')</th>
-					<th>@lang('mass_overview.return')</th>
-                    <th>@lang('mass_overview.action')</th>
-                </tr>
-                </thead>
-            </table>
-        </div>
-    @endcomponent
+	<div class="row">
+		<div class="col-md-12" id="report_container">
+		</div>
+	</div>
+{{--    @component('components.widget', ['class' => 'box-primary', 'title' => __( 'lang_v1.all_sales')])--}}
+{{--        @can('sell.create')--}}
+{{--            @slot('tool')--}}
+{{--                <div class="box-tools">--}}
+{{--                    <a class="btn btn-block btn-primary" href="{{action('SellController@create')}}">--}}
+{{--                        <i class="fa fa-plus"></i> @lang('messages.add')</a>--}}
+{{--                </div>--}}
+{{--            @endslot--}}
+{{--        @endcan--}}
+{{--        <div class="table-responsive">--}}
+{{--            <table class="table table-bordered table-striped ajax_view" id="company_table">--}}
+{{--                <thead>--}}
+{{--                <tr>--}}
+{{--                    <th>@lang('mass_overview.serial')</th>--}}
+{{--                    <th>@lang('mass_overview.company_name')</th>--}}
+{{--					<th>@lang('mass_overview.currency')</th>--}}
+{{--                    <th>@lang('mass_overview.total_deposit')</th>--}}
+{{--                    <th>@lang('mass_overview.total_withdrawal')</th>--}}
+{{--					<th>@lang('mass_overview.service')</th>--}}
+{{--					<th>@lang('mass_overview.transfer_in')</th>--}}
+{{--					<th>@lang('mass_overview.transfer_out')</th>--}}
+{{--					<th>@lang('mass_overview.kiosk')</th>--}}
+{{--					<th>@lang('mass_overview.cancel')</th>--}}
+{{--					<th>@lang('mass_overview.expense')</th>--}}
+{{--					<th>@lang('mass_overview.borrow')</th>--}}
+{{--					<th>@lang('mass_overview.return')</th>--}}
+{{--                    <th>@lang('mass_overview.action')</th>--}}
+{{--                </tr>--}}
+{{--                </thead>--}}
+{{--            </table>--}}
+{{--        </div>--}}
+{{--    @endcomponent--}}
 	</section>
 <!-- /.content -->
 @stop

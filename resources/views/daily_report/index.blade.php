@@ -32,9 +32,8 @@
 @section('javascript')
 <script>
     $(document).ready(function(){
-        console.log('je;;p');
         reloadTable();
-    })
+    });
     $('#daily_report_date_range').daterangepicker(dateRangeSettings, function(start, end) {
         $('#daily_report_date_range').val(
             start.format(moment_date_format) + ' ~ ' + end.format(moment_date_format)

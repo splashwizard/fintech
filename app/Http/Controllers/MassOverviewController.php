@@ -7,6 +7,7 @@ use App\BusinessLocation;
 
 use App\Contact;
 use App\Currency;
+use App\DisplayGroup;
 use App\Transaction;
 use App\Business;
 use App\User;
@@ -44,6 +45,9 @@ class MassOverviewController extends Controller
         $this->businessUtil = $businessUtil;
         $this->transactionUtil = $transactionUtil;
         $this->moduleUtil = $moduleUtil;
+        $this->bank_columns = ['currency' => 'Currency', 'balance' => 'Balance B/F', 'deposit' => 'In', 'withdraw' => 'Out', 'service' => 'Service', 'transfer_in' => 'Total In', 'transfer_out' => 'Total Out', 'kiosk' => 'Kiosk', 'back' => 'Cancel',
+            'in_ticket' => 'In Ticket', 'out_ticket' => 'Out Ticket', 'overall' => 'Overall Total', 'win_loss' => 'Win/Loss', 'expenses' => 'Expenses', 'unclaim' => 'Unclaim'];
+        $this->service_columns = ['balance' => 'Balance B/F', 'deposit' => 'In', 'withdraw' => 'Out', 'bonus' => 'Bonus', 'luckydraw' => 'Luckydraw', 'free_credit' => 'Free Credit', 'advance_credit' => 'Advance credit', 'transfer_in' => 'Transfer + ', 'transfer_out' => 'Transfer - '];
     }
 
     /**
@@ -151,6 +155,155 @@ class MassOverviewController extends Controller
         return view('mass_overview.index', compact('date_filters'));
     }
 
+    public function getTableData(){
+        $allowed_business_ids = [];
+        if(auth()->user()->hasRole('Superadmin')){
+            $data = Business::get();
+            foreach ($data as $row) {
+                $allowed_business_ids[] = $row->id;
+            }
+        } else {
+            $user_business_id = request()->session()->get('user.business_id');
+            $user_id = request()->session()->get('user.id');
+            $data = AdminHasBusiness::where('user_id', $user_id)->get();
+            foreach ($data as $row){
+                $allowed_business_ids[] = $row->business_id;
+            }
+            if(array_search($user_business_id, $allowed_business_ids) === FALSE)
+                $allowed_business_ids[] = $user_business_id;
+        }
+//        print_r($allowed_business_ids);exit;
+        $table_data = [];
+        foreach ($allowed_business_ids as $business_id) {
+            $business_name = Business::find($business_id)->name;
+            $new_row = [];
+            $new_row['serial'] = $business_id;
+            $new_row['name'] = $business_name;
+            if(auth()->user()->hasRole('Superadmin'))
+                $new_row['action'] = '<a href="'.action("MassOverviewController@edit", [$business_id]).'" class="btn btn-info btn-xs">Edit</a>';
+            else
+                $new_row['action'] = '<a href="'.action("MassOverviewController@show", [$business_id]).'" class="btn btn-info btn-xs">View</a>';
+            $table_data[] = $new_row;
+
+            $group_cnt = DisplayGroup::where('business_id', $business_id)->count();
+            if($group_cnt > 0){
+                $bank_accounts_obj = [];
+                //currency
+    //            $bank_accounts_sql = Account::leftjoin('currencies AS c', 'c.id', 'accounts.currency_id')->where('is_service', 0)
+    //                ->where('accounts.name', '!=', 'Bonus Account')
+    //                ->where('accounts.business_id', $business_id)
+    //                ->select(['c.code as code', 'accounts.id as account_id']);
+    //            $bank_account_currencies = $bank_accounts_sql->get();
+    //            foreach ($bank_account_currencies as $bank_account) {
+    //                $bank_accounts_obj[$bank_account['account_id']]['currency'] = $bank_account['code'];
+    //            }
+                //        print_r($bank_accounts_obj);exit;
+
+                $start = request()->start_date;
+                $end = request()->end_date;
+                // balance, deposit, withdraw
+                $bank_accounts_sql = Account::leftjoin('account_transactions as AT', function ($join) {
+                    $join->on('AT.account_id', '=', 'accounts.id');
+                    $join->whereNull('AT.deleted_at');
+                })
+                    ->where('is_service', 0)
+                    ->where('name', '!=', 'Bonus Account')
+                    ->where('display_group_id', '!=', 0)
+                    ->where('business_id', $business_id)
+                    ->select(['accounts.display_group_id as group_id',
+                        'is_closed', DB::raw("SUM( IF(AT.type='credit', amount, -1*amount) ) as balance")
+                        , DB::raw("SUM( IF( AT.type='credit' AND (AT.sub_type IS NULL OR AT.`sub_type` != 'fund_transfer'), AT.amount, 0) ) as total_deposit")
+                        , DB::raw("SUM( IF( AT.type='debit' AND (AT.sub_type IS NULL OR AT.`sub_type` != 'fund_transfer'), AT.amount, 0) ) as total_withdraw")
+                        , DB::raw("SUM( IF(AT.type='credit' AND AT.sub_type='fund_transfer', amount, 0) ) as transfer_in")
+                        , DB::raw("SUM( IF(AT.type='debit' AND AT.sub_type='fund_transfer', amount, 0) ) as transfer_out")])
+                    ->groupBy('display_group_id');
+                $bank_accounts_sql->where(function ($q) {
+                    $q->where('account_type', '!=', 'capital');
+                    $q->orWhereNull('account_type');
+                });
+                $bank_account_balances = $bank_accounts_sql->get();
+                //        print_r($bank_account_balances);exit;
+                foreach ($bank_account_balances as $bank_account) {
+                    $bank_accounts_obj[$bank_account['account_id']]['balance'] = $bank_account['balance'];
+                }
+                if (!empty($start) && !empty($end)) {
+                    $bank_accounts_sql->whereDate('AT.operation_date', '>=', $start)
+                        ->whereDate('AT.operation_date', '<=', $end);
+                }
+                $bank_accounts = $bank_accounts_sql->get();
+                foreach ($bank_accounts as $bank_account) {
+                    $bank_accounts_obj[$bank_account['group_id']]['deposit'] = $bank_account['total_deposit'];
+                    $bank_accounts_obj[$bank_account['group_id']]['withdraw'] = $bank_account['total_withdraw'];
+                    $bank_accounts_obj[$bank_account['group_id']]['transfer_in'] = $bank_account['transfer_in'];
+                    $bank_accounts_obj[$bank_account['group_id']]['transfer_out'] = $bank_account['transfer_out'];
+                    $bank_accounts_obj[$bank_account['group_id']]['overall'] = $bank_account['balance'] + $bank_account['total_deposit'] - $bank_account['total_withdraw'];
+                    $bank_accounts_obj[$bank_account['group_id']]['win_loss'] = $bank_account['total_deposit'] - $bank_account['total_withdraw'];
+                }
+                // back
+                $bank_accounts_sql = Account::join('transaction_payments as tp', 'tp.account_id', 'accounts.id')
+                    ->join('transactions as t', 't.id', 'tp.transaction_id')
+                    ->where('accounts.is_service', 0)
+                    ->where('accounts.business_id', $business_id)
+                    ->where('accounts.display_group_id', '!=', 0)
+                    ->select('accounts.display_group_id as group_id', DB::raw("SUM( IF(t.type = 'sell' AND t.payment_status = 'cancelled' , tp.amount, 0) ) as cancel"))
+                    ->groupBy('accounts.display_group_id');
+                if (!empty(request()->start_date) && !empty(request()->end_date)) {
+                    $bank_accounts_sql->whereDate('t.transaction_date', '>=', $start)
+                        ->whereDate('t.transaction_date', '<=', $end);
+                }
+                $bank_accounts = $bank_accounts_sql->get();
+                foreach ($bank_accounts as $bank_account) {
+                    $bank_accounts_obj[$bank_account['group_id']]['cancel'] = $bank_account['cancel'];
+                }
+                // service charge
+                $withdraws = Transaction::join('transaction_payments as tp', 'transactions.id', '=', 'tp.transaction_id')
+                    ->leftJoin('accounts', 'tp.account_id', '=', 'accounts.id')
+                    ->where('transactions.business_id', $business_id)
+                    ->where('transactions.type', 'sell_return')
+                    ->where('transactions.status', 'final')
+                    ->where('tp.method', 'bank_charge')
+                    ->where('accounts.is_service', 0)
+                    ->where('accounts.display_group_id', '!=', 0)
+                    ->whereDate('transactions.transaction_date', '>=', $start)
+                    ->whereDate('transactions.transaction_date', '<=', $end)
+                    ->groupBy('accounts.display_group_id')
+                    ->select('accounts.display_group_id as group_id', DB::raw("SUM(tp.amount) as bank_charge"))->get();
+
+                foreach ($withdraws as $row) {
+                    $bank_accounts_obj[$row['group_id']]['service'] = $row['bank_charge'];
+                }
+                // expenses
+                $expenses = Transaction::join('transaction_payments AS tp', 'transactions.id', '=', 'tp.transaction_id')
+                    ->leftJoin('accounts', 'tp.account_id', '=', 'accounts.id')
+                    ->where('transactions.business_id', $business_id)
+                    ->where('transactions.type', 'expense')
+                    ->whereDate('tp.paid_on', '>=', $start)
+                    ->whereDate('tp.paid_on', '<=', $end)
+                    ->select('accounts.display_group_id as group_id', DB::raw('SUM(transactions.final_total) as final_total'))
+                    ->where('accounts.display_group_id', '!=', 0)
+                    ->groupBy('accounts.display_group_id')->get();
+
+                foreach ($expenses as $row) {
+                    $bank_accounts_obj[$row['group_id']]['expenses'] = $row['final_total'];
+                }
+
+                $group_names = DisplayGroup::where('business_id', $business_id)->get();
+                $keys = ['deposit', 'withdraw', 'service', 'transfer_in', 'transfer_out', 'cancel', 'expenses'];
+                foreach ($group_names as $row) {
+                    foreach ($keys as $key){
+                        if (!isset($bank_accounts_obj[$row->id][$key]))
+                            $bank_accounts_obj[$row->id][$key] = 0;
+                    }
+                    $bank_accounts_obj[$row->id]['name'] = $row->name;
+                    $table_data[] = $bank_accounts_obj[$row->id];
+                }
+            }
+        }
+        $columns = ['serial', 'name', 'currenc', 'deposit', 'withdraw', 'service', 'transfer_in', 'transfer_out', 'kiosk', 'cancel', 'expenses', 'borrow', 'return', 'action'];
+
+        $output['html_content'] = view('mass_overview.report_table')->with(compact('table_data', 'columns'))->render();
+        return json_encode($output);
+    }
 
     /**
      * Display the specified resource.

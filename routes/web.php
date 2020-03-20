@@ -47,6 +47,7 @@ Route::middleware(['IsInstalled', 'auth', 'SetSessionData', 'language', 'timezon
     Route::post('/mass_overview/store_admin_to_business', 'MassOverviewController@storeAdminToBusiness');
     Route::post('/mass_overview/remove_admin_from_business/{user_id}', 'MassOverviewController@removeAdminFromBusiness');
     Route::get('/mass_overview/get_users', 'MassOverviewController@getUsers');
+    Route::get('/mass_overview/get_table_data', 'MassOverviewController@getTableData');
     Route::resource('mass_overview', 'MassOverviewController');
 
     Route::get('/load-more-notifications', 'HomeController@loadMoreNotifications');
