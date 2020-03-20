@@ -57,6 +57,7 @@ function copyTextToClipboard(text) {
 }
 $(document).ready(function() {
     customer_set = false;
+    var variation_ids = [];
     //Prevent enter key function except texarea
     $('form').on('keyup keypress', function(e) {
         var keyCode = e.keyCode || e.which;
@@ -142,7 +143,17 @@ $(document).ready(function() {
         var product_id = $('select#bank_products').val();
         var brand_id = $('select#product_brand').val();
 
+        var cur_customer_id = $('#customer_id').val();
+        reset_pos_form();
+        $('select#customer_id')
+            .val(cur_customer_id)
+            .trigger('change');
+        for(var i = 0; i < variation_ids.length; i++){
+            pos_product_row(variation_ids[i]);
+        }
+        // variation_ids = [];
         get_product_suggestion_list(category_id, product_id, brand_id, location_id);
+
         // var data = e.params.data;
         // if (data.pay_term_number) {
         //     $('input#pay_term_number').val(data.pay_term_number);
@@ -1175,6 +1186,7 @@ $(document).ready(function() {
         if ($('input#location_id').val() == '') {
             toastr.warning(LANG.select_location);
         } else {
+            variation_ids.push($(this).data('variation_id'));
             // $('#account_0').val($(this).data('account_id')).trigger('change');
             let is_service = 0;
             if($(this).parent().parent().attr('id') === 'product_list_body2')
@@ -2194,7 +2206,7 @@ function getCustomerRewardPoints() {
         success: function(result) {
             $('#available_rp').text(result.points);
             $('#rp_redeemed_modal').data('max_points', result.points);
-            updateRedeemedAmount();
+            // updateRedeemedAmount();
             $('#rp_redeemed_amount').change()
         },
     });

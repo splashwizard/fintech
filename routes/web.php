@@ -392,7 +392,7 @@ Route::group(['prefix' => 'activity', 'namespace' => '\jeremykenedy\LaravelLogge
     Route::get('/cleared/log/{id}', 'LaravelLoggerController@showClearedAccessLogEntry');
 
     // Forms
-    Route::delete('/clear-activity', ['uses' => 'LaravelLoggerController@clearActivityLog'])->name('clear-activity');
     Route::delete('/destroy-activity', ['uses' => 'LaravelLoggerController@destroyActivityLog'])->name('destroy-activity');
+    Route::delete('/clear-activity', ['uses' => 'LaravelLoggerController@clearActivityLog'])->name('clear-activity');
     Route::post('/restore-log', ['uses' => 'LaravelLoggerController@restoreClearedActivityLog'])->name('restore-activity');
 });

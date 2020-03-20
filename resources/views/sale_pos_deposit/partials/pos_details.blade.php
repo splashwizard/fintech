@@ -20,6 +20,10 @@
 							</div>
 
 							<div class="col-sm-2 col-xs-3 d-inline-table">
+								@php
+									$is_discount_enabled = $pos_settings['disable_discount'] != 1 ? true : false;
+									$is_rp_enabled = session('business.enable_rp') == 1 ? true : false;
+								@endphp
 								Free Credit
 								<br/>
 								<span id="special_bonus">0</span>
@@ -87,11 +91,11 @@
 	</div>
 </div>
 
-{{--@if(isset($transaction))--}}
-{{--	@include('sale_pos.partials.edit_discount_modal', ['sales_discount' => $transaction->discount_amount, 'discount_type' => $transaction->discount_type, 'rp_redeemed' => $transaction->rp_redeemed, 'rp_redeemed_amount' => $transaction->rp_redeemed_amount, 'max_available' => !empty($redeem_details['points']) ? $redeem_details['points'] : 0])--}}
-{{--@else--}}
-{{--	@include('sale_pos.partials.edit_discount_modal', ['sales_discount' => $business_details->default_sales_discount, 'discount_type' => 'percentage', 'rp_redeemed' => 0, 'rp_redeemed_amount' => 0, 'max_available' => 0])--}}
-{{--@endif--}}
+@if(isset($transaction))
+	@include('sale_pos.partials.edit_discount_modal', ['sales_discount' => $transaction->discount_amount, 'discount_type' => $transaction->discount_type, 'rp_redeemed' => $transaction->rp_redeemed, 'rp_redeemed_amount' => $transaction->rp_redeemed_amount, 'max_available' => !empty($redeem_details['points']) ? $redeem_details['points'] : 0])
+@else
+	@include('sale_pos.partials.edit_discount_modal', ['sales_discount' => $business_details->default_sales_discount, 'discount_type' => 'percentage', 'rp_redeemed' => 0, 'rp_redeemed_amount' => 0, 'max_available' => 0])
+@endif
 
 @if(isset($transaction))
 	@include('sale_pos.partials.edit_order_tax_modal', ['selected_tax' => $transaction->tax_id])
