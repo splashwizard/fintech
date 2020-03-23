@@ -1247,7 +1247,7 @@ class ContactController extends Controller
 //                'credit' => in_array($payment->transaction_type, ['sell', 'purchase_return', 'opening_balance']) && $payment->method !='other' ? $payment->amount : '',
                 'debit' => ($payment->transaction_type == 'sell_return' && $payment->method != 'service_transfer') ? $payment->amount : '',
                 'credit' => ($payment->transaction_type == 'sell' && $payment->method == 'bank_transfer') ? $payment->amount : '',
-                'bonus' => ($payment->transaction_type == 'sell' && $payment->method == 'bonus') ? $payment->amount : '',
+                'bonus' => ($payment->transaction_type == 'sell' && ($payment->method == 'basic_bonus' || $payment->method == 'free_credit') ) ? $payment->amount : '',
                 'service_debit' => ($payment->transaction_type == 'sell_return' && $payment->method == 'service_transfer') ? $payment->amount : '',
                 'service_credit' => ($payment->transaction_type == 'sell' && $payment->method == 'service_transfer' ) ? $payment->amount : '',
                 'others' => $payment->note . '<small>' . __('account.payment_for') . ': ' . $ref_no . '</small>'

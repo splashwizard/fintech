@@ -55,6 +55,7 @@ function copyTextToClipboard(text) {
 
     document.body.removeChild(textArea);
 }
+var pos_form_obj;
 $(document).ready(function() {
     customer_set = false;
     var variation_ids = [];
@@ -308,6 +309,8 @@ $(document).ready(function() {
             url: '/sells/pos_deposit/get_payment_rows',
             data: data,
             dataType: 'html',
+            contentType: false, // NEEDED, DON'T OMIT THIS (requires jQuery 1.6+)
+            processData: false,
             success: function(result) {
                 if(result){
                     $('#payment_rows_div').html(result);
@@ -328,10 +331,11 @@ $(document).ready(function() {
             .find('select.tax_id')
             .find(':selected')
             .data('rate');
+        __write_number(tr.find('input.pos_quantity'), 1);
         var quantity = __read_number(tr.find('input.pos_quantity'));
 
         var unit_price_inc_tax = __add_percent(discounted_unit_price, tax_rate);
-        var line_total = quantity * unit_price_inc_tax;
+        var line_total = quantity *  unit_price_inc_tax;
 
         __write_number(tr.find('input.pos_unit_price_inc_tax'), unit_price_inc_tax);
         __write_number(tr.find('input.pos_line_total'), line_total, false, 2);
@@ -346,6 +350,8 @@ $(document).ready(function() {
             url: '/sells/pos_deposit/get_payment_rows',
             data: data,
             dataType: 'html',
+            contentType: false, // NEEDED, DON'T OMIT THIS (requires jQuery 1.6+)
+            processData: false,
             success: function(result) {
                 if(result){
                     $('#payment_rows_div').html(result);
@@ -511,6 +517,8 @@ $(document).ready(function() {
             url: '/sells/pos_deposit/get_payment_rows',
             data: data,
             dataType: 'html',
+            contentType: false, // NEEDED, DON'T OMIT THIS (requires jQuery 1.6+)
+            processData: false,
             success: function(result) {
                 if(result){
                     $('#payment_rows_div').html(result);
@@ -895,8 +903,10 @@ $(document).ready(function() {
                             $('#modal_payment').modal('hide');
                             toastr.success(result.msg);
 
-                            if(!edit_page)
+                            if(!edit_page){
+                                variation_ids = [];
                                 reset_pos_form();
+                            }
 
                             $('#modal_success').modal('show');
                             get_contact_ledger();
@@ -1194,7 +1204,6 @@ $(document).ready(function() {
             pos_product_row($(this).data('variation_id'), is_service);
 
             let data = new FormData(pos_form_obj[0]);
-            data.append('test','sdf');
             data.delete('_method');
             $.ajax({
                 method:'POST',
@@ -1472,7 +1481,6 @@ function get_contact_ledger() {
                     // Total over this page
                     let columns = [2,3,6,7,8];
                     for(let i = 0; i < columns.length; i++){
-                        console.log(columns[i]);
                         pageTotal = api
                             .column( columns[i], { page: 'current'} )
                             .data()
