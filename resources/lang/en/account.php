@@ -22,7 +22,7 @@ return [
     'debit' => 'Debit',
     'service_credit' => 'Service Credit',
     'service_debit' => 'Service Debit',
-    'bonus' => 'Bonus',
+    'free_credit' => 'Free Credit',
     'account_name' => 'Account Name',
     'transaction_type' => 'Transaction Type',
     'fund_transfer' => 'Fund Transfer',

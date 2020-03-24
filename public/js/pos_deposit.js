@@ -906,6 +906,10 @@ $(document).ready(function() {
                             if(!edit_page){
                                 variation_ids = [];
                                 reset_pos_form();
+                            } else {
+                                setTimeout(function () {
+                                    window.location.href="/sells";
+                                },3000)
                             }
 
                             $('#modal_success').modal('show');

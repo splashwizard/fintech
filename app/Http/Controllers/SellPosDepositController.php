@@ -1776,6 +1776,8 @@ class SellPosDepositController extends Controller
         $query1->whereDate('transactions.transaction_date', '>=', $start)
             ->whereDate('transactions.transaction_date', '<=', $end);
 
+        if($selected_bank == 'GTransfer')
+            $query2->where('t.sub_type', 'service_to_service');
         $query2->whereDate('paid_on', '>=', $start)
             ->whereDate('paid_on', '<=', $end);
 
@@ -1783,50 +1785,81 @@ class SellPosDepositController extends Controller
             , 'c.id as contact_primary_key', 'c.contact_id as contact_id', 'a.id as account_id', 'a.name as account_name', 't.created_by as created_by')->get();
 //        $total_deposit = $query2->where('t.type', 'sell')->where('transaction_payments.method', '!=', 'service_transfer')->where('transaction_payments.method','!=', 'bonus')->sum('transaction_payments.amount');
         $paymentTypes = $this->transactionUtil->payment_types();
-        $ledger_by_payment = [];
-        foreach ($payments as $payment) {
-            if(empty($ledger_by_payment[$payment->transaction_id])){
-                $ref_no = in_array($payment->transaction_type, ['sell', 'sell_return']) ?  $payment->invoice_no :  $payment->ref_no;
+        if($selected_bank == 'GTransfer') {
+            foreach ($payments as $payment) {
+                $ref_no = in_array($payment->transaction_type, ['sell', 'sell_return']) ? $payment->invoice_no : $payment->ref_no;
                 $user = User::find($payment->created_by);
-                $ledger_by_payment[$payment->transaction_id] = [
+
+
+                $game_data = GameId::where('contact_id', $payment->contact_primary_key)->where('service_id', $payment->account_id)->get();
+                $game_id = null;
+                if(count($game_data) >= 1){
+                    $game_id = $game_data[0]->game_id;
+                }
+                $ledger[] = [
                     'date' => $payment->paid_on,
                     'ref_no' => $payment->payment_ref_no,
                     'type' => $this->transactionTypes['payment'],
                     'location' => $payment->location_name,
                     'contact_id' => $payment->contact_id,
                     'payment_method' => !empty($paymentTypes[$payment->method]) ? $paymentTypes[$payment->method] : '',
-                    'debit' => ($payment->transaction_type == 'sell_return' && $payment->method != 'service_transfer') ? $payment->amount : 0,
-                    'credit' => ($payment->transaction_type == 'sell' && $payment->method == 'bank_transfer') ? $payment->amount : 0,
-                    'bonus' => ($payment->transaction_type == 'sell' && $payment->method == 'bonus') ? $payment->amount : 0 ,
-                    'service_debit' => ($payment->transaction_type == 'sell_return' && $payment->method == 'service_transfer') ? $payment->amount : 0,
-                    'service_credit' => ($payment->transaction_type == 'sell' && $payment->method == 'service_transfer' ) ? $payment->amount : 0,
+                    'debit' => 0,
+                    'credit' => 0,
+                    'bonus' => 0,
+                    'service_debit' => $payment->card_type == 'debit' ? $payment->amount : 0,
+                    'service_credit' => $payment->card_type == 'credit' ? $payment->amount : 0,
                     'others' => '<small>' . $ref_no . '</small>',
                     'bank_in_time' => $payment->bank_in_time,
-                    'user' => $user['first_name'].' '.$user['last_name']
+                    'user' => $user['first_name'] . ' ' . $user['last_name'],
+                    'service_name' => $payment->account_name,
+                    'game_id' => $game_id
                 ];
-            } else {
-                $ledger_by_payment[$payment->transaction_id]['debit'] += ($payment->transaction_type == 'sell_return' && $payment->method != 'service_transfer') ? $payment->amount : 0;
-                $ledger_by_payment[$payment->transaction_id]['credit'] += ($payment->transaction_type == 'sell' && $payment->method == 'bank_transfer') ? $payment->amount : 0;
-                $ledger_by_payment[$payment->transaction_id]['bonus'] += ($payment->transaction_type == 'sell' && $payment->method == 'bonus') ? $payment->amount : 0;
-                $ledger_by_payment[$payment->transaction_id]['service_debit'] += ($payment->transaction_type == 'sell_return' && $payment->method == 'service_transfer') ? $payment->amount : 0;
-                $ledger_by_payment[$payment->transaction_id]['service_credit'] += ($payment->transaction_type == 'sell' && $payment->method == 'service_transfer' ) ? $payment->amount : 0;
             }
-            if(($payment->transaction_type == 'sell' || $payment->transaction_type == 'sell_return' ) && $payment->method == 'service_transfer'){
-                $ledger_by_payment[$payment->transaction_id]['service_name'] = $payment->account_name;
-                $game_data = GameId::where('contact_id', $payment->contact_primary_key)->where('service_id', $payment->account_id)->get();
-                if(count($game_data) >= 1){
-                    $game_id = $game_data[0]->game_id;
-                    $ledger_by_payment[$payment->transaction_id]['game_id'] = $game_id;
+        } else {
+            $ledger_by_payment = [];
+            foreach ($payments as $payment) {
+                if(empty($ledger_by_payment[$payment->transaction_id])){
+                    $ref_no = in_array($payment->transaction_type, ['sell', 'sell_return']) ?  $payment->invoice_no :  $payment->ref_no;
+                    $user = User::find($payment->created_by);
+                    $ledger_by_payment[$payment->transaction_id] = [
+                        'date' => $payment->paid_on,
+                        'ref_no' => $payment->payment_ref_no,
+                        'type' => $this->transactionTypes['payment'],
+                        'location' => $payment->location_name,
+                        'contact_id' => $payment->contact_id,
+                        'payment_method' => !empty($paymentTypes[$payment->method]) ? $paymentTypes[$payment->method] : '',
+                        'debit' => ($payment->transaction_type == 'sell_return' && $payment->method != 'service_transfer') ? $payment->amount : 0,
+                        'credit' => ($payment->transaction_type == 'sell' && $payment->method == 'bank_transfer') ? $payment->amount : 0,
+                        'free_credit' => ($payment->transaction_type == 'sell' && $payment->method == 'free_credit') ? $payment->amount : 0 ,
+                        'service_debit' => ($payment->transaction_type == 'sell_return' && $payment->method == 'service_transfer') ? $payment->amount : 0,
+                        'service_credit' => ($payment->transaction_type == 'sell' && $payment->method == 'service_transfer' ) ? $payment->amount : 0,
+                        'others' => '<small>' . $ref_no . '</small>',
+                        'bank_in_time' => $payment->bank_in_time,
+                        'user' => $user['first_name'].' '.$user['last_name']
+                    ];
+                } else {
+                    $ledger_by_payment[$payment->transaction_id]['debit'] += ($payment->transaction_type == 'sell_return' && $payment->method != 'service_transfer') ? $payment->amount : 0;
+                    $ledger_by_payment[$payment->transaction_id]['credit'] += ($payment->transaction_type == 'sell' && $payment->method == 'bank_transfer') ? $payment->amount : 0;
+                    $ledger_by_payment[$payment->transaction_id]['free_credit'] += ($payment->transaction_type == 'sell' && $payment->method == 'free_credit') ? $payment->amount : 0;
+                    $ledger_by_payment[$payment->transaction_id]['service_debit'] += ($payment->transaction_type == 'sell_return' && $payment->method == 'service_transfer') ? $payment->amount : 0;
+                    $ledger_by_payment[$payment->transaction_id]['service_credit'] += ($payment->transaction_type == 'sell' && $payment->method == 'service_transfer' ) ? $payment->amount : 0;
+                }
+                if(($payment->transaction_type == 'sell' || $payment->transaction_type == 'sell_return' ) && $payment->method == 'service_transfer'){
+                    $ledger_by_payment[$payment->transaction_id]['service_name'] = $payment->account_name;
+                    $game_data = GameId::where('contact_id', $payment->contact_primary_key)->where('service_id', $payment->account_id)->get();
+                    if(count($game_data) >= 1){
+                        $game_id = $game_data[0]->game_id;
+                        $ledger_by_payment[$payment->transaction_id]['game_id'] = $game_id;
+                    }
+                }
+                if($payment->method == 'bank_transfer') {
+                    $ledger_by_payment[$payment->transaction_id]['bank_id'] = $payment->account_id;
                 }
             }
-            if($payment->method == 'bank_transfer') {
-                $ledger_by_payment[$payment->transaction_id]['bank_id'] = $payment->account_id;
+            foreach ($ledger_by_payment as $item){
+                if(isset($item['bank_id']) && $item['bank_id'] == $selected_bank)
+                    $ledger[] = $item;
             }
-        }
-//        print_r($ledger_by_payment);exit;
-        foreach ($ledger_by_payment as $item){
-            if(isset($item['bank_id']) && $item['bank_id'] == $selected_bank)
-                $ledger[] = $item;
         }
 //        print_r($ledger_by_payment);exit;
         //Sort by date

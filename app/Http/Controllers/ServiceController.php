@@ -718,9 +718,9 @@ class ServiceController extends Controller
                 if (!empty($document_name)) {
                     $input['document'] = $document_name;
                 }
-                $transaction = $this->transactionUtil->createSellReturnTransaction($business_id, $input, $invoice_total, $user_id);
+                $transaction = $this->transactionUtil->createSellReturnTransaction($business_id, $input, $invoice_total, $user_id, $withdraw_mode == 'b' ? 'service_to_bank' : 'service_to_service');
                 ActivityLogger::activity("Created transaction, ticket # ".$transaction->invoice_no);
-                $this->transactionUtil->createWithDrawPaymentLine($transaction, $user_id, $account_id, 1);
+                $this->transactionUtil->createWithDrawPaymentLine($transaction, $user_id, $account_id, 1, 'debit');
                 $this->transactionUtil->updateCustomerRewardPoints($contact_id, $amount, 0, 0);
 
                 $debit_data = [
@@ -766,7 +766,7 @@ class ServiceController extends Controller
 //                    else
 //                        $transaction = $this->transactionUtil->createSellReturnTransaction($business_id, $input, $invoice_total, $user_id);
                     $is_service = $withdraw_mode == 'b' ? 0 : 1;
-                    $this->transactionUtil->createWithDrawPaymentLine($transaction, $user_id, $bank_account_id, $is_service);
+                    $this->transactionUtil->createWithDrawPaymentLine($transaction, $user_id, $bank_account_id, $is_service, 'credit');
                     $this->transactionUtil->updateCustomerRewardPoints($contact_id, 0, 0, $amount);
 
 //                    $debit_data = [

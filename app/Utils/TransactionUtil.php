@@ -622,13 +622,14 @@ class TransactionUtil extends Util
     }
 
 
-    public function createWithDrawPaymentLine($transaction, $user_id = null, $account_id = null, $is_service = 0)
+    public function createWithDrawPaymentLine($transaction, $user_id = null, $account_id = null, $is_service = 0, $card_type = 'debit')
     {
         $payment_data = [
             'transaction_id' => $transaction->id,
             'amount' => $transaction->final_total,
             'method' => $is_service == 0 ? 'bank_transfer' : 'service_transfer',
             'business_id' => $transaction->business_id,
+            'card_type' => $card_type,
             'is_return' => 0,
             'paid_on' => !empty($transaction->transaction_date) ? $transaction->transaction_date : \Carbon::now()->toDateTimeString(),
             'created_by' => empty($user_id) ? auth()->user()->id : $user_id,
@@ -2997,7 +2998,7 @@ class TransactionUtil extends Util
      *
      * @return boolean
      */
-    public function createSellReturnTransaction($business_id, $input, $invoice_total, $user_id)
+    public function createSellReturnTransaction($business_id, $input, $invoice_total, $user_id, $sub_type=null)
     {
         $invoice_scheme_id = !empty($input['invoice_scheme_id']) ? $input['invoice_scheme_id'] : null;
         $invoice_no = !empty($input['invoice_no']) ? $input['invoice_no'] : $this->getWithdrawNumber($business_id, 'final', $input['location_id'], $invoice_scheme_id);
@@ -3007,6 +3008,7 @@ class TransactionUtil extends Util
             'business_id' => $business_id,
             'location_id' => $input['location_id'],
             'type' => 'sell_return',
+            'sub_type' => !empty($sub_type) ? $sub_type : null,
             'status' => 'final',
             'contact_id' => $input['contact_id'],
             'customer_group_id' => $input['customer_group_id'],
