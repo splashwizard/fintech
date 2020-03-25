@@ -131,13 +131,16 @@
                 $('#bank_div').show();
                 $('#service_div').hide();
                 $('#service_div select').removeAttr('required');
-                $('#receipt_image_div').show();
-            } else {
+                // $('#receipt_image_div').show();
+            } else if (withdraw_mode === 'gt') {
                 $('#bank_div').hide();
                 $('#bank_div select').removeAttr('required');
                 $('#service_div').show();
-                $('#receipt_image_div').hide();
-                $('#pasteArea').removeAttr('required');
+                // $('#receipt_image_div').hide();
+            } else {
+                $('#bank_div').hide();
+                $('#service_div').hide();
+                // $('#receipt_image_div').hide();
             }
         });
         $('#withdraw_to').select2({

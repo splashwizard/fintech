@@ -1777,7 +1777,9 @@ class SellPosDepositController extends Controller
             ->whereDate('transactions.transaction_date', '<=', $end);
 
         if($selected_bank == 'GTransfer')
-            $query2->where('t.sub_type', 'service_to_service');
+            $query2->where('t.sub_type', 'game_credit_transfer');
+        else if($selected_bank == 'Deduction')
+            $query2->where('t.sub_type', 'game_credit_deduct');
         $query2->whereDate('paid_on', '>=', $start)
             ->whereDate('paid_on', '<=', $end);
 
@@ -1785,7 +1787,7 @@ class SellPosDepositController extends Controller
             , 'c.id as contact_primary_key', 'c.contact_id as contact_id', 'a.id as account_id', 'a.name as account_name', 't.created_by as created_by')->get();
 //        $total_deposit = $query2->where('t.type', 'sell')->where('transaction_payments.method', '!=', 'service_transfer')->where('transaction_payments.method','!=', 'bonus')->sum('transaction_payments.amount');
         $paymentTypes = $this->transactionUtil->payment_types();
-        if($selected_bank == 'GTransfer') {
+        if($selected_bank == 'GTransfer' || $selected_bank == 'Deduction') {
             foreach ($payments as $payment) {
                 $ref_no = in_array($payment->transaction_type, ['sell', 'sell_return']) ? $payment->invoice_no : $payment->ref_no;
                 $user = User::find($payment->created_by);
@@ -1805,7 +1807,7 @@ class SellPosDepositController extends Controller
                     'payment_method' => !empty($paymentTypes[$payment->method]) ? $paymentTypes[$payment->method] : '',
                     'debit' => 0,
                     'credit' => 0,
-                    'bonus' => 0,
+                    'free_credit' => 0,
                     'service_debit' => $payment->card_type == 'debit' ? $payment->amount : 0,
                     'service_credit' => $payment->card_type == 'credit' ? $payment->amount : 0,
                     'others' => '<small>' . $ref_no . '</small>',

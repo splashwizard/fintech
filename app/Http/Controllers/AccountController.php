@@ -65,6 +65,7 @@ class AccountController extends Controller
             })
                 ->leftjoin('currencies', 'currencies.id', 'accounts.currency_id')
                                 ->where('is_service', 0)
+                                ->where('name', '!=', 'Bonus Account')
                                 ->where('business_id', $business_id)
                                 ->select(['name', 'account_number', 'accounts.note', 'accounts.id', 'currencies.code as currency',
                                     'is_closed', DB::raw("SUM( IF(AT.type='credit', amount, -1*amount) ) as balance")])
@@ -97,8 +98,10 @@ class AccountController extends Controller
 
                                 <button data-url="{{action(\'AccountController@close\',[$id])}}" class="btn btn-xs btn-danger close_account"><i class="fa fa-close"></i> @lang("messages.close")</button>
                                 <button data-href="{{action(\'AccountController@getWithdraw\',[$id])}}" class="btn btn-xs btn-primary btn-modal" data-container=".view_modal"><i class="fa fa-money"></i> @lang("account.withdraw")</button>
+                                <button data-href="{{action(\'AccountController@getExchange\',[$id])}}" class="btn btn-xs btn-warning btn-modal" data-container=".view_modal"><i class="fa fa-exchange"></i> @lang("account.exchange")</button>
                                 ':'<a href="{{action(\'AccountController@show\',[$id])}}" class="btn btn-warning btn-xs"><i class="fa fa-book"></i> @lang("account.account_book")</a>
                                 <button data-href="{{action(\'AccountController@getWithdraw\',[$id])}}" class="btn btn-xs btn-primary btn-modal" data-container=".view_modal"><i class="fa fa-money"></i> @lang("account.withdraw")</button>'
+
                             )
                             ->editColumn('name', function ($row) {
                                 if ($row->is_closed == 1) {
@@ -286,6 +289,10 @@ class AccountController extends Controller
                                         $details =
 //                                            '<b>' . __('contact.customer') . ':</b> ' . $row->transaction->contact->name . '<br><b>'.
                                             __('sale.invoice_no') . ':</b> ' . $row->transaction->invoice_no;
+                                    }
+                                    else if($row->sub_type == 'currency_exchange'){
+                                        $note = AccountTransaction::find($row->id)['note'];
+                                        $details = 'Currency Exchange'. '<br>'.$note;
                                     }
                                 } else {
                                     if (!empty($row->transaction->type)) {
@@ -499,6 +506,36 @@ class AccountController extends Controller
         }
     }
 
+    public function getExchange($id)
+    {
+        if (!auth()->user()->can('account.access')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        if (request()->ajax()) {
+            $business_id = session()->get('user.business_id');
+
+            $from_account = Account::join('currencies', 'currencies.id', 'accounts.currency_id')
+                ->where('accounts.business_id', $business_id)
+                ->where('accounts.id', $id)
+                ->select('currencies.code AS code', 'accounts.id as id', 'accounts.name as name')
+                ->get()[0];
+//                ->NotClosed()
+//                ->find($id);
+
+            $to_accounts = Account::join('currencies', 'currencies.id', 'accounts.currency_id')
+                ->where('accounts.business_id', $business_id)
+                ->where('accounts.id', '!=', $id)
+                ->select(DB::raw("CONCAT(accounts.name, ' (',currencies.code, ')') AS name_code"), 'accounts.id AS account_id')
+                ->get()
+//                ->NotClosed()
+                ->pluck('name_code', 'account_id');
+
+            return view('account.exchange')
+                ->with(compact('from_account', 'to_accounts'));
+        }
+    }
+
     /**
      * Transfers fund from one account to another.
      * @return Response
@@ -562,6 +599,74 @@ class AccountController extends Controller
                 $output = ['success' => false,
                             'msg' => __("messages.something_went_wrong")
                         ];
+            }
+
+            return $output;
+        }
+    }
+
+    /**
+     * Transfers fund from one account to another.
+     * @return Response
+     */
+    public function postExchange(Request $request)
+    {
+        if (!auth()->user()->can('account.access')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        if (request()->ajax()) {
+            try {
+                $business_id = session()->get('user.business_id');
+
+                $amount_to_send = $this->commonUtil->num_uf($request->input('amount_to_send'));
+                $amount_to_receive = $this->commonUtil->num_uf($request->input('amount_to_receive'));
+                $from = $request->input('from_account');
+                $to = $request->input('to_account');
+                $note = $request->input('note');
+                $date = new \DateTime('now');
+                $debit_data = [
+                    'amount' => $amount_to_send,
+                    'account_id' => $from,
+                    'type' => 'debit',
+                    'sub_type' => 'currency_exchange',
+                    'created_by' => session()->get('user.id'),
+                    'note' => $note,
+                    'transfer_account_id' => $to,
+                    'operation_date' => $date->format('Y-m-d H:i:s'),
+                ];
+
+                DB::beginTransaction();
+                $debit = AccountTransaction::createAccountTransaction($debit_data);
+
+                $credit_data = [
+                    'amount' => $amount_to_receive,
+                    'account_id' => $to,
+                    'type' => 'credit',
+                    'sub_type' => 'currency_exchange',
+                    'created_by' => session()->get('user.id'),
+                    'note' => $note,
+                    'transfer_account_id' => $from,
+                    'transfer_transaction_id' => $debit->id,
+                    'operation_date' => $date->format('Y-m-d H:i:s'),
+                ];
+
+                $credit = AccountTransaction::createAccountTransaction($credit_data);
+
+                $debit->transfer_transaction_id = $credit->id;
+                $debit->save();
+                DB::commit();
+
+                $output = ['success' => true,
+                    'msg' => __("account.fund_transfered_success")
+                ];
+            } catch (\Exception $e) {
+                DB::rollBack();
+                \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+
+                $output = ['success' => false,
+                    'msg' => __("messages.something_went_wrong")
+                ];
             }
 
             return $output;

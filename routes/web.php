@@ -306,6 +306,8 @@ Route::middleware(['IsInstalled', 'auth', 'SetSessionData', 'language', 'timezon
         Route::post('/deposit', 'AccountController@postDeposit');
         Route::get('/withdraw/{id}', 'AccountController@getWithdraw');
         Route::post('/withdraw', 'AccountController@postWithdraw');
+        Route::get('/exchange/{id}', 'AccountController@getExchange');
+        Route::post('/exchange', 'AccountController@postExchange');
         Route::get('/close/{id}', 'AccountController@close');
         Route::get('/delete-account-transaction/{id}', 'AccountController@destroyAccountTransaction');
         Route::get('/get-account-balance/{id}', 'AccountController@getAccountBalance');

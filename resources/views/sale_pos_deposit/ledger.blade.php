@@ -4,6 +4,9 @@
 		<a class="nav-link {{$bank->id == $selected_bank ? 'active' : null}}" id="tabs-{{$bank->id}}-tab" data-bank_id="{{$bank->id}}" data-toggle="pill" href="#tabs-{{$bank->id}}" role="tab" aria-controls="tabs-{{$bank->id}}" aria-selected="true">{{$bank->name}}</a>
 	</li>
 	@endforeach
+	<li class="nav-item {{'Deduction' == $selected_bank ? 'active' : null}}" style="float: right">
+		<a class="nav-link {{'Deduction' == $selected_bank ? 'active' : null}}" id="tabs-Deduction-tab" data-bank_id="Deduction" data-toggle="pill" href="#tabs-Deduction" role="tab" aria-controls="tabs-Deduction" aria-selected="true">Deduction</a>
+	</li>
 	<li class="nav-item {{'GTransfer' == $selected_bank ? 'active' : null}}" style="float: right">
 		<a class="nav-link {{'GTransfer' == $selected_bank ? 'active' : null}}" id="tabs-GTransfer-tab" data-bank_id="GTransfer" data-toggle="pill" href="#tabs-GTransfer" role="tab" aria-controls="tabs-GTransfer" aria-selected="true">GTransfer</a>
 	</li>

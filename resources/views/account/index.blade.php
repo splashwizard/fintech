@@ -62,8 +62,8 @@
                                     <th>@lang( 'lang_v1.name' )</th>
                                     <th>@lang('account.account_number')</th>
                                     <th>@lang( 'brand.note' )</th>
-                                    <th>@lang('lang_v1.balance')</th>
                                     <th>@lang('lang_v1.currency')</th>
+                                    <th>@lang('lang_v1.balance')</th>
                                     <th>@lang( 'messages.action' )</th>
                                 </tr>
                             </thead>
@@ -242,6 +242,29 @@
           }
         });
     });
+    $(document).on('submit', 'form#currency_exchange_form', function(e){
+        e.preventDefault();
+        if($('#amount_to_send').val()==0 || $('#amount_to_receive').val()==0){
+            toastr.warning(LANG.amount_is_empty);
+            return;
+        }
+        var data = $(this).serialize();
+
+        $.ajax({
+            method: "POST",
+            url: $(this).attr("action"),
+            dataType: "json",
+            data: data,
+            success: function(result){
+                if(result.success == true){
+                    $('div.view_modal').modal('hide');
+                    toastr.success(result.msg);
+                }
+            }
+        });
+    });
+
+
     $(document).on('submit', 'form#deposit_form', function(e){
         e.preventDefault();
         var data = $(this).serialize();

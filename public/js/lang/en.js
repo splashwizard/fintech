@@ -21,6 +21,7 @@ LANG = {
     'this_financial_year': 'Current financial year',
     'clear': 'Clear',
     'no_products_added': 'No Products added, add some products first',
+    'amount_is_empty': 'Amount to Send or Receive is Empty',
     'deposit_incoincidence_error': 'Total Earned and Redeemed should be same',
     'customer_not_changed': 'Please select the customer',
     'game_id_empty': 'Please insert a Game ID for this customer!',

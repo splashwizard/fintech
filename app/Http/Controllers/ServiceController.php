@@ -584,13 +584,14 @@ class ServiceController extends Controller
             $to_users = $contacts->pluck('name', 'id');
 
 //            $withdraw_mode = ['w' => 'Wallet', 'b' => 'Bank'];
-            $withdraw_mode = ['b' => 'Bank', 's' => 'Service'];
+            $withdraw_mode = ['b' => 'Withdraw to customer', 'gt' => 'Game Credit Transfer', 'gd' => 'Game Credit Deduction'];
 
             $sql = Account::where('business_id', $business_id)
                 ->where('id', '!=', $id)
                 ->where('is_service', 0)
+                ->where('name', '!=', 'Bonus Account')
                 ->NotClosed();
-            if (!(auth()->user()->hasRole('Admin#' . auth()->user()->business_id) || auth()->user()->hasRole('Superadmin')))
+//            if (!(auth()->user()->hasRole('Admin#' . auth()->user()->business_id) || auth()->user()->hasRole('Superadmin')))
                 $sql->where('is_safe', 0);
             $bank_accounts = $sql->pluck('name', 'id');
             $service_accounts = Account::where('business_id', $business_id)
@@ -718,7 +719,13 @@ class ServiceController extends Controller
                 if (!empty($document_name)) {
                     $input['document'] = $document_name;
                 }
-                $transaction = $this->transactionUtil->createSellReturnTransaction($business_id, $input, $invoice_total, $user_id, $withdraw_mode == 'b' ? 'service_to_bank' : 'service_to_service');
+                if($withdraw_mode == 'b')
+                    $sub_type = 'withdraw_to_customer';
+                else if($withdraw_mode == 'gt')
+                    $sub_type = 'game_credit_transfer';
+                else
+                    $sub_type = 'game_credit_deduct';
+                $transaction = $this->transactionUtil->createSellReturnTransaction($business_id, $input, $invoice_total, $user_id, $sub_type);
                 ActivityLogger::activity("Created transaction, ticket # ".$transaction->invoice_no);
                 $this->transactionUtil->createWithDrawPaymentLine($transaction, $user_id, $account_id, 1, 'debit');
                 $this->transactionUtil->updateCustomerRewardPoints($contact_id, $amount, 0, 0);
@@ -734,7 +741,7 @@ class ServiceController extends Controller
                 ];
 
                 AccountTransaction::createAccountTransaction($debit_data);
-                if($withdraw_mode == 'b' || $withdraw_mode == 's') { // bank mode
+                if($withdraw_mode == 'b' || $withdraw_mode == 'gt') { // bank mode
                     $business_locations = BusinessLocation::forDropdown($business_id, false, true);
                     $business_locations = $business_locations['locations'];
                     $input = [];
@@ -755,7 +762,7 @@ class ServiceController extends Controller
                     $input['discount_type'] = 'percentage';
                     $input['discount_amount'] = 0;
                     $input['final_total'] = $amount;
-                    if($withdraw_mode == 's'){
+                    if($withdraw_mode == 'gt'){
                         $input['commission_agent'] = null;
                         $input['status'] = 'final';
                     }
@@ -787,7 +794,7 @@ class ServiceController extends Controller
                     $credit_data = [
                         'amount' => $amount,
                         'account_id' => $bank_account_id,
-                        'type' => $withdraw_mode == 's' ? 'credit':'debit',
+                        'type' => $withdraw_mode == 'gt' ? 'credit':'debit',
                         'sub_type' => 'withdraw',
                         'created_by' => session()->get('user.id'),
                         'note' => $request->input('note'),
