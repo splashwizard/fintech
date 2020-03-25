@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\AdminHasBusiness;
 use Closure;
 use Illuminate\Support\Facades\Auth;
 use App\Utils\BusinessUtil;
@@ -24,7 +25,12 @@ class SetSessionData
 
             $user = Auth::user();
 
-            $business_id = $user->hasRole('Superadmin')? Business::first()->id : $user->business_id;
+            if($user->hasRole('Superadmin'))
+                $business_id = Business::first()->id;
+            else if($user->hasRole('Admin'))
+                $business_id = AdminHasBusiness::where('user_id', $user->id)->first()->business_id;
+            else
+                $business_id = $user->business_id;
             $session_data = ['id' => $user->id,
                             'surname' => $user->surname,
                             'first_name' => $user->first_name,
@@ -48,6 +54,14 @@ class SetSessionData
             $request->session()->put('currency', $currency_data);
             if($user->hasRole('Superadmin')){
                 $business_list = Business::get()->pluck('name','id');
+                $request->session()->put('business_list', $business_list);
+            } else if($user->hasRole('Admin')) {
+                $data = AdminHasBusiness::where('user_id', $user->id)->get();
+                $business_ids = [];
+                foreach ($data as $row){
+                    $business_ids[] = $row->business_id;
+                }
+                $business_list = Business::whereIn('id', $business_ids)->get()->pluck('name','id');
                 $request->session()->put('business_list', $business_list);
             }
 

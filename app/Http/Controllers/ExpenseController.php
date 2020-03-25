@@ -211,7 +211,7 @@ class ExpenseController extends Controller
 
         $expense_categories = ExpenseCategory::where('business_id', $business_id)
                                 ->pluck('name', 'id');
-        $users = User::forDropdown($business_id, true, true);
+        $users = User::forDropdown($business_id, false, true);
         
         return view('expense.create')
             ->with(compact('expense_categories', 'business_locations', 'users'));

@@ -75,7 +75,7 @@ class ServiceController extends Controller
                 });
             }
 
-            $is_admin_or_super = auth()->user()->hasRole('Admin#' . auth()->user()->business_id) || auth()->user()->hasRole('Superadmin');
+            $is_admin_or_super = auth()->user()->hasRole('Admin#' . auth()->user()->business_id) || auth()->user()->hasRole('Superadmin') || auth()->user()->hasRole('Admin');
 
             return DataTables::of($accounts)
                             ->addColumn(

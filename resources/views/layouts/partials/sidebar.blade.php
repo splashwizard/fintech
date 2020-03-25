@@ -2,7 +2,7 @@
 @php
     $user = auth()->user();
     $is_superadmin = $user->hasRole('Superadmin');
-    $is_admin_or_super = auth()->user()->hasRole('Admin#' . $user->business_id) || $is_superadmin;
+    $is_admin_or_super = auth()->user()->hasRole('Admin#' . $user->business_id) || $is_superadmin || auth()->user()->hasRole('Admin');
 @endphp
 <!-- Left side column. contains the logo and sidebar -->
 <aside class="main-sidebar">

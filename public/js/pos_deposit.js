@@ -58,7 +58,11 @@ function copyTextToClipboard(text) {
 var pos_form_obj;
 $(document).ready(function() {
     customer_set = false;
+
     var variation_ids = [];
+    if(edit_page){
+        variation_ids = variation_ids_before;
+    }
     //Prevent enter key function except texarea
     $('form').on('keyup keypress', function(e) {
         var keyCode = e.keyCode || e.which;
@@ -906,9 +910,16 @@ $(document).ready(function() {
                             if(!edit_page){
                                 variation_ids = [];
                                 reset_pos_form();
+                                var text = $('#customer_id').select2('data')[0].text;
+                                if( text === "Unclaimed Trans") {
+                                    if(edit_page)
+                                        $('#bank_in_time').attr('readonly', '');
+                                    else
+                                        $('#service_box').hide();
+                                }
                             } else {
                                 setTimeout(function () {
-                                    window.location.href="/sells";
+                                    window.top.close();
                                 },3000)
                             }
 

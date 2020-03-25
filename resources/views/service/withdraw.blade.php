@@ -67,7 +67,7 @@
             <div id="receipt_image_div">
                 <div class="form-group">
                     {!! Form::label('document', __('purchase.attach_receipt_image') . ':*') !!}
-                    <textarea id="pasteArea" placeholder="Paste Image Here" required></textarea>
+                    <textarea id="pasteArea" placeholder="Paste Image Here"></textarea>
                     {!! Form::file('document', ['id' => 'service_document', 'style' => 'display:none']); !!}
                     <p class="help-block">@lang('purchase.max_file_size', ['size' => (config('constants.document_size_limit') / 1000000)])</p>
                 </div>

@@ -81,7 +81,7 @@ class AccountController extends Controller
                     $q->orWhereNull('account_type');
                 });
             }
-            $is_admin_or_super = auth()->user()->hasRole('Admin#' . auth()->user()->business_id) || auth()->user()->hasRole('Superadmin');
+            $is_admin_or_super = auth()->user()->hasRole('Admin#' . auth()->user()->business_id) || auth()->user()->hasRole('Superadmin') || auth()->user()->hasRole('Admin');
             if(!$is_admin_or_super){
                 $accounts->where('is_safe','0');
             }
@@ -89,13 +89,11 @@ class AccountController extends Controller
             return DataTables::of($accounts)
                             ->addColumn(
                                 'action',
+                                //<button data-href="{{action('AccountController@getDeposit',[$id])}}" class="btn btn-xs btn-success btn-modal" data-container=".view_modal"><i class="fa fa-money"></i> @lang("account.deposit")</button>
                                 $is_admin_or_super?
                                 '<button data-href="{{action(\'AccountController@edit\',[$id])}}" data-container=".account_model" class="btn btn-xs btn-primary btn-modal"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</button>
                                 <a href="{{action(\'AccountController@show\',[$id])}}" class="btn btn-warning btn-xs"><i class="fa fa-book"></i> @lang("account.account_book")</a>
                                 <button data-href="{{action(\'AccountController@getFundTransfer\',[$id])}}" class="btn btn-xs btn-info btn-modal" data-container=".view_modal"><i class="fa fa-exchange"></i> @lang("account.fund_transfer")</button>
-
-                                <button data-href="{{action(\'AccountController@getDeposit\',[$id])}}" class="btn btn-xs btn-success btn-modal" data-container=".view_modal"><i class="fa fa-money"></i> @lang("account.deposit")</button>
-
                                 <button data-url="{{action(\'AccountController@close\',[$id])}}" class="btn btn-xs btn-danger close_account"><i class="fa fa-close"></i> @lang("messages.close")</button>
                                 <button data-href="{{action(\'AccountController@getWithdraw\',[$id])}}" class="btn btn-xs btn-primary btn-modal" data-container=".view_modal"><i class="fa fa-money"></i> @lang("account.withdraw")</button>
                                 <button data-href="{{action(\'AccountController@getExchange\',[$id])}}" class="btn btn-xs btn-warning btn-modal" data-container=".view_modal"><i class="fa fa-exchange"></i> @lang("account.exchange")</button>
@@ -278,7 +276,7 @@ class AccountController extends Controller
                                 $details = '';
                                 if (!empty($row->sub_type)) {
                                     $details = __('account.' . $row->sub_type);
-                                    if (in_array($row->sub_type, ['fund_transfer', 'deposit']) && !empty($row->transfer_transaction)) {
+                                    if ($row->sub_type == 'deposit' && !empty($row->transfer_transaction)) {
 //                                        if ($row->type == 'credit') {
 //                                            $details .= ' ( ' . __('account.from') .': ' . $row->transfer_transaction->account->name . ')';
 //                                        } else {
@@ -294,6 +292,10 @@ class AccountController extends Controller
                                         $note = AccountTransaction::find($row->id)['note'];
                                         $details = 'Currency Exchange'. '<br>'.$note;
                                     }
+                                    else if($row->sub_type == 'fund_transfer'){
+                                        $note = AccountTransaction::find($row->id)['note'];
+                                        $details = $note;
+                                    }
                                 } else {
                                     if (!empty($row->transaction->type)) {
                                         if ($row->transaction->type == 'purchase') {
@@ -303,13 +305,17 @@ class AccountController extends Controller
                                             $details = '<b>' . __('contact.customer') . ':</b> ' . $row->transaction->contact->name . '<br><b>'.
                                             __('sale.invoice_no') . ':</b> ' . $row->transaction->invoice_no;
                                         } elseif ($row->transaction->type == 'expense') {
-                                            $user = User::find($row->transaction->expense_for);
-                                            $details = '<b>' . __('sale.expense_for') . ':</b> ' . $user->first_name.' '.$user->last_name . '<br><b>'.
-                                                __('sale.reference_no') . ':</b> ' . $row->transaction->ref_no;
+                                            if(!empty($row->transaction->expense_for)){
+                                                $user = User::find($row->transaction->expense_for);
+                                                $details = '<b>' . __('sale.expense_for') . ':</b> ' . $user->first_name.' '.$user->last_name . '<br><b>'.
+                                                    __('sale.reference_no') . ':</b> ' . $row->transaction->ref_no;
+                                            } else $details = '';
                                         } elseif ($row->transaction->type == 'payroll') {
-                                            $user = User::find($row->transaction->expense_for);
-                                            $details = '<b>' . __('sale.payroll_for') . ':</b> ' . $user->first_name.' '.$user->last_name . '<br><b>'.
-                                                __('sale.reference_no') . ':</b> ' . $row->transaction->ref_no;
+                                            if(!empty($row->transaction->expense_for)){
+                                                $user = User::find($row->transaction->expense_for);
+                                                $details = '<b>' . __('sale.payroll_for') . ':</b> ' . $user->first_name.' '.$user->last_name . '<br><b>'.
+                                                    __('sale.reference_no') . ':</b> ' . $row->transaction->ref_no;
+                                            } else $details = '';
                                         }
                                     }
                                 }
@@ -562,7 +568,7 @@ class AccountController extends Controller
                         'type' => 'debit',
                         'sub_type' => 'fund_transfer',
                         'created_by' => session()->get('user.id'),
-                        'note' => $note,
+                        'note' => 'Fund Transfer (To: '.Account::find($to)->name.')',
                         'transfer_account_id' => $to,
                         'operation_date' => $date->format('Y-m-d H:i:s'),
                     ];
@@ -576,7 +582,7 @@ class AccountController extends Controller
                             'type' => 'credit',
                             'sub_type' => 'fund_transfer',
                             'created_by' => session()->get('user.id'),
-                            'note' => $note,
+                            'note' => 'Fund Transfer (From: '.Account::find($from)->name.')',
                             'transfer_account_id' => $from,
                             'transfer_transaction_id' => $debit->id,
                             'operation_date' => $date->format('Y-m-d H:i:s'),

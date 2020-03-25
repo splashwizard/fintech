@@ -734,6 +734,7 @@ return [
     'blood_group' => 'Blood Group',
     'divorced' => 'Divorced',
     'contact_no' => 'Contact Number',
+    'ip_addr_restrict' => 'IP Address Restriction',
     'fb_link' => 'Facebook Link',
     'twitter_link' => 'Twitter Link',
     'social_media' => 'Social Media :number',

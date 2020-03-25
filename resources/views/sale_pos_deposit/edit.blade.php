@@ -260,6 +260,11 @@
 	<script>
 		const basic_bonus_rate = '{{session()->get('business')['basic_bonus']}}';
 		const edit_page = 1;
+		const sell_details = JSON.parse('<?php echo json_encode($sell_details);?>');
+		let variation_ids_before = [];
+		for(let i = 0; i < sell_details.length; i++) {
+			variation_ids_before.push(sell_details[i].variation_id);
+		}
 	</script>
 	<script src="{{ asset('js/pos_deposit.js?v=' . $asset_v) }}"></script>
 	<script src="{{ asset('js/printer.js?v=' . $asset_v) }}"></script>

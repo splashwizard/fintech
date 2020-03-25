@@ -1,7 +1,7 @@
 @inject('request', 'Illuminate\Http\Request')
 <!-- Main Header -->
   <header class="main-header no-print">
-    @if(auth()->user()->hasRole('Superadmin'))
+    @if(auth()->user()->hasRole('Superadmin') || auth()->user()->hasRole('Admin'))
       <div class="dropdown" style="float: left">
         <a href="{{route('home')}}" class="logo" data-toggle="dropdown">
           <span class="logo-lg">{{ Session::get('business.name') }}</span>
