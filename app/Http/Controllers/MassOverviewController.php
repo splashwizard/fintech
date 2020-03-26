@@ -183,6 +183,30 @@ class MassOverviewController extends Controller
                 $new_row['action'] = '<a href="'.action("MassOverviewController@edit", [$business_id]).'" class="btn btn-info btn-xs">Edit</a>';
             else
                 $new_row['action'] = '<a href="'.action("MassOverviewController@show", [$business_id]).'" class="btn btn-info btn-xs">View</a>';
+            $count = Account::where('name', 'HQ')->where('business_id', $business_id)->count();
+            if($count > 0) {
+                $bank_accounts_sql = Account::leftjoin('account_transactions as AT', function ($join) {
+                    $join->on('AT.account_id', '=', 'accounts.id');
+                    $join->whereNull('AT.deleted_at');
+                })
+                    ->where('is_service', 0)
+                    ->where('name', 'HQ')
+                    ->where('business_id', $business_id)
+                    ->select(['accounts.id as account_id'
+                        , DB::raw("SUM( IF(AT.type='credit', amount, 0) ) as hq_return")
+                        , DB::raw("SUM( IF(AT.type='debit', amount, 0) ) as hq_borrow")])
+                    ->groupBy('account_id');
+                $start = request()->start_date;
+                $end = request()->end_date;
+                if (!empty($start) && !empty($end)) {
+                    $bank_accounts_sql->whereDate('AT.operation_date', '>=', $start)
+                        ->whereDate('AT.operation_date', '<=', $end);
+                }
+                $hq_account = $bank_accounts_sql->get()->first();
+                $new_row['return'] = $hq_account->hq_return;
+                $new_row['borrow'] = $hq_account->hq_borrow;
+            }
+
             $table_data[] = $new_row;
 
             $group_cnt = DisplayGroup::where('business_id', $business_id)->count();
