@@ -4,7 +4,6 @@
         <tr>
             <th>@lang('mass_overview.serial')</th>
             <th>@lang('mass_overview.company_name')</th>
-            <th>@lang('mass_overview.currency')</th>
             <th>@lang('mass_overview.total_deposit')</th>
             <th>@lang('mass_overview.total_withdrawal')</th>
             <th>@lang('mass_overview.service')</th>

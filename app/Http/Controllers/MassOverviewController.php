@@ -299,7 +299,7 @@ class MassOverviewController extends Controller
                 }
             }
         }
-        $columns = ['serial', 'name', 'currenc', 'deposit', 'withdraw', 'service', 'transfer_in', 'transfer_out', 'kiosk', 'cancel', 'expenses', 'borrow', 'return', 'action'];
+        $columns = ['serial', 'name', 'deposit', 'withdraw', 'service', 'transfer_in', 'transfer_out', 'kiosk', 'cancel', 'expenses', 'borrow', 'return', 'action'];
 
         $output['html_content'] = view('mass_overview.report_table')->with(compact('table_data', 'columns'))->render();
         return json_encode($output);
