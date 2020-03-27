@@ -134,6 +134,7 @@ $(document).ready(function() {
         },
     });
     $('#customer_id').on('select2:select', function(e) {
+        $(this).prop('disabled', true);
         var text = $('#customer_id').select2('data')[0].text;
         if( text == "Unclaimed Trans") {
             $('#service_box').hide();
@@ -545,6 +546,8 @@ $(document).ready(function() {
 
     //Cancel the invoice
     $('button#pos-cancel').click(function() {
+        $('#customer_id').prop('disabled', false);
+        variation_ids = [];
         reset_pos_form();
     });
 
