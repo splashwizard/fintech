@@ -11,6 +11,7 @@ $(document).ready(function() {
         },
         columns: [
             { data: 'name', name: 'name'},
+            { data: 'code', name: 'code'},
             { data: 'balance', name: 'balance'},
         ],
         "fnDrawCallback": function (oSettings) {

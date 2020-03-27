@@ -203,8 +203,10 @@ class MassOverviewController extends Controller
                         ->whereDate('AT.operation_date', '<=', $end);
                 }
                 $hq_account = $bank_accounts_sql->get()->first();
-                $new_row['return'] = $hq_account->hq_return;
-                $new_row['borrow'] = $hq_account->hq_borrow;
+                if(isset($hq_account)){
+                    $new_row['return'] = $hq_account->hq_return;
+                    $new_row['borrow'] = $hq_account->hq_borrow;
+                }
             }
 
             $table_data[] = $new_row;
@@ -412,10 +414,12 @@ class MassOverviewController extends Controller
                 $join->on('AT.account_id', '=', 'accounts.id');
                 $join->whereNull('AT.deleted_at');
             })
+                ->join('currencies', 'currencies.id', 'accounts.currency_id')
                 ->where('is_service', 0)
                 ->where('business_id', $business_id)
-                ->select(['name', DB::raw("SUM( IF(AT.type='credit', amount, -1*amount) ) as balance")])
-                ->groupBy('accounts.id');
+                ->select(['name', DB::raw("SUM( IF(AT.type='credit', amount, -1*amount) ) as balance"), 'currencies.code as code'])
+                ->groupBy('accounts.id')
+                ->orderBy('accounts.name');
 
 //            $account_type = request()->input('account_type');
 //
@@ -430,7 +434,7 @@ class MassOverviewController extends Controller
 
             return DataTables::of($accounts)
                 ->editColumn('balance', function ($row) {
-                    return '<span class="display_currency" data-currency_symbol="true">' . $row->balance . '</span>';
+                    return '<span class="display_currency">' . $row->balance . '</span>';
                 })->rawColumns(['balance', 'name'])->make(true);
         }
     }

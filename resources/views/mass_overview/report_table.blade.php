@@ -23,6 +23,8 @@
                     @foreach($columns as $column)
                         @if(isset($row[$column]) && $column == 'action')
                             <td><?php echo $row['action']; ?></td>
+                        @elseif($column != 'name' )
+                            <td>{{isset($row[$column]) ? round($row[$column], 2): null}}</td>
                         @else
                             <td>{{isset($row[$column]) ? $row[$column] : null}}</td>
                         @endif

@@ -1,17 +1,8 @@
 
 <div class="box box-widget">
 	<div class="box-header with-border" style="display: none">
-
-{{--		@if(!empty($categories))--}}
-{{--			<select class="select2" id="product_category" style="width:45% !important" name="product_category">--}}
-{{--				<option value="{{$bank_category['id']}}">{{$bank_category['name']}}</option>--}}
-{{--			</select>--}}
-{{--		@endif--}}
 		@if(!empty($bank_categories))
 			<select class="select2" id="product_category" style="width:40% !important">
-
-{{--				<option value="all">@lang('lang_v1.all_category')</option>--}}
-
 				@foreach($bank_categories as $category)
 					<option value="{{$category['id']}}">{{$category['name']}}</option>
 				@endforeach
@@ -27,9 +18,6 @@
 				@endforeach
 			</select>
 		@endif
-{{--		<select class="select" id="bank_products" style="width:45% !important" name="bank_products">--}}
-{{--			<option value="{{$bank_products['id']}}">{{$bank_products['name']}}</option>--}}
-{{--		</select>--}}
 		{!! Form::select('bank_products', $bank_products, null, ['id' => 'bank_products', 'class' => 'select form-control', 'name' => null, 'style' => 'width:45% !important; display:inline-block;margin-left:30px']) !!}
 
 		@if(!empty($brands))
@@ -48,7 +36,7 @@
 	</div>
 	<!-- /.box-header -->
 	<input type="hidden" id="suggestion_page" value="1">
-	<div class="box-body">
+	<div class="box-body" id="bank_box">
 		<div class="row">
 			<div class="col-md-12">
 				<div class="eq-height-row" id="product_list_body"></div>
@@ -61,6 +49,21 @@
 	<!-- /.box-body -->
 </div>
 
+<div class="box box-widget">
+	<!-- /.box-header -->
+	<input type="hidden" id="suggestion_page3" value="1">
+	<div class="box-body" id="bonus_box">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="eq-height-row" id="product_list_body3"></div>
+			</div>
+			<div class="col-md-12 text-center" id="suggestion_page_loader3" style="display: none;">
+				<i class="fa fa-spinner fa-spin fa-2x"></i>
+			</div>
+		</div>
+	</div>
+	<!-- /.box-body -->
+</div>
 
 <div class="box box-widget">
 	<div class="box-header with-border" style="display:none">

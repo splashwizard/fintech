@@ -1651,13 +1651,8 @@ class SellPosDepositController extends Controller
                 ->where('p.business_id', $business_id)
                 ->where('p.type', '!=', 'modifier')
                 ->where('p.is_inactive', 0)
+                ->where('accounts.name', '!=', 'Bonus Account')
                 ->where('p.not_for_selling', 0);
-            if($is_unclaimed){
-                if($edit_page)
-                    $products->where('accounts.name', '=', 'Bonus Account');
-                else
-                    $products->where('accounts.name', '!=', 'Bonus Account');
-            }
 
             //Include search
             if (!empty($term)) {
@@ -1684,6 +1679,87 @@ class SellPosDepositController extends Controller
             }
             if (!empty($product_id)) {
                 $products->where('p.id', $product_id);
+            }
+
+
+            $products = $products->select(
+                DB::raw("SUM( IF(AT.type='credit', AT.amount, -1*AT.amount) ) as balance"),
+                'p.id as product_id',
+                'p.name',
+                'p.type',
+                'p.enable_stock',
+                'variations.id',
+                'p.account_id',
+                'p.category_id',
+                'variations.name as variation',
+                'VLD.qty_available',
+                'variations.default_sell_price as selling_price',
+                'variations.sub_sku'
+            )
+                ->with(['media'])
+                ->orderBy('p.name', 'asc')
+                ->paginate(40);
+
+            return view('sale_pos_deposit.partials.product_list')
+                ->with(compact('products'));
+        }
+    }
+
+
+    public function getBonusSuggestion(Request $request)
+    {
+        if ($request->ajax()) {
+            $location_id = $request->get('location_id');
+            $term = $request->get('term');
+            $is_unclaimed = $request->get('is_unclaimed');
+            $edit_page = $request->get('edit_page');
+
+            $check_qty = false;
+            $business_id = $request->session()->get('user.business_id');
+
+            $products = Variation::join('products as p', 'variations.product_id', '=', 'p.id')
+                ->leftjoin(
+                    'variation_location_details AS VLD',
+                    function ($join) use ($location_id) {
+                        $join->on('variations.id', '=', 'VLD.variation_id');
+
+                        //Include Location
+                        if (!empty($location_id)) {
+                            $join->where(function ($query) use ($location_id) {
+                                $query->where('VLD.location_id', '=', $location_id);
+                                //Check null to show products even if no quantity is available in a location.
+                                //TODO: Maybe add a settings to show product not available at a location or not.
+                                $query->orWhereNull('VLD.location_id');
+                            });
+                            ;
+                        }
+                    }
+                )
+                ->join('accounts', 'p.account_id', 'accounts.id')
+                ->leftjoin('account_transactions as AT', function ($join) {
+                    $join->on('AT.account_id', '=', 'accounts.id');
+                    $join->whereNull('AT.deleted_at');
+                })
+                ->groupBy('accounts.id')
+                ->groupBy('variations.id')
+                ->where('p.business_id', $business_id)
+                ->where('p.type', '!=', 'modifier')
+                ->where('p.is_inactive', 0)
+                ->where('p.not_for_selling', 0);
+            $products->where('accounts.name', '=', 'Bonus Account');
+
+            //Include search
+            if (!empty($term)) {
+                $products->where(function ($query) use ($term) {
+                    $query->where('p.name', 'like', '%' . $term .'%');
+                    $query->orWhere('sku', 'like', '%' . $term .'%');
+                    $query->orWhere('sub_sku', 'like', '%' . $term .'%');
+                });
+            }
+
+            //Include check for quantity
+            if ($check_qty) {
+                $products->where('VLD.qty_available', '>', 0);
             }
 
 

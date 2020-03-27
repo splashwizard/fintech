@@ -23,6 +23,7 @@
 						<thead>
 						<tr>
 							<th>Name</th>
+							<th>Currency</th>
 							<th>Balance</th>
 						</tr>
 						</thead>

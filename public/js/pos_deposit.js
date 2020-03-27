@@ -62,7 +62,10 @@ $(document).ready(function() {
     var variation_ids = [];
     if(edit_page){
         variation_ids = variation_ids_before;
+        $('#bank_in_time').attr('readonly', '');
+        $('#bank_box').hide();
     }
+
     //Prevent enter key function except texarea
     $('form').on('keyup keypress', function(e) {
         var keyCode = e.keyCode || e.which;
@@ -138,10 +141,10 @@ $(document).ready(function() {
         var text = $('#customer_id').select2('data')[0].text;
         if( text == "Unclaimed Trans") {
             $('#service_box').hide();
-            $('#bank_in_time').attr('readonly', '');
+            $('#bonus_box').hide();
         } else {
+            $('#bonus_box').show();
             $('#service_box').show();
-            $('#bank_in_time').removeAttr('readonly');
         }
 
         var location_id = $('input#location_id').val();
@@ -176,13 +179,17 @@ $(document).ready(function() {
 
     set_default_customer();
 
-    var text = $('#customer_id').select2('data')[0].text;
+    const text = $('#customer_id').select2('data')[0].text;
     if( text === "Unclaimed Trans") {
         if(edit_page)
             $('#bank_in_time').attr('readonly', '');
-        else
+        else{
             $('#service_box').hide();
+            $('#bonus_box').hide();
+        }
     }
+
+
 
 
 
@@ -937,6 +944,7 @@ $(document).ready(function() {
 
                             get_product_suggestion_list(category_id, product_id, brand_id, location_id);
                             get_product2_suggestion_list(category_id2, product_id, brand_id, location_id);
+                            get_product3_suggestion_list(location_id);
 
                             //Check if enabled or not
                             // if (result.receipt.is_enabled) {
@@ -1177,6 +1185,10 @@ $(document).ready(function() {
         $('select#product_category2').val(),
         $('select#service_products').val(),
         $('select#product_brand').val(),
+        $('input#location_id').val(),
+        null
+    );
+    get_product3_suggestion_list(
         $('input#location_id').val(),
         null
     );
@@ -1539,8 +1551,6 @@ function get_product_suggestion_list(category_id, product_id, brand_id, location
         $('#suggestion_page_loader').fadeOut(700);
         return false;
     }
-    console.log($('#customer_id').select2('data')[0].text);
-    var is_unclaimed = $('#customer_id').select2('data')[0].text == "Unclaimed Trans" ? 1 : 0;
     $.ajax({
         method: 'GET',
         url: url,
@@ -1549,9 +1559,7 @@ function get_product_suggestion_list(category_id, product_id, brand_id, location
             product_id: product_id,
             brand_id: brand_id,
             location_id: location_id,
-            page: page,
-            is_unclaimed: is_unclaimed,
-            edit_page: edit_page
+            page: page
         },
         dataType: 'html',
         success: function(result) {
@@ -1593,6 +1601,25 @@ function get_product2_suggestion_list(category_id, product_id, brand_id, locatio
         success: function(result) {
             $('div#product_list_body2').append(result);
             $('#suggestion_page_loader2').fadeOut(700);
+        },
+    });
+}
+
+function get_product3_suggestion_list(location_id, url = null) {
+    if (url == null) {
+        url = '/sells/pos_deposit/get-bonus-suggestion';
+    }
+    $('#suggestion_page_loader3').fadeIn(700);
+    $.ajax({
+        method: 'GET',
+        url: url,
+        data: {
+            location_id: location_id,
+        },
+        dataType: 'html',
+        success: function(result) {
+            $('div#product_list_body3').append(result);
+            $('#suggestion_page_loader3').fadeOut(700);
         },
     });
 }
