@@ -902,6 +902,7 @@ $(document).ready(function() {
             }
 
             if (cnf) {
+                $('#customer_id').prop('disabled', false);
                 $('div.pos-processing').show();
                 $('#pos-save').attr('disabled', 'true');
                 var data = $(form).serialize();
