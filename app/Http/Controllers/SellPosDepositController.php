@@ -37,6 +37,7 @@ use App\Contact;
 use App\CustomerGroup;
 use App\GameId;
 use App\Media;
+use App\Membership;
 use App\Product;
 use App\SellingPriceGroup;
 use App\TaxRate;
@@ -229,6 +230,7 @@ class SellPosDepositController extends Controller
         $price_groups = SellingPriceGroup::forDropdown($business_id);
 
         $services = Account::where('business_id', $business_id)->where('is_service', 1)->get();
+        $memberships = Membership::forDropdown($business_id);
 
         return view('sale_pos_deposit.create')
             ->with(compact(
@@ -251,6 +253,7 @@ class SellPosDepositController extends Controller
                 'change_return',
                 'types',
                 'customer_groups',
+                'memberships',
                 'accounts',
                 'price_groups',
                 'services'

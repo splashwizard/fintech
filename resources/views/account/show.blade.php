@@ -28,6 +28,10 @@
                             <th>@lang('lang_v1.balance'):</th>
                             <td><span id="account_balance"></span></td>
                         </tr>
+                        <tr>
+                            <th>@lang('lang_v1.currency'):</th>
+                            <td>{{$code}}</td>
+                        </tr>
                     </table>
                 </div>
             </div>
@@ -184,7 +188,7 @@
             url: '{{action("AccountController@getAccountBalance", [$account->id])}}',
             dataType: "json",
             success: function(data){
-                $('span#account_balance').text(__currency_trans_from_en(data.balance, true));
+                $('span#account_balance').text(__currency_trans_from_en(data.balance, false));
             }
         });
     }

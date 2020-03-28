@@ -80,6 +80,18 @@
         </div>
       </div>
 
+      <div class="col-md-3">
+          <div class="form-group">
+              {!! Form::label('membership_id', __('lang_v1.membership') . ':') !!}
+              <div class="input-group">
+          <span class="input-group-addon">
+              <i class="fa fa-users"></i>
+          </span>
+                  {!! Form::select('membership_id', $memberships, $contact->membership_id, ['class' => 'form-control']); !!}
+              </div>
+          </div>
+      </div>
+
       <div class="clearfix"></div>
       <div class="clearfix"></div>
       <div class="col-md-12">

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\BusinessLocation;
 use App\Contact;
+use App\Currency;
 use App\CustomerGroup;
 use App\DisplayGroup;
 use App\User;
@@ -256,18 +257,18 @@ class AccountController extends Controller
             return DataTables::of($accounts)
                             ->addColumn('debit', function ($row) {
                                 if ($row->type == 'debit') {
-                                    return '<span class="display_currency" data-currency_symbol="true">' . $row->amount . '</span>';
+                                    return '<span class="display_currency">' . $row->amount . '</span>';
                                 }
                                 return '';
                             })
                             ->addColumn('credit', function ($row) {
                                 if ($row->type == 'credit') {
-                                    return '<span class="display_currency" data-currency_symbol="true">' . $row->amount . '</span>';
+                                    return '<span class="display_currency">' . $row->amount . '</span>';
                                 }
                                 return '';
                             })
                             ->editColumn('balance', function ($row) {
-                                return '<span class="display_currency" data-currency_symbol="true">' . $row->balance . '</span>';
+                                return '<span class="display_currency">' . $row->balance . '</span>';
                             })
                             ->editColumn('operation_date', function ($row) {
                                 return $this->commonUtil->format_date($row->operation_date, true);
@@ -336,9 +337,9 @@ class AccountController extends Controller
         }
         $account = Account::where('business_id', $business_id)
                             ->find($id);
-                            
+        $code = Currency::find($account->currency_id)->code;
         return view('account.show')
-                ->with(compact('account'));
+                ->with(compact('account', 'code'));
     }
 
     /**

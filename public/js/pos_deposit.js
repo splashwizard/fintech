@@ -1510,7 +1510,7 @@ function get_contact_ledger() {
                     };
 
                     // Total over this page
-                    let columns = [2,3,6,7,8];
+                    let columns = [3,4,7,8,9];
                     for(let i = 0; i < columns.length; i++){
                         pageTotal = api
                             .column( columns[i], { page: 'current'} )

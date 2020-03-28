@@ -60,6 +60,7 @@ LANG = {
     'tour_step8_content':'View analytic reports for your shop. These reports help you get overall information about the performance of your business.',
     'label_no_product_error': 'Please, add atleast one product.',
     'confirm_delete_customer_group': 'This customer group will be deleted.',
+    'confirm_delete_membership': 'This membership will be deleted.',
     'prev': 'Prev',
     'next': 'Next',
     'end_tour': 'End tour',

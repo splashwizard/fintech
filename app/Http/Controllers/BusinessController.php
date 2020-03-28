@@ -104,9 +104,8 @@ class BusinessController extends Controller
      */
     public function getRegister()
     {
-        if (!env('ALLOW_REGISTRATION', true)) {
+        if(!auth()->user()->hasRole('Superadmin'))
             return redirect('/');
-        }
 
         $currencies = $this->businessUtil->allCurrencies();
         
@@ -139,10 +138,9 @@ class BusinessController extends Controller
      */
     public function postRegister(Request $request)
     {
-        if (!env('ALLOW_REGISTRATION', true)) {
+        if(!auth()->user()->hasRole('Superadmin'))
             return redirect('/');
-        }
-        
+
         try {
             $validator = $request->validate(
                 [
@@ -198,7 +196,7 @@ class BusinessController extends Controller
             //Create the business
             $business_details['owner_id'] = $user->id;
             if (!empty($business_details['start_date'])) {
-                $business_details['start_date'] = Carbon::createFromFormat(config('constants.default_date_format'), $business_details['start_date'])->toDateString();
+                $business_details['start_date'] = \Carbon::createFromFormat(config('constants.default_date_format'), $business_details['start_date'])->toDateString();
             }
             
             //upload logo
@@ -236,7 +234,7 @@ class BusinessController extends Controller
                     'msg' => __('business.business_created_succesfully')
                 ];
 
-            return redirect('login')->with('status', $output);
+            return redirect('mass_overview')->with('status', $output);
         } catch (\Exception $e) {
             DB::rollBack();
             \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());

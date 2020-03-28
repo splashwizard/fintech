@@ -1691,6 +1691,102 @@ $(document).ready(function() {
         });
     });
 
+
+
+    //Customer Group table
+    var memberships_table = $('#memberships_table').DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: '/membership',
+        columnDefs: [
+            {
+                targets: 1,
+                orderable: false,
+                searchable: false,
+            },
+        ],
+    });
+
+    $(document).on('submit', 'form#membership_add_form', function(e) {
+        e.preventDefault();
+        var data = $(this).serialize();
+
+        $.ajax({
+            method: 'POST',
+            url: $(this).attr('action'),
+            dataType: 'json',
+            data: data,
+            success: function(result) {
+                if (result.success == true) {
+                    $('div.membership_modal').modal('hide');
+                    toastr.success(result.msg);
+                    memberships_table.ajax.reload();
+                } else {
+                    toastr.error(result.msg);
+                }
+            },
+        });
+    });
+
+    $(document).on('click', 'button.edit_membership_button', function() {
+        $('div.membership_modal').load($(this).data('href'), function() {
+            $(this).modal('show');
+
+            $('form#membership_edit_form').submit(function(e) {
+                e.preventDefault();
+                var data = $(this).serialize();
+
+                $.ajax({
+                    method: 'POST',
+                    url: $(this).attr('action'),
+                    dataType: 'json',
+                    data: data,
+                    success: function(result) {
+                        if (result.success == true) {
+                            $('div.membership_modal').modal('hide');
+                            toastr.success(result.msg);
+                            memberships_table.ajax.reload();
+                        } else {
+                            toastr.error(result.msg);
+                        }
+                    },
+                });
+            });
+        });
+    });
+
+    $(document).on('click', 'button.delete_membership_button', function() {
+        swal({
+            title: LANG.sure,
+            text: LANG.confirm_delete_membership,
+            icon: 'warning',
+            buttons: true,
+            dangerMode: true,
+        }).then(willDelete => {
+            if (willDelete) {
+                var href = $(this).data('href');
+                var data = $(this).serialize();
+
+                $.ajax({
+                    method: 'DELETE',
+                    url: href,
+                    dataType: 'json',
+                    data: data,
+                    success: function(result) {
+                        if (result.success == true) {
+                            toastr.success(result.msg);
+                            memberships_table.ajax.reload();
+                        } else {
+                            toastr.error(result.msg);
+                        }
+                    },
+                });
+            }
+        });
+    });
+
+
+
     //Delete Sale
     $(document).on('click', '.delete-sale', function(e) {
         e.preventDefault();

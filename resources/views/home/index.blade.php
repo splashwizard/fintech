@@ -208,7 +208,7 @@
   	</div>
     <br>
     <div id="bank_service_part">
-    @include('home.bank_service_part')
+{{--    @include('home.bank_service_part')--}}
     </div>
     @if(!empty($widgets['after_sale_purchase_totals']))
       @foreach($widgets['after_sale_purchase_totals'] as $widget)

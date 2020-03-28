@@ -454,7 +454,7 @@ class MassOverviewController extends Controller
 
             return DataTables::of($accounts)
                 ->editColumn('balance', function ($row) {
-                    return '<span class="display_currency" data-currency_symbol="true">' . $row->balance . '</span>';
+                    return '<span class="display_currency">' . $row->balance . '</span>';
                 })->rawColumns(['balance', 'name'])->make(true);
         }
     }

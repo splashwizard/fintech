@@ -46,6 +46,7 @@
                                 <th>@lang('user.name')</th>
                                 <th>@lang('contact.contact')</th>
                                 <th>@lang('user.email')</th>
+                                <th>@lang('lang_v1.membership')</th>
                                 <th>@lang('lang_v1.customer_group')</th>
                                 <th>@lang('contact.total_sale_due')</th>
                                 <th>@lang('lang_v1.total_sell_return_due')</th>
@@ -78,7 +79,7 @@
                     <tfoot>
                         <tr class="bg-gray font-17 text-center footer-total">
                             <td @if($type == 'supplier') colspan="2"
-                                @elseif( $type == 'customer') @if($reward_enabled) colspan="5" @else colspan="3" @endif
+                                @elseif( $type == 'customer') @if($reward_enabled) colspan="6" @else colspan="3" @endif
                                 @elseif( $type == 'blacklisted_customer') @if($reward_enabled) colspan="5" @else colspan="5" @endif
                                 @endif>
                                 <strong>@lang('sale.total'):</strong>
@@ -147,6 +148,7 @@
                 {data: 'name', width: "10%"},
                 {data: 'mobile', width: "10%"},
                 {data: 'email', width: "10%"},
+                {data: 'membership', width: "10%"},
                 {data: 'customer_group', width: "10%"},
                 {data: 'due', width: "10%"},
                 {data: 'return_due', width: "10%"},

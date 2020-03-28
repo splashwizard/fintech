@@ -12,13 +12,18 @@ class Account extends Model
     
     protected $guarded = ['id'];
 
-    public static function forDropdown($business_id, $prepend_none, $closed = false)
+    public static function forDropdown($business_id, $prepend_none, $closed = false, $is_safe = false)
     {
         $query = Account::where('business_id', $business_id)
                             ->NotCapital();
 
         if (!$closed) {
             $query->where('is_closed', 0);
+        }
+        if($is_safe) {
+            $query->where('is_service', 0);
+            $query->where('is_safe', 0);
+            $query->where('name', '!=', 'Bonus Account');
         }
 
         $dropdown = $query->pluck('name', 'id');

@@ -84,6 +84,18 @@
           {!! Form::text('remark', null, ['class' => 'form-control','placeholder' => __('contact.remark')]); !!}
         </div>
       </div>
+
+      <div class="col-md-3">
+          <div class="form-group">
+              {!! Form::label('membership_id', __('lang_v1.membership') . ':') !!}
+              <div class="input-group">
+              <span class="input-group-addon">
+                  <i class="fa fa-users"></i>
+              </span>
+                  {!! Form::select('membership_id', $memberships, '', ['class' => 'form-control']); !!}
+              </div>
+          </div>
+      </div>
       <div class="clearfix"></div>
       <div> 
       <div class="clearfix"></div>

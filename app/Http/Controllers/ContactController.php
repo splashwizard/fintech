@@ -7,6 +7,7 @@ use App\Business;
 use App\Contact;
 use App\CustomerGroup;
 use App\GameId;
+use App\Membership;
 use App\Transaction;
 use App\TransactionPayment;
 use App\User;
@@ -172,13 +173,14 @@ class ContactController extends Controller
 
         $query = Contact::leftjoin('transactions AS t', 'contacts.id', '=', 't.contact_id')
                     ->leftjoin('customer_groups AS cg', 'contacts.customer_group_id', '=', 'cg.id')
+                    ->leftjoin('memberships AS m', 'contacts.membership_id', '=', 'm.id')
                     ->where(function($q) use ($business_id) {
                         $q->where('contacts.business_id', $business_id);
                         $q->orWhere('contacts.business_id', 0);
                     })  
                     ->where('contacts.blacked_by_user', '=', null)
 //                    ->onlyCustomers()
-                    ->addSelect(['contacts.contact_id', 'contacts.name', 'contacts.email', 'contacts.created_at', 'total_rp', 'cg.name as customer_group', 'city', 'state', 'country', 'landmark', 'mobile', 'contacts.id', 'is_default',
+                    ->addSelect(['contacts.contact_id', 'contacts.name', 'contacts.email', 'contacts.created_at', 'total_rp', 'cg.name as customer_group', 'm.name as membership', 'city', 'state', 'country', 'landmark', 'mobile', 'contacts.id', 'is_default',
                         DB::raw("SUM(IF(t.type = 'sell'  AND t.status = 'final', final_total, 0)) as total_invoice"),
 //                        DB::raw("1000 as total_invoice"),
                         DB::raw("SUM(IF(t.type = 'sell' AND t.status = 'final', (SELECT SUM(IF(is_return = 1,-1*amount,amount)) FROM transaction_payments WHERE transaction_payments.transaction_id=t.id), 0)) as invoice_received"),
@@ -388,11 +390,12 @@ class ContactController extends Controller
         }
 
         $customer_groups = CustomerGroup::forDropdown($business_id);
+        $memberships = Membership::forDropdown($business_id);
 
 
         $services = Account::where('business_id', $business_id)->where('is_service', 1)->get();
         return view('contact.create')
-            ->with(compact('types', 'customer_groups', 'type', 'services'));
+            ->with(compact('types', 'customer_groups', 'memberships', 'type', 'services'));
     }
 
     /**
@@ -414,7 +417,7 @@ class ContactController extends Controller
             }
 
             $input = $request->only(['supplier_business_name',
-                'name', 'tax_number', 'pay_term_number', 'pay_term_type', 'mobile', 'landline', 'alternate_number', 'city', 'state', 'country', 'landmark', 'customer_group_id', 'contact_id', 'custom_field1', 'custom_field2', 'custom_field3', 'custom_field4', 'email']);
+                'name', 'tax_number', 'pay_term_number', 'pay_term_type', 'mobile', 'landline', 'alternate_number', 'city', 'state', 'country', 'landmark', 'customer_group_id', 'membership_id', 'contact_id', 'custom_field1', 'custom_field2', 'custom_field3', 'custom_field4', 'email']);
             $input['type'] = 'customer';
             $input['business_id'] = $business_id;
             $input['created_by'] = $request->session()->get('user.id');
@@ -559,6 +562,8 @@ class ContactController extends Controller
 
             $customer_groups = CustomerGroup::forDropdown($business_id);
 
+            $memberships = Membership::forDropdown($business_id);
+
             $services = Account::where('business_id', $business_id)->where('is_service', 1)->get();
 
             $ob_transaction =  Transaction::where('contact_id', $id)
@@ -583,7 +588,7 @@ class ContactController extends Controller
             $bank_details = !empty($contact->bank_details) ? json_decode($contact->bank_details, true) : null;
 
             return view('contact.edit')
-                ->with(compact('contact', 'bank_details', 'types', 'customer_groups', 'opening_balance', 'services', 'game_ids', 'customer_type'));
+                ->with(compact('contact', 'bank_details', 'types', 'customer_groups', 'memberships', 'opening_balance', 'services', 'game_ids', 'customer_type'));
         }
     }
 
@@ -650,7 +655,7 @@ class ContactController extends Controller
         if (request()->ajax()) {
             try {
                 $input = $request->only(['type', 'supplier_business_name', 'name', 'tax_number', 'pay_term_number', 'pay_term_type', 'mobile', 'landline', 'alternate_number', 
-                    'city', 'state', 'country', 'landmark', 'customer_group_id', 'contact_id', 'custom_field1', 'custom_field2', 'custom_field3', 'custom_field4', 'email']);
+                    'city', 'state', 'country', 'landmark', 'customer_group_id', 'membership_id', 'contact_id', 'custom_field1', 'custom_field2', 'custom_field3', 'custom_field4', 'email']);
 
                 $input['credit_limit'] = $request->input('credit_limit') != '' ? $this->commonUtil->num_uf($request->input('credit_limit')) : null;
                 

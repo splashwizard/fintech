@@ -9,15 +9,15 @@ $(document).ready(function() {
     });
 
     $('#bank_accounts .info-box-number').each(function () {
-        $(this).html(__currency_trans_from_en(parseFloat($(this).html()), true, false,  __currency_precision, true));
+        $(this).html(__currency_trans_from_en(parseFloat($(this).html()), false, false,  __currency_precision, true));
     });
 
     $('#service_accounts .info-box-number').each(function () {
-        $(this).html(__currency_trans_from_en(parseFloat($(this).html()), true, false,  __currency_precision, true));
+        $(this).html(__currency_trans_from_en(parseFloat($(this).html()), false, false,  __currency_precision, true));
     });
 
     $('#total_bank_transaction .info-box-number').each(function () {
-        $(this).html(__currency_trans_from_en(parseFloat($(this).html()), true, false,  __currency_precision, true));
+        $(this).html(__currency_trans_from_en(parseFloat($(this).html()), false, false,  __currency_precision, true));
     });
     //atock alert datatables
     var stock_alert_table = $('#stock_alert_table').DataTable({
@@ -111,23 +111,23 @@ function update_statistics(start, end) {
         success: function(data) {
             $('#bank_service_part').html(data.bank_service_part_html);
             $('#bank_accounts .info-box-number').each(function () {
-                $(this).html(__currency_trans_from_en(parseFloat($(this).html()), true, false,  __currency_precision, true));
+                $(this).html(__currency_trans_from_en(parseFloat($(this).html()), false, false,  __currency_precision, true));
             });
         
             $('#service_accounts .info-box-number').each(function () {
-                $(this).html(__currency_trans_from_en(parseFloat($(this).html()), true, false,  __currency_precision, true));
+                $(this).html(__currency_trans_from_en(parseFloat($(this).html()), false, false,  __currency_precision, true));
             });
             //purchase details
-            $('.total_deposit').html(__currency_trans_from_en(data.total_deposit, true));
+            $('.total_deposit').html(__currency_trans_from_en(data.total_deposit, false));
             $('.deposit_tickets').html(data.deposit_count);
-            $('.purchase_due').html(__currency_trans_from_en(data.purchase_due, true));
+            $('.purchase_due').html(__currency_trans_from_en(data.purchase_due, false));
 
             //sell details
-            $('.total_withdraw').html(__currency_trans_from_en(data.total_withdraw, true));
+            $('.total_withdraw').html(__currency_trans_from_en(data.total_withdraw, false));
             $('.withdrawal_tickets').html(data.withdraw_count);
-            $('.invoice_due').html(__currency_trans_from_en(data.invoice_due, true));
-            $('.total_bonus').html(__currency_trans_from_en(data.total_bonus, true));
-            $('.total_profit').html(__currency_trans_from_en(data.total_profit, true));
+            $('.invoice_due').html(__currency_trans_from_en(data.invoice_due, false));
+            $('.total_bonus').html(__currency_trans_from_en(data.total_bonus, false));
+            $('.total_profit').html(__currency_trans_from_en(data.total_profit, false));
             // $('.registration_cnt').html(data.registration_cnt + ' Pax');
 
             // -------------

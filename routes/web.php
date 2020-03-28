@@ -259,6 +259,8 @@ Route::middleware(['IsInstalled', 'auth', 'SetSessionData', 'language', 'timezon
     //Customer Groups
     Route::resource('customer-group', 'CustomerGroupController');
 
+    Route::resource('membership', 'MembershipController');
+
     //Display Groups
     Route::resource('display-group', 'DisplayGroupController');
 
