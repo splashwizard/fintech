@@ -82,7 +82,10 @@
               <span class="input-group-addon">
                 <i class="fa fa-money"></i>
               </span>
-              {!! Form::select("method", $payment_types, $payment_line->method, ['class' => 'form-control select2 payment_types_dropdown', 'required', 'style' => 'width:100%;']); !!}
+{{--              {!! Form::select("method", $payment_types, $payment_line->method, ['class' => 'form-control select2 payment_types_dropdown', 'required', 'style' => 'width:100%;']); !!}--}}
+              <select class="form-control">
+                <option value="bank_transfer" selected="selected">Bank Transfer</option>
+              </select>
             </div>
           </div>
         </div>

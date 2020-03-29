@@ -1162,7 +1162,11 @@ class ContactController extends Controller
             $user_id = request()->get('user_id');
             $user = Contact::find($user_id);
             $bank_account_detail_obj = !empty($user->bank_details) ? json_decode($user->bank_details, true) : null;
-            $bank_account_detail = !empty($bank_account_detail_obj) ? $bank_account_detail_obj['account_holder_name'].':'.$bank_account_detail_obj['account_number'] : null;
+            $account_holder = !empty($bank_account_detail_obj) ? $bank_account_detail_obj['account_holder_name'] : null;
+            $account_number = !empty($bank_account_detail_obj) ? $bank_account_detail_obj['account_number'] : null;
+            $bank_name = !empty($bank_account_detail_obj) ? $bank_account_detail_obj['bank_name'] : null;
+            $bank_account_detail = $view = view('service.bank_account_detail')
+                ->with(compact('account_holder', 'account_number', 'bank_name'))->render();
             return json_encode(['bank_account_detail'=> $bank_account_detail]);
         }
     }

@@ -28,8 +28,6 @@ $(document).ready(function() {
                     container.html(result.view).modal('show');
                     console.log('Add Modal');
                     $('.account_detail').click(function (e) {
-                        console.log('Clicked');
-                        console.log($(this).text());
                         e.preventDefault();
                         copyTextToClipboard($(this).text());
                     });

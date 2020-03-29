@@ -31,12 +31,8 @@
                 {!! Form::select('withdraw_to', $to_users, null, ['class' => 'form-control', 'required', 'style' => 'width:100%' ]); !!}
             </div>
 
-            <div class="col-md-12">
-                <div class="form-group">
-                    {!! Form::label("bank_account_detail",'Bank Account Detail') !!}
-                    {{-- {!! Form::text( "bank_account_number", $payment_line->bank_account_number, ['class' => 'form-control', 'placeholder' => 'Bank Account No', 'readonly']); !!} --}}
-                    {!! Form::text( "bank_account_detail", '', ['id' => 'bank_account_detail', 'class' => 'form-control', 'placeholder' => 'Bank Account Detail', 'readonly']); !!}
-                </div>
+            <div id="bank_account_detail">
+
             </div>
 
             <div class="form-group" id="bank_div">
@@ -113,6 +109,23 @@
     });
     $(document).ready(function () {
 
+        function copyTextToClipboard(text) {
+
+
+            $('.view_modal').find('.modal-body').append('<textarea id="copy_clipboard">'+ text+'</textarea>');
+            $('#copy_clipboard').focus();
+            $('#copy_clipboard').select();
+
+            try {
+                var successful = document.execCommand('copy');
+                var msg = successful ? 'successful' : 'unsuccessful';
+                console.log('Copying text command was ' + msg);
+            } catch (err) {
+                console.log('Oops, unable to copy');
+            }
+
+            $('#copy_clipboard').remove();
+        }
         // fileinput_setting = {
         //     showUpload: false,
         //     showPreview: false,
@@ -195,7 +208,11 @@
                 dataType: 'json',
                 data: {user_id: $('#withdraw_to').val()},
                 success: function(result) {
-                    $('#bank_account_detail').val(result.bank_account_detail);
+                    $('#bank_account_detail').html(result.bank_account_detail);
+                    $('.account_detail').click(function (e) {
+                        e.preventDefault();
+                        copyTextToClipboard($(this).text());
+                    });
                 }
             });
         $('#withdraw_to').on("select2:select", function(e) {
@@ -206,7 +223,11 @@
                 dataType: 'json',
                 data: {user_id: $('#withdraw_to').val()},
                 success: function(result) {
-                    $('#bank_account_detail').val(result.bank_account_detail);
+                    $('#bank_account_detail').html(result.bank_account_detail);
+                    $('.account_detail').click(function (e) {
+                        e.preventDefault();
+                        copyTextToClipboard($(this).text());
+                    });
                 }
             });
         });
