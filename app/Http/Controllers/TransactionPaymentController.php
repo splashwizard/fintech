@@ -64,7 +64,7 @@ class TransactionPaymentController extends Controller
      */
     public function store(Request $request)
     {
-        try {
+//        try {
             $business_id = $request->session()->get('user.business_id');
             $transaction_id = $request->input('transaction_id');
             $transaction = Transaction::where('business_id', $business_id)->findOrFail($transaction_id);
@@ -82,14 +82,6 @@ class TransactionPaymentController extends Controller
                 $inputs['amount'] = $this->transactionUtil->num_uf($inputs['amount']);
                 $inputs['created_by'] = auth()->user()->id;
                 $inputs['payment_for'] = $transaction->contact_id;
-
-                if ($inputs['method'] == 'custom_pay_1') {
-                    $inputs['transaction_no'] = $request->input('transaction_no_1');
-                } elseif ($inputs['method'] == 'custom_pay_2') {
-                    $inputs['transaction_no'] = $request->input('transaction_no_2');
-                } elseif ($inputs['method'] == 'custom_pay_3') {
-                    $inputs['transaction_no'] = $request->input('transaction_no_3');
-                }
 
                 if (!empty($request->input('account_id'))) {
                     $inputs['account_id'] = $request->input('account_id');
@@ -124,15 +116,15 @@ class TransactionPaymentController extends Controller
             $output = ['success' => true,
                             'msg' => __('purchase.payment_added_success')
                         ];
-        } catch (\Exception $e) {
-            DB::rollBack();
-
-            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-            
-            $output = ['success' => false,
-                          'msg' => __('messages.something_went_wrong')
-                      ];
-        }
+//        } catch (\Exception $e) {
+//            DB::rollBack();
+//
+//            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+//
+//            $output = ['success' => false,
+//                          'msg' => __('messages.something_went_wrong')
+//                      ];
+//        }
 
         return redirect()->back()->with(['status' => $output]);
     }

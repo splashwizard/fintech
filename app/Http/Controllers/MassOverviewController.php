@@ -113,7 +113,8 @@ class MassOverviewController extends Controller
             $datatable = Datatables::of($query)->addColumn(
                 'action',
                 function ($row) {
-                    if(auth()->user()->hasRole('Superadmin'))
+                    $username = request()->session()->get('user.username');
+                    if(auth()->user()->hasRole('Superadmin') || ($username == 'Steven Admin' || $username == 'David' || $username == 'Anson'))
                         $html = '<a href="'.action("MassOverviewController@edit", [$row->id]).'" class="btn btn-info btn-xs">Edit</a>';
                     else
                         $html = '<a href="'.action("MassOverviewController@show", [$row->id]).'" class="btn btn-info btn-xs">View</a>';
@@ -179,7 +180,8 @@ class MassOverviewController extends Controller
             $new_row = [];
             $new_row['serial'] = $business_id;
             $new_row['name'] = $business_name;
-            if(auth()->user()->hasRole('Superadmin'))
+            $username = request()->session()->get('user.username');
+            if(auth()->user()->hasRole('Superadmin') || ($username == 'Steven Admin' || $username == 'David' || $username == 'Anson'))
                 $new_row['action'] = '<a href="'.action("MassOverviewController@edit", [$business_id]).'" class="btn btn-info btn-xs">Edit</a>';
             else
                 $new_row['action'] = '<a href="'.action("MassOverviewController@show", [$business_id]).'" class="btn btn-info btn-xs">View</a>';
@@ -353,7 +355,8 @@ class MassOverviewController extends Controller
      */
     public function edit($id)
     {
-        if(auth()->user()->hasRole('Superadmin')){
+        $username = request()->session()->get('user.username');
+        if(auth()->user()->hasRole('Superadmin') || ($username == 'Steven Admin' || $username == 'David' || $username == 'Anson')){
             $business = Business::findOrFail($id);
 
             $currency = $business->currency;
@@ -467,10 +470,15 @@ class MassOverviewController extends Controller
             foreach ($business as $row){
                 $user_arr[] = $row->user_id;
             }
+            $username = request()->session()->get('user.username');
 
-            $users = User::whereIn('id', $user_arr)
-                ->select(['id', 'username', 'business_id',
-                    DB::raw("CONCAT(COALESCE(surname, ''), ' ', COALESCE(first_name, ''), ' ', COALESCE(last_name, '')) as full_name"), 'email']);
+            $users = User::whereIn('id', $user_arr);
+            if($username == 'Steven Admin')
+                $users->where('username', '!=', 'Steven Admin');
+            elseif ($username == 'David' || $username == 'Anson')
+                $users->whereNotIn('username', ['Steven Admin', 'David', 'Anson']);
+            $users->select(['id', 'username', 'business_id',
+                DB::raw("CONCAT(COALESCE(surname, ''), ' ', COALESCE(first_name, ''), ' ', COALESCE(last_name, '')) as full_name"), 'email']);
 
             return Datatables::of($users)
                 ->addColumn(

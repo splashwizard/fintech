@@ -35,6 +35,7 @@ class SetSessionData
                             'surname' => $user->surname,
                             'first_name' => $user->first_name,
                             'last_name' => $user->last_name,
+                            'username' => $user->username,
                             'email' => $user->email,
                             'business_id' => $business_id,
                             'language' => $user->language,
