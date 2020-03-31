@@ -313,6 +313,7 @@ class DailyReportController extends Controller
 
         $group_names = DisplayGroup::join('accounts', 'accounts.display_group_id', 'display_groups.id')
             ->select('display_groups.name as group_name', DB::raw('COUNT(accounts.id) as bank_cnt'))
+            ->where('display_groups.business_id', $business_id)
             ->groupBy('display_groups.id')->get();
 
         $output['html_content'] = view('daily_report.report_table')->with(compact('banks_group_obj', 'bank_accounts_obj', 'services_obj', 'service_accounts_obj', 'group_names'))->render();

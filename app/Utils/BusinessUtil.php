@@ -56,7 +56,7 @@ class BusinessUtil extends Util
         $customer = [
                         'business_id' => $business_id,
                         'type' => 'customer',
-                        'name' => 'Walk-In Customer',
+                        'name' => 'Unclaimed Trans',
                         'created_by' => $user_id,
                         'is_default' => 1,
                         'contact_id' => $contact_id

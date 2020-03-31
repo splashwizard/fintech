@@ -79,14 +79,18 @@
                     <tfoot>
                         <tr class="bg-gray font-17 text-center footer-total">
                             <td @if($type == 'supplier') colspan="2"
-                                @elseif( $type == 'customer') @if($reward_enabled) colspan="6" @else colspan="3" @endif
-                                @elseif( $type == 'blacklisted_customer') @if($reward_enabled) colspan="5" @else colspan="5" @endif
+                                @elseif( $type == 'customer') colspan="6"
+                                @elseif( $type == 'blacklisted_customer') colspan="5"
                                 @endif>
                                 <strong>@lang('sale.total'):</strong>
                             </td>
                             <td><span class="display_currency" id="footer_contact_due" data-currency_symbol ="true"></span></td>
                             <td><span class="display_currency" id="footer_contact_return_due" data-currency_symbol ="true"></span></td>
-                            <td @if( $type == 'blacklisted_customer') colspan="6" @else colspan="4" @endif></td>
+                            @if( $type == 'blacklisted_customer')
+                                <td @if($reward_enabled) colspan="6" @else colspan="5" @endif></td>
+                            @else
+                                <td @if($reward_enabled) colspan="4" @else colspan="3" @endif></td>
+                            @endif
                         </tr>
                     </tfoot>
                 </table>
@@ -114,9 +118,47 @@
         //Start: CRUD for Contacts
         //contacts table
         var contact_table_type = $('#contact_type').val();
+        var reward_enabled = '{{$reward_enabled}}';
+        var columns;
+        console.log(reward_enabled);
         var targets = 8;
         if (contact_table_type == 'supplier') {
             targets = [8,9,10];
+        }
+        if (contact_table_type === 'blacklisted_customer'){
+            columns = [{data: 'contact_id', width: "10%"},
+                {data: 'name', width: "10%"},
+                {data: 'mobile', width: "10%"},
+                {data: 'email', width: "10%"},
+                {data: 'customer_group', width: "10%"},
+                {data: 'due', width: "10%"},
+                {data: 'return_due', width: "10%"}];
+        } else {
+            columns = [{data: 'contact_id', width: "10%"},
+                {data: 'name', width: "10%"},
+                {data: 'mobile', width: "10%"},
+                {data: 'email', width: "10%"},
+                {data: 'membership', width: "10%"},
+                {data: 'customer_group', width: "10%"},
+                {data: 'due', width: "10%"},
+                {data: 'return_due', width: "10%"}];
+        }
+        if(reward_enabled)
+            columns.push({data: 'total_rp', width: "10%"});
+        if (contact_table_type === 'blacklisted_customer'){
+            columns.push.apply(columns, [
+                {data: 'landmark', width: "10%"},
+                {data: 'created_at', width: "10%"},
+                {data: 'blacked_by_user', width: "10%"},
+                {data: 'remark', width: "10%"},
+                {data: 'action', width: "10%"}
+            ]);
+        } else {
+            columns.push.apply(columns,[
+                {data: 'landmark', width: "10%"},
+                {data: 'created_at', width: "10%"},
+                {data: 'action', width: "10%"}
+            ]);
         }
         var contact_table = $('#contact_table').DataTable({
             processing: true,
@@ -129,34 +171,7 @@
                     searchable: false,
                 },
             ],
-            columns: contact_table_type === 'blacklisted_customer'? [
-                {data: 'contact_id', width: "10%"},
-                {data: 'name', width: "10%"},
-                {data: 'mobile', width: "10%"},
-                {data: 'email', width: "10%"},
-                {data: 'customer_group', width: "10%"},
-                {data: 'due', width: "10%"},
-                {data: 'return_due', width: "10%"},
-                {data: 'total_rp', width: "10%"},
-                {data: 'landmark', width: "10%"},
-                {data: 'created_at', width: "10%"},
-                {data: 'blacked_by_user', width: "10%"},
-                {data: 'remark', width: "10%"},
-                {data: 'action', width: "10%"}
-            ] : [
-                {data: 'contact_id', width: "10%"},
-                {data: 'name', width: "10%"},
-                {data: 'mobile', width: "10%"},
-                {data: 'email', width: "10%"},
-                {data: 'membership', width: "10%"},
-                {data: 'customer_group', width: "10%"},
-                {data: 'due', width: "10%"},
-                {data: 'return_due', width: "10%"},
-                {data: 'total_rp', width: "10%"},
-                {data: 'landmark', width: "10%"},
-                {data: 'created_at', width: "10%"},
-                {data: 'action', width: "10%"}
-            ],
+            columns: columns,
             fnDrawCallback: function(oSettings) {
                 var total_due = sum_table_col($('#contact_table'), 'contact_due');
                 $('#footer_contact_due').text(total_due);

@@ -1502,9 +1502,9 @@ class SellPosDepositController extends Controller
         $payment_types = $this->productUtil->payment_types();
         //Accounts
         $accounts = [];
-        if ($this->moduleUtil->isModuleEnabled('account')) {
+//        if ($this->moduleUtil->isModuleEnabled('account')) {
             $accounts = Account::forDropdown($business_id, true, false);
-        }
+//        }
 
         return view('sale_pos_deposit.partials.payment_rows')->with(compact('payment_lines', 'payment_types', 'accounts'));
     }
@@ -1745,7 +1745,7 @@ class SellPosDepositController extends Controller
                 })
                 ->groupBy('accounts.id')
                 ->groupBy('variations.id')
-                ->where('p.business_id', $business_id)
+                ->where('accounts.business_id', $business_id)
                 ->where('p.type', '!=', 'modifier')
                 ->where('p.is_inactive', 0)
                 ->where('p.not_for_selling', 0);

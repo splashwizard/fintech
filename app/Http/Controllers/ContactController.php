@@ -254,7 +254,6 @@ class ContactController extends Controller
         $raw = ['due', 'return_due', 'action'];
         if (!$reward_enabled) {
             $contacts->removeColumn('total_rp');
-            $raw = [7, 8, 9];
         }
         return $contacts->rawColumns($raw)->toJson();
 //                        ->make(false);
