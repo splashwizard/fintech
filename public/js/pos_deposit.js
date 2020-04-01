@@ -1619,7 +1619,7 @@ function get_product3_suggestion_list(location_id, url = null) {
         },
         dataType: 'html',
         success: function(result) {
-            $('div#product_list_body3').append(result);
+            $('div#product_list_body3').html(result);
             $('#suggestion_page_loader3').fadeOut(700);
         },
     });

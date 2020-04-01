@@ -312,19 +312,6 @@ class HomeController extends Controller
 
             $purchase_details = $this->transactionUtil->getPurchaseTotals($business_id, $start, $end);
 
-            $sell_details = $this->transactionUtil->getSellTotals($business_id, $start, $end);
-
-            $transaction_types = [
-                'purchase_return', 'stock_adjustment', 'sell_return'
-            ];
-
-            $transaction_totals = $this->transactionUtil->getTransactionTotals(
-                $business_id,
-                $transaction_types,
-                $start,
-                $end
-            );
-
             $sells = Transaction::leftJoin('contacts', 'transactions.contact_id', '=', 'contacts.id')
                 ->leftJoin('transaction_payments as tp', 'transactions.id', '=', 'tp.transaction_id')
                 ->leftJoin('accounts', 'tp.account_id', '=', 'accounts.id')
@@ -367,32 +354,13 @@ class HomeController extends Controller
                 ->where('accounts.is_service', 0)
                 ->whereBetween(\Illuminate\Support\Facades\DB::raw('date(transactions.transaction_date)'), [$start, $end]);
 
-
-            $permitted_locations = auth()->user()->permitted_locations();
-//            if ($permitted_locations != 'all') {
-//                $sells->whereIn('transactions.location_id', $permitted_locations);
-//                $withdraws->whereIn('transactions.location_id', $permitted_locations);
-//            }
-//
-//            if (!auth()->user()->can('direct_sell.access') && auth()->user()->can('view_own_sell_only')) {
-//                $sells->where('transactions.created_by', request()->session()->get('user.id'));
-//                $withdraws->whereIn('transactions.location_id', $permitted_locations);
-//            }
             $sells->groupBy('transactions.id');
             $withdraws->groupBy('transactions.id');
             $deposit_count = count($sells->select('transactions.id')->get());
             $withdraw_count = count($withdraws->select('transactions.id')->get());
 
-            $total_purchase_inc_tax = !empty($purchase_details['total_purchase_inc_tax']) ? $purchase_details['total_purchase_inc_tax'] : 0;
-            $total_purchase_return_inc_tax = $transaction_totals['total_purchase_return_inc_tax'];
-            $total_adjustment = $transaction_totals['total_adjustment'];
 
-            $total_purchase = $total_purchase_inc_tax - $total_purchase_return_inc_tax - $total_adjustment;
             $output = $purchase_details;
-//            $output['total_withdraw'] = $total_purchase;
-
-            $total_sell_inc_tax = !empty($sell_details['total_sell_inc_tax']) ? $sell_details['total_sell_inc_tax'] : 0;
-            $total_sell_return_inc_tax = !empty($transaction_totals['total_sell_return_inc_tax']) ? $transaction_totals['total_sell_return_inc_tax'] : 0;
 
             $query = Contact::join('customer_groups AS g', 'g.id', 'contacts.customer_group_id')
                 ->where('contacts.business_id', $business_id)->where('type', 'customer')
@@ -404,16 +372,32 @@ class HomeController extends Controller
                 ->whereBetween(\Illuminate\Support\Facades\DB::raw('date(created_at)'), [$start, $end])
                 ->select(DB::raw("SUM(IF(method='free_credit', amount, 0)) as free_credit"), DB::raw("SUM(IF(method='basic_bonus', amount, 0)) as basic_bonus"))->get()[0];
 
-            $output['total_withdraw'] = $total_sell_return_inc_tax;
+            $bank_accounts_sql = Account::leftjoin('account_transactions as AT', function ($join) {
+                $join->on('AT.account_id', '=', 'accounts.id');
+                $join->whereNull('AT.deleted_at');
+            })
+                ->where('is_service', 0)
+                ->where('name', '!=', 'Bonus Account')
+                ->where('business_id', $business_id)
+                ->select(['name', 'account_number', 'accounts.note', 'accounts.id as account_id',
+                    'is_closed', DB::raw("SUM( IF(AT.type='credit', amount, -1*amount) ) as balance")
+                    , DB::raw("SUM( IF( AT.type='credit' AND (AT.sub_type IS NULL OR AT.`sub_type` != 'fund_transfer'), AT.amount, 0) ) as total_deposit")
+                    , DB::raw("SUM( IF( AT.type='debit' AND (AT.sub_type IS NULL OR AT.`sub_type` != 'fund_transfer'), AT.amount, 0) ) as total_withdraw")]);
+            $bank_accounts_sql->whereDate('AT.operation_date', '>=', $start)
+                ->whereDate('AT.operation_date', '<=', $end);
+
+            $bank_accounts = $bank_accounts_sql->get();
+            $output['total_deposit'] = $bank_accounts[0]->total_deposit;
+            $output['total_withdraw'] = $bank_accounts[0]->total_withdraw;
             $output['deposit_count'] = $deposit_count;
             $output['withdraw_count'] = $withdraw_count;
 //            $output['total_sell'] = $total_sell_inc_tax - $total_sell_return_inc_tax;
-            $output['total_deposit'] = $total_sell_inc_tax;
+//            $output['total_deposit'] = $total_sell_inc_tax;
             $output['total_bonus'] = $data['basic_bonus'];
             $output['total_profit'] = $data['free_credit'];;
             $output['registration_arr'] = $query->get();
 
-            $output['invoice_due'] = $sell_details['invoice_due'];
+//            $output['invoice_due'] = $sell_details['invoice_due'];
 
             $bank_accounts_sql = Account::leftjoin('account_transactions as AT', function ($join) {
                 $join->on('AT.account_id', '=', 'accounts.id');
