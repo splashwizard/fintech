@@ -282,7 +282,7 @@ class SellPosDepositController extends Controller
             return redirect()->action('CashRegisterController@create');
         }
 
-        try {
+//        try {
             $input = $request->except('_token');
 
             //Check Customer credit limit
@@ -420,6 +420,7 @@ class SellPosDepositController extends Controller
                     $input['payment'][] = $change_return;
                 }
 
+
                 if (!$transaction->is_suspend && !empty($input['payment'])) {
                     $this->transactionUtil->createOrUpdatePaymentLines($transaction, $input['payment']);
                 }
@@ -549,20 +550,20 @@ class SellPosDepositController extends Controller
                             'msg' => trans("messages.something_went_wrong")
                         ];
             }
-        } catch (\Exception $e) {
-            DB::rollBack();
-
-            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-            $msg = trans("messages.something_went_wrong");
-                
-            if (get_class($e) == \App\Exceptions\PurchaseSellMismatch::class) {
-                $msg = $e->getMessage();
-            }
-
-            $output = ['success' => 0,
-                            'msg' => $msg
-                        ];
-        }
+//        } catch (\Exception $e) {
+//            DB::rollBack();
+//
+//            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+//            $msg = trans("messages.something_went_wrong");
+//
+//            if (get_class($e) == \App\Exceptions\PurchaseSellMismatch::class) {
+//                $msg = $e->getMessage();
+//            }
+//
+//            $output = ['success' => 0,
+//                            'msg' => $msg
+//                        ];
+//        }
 
         if (!$is_direct_sale) {
             return $output;
@@ -1493,7 +1494,7 @@ class SellPosDepositController extends Controller
                 'is_return' => 0, 'transaction_no' => '', 'category_name' => $data->name];
         }
         if(!empty($bonus_amount)){
-            $bonus_key = 20;
+            $bonus_key = Account::where('business_id', $business_id)->where('name', 'Bonus Account')->get()[0]->id;
             $query = Category::where('name', 'Banking');
             $data = $query->get()[0];
             $payment_lines[] = ['account_id' => $bonus_key, 'method' => 'basic_bonus', 'amount' => $bonus_amount, 'note' => '', 'card_transaction_number' => '', 'card_number' => '', 'card_type' => '', 'card_holder_name' => '', 'card_month' => '', 'card_year' => '', 'card_security' => '', 'cheque_number' => '', 'bank_account_number' => '',

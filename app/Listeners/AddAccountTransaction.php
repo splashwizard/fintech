@@ -33,9 +33,9 @@ class AddAccountTransaction
      */
     public function handle(TransactionPaymentAdded $event)
     {
-        if(!$this->moduleUtil->isModuleEnabled('account')){
-            return true;
-        }
+//        if(!$this->moduleUtil->isModuleEnabled('account')){
+//            return true;
+//        }
 
         // //Create new account transaction
         if(!empty($event->formInput['account_id'])){
