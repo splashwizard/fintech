@@ -22,6 +22,7 @@
 		<input type="hidden" class="enable_sr_no" value="{{$product->enable_sr_no}}">
 		<input type="hidden" class="product_type" name="products[{{$row_count}}][product_type]" value="{{$product->product_type}}">
 		<input type="hidden" name="products[{{$row_count}}][account_id]" value="{{$product->account_id}}">
+		<input type="hidden" class="account_name" value="{{$account_name}}">
 		<input type="hidden" name="products[{{$row_count}}][category_id]" class="category_id" value="{{$product->category_id}}">
 		<input type="hidden" name="products[{{$row_count}}][p_name]" class="p_name" value="{{$product->p_name}}">
 {{--		<div data-toggle="tooltip" data-placement="bottom" title="@lang('lang_v1.add_description')">--}}

@@ -1813,9 +1813,9 @@ function pos_total_row() {
     let credit = 0, basic_bonus = 0, special_bonus = 0, debit = 0;
 
     $('table#pos_table tbody tr').each(function() {
-        const p_name = $(this).find('input.p_name').val();
+        const p_name = $(this).find('input.account_name').val();
         const category_id = parseInt($(this).find('input.category_id').val());
-        if(p_name === 'Bonus'){
+        if(p_name === 'Bonus Account'){
             special_bonus += __read_number($(this).find('input.pos_line_total'));
         } else if(category_id === 66){
             const line_total = __read_number($(this).find('input.pos_line_total'));

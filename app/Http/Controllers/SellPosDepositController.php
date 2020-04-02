@@ -1390,10 +1390,10 @@ class SellPosDepositController extends Controller
                     $game_id = GameId::where('service_id', $product->account_id)->where('contact_id', $customer_id)->get()[0]->game_id;
                 else
                     $game_id = null;
-
+                $account_name = Account::find($product->account_id)->name;
 
                 $output['html_content'] =  view('sale_pos_deposit.product_row')
-                            ->with(compact('product', 'row_count', 'tax_dropdown', 'enabled_modules', 'pos_settings', 'sub_units', 'discount', 'waiters', 'edit_discount', 'edit_price', 'amount', 'game_id'))
+                            ->with(compact('product', 'account_name', 'row_count', 'tax_dropdown', 'enabled_modules', 'pos_settings', 'sub_units', 'discount', 'waiters', 'edit_discount', 'edit_price', 'amount', 'game_id'))
                             ->render();
             }
             
@@ -1482,8 +1482,10 @@ class SellPosDepositController extends Controller
             //     $payment['amount'] += $bonus_amount;
             $query = Category::where('id', $payment['category_id']);
             $data = $query->get()[0];
+            $account_data = Account::find($key);
             if($data->name == 'Banking'){
-                if($payment['p_name'] == 'Bonus')
+//                if($payment['p_name'] == 'Bonus')
+                if($account_data->name == 'Bonus Account')
                     $method = 'free_credit';
                 else
                     $method = 'bank_transfer';
