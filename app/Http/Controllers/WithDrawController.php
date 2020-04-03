@@ -320,7 +320,7 @@ class WithDrawController extends Controller
                 ->editColumn('transaction_date', '{{@format_datetime($transaction_date)}}')
                 ->editColumn(
                     'amount',
-                    '<span class="display_currency sell_amount" data-orig-value="{{$amount}}" data-currency_symbol=true data-highlight=true>{{($amount)}}</span>'
+                    '<span class="display_currency sell_amount" data-orig-value="{{$amount}}" data-highlight=true>{{($amount)}}</span>'
                 )
                  ->editColumn('invoice_no', function ($row) {
                      $invoice_no = $row->invoice_no;

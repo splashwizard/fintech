@@ -179,10 +179,8 @@ class ContactController extends Controller
                         $q->orWhere('contacts.business_id', 0);
                     })  
                     ->where('contacts.blacked_by_user', '=', null)
-//                    ->onlyCustomers()
                     ->addSelect(['contacts.contact_id', 'contacts.name', 'contacts.email', 'contacts.created_at', 'total_rp', 'cg.name as customer_group', 'm.name as membership', 'city', 'state', 'country', 'landmark', 'mobile', 'contacts.id', 'is_default',
                         DB::raw("SUM(IF(t.type = 'sell'  AND t.status = 'final', final_total, 0)) as total_invoice"),
-//                        DB::raw("1000 as total_invoice"),
                         DB::raw("SUM(IF(t.type = 'sell' AND t.status = 'final', (SELECT SUM(IF(is_return = 1,-1*amount,amount)) FROM transaction_payments WHERE transaction_payments.transaction_id=t.id), 0)) as invoice_received"),
 //                        DB::raw("SUM(IF( t.type = 'sell_return' AND (SELECT transaction_payments.method FROM transaction_payments WHERE transaction_payments.transaction_id=t.id) = 'bank_transfer', final_total, 0)) as total_sell_return"),
                         DB::raw("SUM(IF(t.type = 'sell_return', final_total, 0)) as total_sell_return"),
@@ -199,12 +197,12 @@ class ContactController extends Controller
             )
             ->addColumn(
                 'due',
-                '<span class="display_currency contact_due" data-orig-value="{{$total_invoice}}" data-currency_symbol=true data-highlight=true>{{($total_invoice)}}</span>'
+                '<span class="display_currency contact_due" data-orig-value="{{$total_invoice}}" data-highlight=true>{{($total_invoice)}}</span>'
 //                '<span class="display_currency contact_due" data-orig-value="{{$total_invoice - $invoice_received}}" data-currency_symbol=true data-highlight=true>{{($total_invoice - $invoice_received)}}</span>'
             )
             ->addColumn(
                 'return_due',
-                '<span class="display_currency return_due" data-orig-value="{{$total_sell_return}}" data-currency_symbol=true data-highlight=false>{{$total_sell_return}}</span>'
+                '<span class="display_currency return_due" data-orig-value="{{$total_sell_return}}" data-highlight=false>{{$total_sell_return}}</span>'
 //                '<span class="display_currency return_due" data-orig-value="{{$total_sell_return - $sell_return_paid}}" data-currency_symbol=true data-highlight=false>{{$total_sell_return - $sell_return_paid }}</span>'
             )
             ->addColumn(
@@ -408,81 +406,108 @@ class ContactController extends Controller
         if (!auth()->user()->can('supplier.create') && !auth()->user()->can('customer.create')) {
             abort(403, 'Unauthorized action.');
         }
-        try {
-            $business_id = $request->session()->get('user.business_id');
-
-            if (!$this->moduleUtil->isSubscribed($business_id)) {
-                return $this->moduleUtil->expiredResponse();
-            }
-
-            $input = $request->only(['supplier_business_name',
-                'name', 'tax_number', 'pay_term_number', 'pay_term_type', 'mobile', 'landline', 'alternate_number', 'city', 'state', 'country', 'landmark', 'customer_group_id', 'membership_id', 'contact_id', 'custom_field1', 'custom_field2', 'custom_field3', 'custom_field4', 'email']);
-            $input['type'] = 'customer';
-            $input['business_id'] = $business_id;
-            $input['created_by'] = $request->session()->get('user.id');
-
-            $input['credit_limit'] = $request->input('credit_limit') != '' ? $this->commonUtil->num_uf($request->input('credit_limit')) : null;
-            $bank_details = $request->get('bank_details');
-            $input['bank_details'] = !empty($bank_details) ? json_encode($bank_details) : null;
-
-            $type = $request->get('type');
-            if($type == 'blacklisted_customer'){
-                $input['remark'] = $request->get('remark');
-                $input['blacked_by_user'] = $request->session()->get('user.first_name').' '.$request->session()->get('user.last_name');
-            }
-
-            //Check Contact id
-            $count = 0;
-            if (!empty($input['contact_id'])) {
-                $count = Contact::where('business_id', $input['business_id'])
-                                ->where('contact_id', $input['contact_id'])
-                                ->count();
-            }
-
-            if ($count == 0) {
-                //Update reference count
-                $ref_count = $this->commonUtil->setAndGetReferenceCount('contacts');
-
-                if (empty($input['contact_id'])) {
-                    //Generate reference number
-                    $input['contact_id'] = $this->commonUtil->generateReferenceNumber('contacts', $ref_count);
-                }
-
-
-                $contact = Contact::create($input);
-
-                ActivityLogger::activity("Created customer, contact ID ".$contact->contact_id);
-
-
-                $game_ids = request()->get('game_ids');
-                foreach ($game_ids as $service_id => $game_id){
-                    if(!empty($game_id)){
-                        GameId::create([
-                            'service_id' => $service_id,
-                            'contact_id' => $contact->id,
-                            'game_id' => $game_id
-                        ]);
-                    }
-                }
-
-                //Add opening balance
-                if (!empty($request->input('opening_balance'))) {
-                    $this->transactionUtil->createOpeningBalanceTransaction($business_id, $contact->id, $request->input('opening_balance'));
-                }
-
-                $output = ['success' => true,
-                            'data' => $contact,
-                            'msg' => __("contact.added_success")
-                        ];
-            } else {
-                throw new \Exception("Error Processing Request", 1);
-            }
-        } catch (\Exception $e) {
-            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-
+        if(Contact::where('name', $request->get('name'))->count() > 0){
+            if(Contact::where('name', $request->get('name'))->get()[0]->blacked_by_user)
+                $msg = ' has been blacklisted in the system!';
+            else
+                $msg = ' already exist in the system!';
             $output = ['success' => false,
-                            'msg' =>__("messages.something_went_wrong")
-                        ];
+                'msg' => $request->get('name').$msg.' Please use another IC Name!'
+            ];
+        } else if(Contact::where('mobile', $request->get('mobile'))->count() > 0){
+            if(Contact::where('mobile', $request->get('mobile'))->get()[0]->blacked_by_user)
+                $msg = ' has been blacklisted in the system!';
+            else
+                $msg = ' already exist in the system!';
+            $output = ['success' => false,
+                'msg' => $request->get('mobile').$msg.' Please use another contact!'
+            ];
+        } else if(Contact::where('email', $request->get('email'))->count() && !empty($request->get('email')) > 0){
+            if(Contact::where('email', $request->get('email'))->get()[0]->blacked_by_user)
+                $msg = ' has been blacklisted in the system!';
+            else
+                $msg = ' already exist in the system!';
+            $output = ['success' => false,
+                'msg' => $request->get('email').$msg.' Please use another email!'
+            ];
+        } else{
+
+            try {
+                $business_id = $request->session()->get('user.business_id');
+
+                if (!$this->moduleUtil->isSubscribed($business_id)) {
+                    return $this->moduleUtil->expiredResponse();
+                }
+
+                $input = $request->only(['supplier_business_name',
+                    'name', 'tax_number', 'pay_term_number', 'pay_term_type', 'mobile', 'landline', 'alternate_number', 'city', 'state', 'country', 'landmark', 'customer_group_id', 'membership_id', 'contact_id', 'custom_field1', 'custom_field2', 'custom_field3', 'custom_field4', 'email']);
+                $input['type'] = 'customer';
+                $input['business_id'] = $business_id;
+                $input['created_by'] = $request->session()->get('user.id');
+
+                $input['credit_limit'] = $request->input('credit_limit') != '' ? $this->commonUtil->num_uf($request->input('credit_limit')) : null;
+                $bank_details = $request->get('bank_details');
+                $input['bank_details'] = !empty($bank_details) ? json_encode($bank_details) : null;
+
+                $type = $request->get('type');
+                if($type == 'blacklisted_customer'){
+                    $input['remark'] = $request->get('remark');
+                    $input['blacked_by_user'] = $request->session()->get('user.first_name').' '.$request->session()->get('user.last_name');
+                }
+
+                //Check Contact id
+                $count = 0;
+                if (!empty($input['contact_id'])) {
+                    $count = Contact::where('business_id', $input['business_id'])
+                                    ->where('contact_id', $input['contact_id'])
+                                    ->count();
+                }
+
+                if ($count == 0) {
+                    //Update reference count
+                    $ref_count = $this->commonUtil->setAndGetReferenceCount('contacts');
+
+                    if (empty($input['contact_id'])) {
+                        //Generate reference number
+                        $input['contact_id'] = $this->commonUtil->generateReferenceNumber('contacts', $ref_count);
+                    }
+
+
+                    $contact = Contact::create($input);
+
+                    ActivityLogger::activity("Created customer, contact ID ".$contact->contact_id);
+
+
+                    $game_ids = request()->get('game_ids');
+                    foreach ($game_ids as $service_id => $game_id){
+                        if(!empty($game_id)){
+                            GameId::create([
+                                'service_id' => $service_id,
+                                'contact_id' => $contact->id,
+                                'game_id' => $game_id
+                            ]);
+                        }
+                    }
+
+                    //Add opening balance
+                    if (!empty($request->input('opening_balance'))) {
+                        $this->transactionUtil->createOpeningBalanceTransaction($business_id, $contact->id, $request->input('opening_balance'));
+                    }
+
+                    $output = ['success' => true,
+                                'data' => $contact,
+                                'msg' => __("contact.added_success")
+                            ];
+                } else {
+                    throw new \Exception("Error Processing Request", 1);
+                }
+            } catch (\Exception $e) {
+                \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+
+                $output = ['success' => false,
+                                'msg' =>__("messages.something_went_wrong")
+                            ];
+            }
         }
 
         return $output;

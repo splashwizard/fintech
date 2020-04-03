@@ -313,7 +313,7 @@ class SellController extends Controller
 //                ->editColumn('amount', '{{@number_format((float)$amount, 2, ".", ",")}}')
                 ->editColumn(
                     'amount',
-                    '<span class="display_currency sell_amount" data-orig-value="{{$amount}}" data-currency_symbol=true data-highlight=true>{{($amount)}}</span>'
+                    '<span class="display_currency sell_amount" data-orig-value="{{$amount}}" data-highlight=true>{{($amount)}}</span>'
                 )
                 ->editColumn(
                     'payment_status',

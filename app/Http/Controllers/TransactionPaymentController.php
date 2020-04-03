@@ -156,9 +156,18 @@ class TransactionPaymentController extends Controller
             $payments = $payments_query->get();
 
             $payment_types = $this->transactionUtil->payment_types();
+
+            $business_id = request()->session()->get('user.business_id');
+            $payroll = Transaction::where('business_id', $business_id)
+                ->with(['transaction_for'])
+                ->where('type', 'payroll')
+                ->findOrFail($id);
+
+            $allowances = !empty($payroll->essentials_allowances) ? json_decode($payroll->essentials_allowances, true) : [];
+            $deductions = !empty($payroll->essentials_deductions) ? json_decode($payroll->essentials_deductions, true) : [];
             
             return view('transaction_payment.show_payments')
-                    ->with(compact('transaction', 'payments', 'payment_types', 'accounts_enabled'));
+                    ->with(compact('transaction', 'payments', 'payment_types', 'accounts_enabled', 'payroll', 'allowances', 'deductions'));
         }
     }
 

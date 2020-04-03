@@ -34,7 +34,7 @@ class DailyReportController extends Controller
         $this->moduleUtil = $moduleUtil;
         $this->bank_columns = ['currency' => 'Currency', 'balance' => 'Balance B/F', 'deposit' => 'In', 'withdraw' => 'Out', 'service' => 'Service', 'transfer_in' => 'Transfer In', 'transfer_out' => 'Transfer Out', 'kiosk' => 'Kiosk', 'back' => 'Cancel',
                             'in_ticket' => 'In Ticket', 'out_ticket' => 'Out Ticket', 'overall' => 'Overall Total', 'win_loss' => 'Win/Loss', 'expenses' => 'Expenses', 'unclaim' => 'Unclaim'];
-        $this->service_columns = ['balance' => 'Balance B/F', 'deposit' => 'In', 'withdraw' => 'Out', 'bonus' => 'Bonus', 'luckydraw' => 'Luckydraw', 'free_credit' => 'Free Credit', 'advance_credit' => 'Advance credit', 'transfer_in' => 'Transfer + ', 'transfer_out' => 'Transfer - '];
+        $this->service_columns = ['balance' => 'Balance B/F', 'deposit' => 'In', 'withdraw' => 'Out', 'bonus' => 'Basic Bonus', 'luckydraw' => 'Luckydraw', 'free_credit' => 'Free Credit', 'advance_credit' => 'Advance credit', 'transfer_in' => 'Transfer + ', 'transfer_out' => 'Transfer - '];
     }
 
     /**

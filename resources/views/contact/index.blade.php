@@ -84,8 +84,8 @@
                                 @endif>
                                 <strong>@lang('sale.total'):</strong>
                             </td>
-                            <td><span class="display_currency" id="footer_contact_due" data-currency_symbol ="true"></span></td>
-                            <td><span class="display_currency" id="footer_contact_return_due" data-currency_symbol ="true"></span></td>
+                            <td><span class="display_currency" id="footer_contact_due"></span></td>
+                            <td><span class="display_currency" id="footer_contact_return_due"> </span></td>
                             @if( $type == 'blacklisted_customer')
                                 <td @if($reward_enabled) colspan="6" @else colspan="5" @endif></td>
                             @else
@@ -135,11 +135,11 @@
                 {data: 'return_due', width: "10%"}];
         } else {
             columns = [{data: 'contact_id', width: "10%"},
-                {data: 'name', width: "10%"},
+                {data: 'name', name: 'contacts.name', width: "10%"},
                 {data: 'mobile', width: "10%"},
                 {data: 'email', width: "10%"},
-                {data: 'membership', width: "10%"},
-                {data: 'customer_group', width: "10%"},
+                {data: 'membership', name: 'm.name', width: "10%"},
+                {data: 'customer_group', name: 'cg.name', width: "10%"},
                 {data: 'due', width: "10%"},
                 {data: 'return_due', width: "10%"}];
         }

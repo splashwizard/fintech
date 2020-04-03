@@ -93,7 +93,7 @@ class PayrollController extends Controller
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-right" role="menu">';
 
-                        $html .= '<li><a href="#" data-href="' . action('\Modules\Essentials\Http\Controllers\PayrollController@show', [$row->id]) . '" data-container=".view_modal"><i class="fa fa-eye" aria-hidden="true"></i> ' . __("messages.view") . '</a></li>';
+                        $html .= '<li><a href="'.action('TransactionPaymentController@show', [$row->id]).'" class="view_payment_modal payment-status-label no-print"><i class="fa fa-print" aria-hidden="true"></i> ' . __("messages.print") . '</a></li>';
 
                         if ($is_admin) {
                             $html .= '<li><a href="' . action('\Modules\Essentials\Http\Controllers\PayrollController@edit', [$row->id]) . '"><i class="fa fa-edit" aria-hidden="true"></i> ' . __("messages.edit") . '</a></li>';

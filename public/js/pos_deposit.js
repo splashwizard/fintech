@@ -90,6 +90,36 @@ $(document).ready(function() {
         reset_pos_form();
     });
 
+    $('#add_request_modal').on('shown.bs.modal', function(e) {
+        $('#add_request_modal .select2').select2();
+
+        $('form#add_request_form #start_date, form#add_request_form #end_date').datepicker({
+            autoclose: true,
+        });
+    });
+
+    $(document).on('submit', 'form#add_request_form', function(e) {
+        e.preventDefault();
+        $(this).find('button[type="submit"]').attr('disabled', true);
+        var data = $(this).serialize();
+
+        $.ajax({
+            method: $(this).attr('method'),
+            url: $(this).attr('action'),
+            dataType: 'json',
+            data: data,
+            success: function(result) {
+                if (result.success == true) {
+                    $('div#add_request_modal').modal('hide');
+                    toastr.success(result.msg);
+                    request_table.ajax.reload();
+                } else {
+                    toastr.error(result.msg);
+                }
+            },
+        });
+    });
+
     //get customer
     $('#customer_id').select2({
         ajax: {

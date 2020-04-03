@@ -47,6 +47,10 @@
 							</div>
 						</div>
 					@endif
+					<div class="box-tools">
+						<button type="button" class="btn btn-block btn-primary btn-modal" data-href="{{action('\Modules\Essentials\Http\Controllers\EssentialsRequestController@create')}}" data-container="#add_request_modal">
+							<i class="fa fa-plus"></i> Request</button>
+					</div>
 				@endslot
 				{!! Form::open(['url' => action('SellPosDepositController@store'), 'method' => 'post', 'id' => 'add_pos_sell_form' ]) !!}
 
@@ -232,7 +236,8 @@
 </div>
 <!-- quick product modal -->
 <div class="modal fade quick_add_product_modal" tabindex="-1" role="dialog" aria-labelledby="modalTitle"></div>
-
+<div class="modal fade" id="add_request_modal" tabindex="-1" role="dialog"
+	 aria-labelledby="gridSystemModalLabel"></div>
 @stop
 
 @section('javascript')

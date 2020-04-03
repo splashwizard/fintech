@@ -1,6 +1,13 @@
 @extends('layouts.app')
 @section('title', __('essentials::lang.payroll'))
-
+<style>
+    /*@media print {*/
+        .w-custom-50{
+            width: 200px;
+            display: inline-block!important;
+        }
+    /*}*/
+</style>
 @section('content')
 <section class="content-header">
     <h1>@lang('essentials::lang.payroll')
