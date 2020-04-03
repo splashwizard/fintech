@@ -166,8 +166,8 @@ $(document).ready(function() {
             return markup;
         },
     });
-    $('#customer_id').on('select2:select', function(e) {
-        $(this).prop('disabled', true);
+    function selectCustomer(){
+        $('#customer_id').prop('disabled', true);
         var text = $('#customer_id').select2('data')[0].text;
         if( text == "Unclaimed Trans") {
             $('#service_box').hide();
@@ -190,21 +190,11 @@ $(document).ready(function() {
         for(var i = 0; i < variation_ids.length; i++){
             pos_product_row(variation_ids[i]);
         }
-        // variation_ids = [];
         get_product_suggestion_list(category_id, product_id, brand_id, location_id);
+    }
 
-        // var data = e.params.data;
-        // if (data.pay_term_number) {
-        //     $('input#pay_term_number').val(data.pay_term_number);
-        // } else {
-        //     $('input#pay_term_number').val('');
-        // }
-        //
-        // if (data.pay_term_type) {
-        //     $('#pay_term_type').val(data.pay_term_type);
-        // } else {
-        //     $('#pay_term_type').val('');
-        // }
+    $('#customer_id').on('select2:select', function(e) {
+        selectCustomer();
     });
 
     set_default_customer();
@@ -1138,6 +1128,7 @@ $(document).ready(function() {
                             $('select#customer_id')
                                 .val(result.data.id)
                                 .trigger('change');
+                            selectCustomer();
                             $('div.contact_modal').modal('hide');
                             toastr.success(result.msg);
                         } else {
