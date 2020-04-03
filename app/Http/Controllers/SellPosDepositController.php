@@ -786,6 +786,7 @@ class SellPosDepositController extends Controller
                         ->get();
         if (!empty($sell_details)) {
             foreach ($sell_details as $key => $value) {
+                $sell_details[$key]->account_name = Account::find($value->account_id)->name;
 
                 //If modifier or combo sell line then unset
                 if (!empty($sell_details[$key]->parent_sell_line_id)) {
@@ -954,11 +955,12 @@ class SellPosDepositController extends Controller
         $edit_price = auth()->user()->can('edit_product_price_from_pos_screen');
 
         $services = Account::where('business_id', $business_id)->where('is_service', 1)->get();
+        $memberships = Membership::forDropdown($business_id);
         
         return view('sale_pos_deposit.edit')
             ->with(compact('business_details', 'taxes', 'payment_types', 'default_location', 'walk_in_customer', 'sell_details', 'transaction', 'payment_lines', 'location_printer_type', 'shortcuts', 'commission_agent', 'bank_categories',
             'service_categories',
-            'bank_products', 'services',
+            'bank_products', 'services', 'memberships',
             'service_products', 'pos_settings', 'change_return', 'types', 'customer_groups', 'brands', 'accounts', 'price_groups', 'waiters', 'redeem_details', 'edit_price', 'edit_discount'));
     }
 

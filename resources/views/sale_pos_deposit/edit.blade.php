@@ -195,7 +195,8 @@
 								@foreach($sell_details as $sell_line)
 
 									@include('sale_pos_deposit.product_row', 
-										['product' => $sell_line, 
+										['product' => $sell_line,
+										'account_name' => $sell_line->account_name,
 										'row_count' => $loop->index + 1, 
 										'tax_dropdown' => $taxes, 
 										'sub_units' => !empty($sell_line->unit_details) ? $sell_line->unit_details : [],
