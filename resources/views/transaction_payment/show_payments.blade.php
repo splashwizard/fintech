@@ -304,7 +304,7 @@
                 <div class="clearfix"></div>
                 <div class="col-xs-6">
                     <div class="col-md-6">
-                        <h4>@lang('essentials::lang.gross_amount'): <span id="gross_amount_text" class="display_currency" data-currency_symbol="true">{{$payroll->gross_amount}}</span></h4>
+                        <h4>@lang('essentials::lang.gross_amount'): <span id="gross_amount_text" class="display_currency" data-currency_symbol="true">{{$payroll->essentials_duration * $payroll->essentials_amount_per_unit_duration + $total_allowances - $total_deductions}}</span></h4>
                         {!! Form::hidden('final_total', $payroll->final_total, ['id' => 'gross_amount']); !!}
                     </div>
                 </div>
