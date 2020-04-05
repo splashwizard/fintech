@@ -40,7 +40,7 @@ class ExpenseController extends Controller
      */
     public function index()
     {
-        if (!auth()->user()->can('expense.access')) {
+        if (!auth()->user()->can('expense.access') && !auth()->user()->can('expenses')) {
             abort(403, 'Unauthorized action.');
         }
 

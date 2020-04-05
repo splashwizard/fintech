@@ -44,6 +44,9 @@ class DailyReportController extends Controller
      */
     public function index()
     {
+        if (!auth()->user()->can('daily_report')) {
+            abort(403, 'Unauthorized action.');
+        }
         return view('daily_report.index');
     }
     function getTableData(){

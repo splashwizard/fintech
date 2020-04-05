@@ -50,15 +50,13 @@
     <div class="row">
         <div class="col-md-12">
             @component('components.widget', ['class' => 'box-primary', 'title' => __('expense.all_expenses')])
-                @can('category.create')
+                @can('expenses')
                     @slot('tool')
                         <div class="box-tools">
                             <a class="btn btn-block btn-primary" href="{{action('ExpenseController@create')}}">
                             <i class="fa fa-plus"></i> @lang('messages.add')</a>
                         </div>
                     @endslot
-                @endcan
-                @can('category.view')
                     <div class="table-responsive">
                         <table class="table table-bordered table-striped" id="expense_table">
                             <thead>

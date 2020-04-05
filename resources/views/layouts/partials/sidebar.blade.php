@@ -60,10 +60,12 @@
 				@lang('home.mass_overview')</span>
                 </a>
             </li>
+            @endif
+            @if(auth()->user()->can('daily_report'))
             <li class="{{ $request->segment(1) == 'daily_report' ? 'active' : '' }}">
                 <a href="{{action('DailyReportController@index')}}">
                     <i class="fa fa-dashboard"></i> <span>
-            @lang('home.daily_report')</span>
+                    @lang('home.daily_report')</span>
                 </a>
             </li>
             @endif
@@ -367,7 +369,7 @@
                 </li>
             @endif
 
-            @if(auth()->user()->can('expense.access'))
+            @if(auth()->user()->can('expense.access') || auth()->user()->can('expenses'))
                 <li class="treeview {{  in_array( $request->segment(1), ['expense-categories', 'expenses']) ? 'active active-sub' : '' }}">
                     <a href="#"><i class="fa fa-minus-circle"></i> <span>@lang('expense.expenses')</span>
                         <span class="pull-right-container">
@@ -375,9 +377,12 @@
 				</span>
                     </a>
                     <ul class="treeview-menu">
+                        @if(auth()->user()->can('expenses'))
                         <li class="{{ $request->segment(1) == 'expenses' && empty($request->segment(2)) ? 'active' : '' }}">
                             <a href="{{action('ExpenseController@index')}}"><i
                                         class="fa fa-list"></i>@lang('lang_v1.list_expenses')</a></li>
+                        @endif
+                        @if($is_admin_or_super)
                         <li class="{{ $request->segment(1) == 'expenses' && $request->segment(2) == 'create' ? 'active' : '' }}">
                             <a href="{{action('ExpenseController@create')}}"><i
                                         class="fa fa-plus-circle"></i>@lang('messages.add') @lang('expense.expenses')
@@ -385,6 +390,7 @@
                         <li class="{{ $request->segment(1) == 'expense-categories' ? 'active' : '' }}"><a
                                     href="{{action('ExpenseCategoryController@index')}}"><i
                                         class="fa fa-circle-o"></i>@lang('expense.expense_categories')</a></li>
+                        @endif
                     </ul>
                 </li>
             @endif

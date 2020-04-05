@@ -13,11 +13,15 @@ return [
 
     'add_role' => 'Add Role',
     'edit_role' => 'Edit Role',
+    'main_sidebar' => 'Main Sidebar',
     'user' => 'User',
     'supplier' => 'Supplier',
     'customer' => 'Customer',
     'purchase' => 'Purchase & Stock Adjustment',
     'report' =>'Report',
+
+    'daily_report' => 'Access Daily Report',
+    'expenses' => 'Access Expenses',
 
     'user.view' => 'View user',
     'user.create' => 'Add user',
