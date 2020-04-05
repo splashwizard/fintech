@@ -74,7 +74,9 @@ Route::middleware(['IsInstalled', 'auth', 'SetSessionData', 'language', 'timezon
     Route::get('/contacts/customers', 'ContactController@getCustomers');
     Route::get('/contacts/blacklist/{id}', 'ContactController@blacklist');
     Route::put('/contacts/blacklist/{id}', 'ContactController@updateBlackList');
+    Route::get('/contacts/bank_detail_html', 'ContactController@getBankDetailHtml');
     Route::resource('contacts', 'ContactController');
+    Route::post('/contacts/ban_user/{id}', 'ContactController@banUser');
 
     Route::resource('categories', 'CategoryController');
 
@@ -260,6 +262,8 @@ Route::middleware(['IsInstalled', 'auth', 'SetSessionData', 'language', 'timezon
     Route::resource('customer-group', 'CustomerGroupController');
 
     Route::resource('membership', 'MembershipController');
+
+    Route::resource('bank_brand', 'BankbrandController');
 
     //Display Groups
     Route::resource('display-group', 'DisplayGroupController');

@@ -143,6 +143,9 @@
                             <li class="{{ $request->segment(1) == 'membership' ? 'active' : '' }}"><a
                                         href="{{action('MembershipController@index')}}"><i
                                             class="fa fa-users"></i> @lang('lang_v1.membership')</a></li>
+                                <li class="{{ $request->segment(1) == 'bank_brand' ? 'active' : '' }}"><a
+                                            href="{{action('BankbrandController@index')}}"><i
+                                                class="fa fa-users"></i> @lang('lang_v1.membership')</a></li>
                         @endcan
 
                         @if(auth()->user()->can('supplier.create') || auth()->user()->can('customer.create') )

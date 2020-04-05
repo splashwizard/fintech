@@ -85,6 +85,9 @@ return [
     'membership' => 'Membership',
     'membership_name' => 'Membership Name',
     'add_membership' => 'Add Membership',
+    'bank_brand' => 'Bank Brand',
+    'bank_brand_name' => 'Bank Brand Name',
+    'add_bank_brand' => 'Add Bank Brand',
     'add_customer_group' => 'Add Customer Group',
     'customer_group_name' => 'Customer Group Name',
     'calculation_percentage' => 'Calculation Percentage (%)',
@@ -98,6 +101,7 @@ return [
     'success' => 'Success',
     'edit_customer_group' => 'Edit Customer Group',
     'edit_membership' => 'Edit Membership',
+    'edit_bank_brand' => 'Edit Bank Brand',
     'edit_display_group' => 'Edit Display Group',
     'customer_groups_report' => 'Customer Groups Report',
     'none' => 'None',
@@ -120,7 +124,7 @@ return [
     'days' => 'Days',
     'suppliers' => 'Suppliers',
     'customers' => 'Customers',
-    'blacklisted_customers'=> 'Blacklisted Customers',
+    'blacklisted_customers'=> 'Blacklisted and Banned Customers',
     'enter_product_name_to_print_labels' => 'Enter products name to print labels',
     'manage_product_variations' => 'Manage product variations',
     'all_variations' => 'All variations',
@@ -813,3 +817,4 @@ return [
     'labels_for_custom_payments' => 'Labels for custom payments',
     'payroll_delete_success' => 'Payroll deleted successfully'
 ];
+

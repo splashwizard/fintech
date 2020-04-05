@@ -1,8 +1,8 @@
 <div class="modal-dialog modal-lg" role="document">
   <div class="modal-content">
-
     {!! Form::open(['url' => action('ContactController@update', [$contact->id]), 'method' => 'PUT', 'id' => 'contact_edit_form']) !!}
     {!! Form::hidden('customer_type', $customer_type); !!}
+    {!! Form::hidden('account_index', empty($bank_details) ? 1 : count($bank_details), ['id' => 'account_index']); !!}
 
     <div class="modal-header">
       <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -141,17 +141,45 @@
       <div class="col-md-12">
         <hr/>
       </div>
-      <div class="form-group col-md-3">
-        {!! Form::label('account_holder_name', __( 'lang_v1.account_holder_name') . ':') !!}
-        {!! Form::text('bank_details[account_holder_name]', !empty($bank_details['account_holder_name']) ? $bank_details['account_holder_name'] : null , ['class' => 'form-control', 'id' => 'account_holder_name', 'placeholder' => __( 'lang_v1.account_holder_name') ]); !!}
-      </div>
-      <div class="form-group col-md-3">
-          {!! Form::label('account_number', __( 'lang_v1.account_number') . ':') !!}
-          {!! Form::text('bank_details[account_number]', !empty($bank_details['account_number']) ? $bank_details['account_number'] : null, ['class' => 'form-control', 'id' => 'account_number', 'placeholder' => __( 'lang_v1.account_number') ]); !!}
-      </div>
-      <div class="form-group col-md-3">
-          {!! Form::label('bank_name', __( 'lang_v1.bank_name') . ':') !!}
-          {!! Form::text('bank_details[bank_name]', !empty($bank_details['bank_name']) ? $bank_details['bank_name'] : null, ['class' => 'form-control', 'id' => 'bank_name', 'placeholder' => __( 'lang_v1.bank_name') ]); !!}
+      <div id="bank_details_part">
+          @if(empty($bank_details))
+          <div class="form-group col-md-3">
+              {!! Form::label('account_holder_name', __( 'lang_v1.account_holder_name') . ':') !!}
+              {!! Form::text('bank_details[0][account_holder_name]', null , ['class' => 'form-control', 'placeholder' => __( 'lang_v1.account_holder_name') ]); !!}
+          </div>
+          <div class="form-group col-md-3">
+              {!! Form::label('account_number', __( 'lang_v1.account_number') . ':') !!}
+              {!! Form::text('bank_details[0][account_number]', null, ['class' => 'form-control', 'placeholder' => __( 'lang_v1.account_number') ]); !!}
+          </div>
+          <div class="form-group col-md-3">
+              {!! Form::label('bank_name', __( 'lang_v1.bank_name') . ':') !!}
+              {!! Form::select("bank_details[0][bank_brand_id]", $bank_brands, null, ['class' => 'form-control']); !!}
+          </div>
+          <div class="form-group col-md-3">
+              <button type="submit" class="btn btn-primary btn-plus"><i class="fa fa-plus"></i></button>
+          </div>
+          <div class="clearfix"></div>
+          @else
+              @foreach($bank_details as $account_index => $bank_detail)
+                  <div class="form-group col-md-3">
+                      {!! Form::label('account_holder_name', __( 'lang_v1.account_holder_name') . ':') !!}
+                      {!! Form::text("bank_details[{$account_index}][account_holder_name]", $bank_detail['account_holder_name'] , ['class' => 'form-control', 'placeholder' => __( 'lang_v1.account_holder_name') ]); !!}
+                  </div>
+                  <div class="form-group col-md-3">
+                      {!! Form::label('account_number', __( 'lang_v1.account_number') . ':') !!}
+                      {!! Form::text("bank_details[{$account_index}][account_number]", $bank_detail['account_number'], ['class' => 'form-control', 'placeholder' => __( 'lang_v1.account_number') ]); !!}
+                  </div>
+                  <div class="form-group col-md-3">
+                      {!! Form::label('bank_name', __( 'lang_v1.bank_name') . ':') !!}
+                      {!! Form::select("bank_details[{$account_index}][bank_brand_id]", $bank_brands, $bank_detail['bank_brand_id'], ['class' => 'form-control']); !!}
+                  </div>
+                  <div class="form-group col-md-3">
+                      <button type="submit" class="btn btn-primary btn-plus"><i class="fa fa-plus"></i></button>
+                  </div>
+                  <div class="clearfix"></div>
+
+              @endforeach
+          @endif
       </div>
     </div>
     </div>

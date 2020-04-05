@@ -14,6 +14,7 @@ return [
     'add' => 'Add',
     'edit' => 'Edit',
     'blacklist' => 'Blacklist',
+    'ban' => 'Ban',
     'save' => 'Save',
     'update' => 'Update',
     'action' => 'Action',

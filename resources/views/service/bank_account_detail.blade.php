@@ -3,15 +3,17 @@
         {!! Form::label("bank_account_detail",'Bank Account Detail') !!}
         <div class="row">
             {{-- {!! Form::text( "bank_account_number", $payment_line->bank_account_number, ['class' => 'form-control', 'placeholder' => 'Bank Account No', 'readonly']); !!} --}}
-            <div class="col-md-4">
-                <button class="form-control account_detail">{{isset($account_holder) ? $account_holder : 'Account Holder Name'}}</button>
-            </div>
-            <div class="col-md-4">
-                <button class="form-control account_detail">{{isset($account_number) ? $account_number : 'Account Number'}}</button>
-            </div>
-            <div class="col-md-4">
-                <button class="form-control account_detail">{{isset($bank_name) ? $bank_name : 'Bank Name'}}</button>
-            </div>
+            @foreach($bank_details as $bank_detail)
+                <div class="col-md-4">
+                    <button class="form-control account_detail">{{isset($bank_detail->account_holder_name) ? $bank_detail->account_holder_name : 'Account Holder Name'}}</button>
+                </div>
+                <div class="col-md-4">
+                    <button class="form-control account_detail">{{isset($bank_detail->account_number) ? $bank_detail->account_number : 'Account Number'}}</button>
+                </div>
+                <div class="col-md-4">
+                    <button class="form-control account_detail">{{isset($bank_detail->bank_name) ? $bank_detail->bank_name : 'Bank Name'}}</button>
+                </div>
+            @endforeach
         </div>
     </div>
 </div>

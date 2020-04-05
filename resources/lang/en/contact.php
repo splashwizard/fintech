@@ -26,6 +26,7 @@ return [
     'landline' => 'Landline',
     'alternate_contact_number' => 'Alternate contact number',
     'edit_contact' => 'Edit contact',
+    'blacklist_customer' => 'Blacklist customer',
     'added_success' => 'Contact added successfully',
     'updated_success' => 'Contact updated successfully',
     'deleted_success' => 'Contact deleted successfully',
@@ -45,5 +46,6 @@ return [
     'total_service_deposit' => 'Total Service Deposit',
     'customer' => 'Customer',
     'blacklist_by' => 'Blacklist by',
+    'banned_by' => 'Banned by',
     'remarks' => 'remarks'
 ];

@@ -11,6 +11,7 @@
   @endphp
     {!! Form::open(['url' => action('ContactController@store'), 'method' => 'post', 'id' => $form_id ]) !!}
     {!! Form::hidden('type', $type); !!}
+      {!! Form::hidden('account_index', empty($bank_details) ? 1 : count($bank_details), ['id' => 'account_index']); !!}
 
     <div class="modal-header">
       <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -147,17 +148,23 @@
       <div class="col-md-12">
         <hr/>
       </div>
-      <div class="form-group col-md-3">
-        {!! Form::label('account_holder_name', __( 'lang_v1.account_holder_name') . ':') !!}
-        {!! Form::text('bank_details[account_holder_name]', null , ['class' => 'form-control', 'id' => 'account_holder_name', 'placeholder' => __( 'lang_v1.account_holder_name') ]); !!}
-      </div>
-      <div class="form-group col-md-3">
-          {!! Form::label('account_number', __( 'lang_v1.account_number') . ':') !!}
-          {!! Form::text('bank_details[account_number]',  null, ['class' => 'form-control', 'id' => 'account_number', 'placeholder' => __( 'lang_v1.account_number') ]); !!}
-      </div>
-      <div class="form-group col-md-3">
-          {!! Form::label('bank_name', __( 'lang_v1.bank_name') . ':') !!}
-          {!! Form::text('bank_details[bank_name]', null, ['class' => 'form-control', 'id' => 'bank_name', 'placeholder' => __( 'lang_v1.bank_name') ]); !!}
+      <div id="bank_details_part">
+          <div class="form-group col-md-3">
+              {!! Form::label('account_holder_name', __( 'lang_v1.account_holder_name') . ':') !!}
+              {!! Form::text('bank_details[0][account_holder_name]', null , ['class' => 'form-control', 'placeholder' => __( 'lang_v1.account_holder_name') ]); !!}
+          </div>
+          <div class="form-group col-md-3">
+              {!! Form::label('account_number', __( 'lang_v1.account_number') . ':') !!}
+              {!! Form::text('bank_details[0][account_number]', null, ['class' => 'form-control', 'placeholder' => __( 'lang_v1.account_number') ]); !!}
+          </div>
+          <div class="form-group col-md-3">
+              {!! Form::label('bank_name', __( 'lang_v1.bank_name') . ':') !!}
+              {!! Form::select("bank_details[0][bank_brand_id]", $bank_brands, null, ['class' => 'form-control']); !!}
+          </div>
+          <div class="form-group col-md-3">
+              <button type="submit" class="btn btn-primary btn-plus"><i class="fa fa-plus"></i></button>
+          </div>
+          <div class="clearfix"></div>
       </div>
     </div>
     </div>

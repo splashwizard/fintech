@@ -72,6 +72,7 @@
                                 <th>@lang('lang_v1.added_on')</th>
                                 <th>@lang('contact.blacklist_by')</th>
                                 <th>@lang('contact.remarks')</th>
+                                <th>@lang('contact.banned_by')</th>
                                 <th>@lang('messages.action')</th>
                             @endif
                         </tr>
@@ -151,6 +152,7 @@
                 {data: 'created_at', width: "10%"},
                 {data: 'blacked_by_user', width: "10%"},
                 {data: 'remark', width: "10%"},
+                {data: 'banned_by_user', visible: false, width: "0%"},
                 {data: 'action', width: "10%"}
             ]);
         } else {
@@ -180,8 +182,14 @@
                 $('#footer_contact_return_due').text(total_return_due);
                 __currency_convert_recursively($('#contact_table'));
             },
+            "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
+                console.log(aData);
+                if ( aData.banned_by_user && aData.banned_by_user == 'king king' )
+                {
+                    $('td', nRow).css('color', 'Red');
+                }
+            }
         });
-
 
 
         //On display of add contact modal
@@ -243,9 +251,9 @@
                     submitHandler: function(form) {
                         e.preventDefault();
                         var data = $(form).serialize();
-                        $(form)
-                            .find('button[type="submit"]')
-                            .attr('disabled', true);
+                        // $(form)
+                        //     .find('button[type="submit"]')
+                        //     .attr('disabled', true);
                         $.ajax({
                             method: 'POST',
                             url: $(form).attr('action'),
@@ -298,6 +306,32 @@
                 });
         });
 
+        $(document).on('click', '.btn-plus', function(e) {
+            e.preventDefault();
+            var account_index = parseInt($('#account_index').val());
+            if(account_index === 3){
+                toastr.error(LANG.contact_account_maximum_error);
+                return;
+            }
+            $.ajax({
+                method: 'GET',
+                url: '/contacts/bank_detail_html',
+                async: false,
+                data: {
+                    account_index: account_index
+                },
+                dataType: 'json',
+                success: function(result) {
+                    if (result.success) {
+                        $('#bank_details_part').append(result.html);
+                        $('#account_index').val(account_index + 1);
+                    } else {
+                        toastr.error(result.msg);
+                    }
+                },
+            });
+        });
+
         $(document).on('click', '.edit_contact_button', function(e) {
             e.preventDefault();
             $('div.contact_modal').load($(this).attr('href'), function() {
@@ -327,6 +361,37 @@
 
                     $.ajax({
                         method: 'DELETE',
+                        url: href,
+                        dataType: 'json',
+                        data: data,
+                        success: function(result) {
+                            if (result.success == true) {
+                                toastr.success(result.msg);
+                                contact_table.ajax.reload();
+                            } else {
+                                toastr.error(result.msg);
+                            }
+                        },
+                    });
+                }
+            });
+        });
+
+        $(document).on('click', '.ban_user_button', function(e) {
+            e.preventDefault();
+            swal({
+                title: LANG.sure,
+                text: LANG.confirm_ban_contact,
+                icon: 'warning',
+                buttons: true,
+                dangerMode: true,
+            }).then(willDelete => {
+                if (willDelete) {
+                    var href = $(this).attr('href');
+                    var data = $(this).serialize();
+
+                    $.ajax({
+                        method: 'POST',
                         url: href,
                         dataType: 'json',
                         data: data,
