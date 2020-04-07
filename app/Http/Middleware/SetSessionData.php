@@ -27,8 +27,9 @@ class SetSessionData
 
             if($user->hasRole('Superadmin'))
                 $business_id = Business::first()->id;
-            else if($user->hasRole('Admin'))
+            else if($user->hasRole('Admin')){
                 $business_id = AdminHasBusiness::where('user_id', $user->id)->first()->business_id;
+            }
             else
                 $business_id = $user->business_id;
             $session_data = ['id' => $user->id,

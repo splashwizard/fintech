@@ -725,10 +725,19 @@ class ContactController extends Controller
                 if ($count == 0) {
                     $game_ids = $request->get('game_ids');
                     $contact = Contact::where('business_id', $business_id)->findOrFail($id);
+                    $activity = 'Customer ID: '.$contact->contact_id;
                     foreach ($input as $key => $value) {
                         $contact->$key = $value;
                     }
-                    $contact->bank_details = json_encode($request->get('bank_details'));
+                    $new_bank_details = $request->get('bank_details');
+                    foreach (json_decode($contact->bank_details) as $old_bank_detail) {
+                        foreach ($new_bank_details as $new_bank_detail) {
+                            if($old_bank_detail->bank_brand_id == $new_bank_detail['bank_brand_id'] && $old_bank_detail->account_number != $new_bank_detail['account_number']){
+                                $activity.= chr(10).chr(13).BankBrand::find($old_bank_detail->bank_brand_id)->name.': '.$old_bank_detail->account_number.' >>>'.$new_bank_detail['account_number'];
+                            }
+                        }
+                    }
+                    $contact->bank_details = json_encode($new_bank_details);
                     $type = $request->get('customer_type');
                     if($type == 'blacklisted_customer'){
                         $contact->remark = $request->get('remark');
@@ -738,6 +747,7 @@ class ContactController extends Controller
                     $contact->save();
                     foreach ($game_ids as $service_id => $game_id){
                         if(!empty($game_id)){
+                            $game_name = Account::find($service_id)->name;
                             $game_cnt = GameId::where('service_id', $service_id)->where('contact_id', $id)->count();
                             if($game_cnt == 0){
                                 GameId::create([
@@ -745,11 +755,17 @@ class ContactController extends Controller
                                     'contact_id' => $id,
                                     'game_id' => $game_id
                                 ]);
+                                $activity.= chr(10).chr(13).$game_name.': >>>'.$game_id;
                             } else{
-                                GameId::where('service_id', $service_id)->where('contact_id', $id)->update(['game_id' => $game_id]);
+                                $old_game_id = GameId::where('service_id', $service_id)->where('contact_id', $id)->get()[0]->game_id;
+                                if($old_game_id != $game_id){
+                                    GameId::where('service_id', $service_id)->where('contact_id', $id)->update(['game_id' => $game_id]);
+                                    $activity.= chr(10).chr(13).$game_name.': '.$old_game_id.' >>>'.$game_id;
+                                }
                             }
                         }
                     }
+                    ActivityLogger::activity($activity);
 
                     //Get opening balance if exists
                     $ob_transaction =  Transaction::where('contact_id', $id)
@@ -847,7 +863,7 @@ class ContactController extends Controller
 
         if (request()->ajax()) {
             try {
-                $business_id = request()->user()->business_id;
+                $business_id = request()->session()->get('user.business_id');
 
                 //Check if any transaction related to this contact exists
                 $count = Transaction::where('business_id', $business_id)

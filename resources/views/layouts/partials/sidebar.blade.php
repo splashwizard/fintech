@@ -113,7 +113,7 @@
                 </li>
             @endif
             @if(auth()->user()->can('supplier.view') || auth()->user()->can('customer.view') )
-                <li class="treeview {{ in_array($request->segment(1), ['contacts', 'customer-group']) ? 'active active-sub' : '' }}"
+                <li class="treeview {{ in_array($request->segment(1), ['contacts', 'customer-group', 'membership', 'bank_brand']) ? 'active active-sub' : '' }}"
                     id="tour_step4">
                     <a href="#" id="tour_step4_menu"><i class="fa fa-address-book"></i>
                         <span>@lang('contact.contacts')</span>
@@ -145,7 +145,7 @@
                                             class="fa fa-users"></i> @lang('lang_v1.membership')</a></li>
                                 <li class="{{ $request->segment(1) == 'bank_brand' ? 'active' : '' }}"><a
                                             href="{{action('BankbrandController@index')}}"><i
-                                                class="fa fa-users"></i> @lang('lang_v1.membership')</a></li>
+                                                class="fa fa-users"></i> @lang('lang_v1.bank_brand')</a></li>
                         @endcan
 
                         @if(auth()->user()->can('supplier.create') || auth()->user()->can('customer.create') )

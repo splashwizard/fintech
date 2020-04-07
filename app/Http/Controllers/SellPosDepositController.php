@@ -29,9 +29,11 @@ namespace App\Http\Controllers;
 
 use App\Account;
 use App\AccountTransaction;
+use App\BankBrand;
 use App\Brands;
 use App\Business;
 use App\BusinessLocation;
+use App\CashRegister;
 use App\Category;
 use App\Contact;
 use App\CustomerGroup;
@@ -163,7 +165,26 @@ class SellPosDepositController extends Controller
         
         //Check if there is a open register, if no then redirect to Create Register screen.
         if ($this->cashRegisterUtil->countOpenedRegister() == 0) {
-            return redirect()->action('CashRegisterController@create');
+//            return redirect()->action('CashRegisterController@create');
+            try {
+                $initial_amount = 0;
+                $user_id = request()->session()->get('user.id');
+                $business_id = request()->session()->get('user.business_id');
+
+                $register = CashRegister::create([
+                    'business_id' => $business_id,
+                    'user_id' => $user_id,
+                    'status' => 'open'
+                ]);
+                $register->cash_register_transactions()->create([
+                    'amount' => $initial_amount,
+                    'pay_method' => 'cash',
+                    'type' => 'credit',
+                    'transaction_type' => 'initial'
+                ]);
+            } catch (\Exception $e) {
+                \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+            }
         }
 
         $walk_in_customer = $this->contactUtil->getWalkInCustomer($business_id);
@@ -231,6 +252,7 @@ class SellPosDepositController extends Controller
 
         $services = Account::where('business_id', $business_id)->where('is_service', 1)->get();
         $memberships = Membership::forDropdown($business_id);
+        $bank_brands  = BankBrand::forDropdown($business_id);
 
         return view('sale_pos_deposit.create')
             ->with(compact(
@@ -254,6 +276,7 @@ class SellPosDepositController extends Controller
                 'types',
                 'customer_groups',
                 'memberships',
+                'bank_brands',
                 'accounts',
                 'price_groups',
                 'services'

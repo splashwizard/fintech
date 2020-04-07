@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Bankbrand;
+use App\BankBrand;
 use App\Utils\Util;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
@@ -31,7 +31,7 @@ class BankbrandController extends Controller
         if (request()->ajax()) {
             $business_id = request()->session()->get('user.business_id');
 
-            $bank_brand = Bankbrand::where('business_id', $business_id)
+            $bank_brand = BankBrand::where('business_id', $business_id)
                                 ->select(['name', 'id']);
 
             return Datatables::of($bank_brand)
@@ -81,7 +81,7 @@ class BankbrandController extends Controller
             $input['business_id'] = $request->session()->get('user.business_id');
             $input['created_by'] = $request->session()->get('user.id');
 
-            $bank_brand = Bankbrand::create($input);
+            $bank_brand = BankBrand::create($input);
             $output = ['success' => true,
                             'data' => $bank_brand,
                             'msg' => __("lang_v1.success")
@@ -111,7 +111,7 @@ class BankbrandController extends Controller
 
         if (request()->ajax()) {
             $business_id = request()->session()->get('user.business_id');
-            $bank_brand = Bankbrand::where('business_id', $business_id)->find($id);
+            $bank_brand = BankBrand::where('business_id', $business_id)->find($id);
 
             return view('bank_brand.edit')
                 ->with(compact('bank_brand'));
@@ -136,7 +136,7 @@ class BankbrandController extends Controller
                 $input = $request->only(['name']);
                 $business_id = $request->session()->get('user.business_id');
 
-                $bank_brand = Bankbrand::where('business_id', $business_id)->findOrFail($id);
+                $bank_brand = BankBrand::where('business_id', $business_id)->findOrFail($id);
                 $bank_brand->name = $input['name'];
                 $bank_brand->save();
 
@@ -171,7 +171,7 @@ class BankbrandController extends Controller
             try {
                 $business_id = request()->user()->business_id;
 
-                $ms = Bankbrand::where('business_id', $business_id)->findOrFail($id);
+                $ms = BankBrand::where('business_id', $business_id)->findOrFail($id);
                 $ms->delete();
 
                 $output = ['success' => true,
