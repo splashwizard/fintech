@@ -19,6 +19,7 @@ return [
     'opening_balance' => 'Opening Balance',
     'account_book' => 'Account Book',
     'credit' => 'Credit',
+    'bonus' => 'Bonus',
     'debit' => 'Debit',
     'service_credit' => 'Service Credit',
     'service_debit' => 'Service Debit',

@@ -1502,6 +1502,7 @@ class SellPosDepositController extends Controller
             }
         }
         $payment_lines = [];
+        $is_free_credit = 0;
         foreach ($payment_data as $key => $payment){
             // if($payment['p_name'] == 'Bonus')
             //     $payment['amount'] += $bonus_amount;
@@ -1510,8 +1511,10 @@ class SellPosDepositController extends Controller
             $account_data = Account::find($key);
             if($data->name == 'Banking'){
 //                if($payment['p_name'] == 'Bonus')
-                if($account_data->name == 'Bonus Account')
+                if($account_data->name == 'Bonus Account'){
                     $method = 'free_credit';
+                    $is_free_credit = 1;
+                }
                 else
                     $method = 'bank_transfer';
             } else{
@@ -1520,7 +1523,7 @@ class SellPosDepositController extends Controller
             $payment_lines[] = ['account_id' => $key, 'method' => $method, 'amount' => $payment['amount'], 'note' => '', 'card_transaction_number' => '', 'card_number' => '', 'card_type' => '', 'card_holder_name' => '', 'card_month' => '', 'card_year' => '', 'card_security' => '', 'cheque_number' => '', 'bank_account_number' => '',
                 'is_return' => 0, 'transaction_no' => '', 'category_name' => $data->name];
         }
-        if(!empty($bonus_amount)){
+        if(!empty($bonus_amount) && !$is_free_credit){
             $bonus_key = Account::where('business_id', $business_id)->where('name', 'Bonus Account')->get()[0]->id;
             $query = Category::where('name', 'Banking');
             $data = $query->get()[0];

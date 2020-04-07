@@ -80,10 +80,19 @@
         </div>
       </div>
       <div class="col-md-3">
-        <div class="form-group">
-          {!! Form::label('remark', __('contact.remark') . ':*') !!}
-          {!! Form::text('remark', null, ['class' => 'form-control','placeholder' => __('contact.remark')]); !!}
-        </div>
+          <div class="form-group">
+              {!! Form::label('operation_date', __( 'contact.birthday' ) .":*") !!}
+              <div class="input-group date" id='od_datetimepicker'>
+                  {!! Form::text('birthday', 0, ['class' => 'form-control', 'required','placeholder' => __( 'messages.date' ) ]); !!}
+                  <span class="input-group-addon">
+                    <span class="glyphicon glyphicon-calendar"></span>
+                  </span>
+              </div>
+          </div>
+{{--        <div class="form-group">--}}
+{{--          {!! Form::label('remark', __('contact.remark') . ':*') !!}--}}
+{{--          {!! Form::text('remark', null, ['class' => 'form-control','placeholder' => __('contact.remark')]); !!}--}}
+{{--        </div>--}}
       </div>
 
       <div class="col-md-3">
@@ -100,37 +109,37 @@
       <div class="clearfix"></div>
       <div> 
       <div class="clearfix"></div>
-      <div class="col-md-12">
-        <hr/>
-      </div>
-      <div class="col-md-3">
-        <div class="form-group">
-            {!! Form::label('custom_field1', __('lang_v1.custom_field', ['number' => 1]) . ':') !!}
-            {!! Form::text('custom_field1', null, ['class' => 'form-control', 
-                'placeholder' => __('lang_v1.custom_field', ['number' => 1])]); !!}
-        </div>
-      </div>
-      <div class="col-md-3">
-        <div class="form-group">
-            {!! Form::label('custom_field2', __('lang_v1.custom_field', ['number' => 2]) . ':') !!}
-            {!! Form::text('custom_field2', null, ['class' => 'form-control', 
-                'placeholder' => __('lang_v1.custom_field', ['number' => 2])]); !!}
-        </div>
-      </div>
-      <div class="col-md-3">
-        <div class="form-group">
-            {!! Form::label('custom_field3', __('lang_v1.custom_field', ['number' => 3]) . ':') !!}
-            {!! Form::text('custom_field3', null, ['class' => 'form-control', 
-                'placeholder' => __('lang_v1.custom_field', ['number' => 3])]); !!}
-        </div>
-      </div>
-      <div class="col-md-3">
-        <div class="form-group">
-            {!! Form::label('custom_field4', __('lang_v1.custom_field', ['number' => 4]) . ':') !!}
-            {!! Form::text('custom_field4', null, ['class' => 'form-control', 
-                'placeholder' => __('lang_v1.custom_field', ['number' => 4])]); !!}
-        </div>
-      </div>
+{{--      <div class="col-md-12">--}}
+{{--        <hr/>--}}
+{{--      </div>--}}
+{{--      <div class="col-md-3">--}}
+{{--        <div class="form-group">--}}
+{{--            {!! Form::label('custom_field1', __('lang_v1.custom_field', ['number' => 1]) . ':') !!}--}}
+{{--            {!! Form::text('custom_field1', null, ['class' => 'form-control', --}}
+{{--                'placeholder' => __('lang_v1.custom_field', ['number' => 1])]); !!}--}}
+{{--        </div>--}}
+{{--      </div>--}}
+{{--      <div class="col-md-3">--}}
+{{--        <div class="form-group">--}}
+{{--            {!! Form::label('custom_field2', __('lang_v1.custom_field', ['number' => 2]) . ':') !!}--}}
+{{--            {!! Form::text('custom_field2', null, ['class' => 'form-control', --}}
+{{--                'placeholder' => __('lang_v1.custom_field', ['number' => 2])]); !!}--}}
+{{--        </div>--}}
+{{--      </div>--}}
+{{--      <div class="col-md-3">--}}
+{{--        <div class="form-group">--}}
+{{--            {!! Form::label('custom_field3', __('lang_v1.custom_field', ['number' => 3]) . ':') !!}--}}
+{{--            {!! Form::text('custom_field3', null, ['class' => 'form-control', --}}
+{{--                'placeholder' => __('lang_v1.custom_field', ['number' => 3])]); !!}--}}
+{{--        </div>--}}
+{{--      </div>--}}
+{{--      <div class="col-md-3">--}}
+{{--        <div class="form-group">--}}
+{{--            {!! Form::label('custom_field4', __('lang_v1.custom_field', ['number' => 4]) . ':') !!}--}}
+{{--            {!! Form::text('custom_field4', null, ['class' => 'form-control', --}}
+{{--                'placeholder' => __('lang_v1.custom_field', ['number' => 4])]); !!}--}}
+{{--        </div>--}}
+{{--      </div>--}}
       </div>
       <div class="clearfix"></div>
       <div class="col-md-12">
@@ -151,15 +160,15 @@
       <div id="bank_details_part">
           <div class="form-group col-md-3">
               {!! Form::label('account_holder_name', __( 'lang_v1.account_holder_name') . ':') !!}
-              {!! Form::text('bank_details[0][account_holder_name]', null , ['class' => 'form-control', 'placeholder' => __( 'lang_v1.account_holder_name') ]); !!}
+              {!! Form::text('bank_details[0][account_holder_name]', null , ['class' => 'form-control', 'required', 'placeholder' => __( 'lang_v1.account_holder_name') ]); !!}
           </div>
           <div class="form-group col-md-3">
               {!! Form::label('account_number', __( 'lang_v1.account_number') . ':') !!}
-              {!! Form::text('bank_details[0][account_number]', null, ['class' => 'form-control', 'placeholder' => __( 'lang_v1.account_number') ]); !!}
+              {!! Form::text('bank_details[0][account_number]', null, ['class' => 'form-control', 'required', 'placeholder' => __( 'lang_v1.account_number') ]); !!}
           </div>
           <div class="form-group col-md-3">
               {!! Form::label('bank_name', __( 'lang_v1.bank_name') . ':') !!}
-              {!! Form::select("bank_details[0][bank_brand_id]", $bank_brands, null, ['class' => 'form-control']); !!}
+              {!! Form::select("bank_details[0][bank_brand_id]", $bank_brands, null, ['class' => 'form-control', 'required']); !!}
           </div>
           <div class="form-group col-md-3">
               <button type="submit" class="btn btn-primary btn-plus"><i class="fa fa-plus"></i></button>
@@ -177,3 +186,12 @@
   
   </div><!-- /.modal-content -->
 </div><!-- /.modal-dialog -->
+<script src="{{ asset('AdminLTE/plugins/jQuery/jquery-2.2.3.min.js?v=' . $asset_v) }}"></script>
+<script type="text/javascript">
+    $(document).ready( function(){
+        $('#od_datetimepicker').datetimepicker({
+            format:'YYYY-MM-DD',
+            minDate: "1990-01-01"
+        });
+    });
+</script>

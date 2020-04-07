@@ -23,6 +23,7 @@ return [
     'pay_term' => 'Pay term',
     'pay_term_period' => 'Pay term period',
     'mobile' => 'Mobile',
+    'birthday' => 'birthday',
     'landline' => 'Landline',
     'alternate_contact_number' => 'Alternate contact number',
     'edit_contact' => 'Edit contact',

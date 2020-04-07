@@ -123,12 +123,13 @@ class SellController extends Controller
             if (!auth()->user()->can('direct_sell.access') && auth()->user()->can('view_own_sell_only')) {
                 $sells->where('transactions.created_by', request()->session()->get('user.id'));
             }
-
-            if (!empty(request()->input('account_id'))) {
+            $account_id = request()->input('account_id');
+            if(empty($account_id))
+                $sells->where('accounts.id', -1);
+            else if ($account_id != -1) {
                 $sells->where('accounts.id', request()->input('account_id'));
             }
-//            else
-//                $sells->where('accounts.id', -1);
+
 
             if (!empty(request()->input('payment_status'))) {
                 $sells->where('transactions.payment_status', request()->input('payment_status'));
@@ -373,7 +374,6 @@ class SellController extends Controller
         if (!empty($is_cmsn_agent_enabled)) {
             $commission_agents = User::forDropdown($business_id, false, true, true);
         }
-
 
         return view('sell.index')
         ->with(compact('accounts', 'customers', 'is_woocommerce', 'sales_representative', 'is_cmsn_agent_enabled', 'commission_agents'));

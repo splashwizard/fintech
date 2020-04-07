@@ -12,7 +12,7 @@ class Account extends Model
     
     protected $guarded = ['id'];
 
-    public static function forDropdown($business_id, $prepend_none, $closed = false, $is_safe = false)
+    public static function forDropdown($business_id, $prepend_none, $closed = false, $is_safe = false, $prepend_all = true)
     {
         $query = Account::where('business_id', $business_id)
                             ->NotCapital();
@@ -29,6 +29,10 @@ class Account extends Model
         $dropdown = $query->pluck('name', 'id');
         if ($prepend_none) {
             $dropdown->prepend(__('lang_v1.none'), '');
+        }
+        //Prepend all
+        if ($prepend_all) {
+            $dropdown = $dropdown->prepend(__('lang_v1.all'), '-1');
         }
 
         return $dropdown;

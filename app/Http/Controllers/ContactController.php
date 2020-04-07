@@ -182,6 +182,7 @@ class ContactController extends Controller
                     })  
                     ->where('contacts.blacked_by_user', '=', null)
                     ->addSelect(['contacts.contact_id', 'contacts.name', 'contacts.email', 'contacts.created_at', 'total_rp', 'cg.name as customer_group', 'm.name as membership', 'city', 'state', 'country', 'landmark', 'mobile', 'contacts.id', 'is_default',
+                        DB::raw( 'DATE_FORMAT(STR_TO_DATE(birthday, "%Y-%m-%d"), "%d/%m") as birthday'),
                         DB::raw("SUM(IF(t.type = 'sell'  AND t.status = 'final', final_total, 0)) as total_invoice"),
                         DB::raw("SUM(IF(t.type = 'sell' AND t.status = 'final', (SELECT SUM(IF(is_return = 1,-1*amount,amount)) FROM transaction_payments WHERE transaction_payments.transaction_id=t.id), 0)) as invoice_received"),
 //                        DB::raw("SUM(IF( t.type = 'sell_return' AND (SELECT transaction_payments.method FROM transaction_payments WHERE transaction_payments.transaction_id=t.id) = 'bank_transfer', final_total, 0)) as total_sell_return"),
@@ -462,7 +463,7 @@ class ContactController extends Controller
                     }
 
                     $input = $request->only(['supplier_business_name',
-                        'name', 'tax_number', 'pay_term_number', 'pay_term_type', 'mobile', 'landline', 'alternate_number', 'city', 'state', 'country', 'landmark', 'customer_group_id', 'membership_id', 'contact_id', 'custom_field1', 'custom_field2', 'custom_field3', 'custom_field4', 'email']);
+                        'name', 'tax_number', 'pay_term_number', 'pay_term_type', 'mobile', 'landline', 'alternate_number', 'city', 'state', 'country', 'landmark', 'customer_group_id', 'membership_id', 'contact_id', 'birthday', 'email']);
                     $input['type'] = 'customer';
                     $input['business_id'] = $business_id;
                     $input['created_by'] = $request->session()->get('user.id');

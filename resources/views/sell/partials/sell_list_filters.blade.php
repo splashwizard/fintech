@@ -2,7 +2,7 @@
     <div class="form-group">
         {!! Form::label('account_id',  'Bank/Service:') !!}
 
-        {!! Form::select('account_id', $accounts, null, ['class' => 'form-control select2', 'style' => 'width:100%', 'placeholder' => __('lang_v1.all') ]); !!}
+        {!! Form::select('account_id', $accounts, null, ['class' => 'form-control select2', 'style' => 'width:100%', 'placeholder' => __('') ]); !!}
     </div>
 </div>
 <div class="col-md-3">

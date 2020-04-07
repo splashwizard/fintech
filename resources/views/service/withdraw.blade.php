@@ -144,15 +144,18 @@
                 $('#bank_div').show();
                 $('#service_div').hide();
                 $('#service_div select').removeAttr('required');
+                $('#bank_account_detail').show();
                 // $('#receipt_image_div').show();
             } else if (withdraw_mode === 'gt') {
                 $('#bank_div').hide();
                 $('#bank_div select').removeAttr('required');
                 $('#service_div').show();
+                $('#bank_account_detail').hide();
                 // $('#receipt_image_div').hide();
             } else {
                 $('#bank_div').hide();
                 $('#service_div').hide();
+                $('#bank_account_detail').hide();
                 // $('#receipt_image_div').hide();
             }
         });

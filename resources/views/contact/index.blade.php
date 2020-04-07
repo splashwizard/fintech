@@ -50,6 +50,7 @@
                                 <th>@lang('lang_v1.customer_group')</th>
                                 <th>@lang('contact.total_sale_due')</th>
                                 <th>@lang('lang_v1.total_sell_return_due')</th>
+                                <th>@lang('contact.birthday')</th>
                                 @if($reward_enabled)
                                     {{--                                    <th>{{session('business.rp_name')}}</th>--}}
                                     <th>@lang('user.rp_name')</th>
@@ -90,7 +91,7 @@
                             @if( $type == 'blacklisted_customer')
                                 <td @if($reward_enabled) colspan="6" @else colspan="5" @endif></td>
                             @else
-                                <td @if($reward_enabled) colspan="4" @else colspan="3" @endif></td>
+                                <td @if($reward_enabled) colspan="5" @else colspan="4" @endif></td>
                             @endif
                         </tr>
                     </tfoot>
@@ -122,10 +123,10 @@
         var reward_enabled = '{{$reward_enabled}}';
         var columns;
         console.log(reward_enabled);
-        var targets = 8;
-        if (contact_table_type == 'supplier') {
-            targets = [8,9,10];
-        }
+        // var targets = 8;
+        // if (contact_table_type == 'supplier') {
+        //     targets = [8,9,10];
+        // }
         if (contact_table_type === 'blacklisted_customer'){
             columns = [{data: 'contact_id', width: "10%"},
                 {data: 'name', width: "10%"},
@@ -142,7 +143,8 @@
                 {data: 'membership', name: 'm.name', width: "10%"},
                 {data: 'customer_group', name: 'cg.name', width: "10%"},
                 {data: 'due', width: "10%"},
-                {data: 'return_due', width: "10%"}];
+                {data: 'return_due', width: "10%"},
+                {data: 'birthday', width: "10%"}];
         }
         if(reward_enabled)
             columns.push({data: 'total_rp', width: "10%"});
@@ -166,13 +168,13 @@
             processing: true,
             serverSide: true,
             ajax: '/contacts?type=' + $('#contact_type').val(),
-            columnDefs: [
-                {
-                    targets: targets,
-                    orderable: false,
-                    searchable: false,
-                },
-            ],
+            // columnDefs: [
+            //     {
+            //         targets: targets,
+            //         orderable: false,
+            //         searchable: false,
+            //     },
+            // ],
             columns: columns,
             fnDrawCallback: function(oSettings) {
                 var total_due = sum_table_col($('#contact_table'), 'contact_due');

@@ -1847,6 +1847,8 @@ function pos_total_row() {
             debit += line_total;
         }
     });
+    if(special_bonus !== 0)
+        basic_bonus = 0;
     $('#credit').html(credit);
     $('#basic_bonus').html(basic_bonus);
     $('#special_bonus').html(special_bonus);
