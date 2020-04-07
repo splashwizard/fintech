@@ -704,7 +704,7 @@ class ContactController extends Controller
         if (request()->ajax()) {
             try {
                 $input = $request->only(['type', 'supplier_business_name', 'name', 'tax_number', 'pay_term_number', 'pay_term_type', 'mobile', 'landline', 'alternate_number', 
-                    'city', 'state', 'country', 'landmark', 'customer_group_id', 'membership_id', 'contact_id', 'custom_field1', 'custom_field2', 'custom_field3', 'custom_field4', 'email']);
+                    'city', 'state', 'country', 'landmark', 'customer_group_id', 'membership_id', 'contact_id', 'birthday', 'email']);
 
                 $input['credit_limit'] = $request->input('credit_limit') != '' ? $this->commonUtil->num_uf($request->input('credit_limit')) : null;
                 

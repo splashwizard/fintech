@@ -74,10 +74,19 @@
         </div>
       </div>
       <div class="col-md-3">
-        <div class="form-group">
-          {!! Form::label('remark', __('contact.remark') . ':*') !!}
-          {!! Form::text('remark', $contact->remark, ['class' => 'form-control','placeholder' => __('contact.remark')]); !!}
-        </div>
+          <div class="form-group">
+              {!! Form::label('operation_date', __( 'contact.birthday' ) .":*") !!}
+              <div class="input-group date" id='od_datetimepicker'>
+                  {!! Form::text('birthday', $contact->birthday, ['class' => 'form-control', 'required','placeholder' => __( 'messages.date' ) ]); !!}
+                  <span class="input-group-addon">
+                    <span class="glyphicon glyphicon-calendar"></span>
+                  </span>
+              </div>
+          </div>
+{{--        <div class="form-group">--}}
+{{--          {!! Form::label('remark', __('contact.remark') . ':*') !!}--}}
+{{--          {!! Form::text('remark', $contact->remark, ['class' => 'form-control','placeholder' => __('contact.remark')]); !!}--}}
+{{--        </div>--}}
       </div>
 
       <div class="col-md-3">
@@ -97,38 +106,38 @@
       <div class="col-md-12">
         <hr/>
       </div>
-      <div class="col-md-3">
-        <div class="form-group">
-            {!! Form::label('custom_field1', __('lang_v1.custom_field', ['number' => 1]) . ':') !!}
-            {!! Form::text('custom_field1', $contact->custom_field1, ['class' => 'form-control', 
-                'placeholder' => __('lang_v1.custom_field', ['number' => 1])]); !!}
-        </div>
-      </div>
-      <div class="col-md-3">
-        <div class="form-group">
-            {!! Form::label('custom_field2', __('lang_v1.custom_field', ['number' => 2]) . ':') !!}
-            {!! Form::text('custom_field2', $contact->custom_field2, ['class' => 'form-control', 
-                'placeholder' => __('lang_v1.custom_field', ['number' => 2])]); !!}
-        </div>
-      </div>
-      <div class="col-md-3">
-        <div class="form-group">
-            {!! Form::label('custom_field3', __('lang_v1.custom_field', ['number' => 3]) . ':') !!}
-            {!! Form::text('custom_field3', $contact->custom_field3, ['class' => 'form-control', 
-                'placeholder' => __('lang_v1.custom_field', ['number' => 3])]); !!}
-        </div>
-      </div>
-      <div class="col-md-3">
-        <div class="form-group">
-            {!! Form::label('custom_field4', __('lang_v1.custom_field', ['number' => 4]) . ':') !!}
-            {!! Form::text('custom_field4', $contact->custom_field4, ['class' => 'form-control', 
-                'placeholder' => __('lang_v1.custom_field', ['number' => 4])]); !!}
-        </div>
-      </div>
-      <div class="clearfix"></div>
-      <div class="col-md-12">
-          <hr/>
-      </div>
+{{--      <div class="col-md-3">--}}
+{{--        <div class="form-group">--}}
+{{--            {!! Form::label('custom_field1', __('lang_v1.custom_field', ['number' => 1]) . ':') !!}--}}
+{{--            {!! Form::text('custom_field1', $contact->custom_field1, ['class' => 'form-control', --}}
+{{--                'placeholder' => __('lang_v1.custom_field', ['number' => 1])]); !!}--}}
+{{--        </div>--}}
+{{--      </div>--}}
+{{--      <div class="col-md-3">--}}
+{{--        <div class="form-group">--}}
+{{--            {!! Form::label('custom_field2', __('lang_v1.custom_field', ['number' => 2]) . ':') !!}--}}
+{{--            {!! Form::text('custom_field2', $contact->custom_field2, ['class' => 'form-control', --}}
+{{--                'placeholder' => __('lang_v1.custom_field', ['number' => 2])]); !!}--}}
+{{--        </div>--}}
+{{--      </div>--}}
+{{--      <div class="col-md-3">--}}
+{{--        <div class="form-group">--}}
+{{--            {!! Form::label('custom_field3', __('lang_v1.custom_field', ['number' => 3]) . ':') !!}--}}
+{{--            {!! Form::text('custom_field3', $contact->custom_field3, ['class' => 'form-control', --}}
+{{--                'placeholder' => __('lang_v1.custom_field', ['number' => 3])]); !!}--}}
+{{--        </div>--}}
+{{--      </div>--}}
+{{--      <div class="col-md-3">--}}
+{{--        <div class="form-group">--}}
+{{--            {!! Form::label('custom_field4', __('lang_v1.custom_field', ['number' => 4]) . ':') !!}--}}
+{{--            {!! Form::text('custom_field4', $contact->custom_field4, ['class' => 'form-control', --}}
+{{--                'placeholder' => __('lang_v1.custom_field', ['number' => 4])]); !!}--}}
+{{--        </div>--}}
+{{--      </div>--}}
+{{--      <div class="clearfix"></div>--}}
+{{--      <div class="col-md-12">--}}
+{{--          <hr/>--}}
+{{--      </div>--}}
 
       @foreach($services as $key => $service)
           <div class="col-md-3">
@@ -193,3 +202,12 @@
 
   </div><!-- /.modal-content -->
 </div><!-- /.modal-dialog -->
+{{--<script src="{{ asset('AdminLTE/plugins/jQuery/jquery-2.2.3.min.js?v=' . $asset_v) }}"></script>--}}
+<script type="text/javascript">
+    $(document).ready( function(){
+        $('#od_datetimepicker').datetimepicker({
+            format:'YYYY-MM-DD',
+            minDate: "1990-01-01"
+        });
+    });
+</script>
