@@ -39,6 +39,9 @@ Route::middleware(['IsInstalled', 'auth', 'SetSessionData', 'language', 'timezon
     Route::get('/home/purchase-payment-dues', 'HomeController@getPurchasePaymentDues');
     Route::get('/home/sales-payment-dues', 'HomeController@getSalesPaymentDues');
 
+    Route::get('/version_log', 'VersionLogController@index');
+    Route::post('/version_log', 'VersionLogController@update');
+
 //    Route::get('/mass_overview', 'MassOverviewController@index')->name('mass_overview');
     Route::get('/mass_overview/get_bank_details', 'MassOverviewController@getBankDetails');
     Route::get('/mass_overview/get_service_details', 'MassOverviewController@getServiceDetails');

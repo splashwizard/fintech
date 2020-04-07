@@ -24,6 +24,7 @@ return [
     'cancel' => 'Cancel',
     'close' => 'Close',
     'something_went_wrong' => 'Something went wrong, please try again later',
+    'version_log_updated_successfully' => 'Version Log updated successfully',
     'transaction_date_error' => "The Cashier can't edit transaction after 24 hours",
     'required' => 'This field is required',
     'please_select' => 'Please Select',

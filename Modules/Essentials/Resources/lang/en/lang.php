@@ -79,6 +79,7 @@ return [
     'new_leave_notification' => ':employee applied for a leave. Reference No - <i>:ref_no</i>',
     'leave_status_change_notification' => ':admin :status your leave. Reference No - <i>:ref_no</i>',
     'new_request_notification' => ':employee applied for a request. Reference No - <i>:ref_no</i>',
+    'edit_customer_notification' => ':employee edited a customer. Customer ID - <i>:contact_id</i>',
     'request_status_change_notification' => ':admin :status your request. Reference No - <i>:ref_no</i>',
     'essentials_settings' => 'Essentials Settings',
     'leave_ref_no_prefix' => 'Leave Reference No. prefix',

@@ -75,6 +75,20 @@ class DataController extends Controller
                 'created_at' => $notification->created_at->diffForHumans()
             ];
         } elseif ($notification->type ==
+            'Modules\Essentials\Notifications\EditCustomerNotification') {
+            $data = $notification->data;
+            $employee = User::find($data['changed_by']);
+
+            $msg = __('essentials::lang.edit_customer_notification', ['employee' => $employee->user_full_name, 'contact_id' => $data['contact_id']]);
+
+            $notification_data = [
+                'msg' => $msg,
+                'icon_class' => 'fa fa-user-times text-success',
+                'link' => action('ContactController@index'),
+                'read_at' => $notification->read_at,
+                'created_at' => $notification->created_at->diffForHumans()
+            ];
+        } elseif ($notification->type ==
             'Modules\Essentials\Notifications\LeaveStatusNotification') {
             $data = $notification->data;
 

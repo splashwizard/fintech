@@ -18,6 +18,7 @@ use App\Utils\Util;
 use DB;
 use Excel;
 use Illuminate\Http\Request;
+use Modules\Essentials\Notifications\EditCustomerNotification;
 use Yajra\DataTables\Facades\DataTables;
 use \jeremykenedy\LaravelLogger\App\Http\Traits\ActivityLogger;
 
@@ -730,10 +731,12 @@ class ContactController extends Controller
                         $contact->$key = $value;
                     }
                     $new_bank_details = $request->get('bank_details');
-                    foreach (json_decode($contact->bank_details) as $old_bank_detail) {
-                        foreach ($new_bank_details as $new_bank_detail) {
-                            if($old_bank_detail->bank_brand_id == $new_bank_detail['bank_brand_id'] && $old_bank_detail->account_number != $new_bank_detail['account_number']){
-                                $activity.= chr(10).chr(13).BankBrand::find($old_bank_detail->bank_brand_id)->name.': '.$old_bank_detail->account_number.' >>>'.$new_bank_detail['account_number'];
+                    if(!empty($contact->bank_details)){
+                        foreach (json_decode($contact->bank_details) as $old_bank_detail) {
+                            foreach ($new_bank_details as $new_bank_detail) {
+                                if($old_bank_detail->bank_brand_id == $new_bank_detail['bank_brand_id'] && $old_bank_detail->account_number != $new_bank_detail['account_number']){
+                                    $activity.= chr(10).chr(13).BankBrand::find($old_bank_detail->bank_brand_id)->name.': '.$old_bank_detail->account_number.' >>>'.$new_bank_detail['account_number'];
+                                }
                             }
                         }
                     }
@@ -745,6 +748,9 @@ class ContactController extends Controller
                     }
 
                     $contact->save();
+                    $admins = $this->moduleUtil->get_admins($business_id);
+                    $user_id = request()->session()->get('user.id');
+                    \Notification::send($admins, new EditCustomerNotification(['changed_by' => $user_id, 'contact_id' => $contact->contact_id]));
                     foreach ($game_ids as $service_id => $game_id){
                         if(!empty($game_id)){
                             $game_name = Account::find($service_id)->name;
