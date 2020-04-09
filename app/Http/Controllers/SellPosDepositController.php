@@ -1510,6 +1510,7 @@ class SellPosDepositController extends Controller
             $data = $query->get()[0];
             $account_data = Account::find($key);
             if($data->name == 'Banking'){
+                $card_type = 'credit';
 //                if($payment['p_name'] == 'Bonus')
                 if($account_data->name == 'Bonus Account'){
                     $method = 'free_credit';
@@ -1519,8 +1520,9 @@ class SellPosDepositController extends Controller
                     $method = 'bank_transfer';
             } else{
                 $method = 'service_transfer';
+                $card_type = 'debit';
             }
-            $payment_lines[] = ['account_id' => $key, 'method' => $method, 'amount' => $payment['amount'], 'note' => '', 'card_transaction_number' => '', 'card_number' => '', 'card_type' => '', 'card_holder_name' => '', 'card_month' => '', 'card_year' => '', 'card_security' => '', 'cheque_number' => '', 'bank_account_number' => '',
+            $payment_lines[] = ['account_id' => $key, 'method' => $method, 'amount' => $payment['amount'], 'note' => '', 'card_transaction_number' => '', 'card_number' => '', 'card_type' => $card_type, 'card_holder_name' => '', 'card_month' => '', 'card_year' => '', 'card_security' => '', 'cheque_number' => '', 'bank_account_number' => '',
                 'is_return' => 0, 'transaction_no' => '', 'category_name' => $data->name];
         }
         if(!empty($bonus_amount) && !$is_free_credit){
@@ -1940,21 +1942,21 @@ class SellPosDepositController extends Controller
                         'location' => $payment->location_name,
                         'contact_id' => $payment->contact_id,
                         'payment_method' => !empty($paymentTypes[$payment->method]) ? $paymentTypes[$payment->method] : '',
-                        'debit' => ($payment->transaction_type == 'sell_return' && $payment->method != 'service_transfer') ? $payment->amount : 0,
-                        'credit' => ($payment->transaction_type == 'sell' && $payment->method == 'bank_transfer') ? $payment->amount : 0,
-                        'free_credit' => ($payment->transaction_type == 'sell' && $payment->method == 'free_credit') ? $payment->amount : 0 ,
-                        'service_debit' => ($payment->transaction_type == 'sell_return' && $payment->method == 'service_transfer') ? $payment->amount : 0,
-                        'service_credit' => ($payment->transaction_type == 'sell' && $payment->method == 'service_transfer' ) ? $payment->amount : 0,
+                        'debit' => ($payment->card_type == 'debit' && $payment->method != 'service_transfer') ? $payment->amount : 0,
+                        'credit' => ($payment->card_type == 'credit' && $payment->method == 'bank_transfer') ? $payment->amount : 0,
+                        'free_credit' => ($payment->card_type == 'credit' && $payment->method == 'free_credit') ? $payment->amount : 0 ,
+                        'service_debit' => ($payment->card_type == 'debit' && $payment->method == 'service_transfer') ? $payment->amount : 0,
+                        'service_credit' => ($payment->card_type == 'credit' && $payment->method == 'service_transfer' ) ? $payment->amount : 0,
                         'others' => '<small>' . $ref_no . '</small>',
                         'bank_in_time' => $payment->bank_in_time,
                         'user' => $user['first_name'].' '.$user['last_name']
                     ];
                 } else {
-                    $ledger_by_payment[$payment->transaction_id]['debit'] += ($payment->transaction_type == 'sell_return' && $payment->method != 'service_transfer') ? $payment->amount : 0;
-                    $ledger_by_payment[$payment->transaction_id]['credit'] += ($payment->transaction_type == 'sell' && $payment->method == 'bank_transfer') ? $payment->amount : 0;
-                    $ledger_by_payment[$payment->transaction_id]['free_credit'] += ($payment->transaction_type == 'sell' && $payment->method == 'free_credit') ? $payment->amount : 0;
-                    $ledger_by_payment[$payment->transaction_id]['service_debit'] += ($payment->transaction_type == 'sell_return' && $payment->method == 'service_transfer') ? $payment->amount : 0;
-                    $ledger_by_payment[$payment->transaction_id]['service_credit'] += ($payment->transaction_type == 'sell' && $payment->method == 'service_transfer' ) ? $payment->amount : 0;
+                    $ledger_by_payment[$payment->transaction_id]['debit'] += ($payment->card_type == 'debit' && $payment->method != 'service_transfer') ? $payment->amount : 0;
+                    $ledger_by_payment[$payment->transaction_id]['credit'] += ($payment->card_type == 'credit' && $payment->method == 'bank_transfer') ? $payment->amount : 0;
+                    $ledger_by_payment[$payment->transaction_id]['free_credit'] += ($payment->card_type == 'credit' && $payment->method == 'free_credit') ? $payment->amount : 0;
+                    $ledger_by_payment[$payment->transaction_id]['service_debit'] += ($payment->card_type == 'debit' && $payment->method == 'service_transfer') ? $payment->amount : 0;
+                    $ledger_by_payment[$payment->transaction_id]['service_credit'] += ($payment->card_type == 'credit' && $payment->method == 'service_transfer' ) ? $payment->amount : 0;
                 }
                 if(($payment->transaction_type == 'sell' || $payment->transaction_type == 'sell_return' ) && $payment->method == 'service_transfer'){
                     $ledger_by_payment[$payment->transaction_id]['service_name'] = $payment->account_name;

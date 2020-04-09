@@ -628,6 +628,8 @@ return [
     'access_accounts' => 'Access Accounts',
     'balance_sheet_details' => 'Balance Sheet Details',
     'payment_accounts' => 'Payment Accounts',
+    'bank_payment_accounts' => 'Bank List - Payment Accounts',
+    'kiosk_payment_accounts' => 'Kiosk List - Payment Accounts',
     'total_shipping_charges' => 'Total Shipping Charges',
     'recurring_invoice_error_message' => 'Unable to create invoice for Subscription no.: <i>:subscription_no</i>. Required stock not available for product <i>:product_name</i>',
     'load_more' => 'Load More',

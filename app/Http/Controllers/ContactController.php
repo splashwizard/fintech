@@ -173,25 +173,28 @@ class ContactController extends Controller
 
         $business_id = request()->session()->get('user.business_id');
 
+        $month = request()->get('month');
         $query = Contact::leftjoin('transactions AS t', 'contacts.id', '=', 't.contact_id')
-                    ->leftjoin('customer_groups AS cg', 'contacts.customer_group_id', '=', 'cg.id')
-                    ->leftjoin('memberships AS m', 'contacts.membership_id', '=', 'm.id')
-                    ->where(function($q) use ($business_id) {
-                        $q->where('contacts.business_id', $business_id);
-                        $q->orWhere('contacts.business_id', 0);
-                    })  
-                    ->where('contacts.blacked_by_user', '=', null)
-                    ->addSelect(['contacts.contact_id', 'contacts.name', 'contacts.email', 'contacts.created_at', 'total_rp', 'cg.name as customer_group', 'm.name as membership', 'city', 'state', 'country', 'landmark', 'mobile', 'contacts.id', 'is_default',
-                        DB::raw( 'DATE_FORMAT(STR_TO_DATE(birthday, "%Y-%m-%d"), "%d/%m") as birthday'),
-                        DB::raw("SUM(IF(t.type = 'sell'  AND t.status = 'final', final_total, 0)) as total_invoice"),
-                        DB::raw("SUM(IF(t.type = 'sell' AND t.status = 'final', (SELECT SUM(IF(is_return = 1,-1*amount,amount)) FROM transaction_payments WHERE transaction_payments.transaction_id=t.id), 0)) as invoice_received"),
+            ->leftjoin('customer_groups AS cg', 'contacts.customer_group_id', '=', 'cg.id')
+            ->leftjoin('memberships AS m', 'contacts.membership_id', '=', 'm.id')
+            ->where(function($q) use ($business_id) {
+                $q->where('contacts.business_id', $business_id);
+                $q->orWhere('contacts.business_id', 0);
+            })
+            ->where('contacts.blacked_by_user', null);
+        if($month!="0")
+            $query->where(DB::raw('DATE_FORMAT(STR_TO_DATE(birthday, "%Y-%m-%d"), "%m")'), $month);
+        $query->addSelect(['contacts.contact_id', 'contacts.name', 'contacts.email', 'contacts.created_at', 'total_rp', 'cg.name as customer_group', 'm.name as membership', 'city', 'state', 'country', 'landmark', 'mobile', 'contacts.id', 'is_default',
+            DB::raw( 'DATE_FORMAT(STR_TO_DATE(birthday, "%Y-%m-%d"), "%d/%m") as birthday'),
+            DB::raw("SUM(IF(t.type = 'sell'  AND t.status = 'final', final_total, 0)) as total_invoice"),
+            DB::raw("SUM(IF(t.type = 'sell' AND t.status = 'final', (SELECT SUM(IF(is_return = 1,-1*amount,amount)) FROM transaction_payments WHERE transaction_payments.transaction_id=t.id), 0)) as invoice_received"),
 //                        DB::raw("SUM(IF( t.type = 'sell_return' AND (SELECT transaction_payments.method FROM transaction_payments WHERE transaction_payments.transaction_id=t.id) = 'bank_transfer', final_total, 0)) as total_sell_return"),
-                        DB::raw("SUM(IF(t.type = 'sell_return', final_total, 0)) as total_sell_return"),
-                        DB::raw("SUM(IF(t.type = 'sell_return', (SELECT SUM(amount) FROM transaction_payments WHERE transaction_payments.transaction_id=t.id), 0)) as sell_return_paid"),
-                        DB::raw("SUM(IF(t.type = 'opening_balance', final_total, 0)) as opening_balance"),
-                        DB::raw("SUM(IF(t.type = 'opening_balance', (SELECT SUM(IF(is_return = 1,-1*amount,amount)) FROM transaction_payments WHERE transaction_payments.transaction_id=t.id), 0)) as opening_balance_paid")
-                        ])
-                    ->groupBy('contacts.id');
+            DB::raw("SUM(IF(t.type = 'sell_return', final_total, 0)) as total_sell_return"),
+            DB::raw("SUM(IF(t.type = 'sell_return', (SELECT SUM(amount) FROM transaction_payments WHERE transaction_payments.transaction_id=t.id), 0)) as sell_return_paid"),
+            DB::raw("SUM(IF(t.type = 'opening_balance', final_total, 0)) as opening_balance"),
+            DB::raw("SUM(IF(t.type = 'opening_balance', (SELECT SUM(IF(is_return = 1,-1*amount,amount)) FROM transaction_payments WHERE transaction_payments.transaction_id=t.id), 0)) as opening_balance_paid")
+            ])
+        ->groupBy('contacts.id');
         $is_admin_or_super = auth()->user()->hasRole('Admin#' . auth()->user()->business_id) || auth()->user()->hasRole('Superadmin') || auth()->user()->hasRole('Admin');
         $contacts = Datatables::of($query)
             ->editColumn(
@@ -221,13 +224,13 @@ class ContactController extends Controller
                 @can("customer.view")
                     <li><a href="{{action(\'ContactController@show\', [$id])}}"><i class="fa fa-external-link" aria-hidden="true"></i> @lang("messages.view")</a></li>
                 @endcan
+                @if(!$is_default)
                 @can("customer.update")
                     <li><a href="{{action(\'ContactController@edit\', [$id])}}?type=customer" class="edit_contact_button"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</a></li>
                 @endcan
                 @if(auth()->user()->hasRole("Superadmin") || auth()->user()->hasRole("Admin#" . auth()->user()->business_id) || auth()->user()->hasRole("Admin"))
                     <li><a href="{{action(\'ContactController@blacklist\', [$id])}}" class="edit_blacklist_button"><i class="glyphicon glyphicon-edit"></i> @lang("messages.blacklist")</a></li>
                 @endif
-                @if(!$is_default)
                 @can("customer.delete")
                     <li><a href="{{action(\'ContactController@destroy\', [$id])}}" class="delete_contact_button"><i class="glyphicon glyphicon-trash"></i> @lang("messages.delete")</a></li>
                 @endcan
@@ -1368,11 +1371,11 @@ class ContactController extends Controller
                 'payment_method' => !empty($paymentTypes[$payment->method]) ? $paymentTypes[$payment->method] : '',
 //                'debit' => in_array($payment->transaction_type, ['purchase', 'sell_return']) || ($payment->transaction_type == 'sell' && $payment->method =='other') ? $payment->amount : '',
 //                'credit' => in_array($payment->transaction_type, ['sell', 'purchase_return', 'opening_balance']) && $payment->method !='other' ? $payment->amount : '',
-                'debit' => ($payment->transaction_type == 'sell_return' && $payment->method != 'service_transfer') ? $payment->amount : '',
-                'credit' => ($payment->transaction_type == 'sell' && $payment->method == 'bank_transfer') ? $payment->amount : '',
-                'bonus' => ($payment->transaction_type == 'sell' && ($payment->method == 'basic_bonus' || $payment->method == 'free_credit') ) ? $payment->amount : '',
-                'service_debit' => ($payment->transaction_type == 'sell_return' && $payment->method == 'service_transfer') ? $payment->amount : '',
-                'service_credit' => ($payment->transaction_type == 'sell' && $payment->method == 'service_transfer' ) ? $payment->amount : '',
+                'debit' => ($payment->card_type == 'debit' && $payment->method != 'service_transfer') ? $payment->amount : '',
+                'credit' => ($payment->card_type == 'credit' && $payment->method == 'bank_transfer') ? $payment->amount : '',
+                'bonus' => ($payment->card_type == 'credit' && ($payment->method == 'basic_bonus' || $payment->method == 'free_credit') ) ? $payment->amount : '',
+                'service_debit' => ($payment->card_type == 'debit' && $payment->method == 'service_transfer') ? $payment->amount : '',
+                'service_credit' => ($payment->card_type == 'credit' && $payment->method == 'service_transfer' ) ? $payment->amount : '',
                 'others' => $payment->note . '<small>' . __('account.payment_for') . ': ' . $ref_no . '</small>'
             ];
         }

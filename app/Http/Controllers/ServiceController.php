@@ -100,7 +100,7 @@ class ServiceController extends Controller
                                 }
                             })
                             ->editColumn('balance', function ($row) {
-                                return '<span class="display_currency" data-currency_symbol="true">' . $row->balance . '</span>';
+                                return '<span class="display_currency" >' . $row->balance . '</span>';
                             })
                             ->removeColumn('id')
                             ->removeColumn('is_closed')
@@ -727,20 +727,20 @@ class ServiceController extends Controller
                     $sub_type = 'game_credit_deduct';
                 $transaction = $this->transactionUtil->createSellReturnTransaction($business_id, $input, $invoice_total, $user_id, $sub_type);
                 ActivityLogger::activity("Created transaction, ticket # ".$transaction->invoice_no);
-                $this->transactionUtil->createWithDrawPaymentLine($transaction, $user_id, $account_id, 1, 'debit');
+                $this->transactionUtil->createWithDrawPaymentLine($transaction, $user_id, $account_id, 1, 'credit');
                 $this->transactionUtil->updateCustomerRewardPoints($contact_id, $amount, 0, 0);
 
-                $debit_data = [
+                $credit_data = [
                     'amount' => $amount,
                     'account_id' => $account_id,
-                    'type' => 'debit',
+                    'type' => 'credit',
                     'sub_type' => 'withdraw',
                     'operation_date' => $now->format('Y-m-d H:i:s'),
                     'created_by' => session()->get('user.id'),
                     'transaction_id' => $transaction->id
                 ];
 
-                AccountTransaction::createAccountTransaction($debit_data);
+                AccountTransaction::createAccountTransaction($credit_data);
                 if($withdraw_mode == 'b' || $withdraw_mode == 'gt') { // bank mode
                     $business_locations = BusinessLocation::forDropdown($business_id, false, true);
                     $business_locations = $business_locations['locations'];
@@ -773,7 +773,7 @@ class ServiceController extends Controller
 //                    else
 //                        $transaction = $this->transactionUtil->createSellReturnTransaction($business_id, $input, $invoice_total, $user_id);
                     $is_service = $withdraw_mode == 'b' ? 0 : 1;
-                    $this->transactionUtil->createWithDrawPaymentLine($transaction, $user_id, $bank_account_id, $is_service, 'credit');
+                    $this->transactionUtil->createWithDrawPaymentLine($transaction, $user_id, $bank_account_id, $is_service, 'debit');
                     $this->transactionUtil->updateCustomerRewardPoints($contact_id, 0, 0, $amount);
 
 //                    $debit_data = [
@@ -794,7 +794,7 @@ class ServiceController extends Controller
                     $credit_data = [
                         'amount' => $amount,
                         'account_id' => $bank_account_id,
-                        'type' => $withdraw_mode == 'gt' ? 'credit':'debit',
+                        'type' => 'debit',
                         'sub_type' => 'withdraw',
                         'created_by' => session()->get('user.id'),
                         'note' => $request->input('note'),

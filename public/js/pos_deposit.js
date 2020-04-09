@@ -1481,6 +1481,15 @@ $(document).ready(function() {
                     $('div.view_modal').modal('hide');
                     toastr.success(result.msg);
                     get_contact_ledger();
+                    var location_id = $('input#location_id').val();
+                    var category_id = $('select#product_category').val();
+                    var category_id2 = $('select#product_category2').val();
+                    var product_id = $('select#bank_products').val();
+                    var brand_id = $('select#product_brand').val();
+
+                    get_product_suggestion_list(category_id, product_id, brand_id, location_id);
+                    get_product2_suggestion_list(category_id2, product_id, brand_id, location_id);
+                    get_product3_suggestion_list(location_id);
                 } else {
                     toastr.error(result.msg);
                 }

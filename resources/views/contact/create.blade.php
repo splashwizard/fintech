@@ -31,17 +31,17 @@
             </div>
         </div>
       </div>
-        <div class="col-md-4">
-          <div class="form-group">
-              {!! Form::label('opening_balance', __('lang_v1.opening_balance') . ':') !!}
-              <div class="input-group">
-                  <span class="input-group-addon">
-                      <i class="fa fa-money"></i>
-                  </span>
-                  {!! Form::text('opening_balance', 0, ['class' => 'form-control input_number']); !!}
-              </div>
-          </div>
-        </div>
+{{--        <div class="col-md-4">--}}
+{{--          <div class="form-group">--}}
+{{--              {!! Form::label('opening_balance', __('lang_v1.opening_balance') . ':') !!}--}}
+{{--              <div class="input-group">--}}
+{{--                  <span class="input-group-addon">--}}
+{{--                      <i class="fa fa-money"></i>--}}
+{{--                  </span>--}}
+{{--                  {!! Form::text('opening_balance', 0, ['class' => 'form-control input_number']); !!}--}}
+{{--              </div>--}}
+{{--          </div>--}}
+{{--        </div>--}}
         
         <div class="col-md-4 customer_fields">
           <div class="form-group">
@@ -186,12 +186,4 @@
   
   </div><!-- /.modal-content -->
 </div><!-- /.modal-dialog -->
-<script src="{{ asset('AdminLTE/plugins/jQuery/jquery-2.2.3.min.js?v=' . $asset_v) }}"></script>
-<script type="text/javascript">
-    $(document).ready( function(){
-        $('#od_datetimepicker').datetimepicker({
-            format:'YYYY-MM-DD',
-            minDate: "1990-01-01"
-        });
-    });
-</script>
+{{--<script src="{{ asset('AdminLTE/plugins/jQuery/jquery-2.2.3.min.js?v=' . $asset_v) }}"></script>--}}

@@ -10,7 +10,7 @@
                 <div style="margin-top: 5px">
                     <div style="width: 50%;float: left">
                         <span class="info-box-text">
-                            Balance:
+                            Today BAL:
                         </span>
                     </div>
                     <div style="width: 50%;float: left">
@@ -60,7 +60,7 @@
                 <div style="margin-top: 5px">
                     <div style="width: 50%;float: left">
                         <span class="info-box-text">
-                            Balance:
+                            Today BAL:
                         </span>
                     </div>
                     <div style="width: 50%;float: left">

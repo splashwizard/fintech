@@ -6,7 +6,7 @@
 
 <!-- Content Header (Page header) -->
 <section class="content-header">
-    <h1>@lang('lang_v1.payment_accounts')
+    <h1>@lang('lang_v1.kiosk_payment_accounts')
         <small>@lang('account.manage_your_account')</small>
     </h1>
 </section>
@@ -42,7 +42,7 @@
                 <ul class="nav nav-tabs">
                     <li class="active">
                         <a href="#other_accounts" data-toggle="tab">
-                            <i class="fa fa-book"></i> <strong>@lang('account.accounts')</strong>
+                            <i class="fa fa-book"></i> <strong>@lang('account.service_list')</strong>
                         </a>
                     </li>
                     {{--

@@ -23,17 +23,17 @@
               </div>
           </div>
         </div>
-        <div class="col-md-4">
-          <div class="form-group">
-              {!! Form::label('opening_balance', __('lang_v1.opening_balance') . ':') !!}
-              <div class="input-group">
-                  <span class="input-group-addon">
-                      <i class="fa fa-money"></i>
-                  </span>
-                  {!! Form::text('opening_balance', $opening_balance, ['class' => 'form-control input_number']); !!}
-              </div>
-          </div>
-        </div>
+{{--        <div class="col-md-4">--}}
+{{--          <div class="form-group">--}}
+{{--              {!! Form::label('opening_balance', __('lang_v1.opening_balance') . ':') !!}--}}
+{{--              <div class="input-group">--}}
+{{--                  <span class="input-group-addon">--}}
+{{--                      <i class="fa fa-money"></i>--}}
+{{--                  </span>--}}
+{{--                  {!! Form::text('opening_balance', $opening_balance, ['class' => 'form-control input_number']); !!}--}}
+{{--              </div>--}}
+{{--          </div>--}}
+{{--        </div>--}}
 
         
         <div class="col-md-4 customer_fields">

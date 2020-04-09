@@ -30,8 +30,8 @@
 		<th>Games</th>
 		<th>Games ID</th>
 		<th>@lang('account.free_credit')</th>
-		<th>@lang('account.service_credit')</th>
-		<th>@lang('account.service_debit')</th>
+		<th>@lang('account.kiosk_in')</th>
+		<th>@lang('account.kiosk_out')</th>
 		{{--			<th>@lang('lang_v1.payment_method')</th>--}}
 		<th>Date/Time</th>
 		<th>User</th>

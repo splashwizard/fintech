@@ -2217,6 +2217,13 @@ $(document).on('click', 'a.load_notifications', function(e) {
     }
 });
 
+$(".contact_modal" ).on('shown.bs.modal', function(){
+    $('#od_datetimepicker').datetimepicker({
+        format:'YYYY-MM-DD',
+        minDate: "1990-01-01"
+    });
+});
+
 $(document).on('click', 'a.delete_purchase_return', function(e) {
     e.preventDefault();
     swal({

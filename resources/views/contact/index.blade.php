@@ -29,6 +29,24 @@
             @endslot
         @endif
         @if(auth()->user()->can('supplier.view') || auth()->user()->can('customer.view'))
+            <div style="margin-bottom: 10px">
+                <label>Month</label>
+                <select id="month">
+                    <option value="0">All</option>
+                    <option value="01">Jan</option>
+                    <option value="02">Feb</option>
+                    <option value="03">March</option>
+                    <option value="04">April</option>
+                    <option value="05">May</option>
+                    <option value="06">June</option>
+                    <option value="07">July</option>
+                    <option value="08">Aug</option>
+                    <option value="09">Sep</option>
+                    <option value="10">Oct</option>
+                    <option value="11">Nov</option>
+                    <option value="12">Dec</option>
+                </select>
+            </div>
             <div class="table-responsive">
                 <table class="table table-bordered table-striped" id="contact_table">
                     <thead>
@@ -167,7 +185,12 @@
         var contact_table = $('#contact_table').DataTable({
             processing: true,
             serverSide: true,
-            ajax: '/contacts?type=' + $('#contact_type').val(),
+            ajax: {
+                url: '/contacts?type=' + $('#contact_type').val(),
+                data: function (data) {
+                    data.month = $('#month').val();
+                }
+            },
             // columnDefs: [
             //     {
             //         targets: targets,
@@ -193,6 +216,9 @@
             }
         });
 
+        $('#month').change(function (e) {
+            contact_table.ajax.reload();
+        });
 
         //On display of add contact modal
         $('.contact_modal').on('shown.bs.modal', function(e) {

@@ -34,7 +34,7 @@ class AccountTransaction extends Model
      * @param  string $payment_transaction_type
      * @return string
      */
-    public static function getAccountTransactionType($tansaction_type)
+    public static function getAccountTransactionType($transaction_type, $card_type = 0)
     {
         $account_transaction_types = [
             'sell' => 'credit',
@@ -44,8 +44,10 @@ class AccountTransaction extends Model
             'sell_return' => 'debit',
             'payroll' => 'debit'
         ];
-
-        return $account_transaction_types[$tansaction_type];
+        if($transaction_type == 'sell' || $transaction_type == 'sell_return'){
+            return $card_type;
+        }
+        return $account_transaction_types[$transaction_type];
     }
 
     /**

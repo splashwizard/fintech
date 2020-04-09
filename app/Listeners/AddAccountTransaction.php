@@ -42,7 +42,7 @@ class AddAccountTransaction
             $account_transaction_data = [
                 'amount' => $event->formInput['amount'],
                 'account_id' => $event->formInput['account_id'],
-                'type' => AccountTransaction::getAccountTransactionType($event->formInput['transaction_type']),
+                'type' => AccountTransaction::getAccountTransactionType($event->formInput['transaction_type'], $event->transactionPayment->card_type),
                 'operation_date' => $event->transactionPayment->paid_on,
                 'created_by' => $event->transactionPayment->created_by,
                 'transaction_id' => $event->transactionPayment->transaction_id,

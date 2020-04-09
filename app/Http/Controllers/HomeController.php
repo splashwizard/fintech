@@ -381,10 +381,11 @@ class HomeController extends Controller
                 ->where('business_id', $business_id)
                 ->select(['name', 'account_number', 'accounts.note', 'accounts.id as account_id',
                     'is_closed', DB::raw("SUM( IF(AT.type='credit', amount, -1*amount) ) as balance")
+//                    , DB::raw("SUM( IF( AT.type='credit' AND (AT.sub_type IS NULL OR AT.`sub_type` != 'fund_transfer'), AT.amount, 0) ) as total_deposit")
                     , DB::raw("SUM( IF( AT.type='credit' AND (AT.sub_type IS NULL OR AT.`sub_type` != 'fund_transfer'), AT.amount, 0) ) as total_deposit")
                     , DB::raw("SUM( IF( AT.type='debit' AND (AT.sub_type IS NULL OR AT.`sub_type` != 'fund_transfer'), AT.amount, 0) ) as total_withdraw")]);
-            $bank_accounts_sql->whereDate('AT.operation_date', '>=', $start)
-                ->whereDate('AT.operation_date', '<=', $end);
+//            $bank_accounts_sql->whereDate('AT.operation_date', '>=', $start)
+//                ->whereDate('AT.operation_date', '<=', $end);
 
             $bank_accounts = $bank_accounts_sql->get();
             $output['total_deposit'] = $bank_accounts[0]->total_deposit;
@@ -405,11 +406,11 @@ class HomeController extends Controller
             })
                 ->where('is_service', 0)
                 ->where('business_id', $business_id)
-                ->whereBetween(\Illuminate\Support\Facades\DB::raw('date(AT.operation_date)'), [$start, $end])
+//                ->whereBetween(\Illuminate\Support\Facades\DB::raw('date(AT.operation_date)'), [$start, $end])
                 ->select(['name', 'account_number', 'accounts.note', 'accounts.id',
                     'is_closed', DB::raw("SUM( IF(AT.type='credit', amount, -1*amount) ) as balance")
-                    , DB::raw("SUM( IF(AT.type='credit', amount, 0) ) as total_deposit")
-                    , DB::raw("SUM( IF(AT.type='debit', amount, 0) ) as total_withdraw")])
+                    , DB::raw("SUM( IF(AT.type='credit' AND DATE_FORMAT(operation_date, '%Y-%m-%d') >='".$start."' AND DATE_FORMAT(operation_date, '%Y-%m-%d') <='".$end."', amount, 0) ) as total_deposit")
+                    , DB::raw("SUM( IF(AT.type='debit'  AND DATE_FORMAT(operation_date, '%Y-%m-%d') >='".$start."' AND DATE_FORMAT(operation_date, '%Y-%m-%d') <='".$end."', amount, 0) ) as total_withdraw")])
                 ->groupBy('accounts.id');
     
             $bank_accounts_sql->where(function ($q) {
@@ -445,11 +446,11 @@ class HomeController extends Controller
             })
                 ->where('is_service', 1)
                 ->where('business_id', $business_id)
-                ->whereBetween(\Illuminate\Support\Facades\DB::raw('date(AT.operation_date)'), [$start, $end])
+//                ->whereBetween(\Illuminate\Support\Facades\DB::raw('date(AT.operation_date)'), [$start, $end])
                 ->select(['name', 'account_number', 'accounts.note', 'accounts.id',
                     'is_closed', DB::raw("SUM( IF(AT.type='credit', amount, -1*amount) ) as balance")
-                    , DB::raw("SUM( IF(AT.type='credit', amount, 0) ) as total_deposit")
-                    , DB::raw("SUM( IF(AT.type='debit', amount, 0) ) as total_withdraw")])
+                    , DB::raw("SUM( IF(AT.type='credit' AND DATE_FORMAT(operation_date, '%Y-%m-%d') >='".$start."' AND DATE_FORMAT(operation_date, '%Y-%m-%d') <='".$end."', amount, 0) ) as total_deposit")
+                    , DB::raw("SUM( IF(AT.type='debit' AND DATE_FORMAT(operation_date, '%Y-%m-%d') >='".$start."' AND DATE_FORMAT(operation_date, '%Y-%m-%d') <='".$end."', amount, 0) ) as total_withdraw")])
                 ->groupBy('accounts.id');
     
             $service_accounts_sql->where(function ($q) {
