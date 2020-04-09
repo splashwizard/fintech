@@ -1883,17 +1883,17 @@ class SellPosDepositController extends Controller
             ->where('t.business_id', $business_id)
             ->where('t.status', '!=', 'draft');
 
-        $start = date('Y-m-d', strtotime('yesterday'));
-        $end = date('Y-m-d', strtotime('today'));
-        $query1->whereDate('transactions.transaction_date', '>=', $start)
-            ->whereDate('transactions.transaction_date', '<=', $end);
+        $start = date('Y-m-d H:i:s', strtotime('-24 hours'));
+        $end = date('Y-m-d H:i:s', strtotime('now'));
+        $query1->where('transactions.transaction_date', '>=', $start)
+            ->where('transactions.transaction_date', '<=', $end);
 
         if($selected_bank == 'GTransfer')
             $query2->where('t.sub_type', 'game_credit_transfer');
         else if($selected_bank == 'Deduction')
             $query2->where('t.sub_type', 'game_credit_deduct');
-        $query2->whereDate('paid_on', '>=', $start)
-            ->whereDate('paid_on', '<=', $end);
+        $query2->where('paid_on', '>=', $start)
+            ->where('paid_on', '<=', $end);
 
         $payments = $query2->select('transaction_payments.*', 't.id as transaction_id', 't.bank_in_time as bank_in_time', 'bl.name as location_name', 't.type as transaction_type', 't.ref_no', 't.invoice_no'
             , 'c.id as contact_primary_key', 'c.contact_id as contact_id', 'a.id as account_id', 'a.name as account_name', 't.created_by as created_by')->get();

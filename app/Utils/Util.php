@@ -314,8 +314,9 @@ class Util
         }
         if (!empty($business_id)) {
             $business = Business::find($business_id);
-            $prefixes = $business->ref_no_prefixes;
-            $prefix = $prefixes[$type];
+//            $prefixes = $business->ref_no_prefixes;
+//            $prefix = $prefixes[$type];
+            $prefix = substr($business->name, 0, 2);
         }
 
         if (!empty($default_prefix)) {

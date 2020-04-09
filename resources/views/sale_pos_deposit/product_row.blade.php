@@ -269,7 +269,7 @@
 			$subtotal_type = !empty($pos_settings['is_pos_subtotal_editable']) ? 'text' : 'hidden';
 
 		@endphp
-		<input type="{{$subtotal_type}}" name="products[{{$row_count}}][amount]" class="form-control pos_line_total @if(!empty($pos_settings['is_pos_subtotal_editable'])) input_number @endif" value="@if(empty($amount)){{@num_format($product->quantity_ordered*$unit_price_inc_tax )}}@else{{$amount}}@endif">
+		<input type="{{$subtotal_type}}" name="products[{{$row_count}}][amount]" class="form-control pos_line_total @if(!empty($pos_settings['is_pos_subtotal_editable'])) input_number @endif" value="@if(empty($amount)){{$product->quantity_ordered*$unit_price_inc_tax }}@else{{$amount}}@endif">
 		<span name="products[{{$row_count}}][amount]" class="display_currency pos_line_total_text @if(!empty($pos_settings['is_pos_subtotal_editable'])) hide @endif" data-currency_symbol="true">@if(empty($amount)){{@num_format($product->quantity_ordered*$unit_price_inc_tax )}}@else{{@num_format($amount)}}@endif</span>
 	</td>
 	<td class="text-center">

@@ -27,7 +27,8 @@
         </div>
     @endif
     @can('account.access')
-     <div class="row">
+    @if(auth()->user()->hasRole('Admin#' . auth()->user()->business_id) || auth()->user()->hasRole('Superadmin') || auth()->user()->hasRole('Admin'))
+    <div class="row">
         <div class="col-sm-12">
             <button type="button" class="btn btn-primary btn-modal pull-right" 
                 data-container=".account_model"
@@ -36,6 +37,7 @@
         </div>
     </div>
     <br>
+    @endif
     <div class="row">
         <div class="col-sm-12">
             <div class="nav-tabs-custom">

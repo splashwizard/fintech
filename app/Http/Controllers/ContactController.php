@@ -252,9 +252,9 @@ class ContactController extends Controller
             ->removeColumn('sell_return_paid');
         $reward_enabled = (request()->session()->get('business.enable_rp') == 1) ? true : false;
         $raw = ['due', 'return_due', 'action'];
-        if (!$reward_enabled) {
-            $contacts->removeColumn('total_rp');
-        }
+//        if (!$reward_enabled) {
+//            $contacts->removeColumn('total_rp');
+//        }
         return $contacts->rawColumns($raw)->toJson();
 //                        ->make(false);
     }
@@ -350,10 +350,10 @@ class ContactController extends Controller
             ->removeColumn('sell_return_paid');
         $reward_enabled = (request()->session()->get('business.enable_rp') == 1) ? true : false;
         $raw = ['due', 'return_due', 'action'];
-        if (!$reward_enabled) {
-            $contacts->removeColumn('total_rp');
-            $raw = [7, 8, 9];
-        }
+//        if (!$reward_enabled) {
+//            $contacts->removeColumn('total_rp');
+//            $raw = [7, 8, 9];
+//        }
         return $contacts->rawColumns($raw)->toJson();
 //                        ->make(false);
     }
@@ -411,18 +411,29 @@ class ContactController extends Controller
         }
         $business_id = request()->session()->get('user.business_id');
         if(Contact::where('mobile', $request->get('mobile'))->where('business_id', $business_id)->count() > 0){
-            if(Contact::where('mobile', $request->get('mobile'))->get()[0]->blacked_by_user)
+            if(!empty(Contact::where('mobile', $request->get('mobile'))->where('business_id', $business_id)->get()[0]->blacked_by_user))
                 $msg = ' has been blacklisted in the system!';
             else
                 $msg = ' already exist in the system!';
             $output = ['success' => false,
                 'msg' => $request->get('mobile').$msg.' Please use another contact!'
             ];
-        } else if(Contact::where('email', $request->get('email'))->where('business_id', $business_id)->count() && !empty($request->get('email')) > 0){
-            if(Contact::where('email', $request->get('email'))->get()[0]->blacked_by_user)
+        } else if(Contact::where('mobile', $request->get('mobile'))->count() > 0 && Contact::where('mobile', $request->get('mobile'))->get()[0]->banned_by_user){
+            $msg = ' has been banned in the system!';
+            $output = ['success' => false,
+                'msg' => $request->get('mobile').$msg.' Please use another contact!'
+            ];
+        }
+        else if(Contact::where('email', $request->get('email'))->where('business_id', $business_id)->count() && !empty($request->get('email')) > 0){
+            if(Contact::where('email', $request->get('email'))->where('business_id', $business_id)->get()[0]->blacked_by_user)
                 $msg = ' has been blacklisted in the system!';
             else
                 $msg = ' already exist in the system!';
+            $output = ['success' => false,
+                'msg' => $request->get('email').$msg.' Please use another email!'
+            ];
+        } else if(Contact::where('email', $request->get('email'))->count() > 0 && Contact::where('email', $request->get('email'))->get()[0]->banned_by_user){
+            $msg = ' has been banned in the system!';
             $output = ['success' => false,
                 'msg' => $request->get('email').$msg.' Please use another email!'
             ];
@@ -458,81 +469,109 @@ class ContactController extends Controller
                 ];
             }
             else {
-                try {
-                    $business_id = $request->session()->get('user.business_id');
-
-                    if (!$this->moduleUtil->isSubscribed($business_id)) {
-                        return $this->moduleUtil->expiredResponse();
-                    }
-
-                    $input = $request->only(['supplier_business_name',
-                        'name', 'tax_number', 'pay_term_number', 'pay_term_type', 'mobile', 'landline', 'alternate_number', 'city', 'state', 'country', 'landmark', 'customer_group_id', 'membership_id', 'contact_id', 'birthday', 'email']);
-                    $input['type'] = 'customer';
-                    $input['business_id'] = $business_id;
-                    $input['created_by'] = $request->session()->get('user.id');
-
-                    $input['credit_limit'] = $request->input('credit_limit') != '' ? $this->commonUtil->num_uf($request->input('credit_limit')) : null;
-                    $bank_details = $request->get('bank_details');
-                    $input['bank_details'] = !empty($bank_details) ? json_encode($bank_details) : null;
-
-                    $type = $request->get('type');
-                    if($type == 'blacklisted_customer'){
-                        $input['remark'] = $request->get('remark');
-                        $input['blacked_by_user'] = $request->session()->get('user.first_name').' '.$request->session()->get('user.last_name');
-                    }
-
-                    //Check Contact id
-                    $count = 0;
-                    if (!empty($input['contact_id'])) {
-                        $count = Contact::where('business_id', $input['business_id'])
-                                        ->where('contact_id', $input['contact_id'])
-                                        ->count();
-                    }
-
-                    if ($count == 0) {
-                        //Update reference count
-                        $ref_count = $this->commonUtil->setAndGetReferenceCount('contacts');
-
-                        if (empty($input['contact_id'])) {
-                            //Generate reference number
-                            $input['contact_id'] = $this->commonUtil->generateReferenceNumber('contacts', $ref_count);
-                        }
-
-
-                        $contact = Contact::create($input);
-
-                        ActivityLogger::activity("Created customer, contact ID ".$contact->contact_id);
-
-
-                        $game_ids = request()->get('game_ids');
-                        foreach ($game_ids as $service_id => $game_id){
-                            if(!empty($game_id)){
-                                GameId::create([
-                                    'service_id' => $service_id,
-                                    'contact_id' => $contact->id,
-                                    'game_id' => $game_id
-                                ]);
+                $contacts = Contact::get();
+                $new_bank_details = $request->get('bank_details');
+                $is_equal = 0;$bank_account_number = 0; $equal_id = 0;
+                foreach ($contacts as $contact){
+                    if($is_equal)
+                        break;
+                    $bank_details = empty($contact->bank_details) ? [] : json_decode($contact->bank_details);
+                    foreach ($bank_details as $bank_detail){
+                        foreach ($new_bank_details as $new_bank_detail){
+                            if(!empty($bank_detail->bank_brand_id)){
+                                if($new_bank_detail['bank_brand_id'] == $bank_detail->bank_brand_id && $new_bank_detail['account_number'] == $bank_detail->account_number){
+                                    $is_equal = 1;
+                                    $equal_id = $contact->id;
+                                    $bank_account_number = $bank_detail->account_number;
+                                    break;
+                                }
                             }
                         }
+                    }
+                }
+                if($is_equal && Contact::find($equal_id)->banned_by_user){
+                    $msg = ' has been banned in the system!';
+                    $output = ['success' => false,
+                        'msg' => $bank_account_number.$msg.' Please use another account number!'
+                    ];
+                }
+                else {
+                    try {
+                        $business_id = $request->session()->get('user.business_id');
 
-                        //Add opening balance
-                        if (!empty($request->input('opening_balance'))) {
-                            $this->transactionUtil->createOpeningBalanceTransaction($business_id, $contact->id, $request->input('opening_balance'));
+                        if (!$this->moduleUtil->isSubscribed($business_id)) {
+                            return $this->moduleUtil->expiredResponse();
                         }
 
-                        $output = ['success' => true,
-                                    'data' => $contact,
-                                    'msg' => __("contact.added_success")
-                                ];
-                    } else {
-                        throw new \Exception("Error Processing Request", 1);
-                    }
-                } catch (\Exception $e) {
-                    \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+                        $input = $request->only(['supplier_business_name',
+                            'name', 'tax_number', 'pay_term_number', 'pay_term_type', 'mobile', 'landline', 'alternate_number', 'city', 'state', 'country', 'landmark', 'customer_group_id', 'membership_id', 'contact_id', 'birthday', 'email']);
+                        $input['type'] = 'customer';
+                        $input['business_id'] = $business_id;
+                        $input['created_by'] = $request->session()->get('user.id');
 
-                    $output = ['success' => false,
-                                    'msg' =>__("messages.something_went_wrong")
-                                ];
+                        $input['credit_limit'] = $request->input('credit_limit') != '' ? $this->commonUtil->num_uf($request->input('credit_limit')) : null;
+                        $bank_details = $request->get('bank_details');
+                        $input['bank_details'] = !empty($bank_details) ? json_encode($bank_details) : null;
+
+                        $type = $request->get('type');
+                        if($type == 'blacklisted_customer'){
+                            $input['remark'] = $request->get('remark');
+                            $input['blacked_by_user'] = $request->session()->get('user.first_name').' '.$request->session()->get('user.last_name');
+                        }
+
+                        //Check Contact id
+                        $count = 0;
+                        if (!empty($input['contact_id'])) {
+                            $count = Contact::where('business_id', $input['business_id'])
+                                            ->where('contact_id', $input['contact_id'])
+                                            ->count();
+                        }
+
+                        if ($count == 0) {
+                            //Update reference count
+                            $ref_count = $this->commonUtil->setAndGetReferenceCount('contacts');
+
+                            if (empty($input['contact_id'])) {
+                                //Generate reference number
+                                $input['contact_id'] = $this->commonUtil->generateReferenceNumber('contacts', $ref_count, $business_id);
+                            }
+
+
+                            $contact = Contact::create($input);
+
+                            ActivityLogger::activity("Created customer, contact ID ".$contact->contact_id);
+
+
+                            $game_ids = request()->get('game_ids');
+                            foreach ($game_ids as $service_id => $game_id){
+                                if(!empty($game_id)){
+                                    GameId::create([
+                                        'service_id' => $service_id,
+                                        'contact_id' => $contact->id,
+                                        'game_id' => $game_id
+                                    ]);
+                                }
+                            }
+
+                            //Add opening balance
+                            if (!empty($request->input('opening_balance'))) {
+                                $this->transactionUtil->createOpeningBalanceTransaction($business_id, $contact->id, $request->input('opening_balance'));
+                            }
+
+                            $output = ['success' => true,
+                                        'data' => $contact,
+                                        'msg' => __("contact.added_success")
+                                    ];
+                        } else {
+                            throw new \Exception("Error Processing Request", 1);
+                        }
+                    } catch (\Exception $e) {
+                        \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+
+                        $output = ['success' => false,
+                                        'msg' =>__("messages.something_went_wrong")
+                                    ];
+                    }
                 }
             }
         }
@@ -703,119 +742,206 @@ class ContactController extends Controller
         if (!auth()->user()->can('supplier.update') && !auth()->user()->can('customer.update')) {
             abort(403, 'Unauthorized action.');
         }
-
-        if (request()->ajax()) {
-            try {
-                $input = $request->only(['type', 'supplier_business_name', 'name', 'tax_number', 'pay_term_number', 'pay_term_type', 'mobile', 'landline', 'alternate_number', 
-                    'city', 'state', 'country', 'landmark', 'customer_group_id', 'membership_id', 'contact_id', 'birthday', 'email']);
-
-                $input['credit_limit'] = $request->input('credit_limit') != '' ? $this->commonUtil->num_uf($request->input('credit_limit')) : null;
-                
-                $business_id = $request->session()->get('user.business_id');
-
-                if (!$this->moduleUtil->isSubscribed($business_id)) {
-                    return $this->moduleUtil->expiredResponse();
-                }
-
-                $count = 0;
-
-                //Check Contact id
-                if (!empty($input['contact_id'])) {
-                    $count = Contact::where('business_id', $business_id)
-                            ->where('contact_id', $input['contact_id'])
-                            ->where('id', '!=', $id)
-                            ->count();
-                }
-                
-                if ($count == 0) {
-                    $game_ids = $request->get('game_ids');
-                    $contact = Contact::where('business_id', $business_id)->findOrFail($id);
-                    $activity = 'Customer ID: '.$contact->contact_id;
-                    foreach ($input as $key => $value) {
-                        $contact->$key = $value;
-                    }
-                    $new_bank_details = $request->get('bank_details');
-                    if(!empty($contact->bank_details)){
-                        foreach (json_decode($contact->bank_details) as $old_bank_detail) {
-                            foreach ($new_bank_details as $new_bank_detail) {
-                                if($old_bank_detail->bank_brand_id == $new_bank_detail['bank_brand_id'] && $old_bank_detail->account_number != $new_bank_detail['account_number']){
-                                    $activity.= chr(10).chr(13).BankBrand::find($old_bank_detail->bank_brand_id)->name.': '.$old_bank_detail->account_number.' >>>'.$new_bank_detail['account_number'];
-                                }
+        $business_id = request()->session()->get('user.business_id');
+        if(Contact::where('mobile', $request->get('mobile'))->where('business_id', $business_id)->where('id', '!=', $id)->count() > 0){
+            if(!empty(Contact::where('mobile', $request->get('mobile'))->where('business_id', $business_id)->where('id', '!=', $id)->get()[0]->blacked_by_user))
+                $msg = ' has been blacklisted in the system!';
+            else
+                $msg = ' already exist in the system!';
+            $output = ['success' => false,
+                'msg' => $request->get('mobile').$msg.' Please use another contact!'
+            ];
+        } else if(Contact::where('mobile', $request->get('mobile'))->count() > 0 && Contact::where('mobile', $request->get('mobile'))->where('id', '!=', $id)->get()[0]->banned_by_user){
+            $msg = ' has been banned in the system!';
+            $output = ['success' => false,
+                'msg' => $request->get('mobile').$msg.' Please use another contact!'
+            ];
+        }
+        else if(Contact::where('email', $request->get('email'))->where('business_id', $business_id)->where('id', '!=', $id)->count() && !empty($request->get('email')) > 0){
+            if(Contact::where('email', $request->get('email'))->where('business_id', $business_id)->where('id', '!=', $id)->get()[0]->blacked_by_user)
+                $msg = ' has been blacklisted in the system!';
+            else
+                $msg = ' already exist in the system!';
+            $output = ['success' => false,
+                'msg' => $request->get('email').$msg.' Please use another email!'
+            ];
+        } else if(Contact::where('email', $request->get('email'))->where('id', '!=', $id)->count() > 0 && Contact::where('email', $request->get('email'))->where('id', '!=', $id)->get()[0]->banned_by_user){
+            $msg = ' has been banned in the system!';
+            $output = ['success' => false,
+                'msg' => $request->get('email').$msg.' Please use another email!'
+            ];
+        }
+        else{
+            $contacts = Contact::where('business_id', $business_id)->where('id', '!=', $id)->get();
+            $new_bank_details = $request->get('bank_details');
+            $is_equal = 0;$bank_account_number = 0; $equal_id = 0;
+            foreach ($contacts as $contact){
+                if($is_equal)
+                    break;
+                $bank_details = empty($contact->bank_details) ? [] : json_decode($contact->bank_details);
+                foreach ($bank_details as $bank_detail){
+                    foreach ($new_bank_details as $new_bank_detail){
+                        if(!empty($bank_detail->bank_brand_id)){
+                            if($new_bank_detail['bank_brand_id'] == $bank_detail->bank_brand_id && $new_bank_detail['account_number'] == $bank_detail->account_number){
+                                $is_equal = 1;
+                                $equal_id = $contact->id;
+                                $bank_account_number = $bank_detail->account_number;
+                                break;
                             }
                         }
                     }
-                    $contact->bank_details = json_encode($new_bank_details);
-                    $type = $request->get('customer_type');
-                    if($type == 'blacklisted_customer'){
-                        $contact->remark = $request->get('remark');
-                        $contact->blacked_by_user = $request->session()->get('user.first_name').' '.$request->session()->get('user.last_name');
-                    }
-
-                    $contact->save();
-                    $admins = $this->moduleUtil->get_admins($business_id);
-                    $user_id = request()->session()->get('user.id');
-                    \Notification::send($admins, new EditCustomerNotification(['changed_by' => $user_id, 'contact_id' => $contact->contact_id]));
-                    foreach ($game_ids as $service_id => $game_id){
-                        if(!empty($game_id)){
-                            $game_name = Account::find($service_id)->name;
-                            $game_cnt = GameId::where('service_id', $service_id)->where('contact_id', $id)->count();
-                            if($game_cnt == 0){
-                                GameId::create([
-                                    'service_id' => $service_id,
-                                    'contact_id' => $id,
-                                    'game_id' => $game_id
-                                ]);
-                                $activity.= chr(10).chr(13).$game_name.': >>>'.$game_id;
-                            } else{
-                                $old_game_id = GameId::where('service_id', $service_id)->where('contact_id', $id)->get()[0]->game_id;
-                                if($old_game_id != $game_id){
-                                    GameId::where('service_id', $service_id)->where('contact_id', $id)->update(['game_id' => $game_id]);
-                                    $activity.= chr(10).chr(13).$game_name.': '.$old_game_id.' >>>'.$game_id;
-                                }
-                            }
-                        }
-                    }
-                    ActivityLogger::activity($activity);
-
-                    //Get opening balance if exists
-                    $ob_transaction =  Transaction::where('contact_id', $id)
-                                            ->where('type', 'opening_balance')
-                                            ->first();
-
-                    if (!empty($ob_transaction)) {
-                        $amount = $this->commonUtil->num_uf($request->input('opening_balance'));
-                        $opening_balance_paid = $this->transactionUtil->getTotalAmountPaid($ob_transaction->id);
-                        if (!empty($opening_balance_paid)) {
-                            $amount += $opening_balance_paid;
-                        }
-                        
-                        $ob_transaction->final_total = $amount;
-                        $ob_transaction->save();
-                        //Update opening balance payment status
-                        $this->transactionUtil->updatePaymentStatus($ob_transaction->id, $ob_transaction->final_total);
-                    } else {
-                        //Add opening balance
-                        if (!empty($request->input('opening_balance'))) {
-                            $this->transactionUtil->createOpeningBalanceTransaction($business_id, $contact->id, $request->input('opening_balance'));
-                        }
-                    }
-
-                    $output = ['success' => true,
-                                'msg' => __("contact.updated_success")
-                                ];
-                } else {
-                    throw new \Exception("Error Processing Request", 1);
                 }
-            } catch (\Exception $e) {
-                \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-            
+            }
+            if($is_equal){
+                if(Contact::find($equal_id)->blacked_by_user)
+                    $msg = ' has been blacklisted in the system!';
+                else
+                    $msg = ' already exist in the system!';
                 $output = ['success' => false,
+                    'msg' => $bank_account_number.$msg.' Please use another account number!'
+                ];
+            }
+            else {
+                $contacts = Contact::where('id', '!=', $id)->get();
+                $new_bank_details = $request->get('bank_details');
+                $is_equal = 0;
+                $bank_account_number = 0;
+                $equal_id = 0;
+                foreach ($contacts as $contact) {
+                    if ($is_equal)
+                        break;
+                    $bank_details = empty($contact->bank_details) ? [] : json_decode($contact->bank_details);
+                    foreach ($bank_details as $bank_detail) {
+                        foreach ($new_bank_details as $new_bank_detail) {
+                            if (!empty($bank_detail->bank_brand_id)) {
+                                if ($new_bank_detail['bank_brand_id'] == $bank_detail->bank_brand_id && $new_bank_detail['account_number'] == $bank_detail->account_number) {
+                                    $is_equal = 1;
+                                    $equal_id = $contact->id;
+                                    $bank_account_number = $bank_detail->account_number;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                if ($is_equal && Contact::find($equal_id)->banned_by_user) {
+                    $msg = ' has been banned in the system!';
+                    $output = ['success' => false,
+                        'msg' => $bank_account_number . $msg . ' Please use another account number!'
+                    ];
+                } else {
+                    try {
+                        $input = $request->only(['type', 'supplier_business_name', 'name', 'tax_number', 'pay_term_number', 'pay_term_type', 'mobile', 'landline', 'alternate_number',
+                            'city', 'state', 'country', 'landmark', 'customer_group_id', 'membership_id', 'contact_id', 'birthday', 'email']);
+
+                        $input['credit_limit'] = $request->input('credit_limit') != '' ? $this->commonUtil->num_uf($request->input('credit_limit')) : null;
+
+                        $business_id = $request->session()->get('user.business_id');
+
+                        if (!$this->moduleUtil->isSubscribed($business_id)) {
+                            return $this->moduleUtil->expiredResponse();
+                        }
+
+                        $count = 0;
+
+                        //Check Contact id
+                        if (!empty($input['contact_id'])) {
+                            $count = Contact::where('business_id', $business_id)
+                                ->where('contact_id', $input['contact_id'])
+                                ->where('id', '!=', $id)
+                                ->count();
+                        }
+
+                        if ($count == 0) {
+                            $game_ids = $request->get('game_ids');
+                            $contact = Contact::where('business_id', $business_id)->findOrFail($id);
+                            $activity = 'Customer ID: ' . $contact->contact_id;
+                            foreach ($input as $key => $value) {
+                                $contact->$key = $value;
+                            }
+                            $new_bank_details = $request->get('bank_details');
+                            if (!empty($contact->bank_details)) {
+                                foreach (json_decode($contact->bank_details) as $old_bank_detail) {
+                                    foreach ($new_bank_details as $new_bank_detail) {
+                                        if ($old_bank_detail->bank_brand_id == $new_bank_detail['bank_brand_id'] && $old_bank_detail->account_number != $new_bank_detail['account_number']) {
+                                            $activity .= chr(10) . chr(13) . BankBrand::find($old_bank_detail->bank_brand_id)->name . ': ' . $old_bank_detail->account_number . ' >>>' . $new_bank_detail['account_number'];
+                                        }
+                                    }
+                                }
+                            }
+                            $contact->bank_details = json_encode($new_bank_details);
+                            $type = $request->get('customer_type');
+                            if ($type == 'blacklisted_customer') {
+                                $contact->remark = $request->get('remark');
+                                $contact->blacked_by_user = $request->session()->get('user.first_name') . ' ' . $request->session()->get('user.last_name');
+                            }
+
+                            $contact->save();
+                            $admins = $this->moduleUtil->get_admins($business_id);
+                            $user_id = request()->session()->get('user.id');
+                            \Notification::send($admins, new EditCustomerNotification(['changed_by' => $user_id, 'contact_id' => $contact->contact_id]));
+                            foreach ($game_ids as $service_id => $game_id) {
+                                if (!empty($game_id)) {
+                                    $game_name = Account::find($service_id)->name;
+                                    $game_cnt = GameId::where('service_id', $service_id)->where('contact_id', $id)->count();
+                                    if ($game_cnt == 0) {
+                                        GameId::create([
+                                            'service_id' => $service_id,
+                                            'contact_id' => $id,
+                                            'game_id' => $game_id
+                                        ]);
+                                        $activity .= chr(10) . chr(13) . $game_name . ': >>>' . $game_id;
+                                    } else {
+                                        $old_game_id = GameId::where('service_id', $service_id)->where('contact_id', $id)->get()[0]->game_id;
+                                        if ($old_game_id != $game_id) {
+                                            GameId::where('service_id', $service_id)->where('contact_id', $id)->update(['game_id' => $game_id]);
+                                            $activity .= chr(10) . chr(13) . $game_name . ': ' . $old_game_id . ' >>>' . $game_id;
+                                        }
+                                    }
+                                }
+                            }
+                            ActivityLogger::activity($activity);
+
+                            //Get opening balance if exists
+                            $ob_transaction = Transaction::where('contact_id', $id)
+                                ->where('type', 'opening_balance')
+                                ->first();
+
+                            if (!empty($ob_transaction)) {
+                                $amount = $this->commonUtil->num_uf($request->input('opening_balance'));
+                                $opening_balance_paid = $this->transactionUtil->getTotalAmountPaid($ob_transaction->id);
+                                if (!empty($opening_balance_paid)) {
+                                    $amount += $opening_balance_paid;
+                                }
+
+                                $ob_transaction->final_total = $amount;
+                                $ob_transaction->save();
+                                //Update opening balance payment status
+                                $this->transactionUtil->updatePaymentStatus($ob_transaction->id, $ob_transaction->final_total);
+                            } else {
+                                //Add opening balance
+                                if (!empty($request->input('opening_balance'))) {
+                                    $this->transactionUtil->createOpeningBalanceTransaction($business_id, $contact->id, $request->input('opening_balance'));
+                                }
+                            }
+
+                            $output = ['success' => true,
+                                'msg' => __("contact.updated_success")
+                            ];
+                        } else {
+                            throw new \Exception("Error Processing Request", 1);
+                        }
+                    } catch (\Exception $e) {
+                        \Log::emergency("File:" . $e->getFile() . "Line:" . $e->getLine() . "Message:" . $e->getMessage());
+
+                        $output = ['success' => false,
                             'msg' => __("messages.something_went_wrong")
                         ];
+                    }
+                }
             }
-
-            return $output;
         }
+        return $output;
     }
 
     public function getBankDetailHtml(){

@@ -414,6 +414,9 @@
                         <li class="{{ $request->segment(1) == 'account' && $request->segment(2) == 'service' ? 'active' : '' }}">
                             <a href="{{action('ServiceController@index')}}"><i
                                         class="fa fa-list"></i>@lang('account.service_list')</a></li>
+                        <li class="{{ $request->segment(1) == 'account' && $request->segment(2) == 'pos_ledger' ? 'active' : '' }}">
+                            <a href="{{action('PosLedgerController@index')}}"><i
+                                        class="fa fa-list"></i>@lang('lang_v1.pos_ledger')</a></li>
                         @if($is_superadmin)
                         @can('account.balance_sheet_details')
                             <li class="{{ $request->segment(1) == 'account' && $request->segment(2) == 'balance-sheet' ? 'active' : '' }}">

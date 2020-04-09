@@ -43,13 +43,13 @@
 			<td>{!! $data['others'] !!}</td>
 			<td>{!! $data['bank_in_time'] !!}</td>
 			<td>{!! $data['contact_id'] !!}</td>
-			<td>@if($data['credit'] != '') <span class="display_currency" data-currency_symbol="true">{{$data['credit']}}</span> @endif</td>
-			<td>@if($data['debit'] != '') <span class="display_currency" data-currency_symbol="true">{{$data['debit']}}</span> @endif</td>
+			<td>@if($data['credit'] != '') <span class="display_currency">{{$data['credit']}}</span> @endif</td>
+			<td>@if($data['debit'] != '') <span class="display_currency">{{$data['debit']}}</span> @endif</td>
 			<td>@if(isset($data['service_name'])){!! $data['service_name'] !!}@endif</td>
 			<td>{!! isset($data['game_id']) ? $data['game_id'] : null !!}</td>
-			<td>@if($data['free_credit'] != '') <span class="display_currency text-red" data-currency_symbol="true">{{$data['free_credit']}}</span> @endif</td>
-			<td>@if($data['service_credit'] != '') <span class="display_currency" data-currency_symbol="true">{{$data['service_credit']}}</span> @endif</td>
-			<td>@if($data['service_debit'] != '') <span class="display_currency" data-currency_symbol="true">{{$data['service_debit']}}</span> @endif</td>
+			<td>@if($data['free_credit'] != '') <span class="display_currency text-red">{{$data['free_credit']}}</span> @endif</td>
+			<td>@if($data['service_credit'] != '') <span class="display_currency">{{$data['service_credit']}}</span> @endif</td>
+			<td>@if($data['service_debit'] != '') <span class="display_currency">{{$data['service_debit']}}</span> @endif</td>
 			{{--				<td>{{$data['payment_method']}}</td>--}}
 			<td>{{@format_datetime($data['date'])}}</td>
 			<td>{{ $data['user'] }}</td>

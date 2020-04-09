@@ -370,7 +370,8 @@ $(document).ready(function() {
         var line_total = quantity *  unit_price_inc_tax;
 
         __write_number(tr.find('input.pos_unit_price_inc_tax'), unit_price_inc_tax);
-        __write_number(tr.find('input.pos_line_total'), line_total, false, 2);
+        // __write_number(tr.find('input.pos_line_total'), line_total, false, 2);
+        tr.find('input.pos_line_total').val(line_total);
         tr.find('span.pos_line_total_text').text(__currency_trans_from_en(line_total, true));
         pos_each_row(tr);
         pos_total_row();
@@ -1551,7 +1552,7 @@ function get_contact_ledger() {
 
                         // Update footer
                         $( api.column( columns[i] ).footer() ).html(
-                            __currency_trans_from_en(pageTotal, true, false,  __currency_precision, true)
+                            __currency_trans_from_en(pageTotal, false, false,  __currency_precision, true)
                         );
                     }
                 }
