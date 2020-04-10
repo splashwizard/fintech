@@ -27,15 +27,17 @@
         </div>
     @endif
     @can('account.access')
-     <div class="row">
-        <div class="col-sm-12">
-            <button type="button" class="btn btn-primary btn-modal pull-right" 
-                data-container=".account_model"
-                data-href="{{action('AccountController@create')}}">
-                <i class="fa fa-plus"></i> @lang( 'messages.add' )</button>
+         @if(auth()->user()->hasRole('Admin#' . auth()->user()->business_id) || auth()->user()->hasRole('Superadmin') || auth()->user()->hasRole('Admin'))
+         <div class="row">
+            <div class="col-sm-12">
+                <button type="button" class="btn btn-primary btn-modal pull-right"
+                    data-container=".account_model"
+                    data-href="{{action('AccountController@create')}}">
+                    <i class="fa fa-plus"></i> @lang( 'messages.add' )</button>
+            </div>
         </div>
-    </div>
-    <br>
+        <br>
+        @endif
     <div class="row">
         <div class="col-sm-12">
             <div class="nav-tabs-custom">

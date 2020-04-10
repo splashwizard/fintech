@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Account;
 use App\Contact;
 
 use App\Events\TransactionPaymentAdded;
@@ -374,7 +375,8 @@ class TransactionPaymentController extends Controller
                 $bank_name = !empty($bank_account_detail_obj) ? $bank_account_detail_obj['bank_name'] : null;
 
                 //Accounts
-                $accounts = $this->moduleUtil->accountsDropdown($business_id, false, false, true);
+//                $accounts = $this->moduleUtil->accountsDropdown($business_id, false, false, true);
+                $accounts = Account::forDropdown($business_id, false, false, true);
 
                 $view = view('transaction_payment.payment_row')
                 ->with(compact('transaction', 'payment_types', 'payment_line', 'amount_formated', 'accounts', 'account_holder', 'account_number', 'bank_name'))->render();

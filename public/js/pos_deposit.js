@@ -1547,7 +1547,7 @@ function get_contact_ledger() {
                             .column( columns[i], { page: 'current'} )
                             .data()
                             .reduce( function (a, b) {
-                                return intVal(a) + intVal(b);
+                                return intVal(__number_uf(a)) + intVal(__number_uf(b));
                             }, 0 );
 
                         // Update footer
