@@ -272,7 +272,7 @@
             @endif
 
             @if(auth()->user()->can('sell.view') || auth()->user()->can('sell.create') || auth()->user()->can('direct_sell.access') ||  auth()->user()->can('view_own_sell_only'))
-                <li class="treeview {{  in_array( $request->segment(1), ['sells', 'withdraw', 'pos', 'sell-return', 'ecommerce', 'discount']) ? 'active active-sub' : '' }}"
+                <li class="treeview {{  in_array( $request->segment(1), ['sells', 'withdraw', 'pos_ledger', 'pos', 'sell-return', 'ecommerce', 'discount']) ? 'active active-sub' : '' }}"
                     id="tour_step7">
                     <a href="#" id="tour_step7_menu"><i class="fa fa-arrow-circle-up"></i>
                         <span>@lang('lang_v1.transaction_log')</span>
@@ -291,6 +291,9 @@
                                 <a href="{{action('WithDrawController@index')}}"><i
                                             class="fa fa-list"></i>@lang('lang_v1.withdraw_log')</a></li>
                         @endif
+                        <li class="{{ $request->segment(1) == 'pos_ledger' ? 'active' : '' }}">
+                            <a href="{{action('PosLedgerController@index')}}"><i
+                                        class="fa fa-list"></i>@lang('lang_v1.pos_ledger')</a></li>
                     <!-- Call superadmin module if defined -->
                         {{--				  @if(Module::has('Ecommerce'))--}}
                         {{--					@includeIf('ecommerce::layouts.partials.sell_sidebar')--}}
@@ -414,9 +417,6 @@
                         <li class="{{ $request->segment(1) == 'account' && $request->segment(2) == 'service' ? 'active' : '' }}">
                             <a href="{{action('ServiceController@index')}}"><i
                                         class="fa fa-list"></i>@lang('account.service_list')</a></li>
-                        <li class="{{ $request->segment(1) == 'account' && $request->segment(2) == 'pos_ledger' ? 'active' : '' }}">
-                            <a href="{{action('PosLedgerController@index')}}"><i
-                                        class="fa fa-list"></i>@lang('lang_v1.pos_ledger')</a></li>
                         @if($is_superadmin)
                         @can('account.balance_sheet_details')
                             <li class="{{ $request->segment(1) == 'account' && $request->segment(2) == 'balance-sheet' ? 'active' : '' }}">

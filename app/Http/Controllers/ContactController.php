@@ -751,7 +751,8 @@ class ContactController extends Controller
             $output = ['success' => false,
                 'msg' => $request->get('mobile').$msg.' Please use another contact!'
             ];
-        } else if(Contact::where('mobile', $request->get('mobile'))->count() > 0 && Contact::where('mobile', $request->get('mobile'))->where('id', '!=', $id)->get()[0]->banned_by_user){
+        }
+        else if(Contact::where('mobile', $request->get('mobile'))->where('id', '!=', $id)->count() > 0 && Contact::where('mobile', $request->get('mobile'))->where('id', '!=', $id)->get()[0]->banned_by_user){
             $msg = ' has been banned in the system!';
             $output = ['success' => false,
                 'msg' => $request->get('mobile').$msg.' Please use another contact!'
@@ -765,7 +766,8 @@ class ContactController extends Controller
             $output = ['success' => false,
                 'msg' => $request->get('email').$msg.' Please use another email!'
             ];
-        } else if(Contact::where('email', $request->get('email'))->where('id', '!=', $id)->count() > 0 && Contact::where('email', $request->get('email'))->where('id', '!=', $id)->get()[0]->banned_by_user){
+        }
+        else if(Contact::where('email', $request->get('email'))->where('id', '!=', $id)->count() > 0 && Contact::where('email', $request->get('email'))->where('id', '!=', $id)->get()[0]->banned_by_user){
             $msg = ' has been banned in the system!';
             $output = ['success' => false,
                 'msg' => $request->get('email').$msg.' Please use another email!'
@@ -1044,7 +1046,7 @@ class ContactController extends Controller
 
         if (request()->ajax()) {
             try {
-                $business_id = request()->user()->business_id;
+                $business_id = request()->session()->get('user.business_id');
                 $contact = Contact::where('business_id', $business_id)->findOrFail($id);
                 $contact->banned_by_user =request()->session()->get('user.first_name').' '.request()->session()->get('user.last_name');
                 $contact->save();

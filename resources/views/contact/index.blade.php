@@ -201,7 +201,7 @@
             },
             "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
                 console.log(aData);
-                if ( aData.banned_by_user && aData.banned_by_user == 'king king' )
+                if ( aData.banned_by_user )
                 {
                     $('td', nRow).css('color', 'Red');
                 }

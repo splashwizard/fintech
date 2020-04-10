@@ -54,7 +54,7 @@
             .data('daterangepicker')
             .endDate.format('YYYY-MM-DD');
         $.ajax({
-            url: '/account/pos_ledger?selected_bank=' + selected_bank + '&start_date=' + start_date + '&end_date=' + end_date,
+            url: '/pos_ledger?selected_bank=' + selected_bank + '&start_date=' + start_date + '&end_date=' + end_date,
             dataType: 'html',
             success: function(result) {
                 $('#contact_ledger_div')
