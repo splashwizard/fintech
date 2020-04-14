@@ -5,6 +5,7 @@ namespace App;
 use DB;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+//use Launcher\Mercurius\MercuriusUser;
 use Illuminate\Notifications\Notifiable;
 
 use Illuminate\Support\Facades\Hash;
@@ -12,6 +13,7 @@ use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
+//    use MercuriusUser;
     use Notifiable;
     use SoftDeletes;
     use HasRoles;
@@ -203,6 +205,16 @@ class User extends Authenticatable
         }
 
         return $users;
+    }
+
+    /**
+     * Get the user's full name.
+     *
+     * @return string
+     */
+    public function getNameAttribute()
+    {
+        return "{$this->username}";
     }
 
     /**
