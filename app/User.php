@@ -207,15 +207,15 @@ class User extends Authenticatable
         return $users;
     }
 
-    /**
-     * Get the user's full name.
-     *
-     * @return string
-     */
-    public function getNameAttribute()
-    {
-        return "{$this->username}";
-    }
+//    /**
+//     * Get the user's full name.
+//     *
+//     * @return string
+//     */
+//    public function getNameAttribute()
+//    {
+//        return "{$this->username}";
+//    }
 
     /**
      * Get the user's full name.

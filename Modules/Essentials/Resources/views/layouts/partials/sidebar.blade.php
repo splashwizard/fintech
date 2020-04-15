@@ -39,7 +39,7 @@
         </li>
         @if(auth()->user()->can('essentials.view_message') || auth()->user()->can('essentials.create_message'))
         <li class="{{ $request->segment(2) == 'messages' ? 'active active-sub' : ''}}">
-            <a href="{{action('\Modules\Essentials\Http\Controllers\EssentialsMessageController@index')}}">
+            <a href="{{'/messages'}}">
                 <i class="fa fa-comments-o"></i>
                 <span class="title">
                     @lang('essentials::lang.messages')
