@@ -1948,7 +1948,8 @@ class SellPosDepositController extends Controller
                     'bank_in_time' => $payment->bank_in_time,
                     'user' => $user['first_name'] . ' ' . $user['last_name'],
                     'service_name' => $payment->account_name,
-                    'game_id' => $game_id
+                    'game_id' => $game_id,
+                    'transaction_id' => $payment->transaction_id
                 ];
             }
         } else {
