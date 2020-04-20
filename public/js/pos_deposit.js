@@ -62,7 +62,7 @@ $(document).ready(function() {
     var variation_ids = [];
     if(edit_page){
         variation_ids = variation_ids_before;
-        $('#bank_in_time').attr('readonly', '');
+        // $('#bank_in_time').attr('readonly', '');
         $('#bank_box').hide();
     }
 
@@ -205,14 +205,14 @@ $(document).ready(function() {
 
     const text = $('#customer_id').select2('data')[0].text;
     if( text === "Unclaimed Trans") {
-        if(edit_page)
-            $('#bank_in_time').attr('readonly', '');
-        else{
+        // if(edit_page)
+        //     $('#bank_in_time').attr('readonly', '');
+        if(!edit_page){
             $('#service_box').hide();
             $('#bonus_box').hide();
         }
     }
-
+    updateRemarks();
 
 
 
@@ -948,9 +948,7 @@ $(document).ready(function() {
                                 reset_pos_form();
                                 var text = $('#customer_id').select2('data')[0].text;
                                 if( text === "Unclaimed Trans") {
-                                    if(edit_page)
-                                        $('#bank_in_time').attr('readonly', '');
-                                    else
+                                    if(!edit_page)
                                         $('#service_box').hide();
                                 }
                             } else {
@@ -2030,6 +2028,8 @@ function reset_pos_form(){
 	set_default_customer();
 	set_location();
 
+    updateRemarks();
+
 	// $('tr.product_row').remove();
     $('tr.product_row').remove();
     $('tr.bank_account_row').remove();
@@ -2060,6 +2060,7 @@ function reset_pos_form(){
 	};
 
     $(document).trigger('sell_form_reset');
+    $('#bank_changed').val(0);
 }
 
 function set_default_customer() {
@@ -2317,19 +2318,23 @@ function updateRedeemedAmount(argument) {
 }
 
 $(document).on('change', 'select#customer_id', function(){
+    updateRemarks();
+    getCustomerRewardPoints();
+});
+
+function updateRemarks(){
     $.ajax({
         method: 'POST',
         url: '/sells/pos_deposit/get_remarks',
         data: {customer_id: $('#customer_id').val()},
-        dataType: 'html',
+        dataType: 'json',
         success: function(result) {
-            if(result){
-                $('#remarks').html(result);
+            if(result.success){
+                $('#remarks').html(result.remarks);
             }
         }
     });
-    getCustomerRewardPoints();
-});
+}
 
 $(document).on('change', '#rp_redeemed_modal', function(){
     var points = $(this).val().trim();

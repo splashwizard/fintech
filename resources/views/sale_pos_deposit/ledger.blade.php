@@ -1,6 +1,9 @@
 <style>
-	#ledger_table tr.unclaimed:hover{
+	#ledger_table tbody tr:hover{
 		background-color: rgb(220,255,220);
+	}
+	#ledger_table tr.unclaimed{
+		color: dodgerblue;
 	}
 </style>
 <ul class="nav nav-tabs" style="margin-bottom: 30px" id="bank-tabs" role="tablist">

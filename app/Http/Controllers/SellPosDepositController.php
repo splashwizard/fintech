@@ -368,7 +368,7 @@ class SellPosDepositController extends Controller
 
                 DB::beginTransaction();
 
-                if(empty($request->input('bank_in_time'))){
+                if(empty($request->input('bank_changed'))){
                     $input['bank_in_time'] = null;
                 }
 
@@ -1828,9 +1828,16 @@ class SellPosDepositController extends Controller
     }
 
     public function getRemarks(){
-        $customer = Contact::find(request()->get('customer_id'));
-        $remarks = isset($customer->remarks) ? $customer->remarks : null;
-        return $remarks;
+        try{
+            $customer = Contact::find(request()->get('customer_id'));
+            $remarks = isset($customer->remarks) ? $customer->remarks : null;
+            $output = ['success' => 1, 'remarks' => $remarks];
+        } catch (\Exception $e) {
+            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+
+            $output = ['success' => 0];
+        }
+        return $output;
     }
 
 
