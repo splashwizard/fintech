@@ -979,11 +979,12 @@ class SellPosDepositController extends Controller
 
         $services = Account::where('business_id', $business_id)->where('is_service', 1)->get();
         $memberships = Membership::forDropdown($business_id);
+        $bank_brands  = BankBrand::forDropdown($business_id);
         
         return view('sale_pos_deposit.edit')
             ->with(compact('business_details', 'taxes', 'payment_types', 'default_location', 'walk_in_customer', 'sell_details', 'transaction', 'payment_lines', 'location_printer_type', 'shortcuts', 'commission_agent', 'bank_categories',
             'service_categories',
-            'bank_products', 'services', 'memberships',
+            'bank_products', 'services', 'memberships', 'bank_brands',
             'service_products', 'pos_settings', 'change_return', 'types', 'customer_groups', 'brands', 'accounts', 'price_groups', 'waiters', 'redeem_details', 'edit_price', 'edit_discount'));
     }
 
