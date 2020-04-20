@@ -1918,7 +1918,7 @@ class SellPosDepositController extends Controller
             ->where('paid_on', '<=', $end);
 
         $payments = $query2->select('transaction_payments.*', 't.id as transaction_id', 't.bank_in_time as bank_in_time', 'bl.name as location_name', 't.type as transaction_type', 't.ref_no', 't.invoice_no'
-            , 'c.id as contact_primary_key', 'c.contact_id as contact_id', 'a.id as account_id', 'a.name as account_name', 't.created_by as created_by')->get();
+            , 'c.id as contact_primary_key', 'c.contact_id as contact_id', 'c.is_default as is_default', 'a.id as account_id', 'a.name as account_name', 't.created_by as created_by')->get();
 //        $total_deposit = $query2->where('t.type', 'sell')->where('transaction_payments.method', '!=', 'service_transfer')->where('transaction_payments.method','!=', 'bonus')->sum('transaction_payments.amount');
         $paymentTypes = $this->transactionUtil->payment_types();
         if($selected_bank == 'GTransfer' || $selected_bank == 'Deduction') {
@@ -1949,7 +1949,8 @@ class SellPosDepositController extends Controller
                     'user' => $user['first_name'] . ' ' . $user['last_name'],
                     'service_name' => $payment->account_name,
                     'game_id' => $game_id,
-                    'transaction_id' => $payment->transaction_id
+                    'transaction_id' => $payment->transaction_id,
+                    'is_default' => 0
                 ];
             }
         } else {
@@ -1972,7 +1973,8 @@ class SellPosDepositController extends Controller
                         'service_credit' => ($payment->card_type == 'credit' && $payment->method == 'service_transfer' ) ? $payment->amount : 0,
                         'others' => '<small>' . $ref_no . '</small>',
                         'bank_in_time' => $payment->bank_in_time,
-                        'user' => $user['first_name'].' '.$user['last_name']
+                        'user' => $user['first_name'].' '.$user['last_name'],
+                        'is_default' => $payment->is_default
                     ];
                 } else {
                     $ledger_by_payment[$payment->transaction_id]['debit'] += ($payment->card_type == 'debit' && $payment->method != 'service_transfer') ? $payment->amount : 0;

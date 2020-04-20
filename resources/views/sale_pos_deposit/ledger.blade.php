@@ -47,7 +47,7 @@
 	</thead>
 	<tbody>
 	@foreach($ledger as $data)
-		<tr class="@if(empty($data['service_debit'])) unclaimed @endif" data-transaction_id = "{{$data['transaction_id']}}">
+		<tr class="@if($data['is_default'] == 1) unclaimed @endif" data-transaction_id = "{{$data['transaction_id']}}">
 			<td>{!! $data['others'] !!}</td>
 			<td>{!! $data['bank_in_time'] !!}</td>
 			<td>{!! $data['contact_id'] !!}</td>
