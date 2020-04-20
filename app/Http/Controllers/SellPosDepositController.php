@@ -1007,7 +1007,7 @@ class SellPosDepositController extends Controller
         //     abort(403, 'Unauthorized action.');
         // }
         
-        try {
+//        try {
             $input = $request->except('_token');
 
 
@@ -1031,6 +1031,10 @@ class SellPosDepositController extends Controller
 
                     if ($transaction_before->is_direct_sale == 1) {
                         $is_direct_sale = true;
+                    }
+
+                    if(empty($input['bank_changed'])){
+                        $input['bank_in_time'] = null;
                     }
 
                     //Check Customer credit limit
@@ -1207,13 +1211,13 @@ class SellPosDepositController extends Controller
                             'msg' => trans("messages.something_went_wrong")
                         ];
             }
-        } catch (\Exception $e) {
-            DB::rollBack();
-            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-            $output = ['success' => 0,
-                            'msg' => __('messages.something_went_wrong')
-                        ];
-        }
+//        } catch (\Exception $e) {
+//            DB::rollBack();
+//            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+//            $output = ['success' => 0,
+//                            'msg' => __('messages.something_went_wrong')
+//                        ];
+//        }
 
         if (!$is_direct_sale) {
             return $output;

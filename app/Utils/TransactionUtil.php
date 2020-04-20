@@ -126,6 +126,7 @@ class TransactionUtil extends Util
             'contact_id' => $input['contact_id'],
             'customer_group_id' => $input['customer_group_id'],
             'total_before_tax' => $invoice_total['total_before_tax'],
+            'bank_in_time' => !empty($input['bank_in_time']) ? $input['bank_in_time'] : $transaction->bank_in_time,
             'tax_id' => $input['tax_rate_id'],
             'discount_type' => $input['discount_type'],
             'discount_amount' => $uf_data ? $this->num_uf($input['discount_amount']) : $input['discount_amount'],
