@@ -496,15 +496,15 @@ class ContactController extends Controller
                     ];
                 }
                 else {
-                    try {
+//                    try {
                         $business_id = $request->session()->get('user.business_id');
 
                         if (!$this->moduleUtil->isSubscribed($business_id)) {
                             return $this->moduleUtil->expiredResponse();
                         }
 
-                        $input = $request->only(['supplier_business_name',
-                            'name', 'tax_number', 'pay_term_number', 'pay_term_type', 'mobile', 'landline', 'alternate_number', 'city', 'state', 'country', 'landmark', 'customer_group_id', 'membership_id', 'contact_id', 'birthday', 'email']);
+                        $input = $request->only(['supplier_business_name', 'name', 'tax_number', 'pay_term_number', 'pay_term_type', 'mobile', 'landline',
+                            'alternate_number', 'city', 'state', 'country', 'landmark', 'customer_group_id', 'membership_id', 'contact_id', 'birthday', 'email', 'remarks']);
                         $input['type'] = 'customer';
                         $input['business_id'] = $business_id;
                         $input['created_by'] = $request->session()->get('user.id');
@@ -536,7 +536,6 @@ class ContactController extends Controller
                                 $input['contact_id'] = $this->commonUtil->generateReferenceNumber('contacts', $ref_count, $business_id);
                             }
 
-
                             $contact = Contact::create($input);
 
                             ActivityLogger::activity("Created customer, contact ID ".$contact->contact_id);
@@ -565,13 +564,13 @@ class ContactController extends Controller
                         } else {
                             throw new \Exception("Error Processing Request", 1);
                         }
-                    } catch (\Exception $e) {
-                        \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-
-                        $output = ['success' => false,
-                                        'msg' =>__("messages.something_went_wrong")
-                                    ];
-                    }
+//                    } catch (\Exception $e) {
+//                        \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+//
+//                        $output = ['success' => false,
+//                                        'msg' =>__("messages.something_went_wrong")
+//                                    ];
+//                    }
                 }
             }
         }
@@ -834,7 +833,7 @@ class ContactController extends Controller
                 } else {
                     try {
                         $input = $request->only(['type', 'supplier_business_name', 'name', 'tax_number', 'pay_term_number', 'pay_term_type', 'mobile', 'landline', 'alternate_number',
-                            'city', 'state', 'country', 'landmark', 'customer_group_id', 'membership_id', 'contact_id', 'birthday', 'email']);
+                            'city', 'state', 'country', 'landmark', 'customer_group_id', 'membership_id', 'contact_id', 'birthday', 'email', 'remarks']);
 
                         $input['credit_limit'] = $request->input('credit_limit') != '' ? $this->commonUtil->num_uf($request->input('credit_limit')) : null;
 

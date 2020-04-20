@@ -90,6 +90,10 @@ $(document).ready(function() {
         reset_pos_form();
     });
 
+    $('#bank_in_time').change(function () {
+       $('#bank_changed').val(1);
+    });
+
     $('#add_request_modal').on('shown.bs.modal', function(e) {
         $('#add_request_modal .select2').select2();
 
@@ -1561,6 +1565,9 @@ function get_contact_ledger() {
                 selected_bank = $(this).data('bank_id');
                 get_contact_ledger();
             });
+            $('#refresh').click(function (e) {
+                get_contact_ledger();
+            })
         },
     });
 }
@@ -2310,6 +2317,17 @@ function updateRedeemedAmount(argument) {
 }
 
 $(document).on('change', 'select#customer_id', function(){
+    $.ajax({
+        method: 'POST',
+        url: '/sells/pos_deposit/get_remarks',
+        data: {customer_id: $('#customer_id').val()},
+        dataType: 'html',
+        success: function(result) {
+            if(result){
+                $('#remarks').html(result);
+            }
+        }
+    });
     getCustomerRewardPoints();
 });
 

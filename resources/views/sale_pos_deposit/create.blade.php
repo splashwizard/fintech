@@ -131,7 +131,8 @@
 						<div class="@if(!empty($commission_agent)) col-sm-8 @else col-sm-6 @endif">
 							<div style="float: right">
 								{!! Form::label('bank_in_time', 'Bank-in Time:') !!}
-								<input type="time" name="bank_in_time" value="@php echo date("H:i", strtotime('now')); @endphp">
+								<input type="time" name="bank_in_time" id="bank_in_time" value="@php echo date("H:i", strtotime('now')); @endphp">
+								<input type="hidden" name="bank_changed" id="bank_changed" value="0">
 							</div>
 						</div>
 						<input type="hidden" name="pay_term_number" id="pay_term_number" value="{{$walk_in_customer['pay_term_number']}}">
@@ -140,7 +141,7 @@
 						@if(!empty($commission_agent))
 							<div class="col-sm-4">
 								<div class="form-group">
-								{!! Form::select('commission_agent', 
+								{!! Form::select('commission_agent',
 											$commission_agent, null, ['class' => 'form-control select2', 'placeholder' => __('lang_v1.commission_agent')]); !!}
 								</div>
 							</div>
@@ -148,6 +149,14 @@
 						<div class="clearfix"></div>
 
 			        </div>
+					<div class="row">
+						<div class="col-md-12">
+							<div class="form-group">
+								{!! Form::label('remarks', __( 'contact.remarks' )) !!}
+								{!! Form::textarea('remarks', '', ['class' => 'form-control', 'placeholder' => __( 'contact.remarks' ), 'rows' => 2, 'id' => 'remarks']); !!}
+							</div>
+						</div>
+					</div>
 
 					<div class="row">
 					<div class="col-sm-12 pos_product_div">
@@ -215,7 +224,11 @@
 	@component('components.widget', ['class' => 'box-primary', 'title' => ''])
 		<div class="row">
 			<div class="col-md-12">
-				<div id="contact_ledger_div"></div>
+				<div style="margin-bottom: 40px">
+					<button class="btn btn-success" id="refresh" style="float: right">Refresh</button>
+				</div>
+				<div id="contact_ledger_div">
+				</div>
 			</div>
 		</div>
 	@endcomponent

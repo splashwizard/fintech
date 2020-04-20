@@ -1,3 +1,8 @@
+<style>
+	#ledger_table tr.unclaimed:hover{
+		background-color: rgb(220,255,220);
+	}
+</style>
 <ul class="nav nav-tabs" style="margin-bottom: 30px" id="bank-tabs" role="tablist">
 	@foreach($bank_list as $key => $bank)
 	<li class="nav-item {{$bank->id == $selected_bank ? 'active' : null}}">
@@ -39,7 +44,7 @@
 	</thead>
 	<tbody>
 	@foreach($ledger as $data)
-		<tr>
+		<tr class="@if(empty($data['service_debit'])) unclaimed @endif" data-transaction_id = "{{$data['transaction_id']}}">
 			<td>{!! $data['others'] !!}</td>
 			<td>{!! $data['bank_in_time'] !!}</td>
 			<td>{!! $data['contact_id'] !!}</td>
@@ -72,3 +77,10 @@
 	</tr>
 	</tfoot>
 </table>
+<script>
+	$(document).ready(function (e) {
+		$('tr.unclaimed').click(function (e) {
+			window.open('/pos_deposit/' + $(this).data('transaction_id')+'/edit');
+		})
+	})
+</script>

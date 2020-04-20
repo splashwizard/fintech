@@ -190,6 +190,12 @@
               @endforeach
           @endif
       </div>
+          <div class="col-md-12">
+              <div class="form-group">
+                  {!! Form::label('remarks', __( 'contact.remarks' )) !!}
+                  {!! Form::textarea('remarks', $contact->remarks, ['class' => 'form-control', 'placeholder' => __( 'contact.remarks' ), 'rows' => 4]); !!}
+              </div>
+          </div>
     </div>
     </div>
 

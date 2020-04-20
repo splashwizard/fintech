@@ -368,6 +368,10 @@ class SellPosDepositController extends Controller
 
                 DB::beginTransaction();
 
+                if(empty($request->input('bank_in_time'))){
+                    $input['bank_in_time'] = null;
+                }
+
                 if (empty($request->input('transaction_date'))) {
                     $input['transaction_date'] =  \Carbon::now();
                 } else {
@@ -1823,6 +1827,12 @@ class SellPosDepositController extends Controller
         }
     }
 
+    public function getRemarks(){
+        $customer = Contact::find(request()->get('customer_id'));
+        $remarks = isset($customer->remarks) ? $customer->remarks : null;
+        return $remarks;
+    }
+
 
     public function getLedger()
     {
@@ -1971,9 +1981,11 @@ class SellPosDepositController extends Controller
                     $ledger_by_payment[$payment->transaction_id]['bank_id'] = $payment->account_id;
                 }
             }
-            foreach ($ledger_by_payment as $item){
-                if(isset($item['bank_id']) && $item['bank_id'] == $selected_bank)
+            foreach ($ledger_by_payment as $transaction_id => $item){
+                if(isset($item['bank_id']) && $item['bank_id'] == $selected_bank){
+                    $item['transaction_id'] = $transaction_id;
                     $ledger[] = $item;
+                }
             }
         }
 //        print_r($ledger_by_payment);exit;

@@ -175,6 +175,12 @@
           </div>
           <div class="clearfix"></div>
       </div>
+      <div class="col-md-12">
+          <div class="form-group">
+              {!! Form::label('remarks', __( 'contact.remarks' )) !!}
+              {!! Form::textarea('remarks', null, ['class' => 'form-control', 'placeholder' => __( 'remarks.remarks' ), 'rows' => 4]); !!}
+          </div>
+      </div>
     </div>
     </div>
     <div class="modal-footer">

@@ -143,6 +143,8 @@ Route::middleware(['IsInstalled', 'auth', 'SetSessionData', 'language', 'timezon
     Route::post('/sells/pos_deposit/get_payment_rows', 'SellPosDepositController@getPaymentRows');
     Route::get('/sells/pos_deposit/get-product-suggestion', 'SellPosDepositController@getProductSuggestion');
     Route::get('/sells/pos_deposit/get-bonus-suggestion', 'SellPosDepositController@getBonusSuggestion');
+    Route::post('/sells/pos_deposit/get_remarks', 'SellPosDepositController@getRemarks');
+
     Route::resource('pos_deposit', 'SellPosDepositController');
 
     Route::get('/sells/pos_deposit/ledger', 'SellPosDepositController@getLedger');

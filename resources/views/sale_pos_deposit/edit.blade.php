@@ -155,6 +155,15 @@
 			        </div>
 
 					<div class="row">
+						<div class="col-md-12">
+							<div class="form-group">
+								{!! Form::label('remarks', __( 'contact.remarks' )) !!}
+								{!! Form::textarea('remarks', '', ['class' => 'form-control', 'placeholder' => __( 'contact.remarks' ), 'rows' => 2, 'id' => 'remarks']); !!}
+							</div>
+						</div>
+					</div>
+
+					<div class="row">
 					<div class="col-sm-12 pos_product_div">
 						<input type="hidden" name="sell_price_tax" id="sell_price_tax" value="{{$business_details->sell_price_tax}}">
 
