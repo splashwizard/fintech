@@ -242,17 +242,87 @@ class SellPosDepositController extends Controller
         }
         $customer_groups = CustomerGroup::forDropdown($business_id);
 
-        //Accounts
+        // Accounts
         $accounts = [];
         if ($this->moduleUtil->isModuleEnabled('account')) {
             $accounts = Account::forDropdown($business_id, true, false);
         }
-        //Selling Price Group Dropdown
+        // Selling Price Group Dropdown
         $price_groups = SellingPriceGroup::forDropdown($business_id);
 
         $services = Account::where('business_id', $business_id)->where('is_service', 1)->get();
         $memberships = Membership::forDropdown($business_id);
         $bank_brands  = BankBrand::forDropdown($business_id);
+
+        // Bonuses
+        $location_id = $default_location;
+
+        $bonuses = Variation::join('products as p', 'variations.product_id', '=', 'p.id')
+            ->leftjoin(
+                'variation_location_details AS VLD',
+                function ($join) use ($location_id) {
+                    $join->on('variations.id', '=', 'VLD.variation_id');
+
+                    //Include Location
+                    if (!empty($location_id)) {
+                        $join->where(function ($query) use ($location_id) {
+                            $query->where('VLD.location_id', '=', $location_id);
+                            //Check null to show products even if no quantity is available in a location.
+                            //TODO: Maybe add a settings to show product not available at a location or not.
+                            $query->orWhereNull('VLD.location_id');
+                        });
+                        ;
+                    }
+                }
+            )
+            ->join('accounts', 'p.account_id', 'accounts.id')
+            ->leftjoin('account_transactions as AT', function ($join) {
+                $join->on('AT.account_id', '=', 'accounts.id');
+                $join->whereNull('AT.deleted_at');
+            })
+            ->groupBy('accounts.id')
+            ->groupBy('variations.id')
+            ->where('accounts.business_id', $business_id)
+            ->where('p.type', '!=', 'modifier')
+            ->where('p.is_inactive', 0)
+            ->where('p.not_for_selling', 0);
+        $bonuses->where('accounts.name', '=', 'Bonus Account');
+
+
+        $bonuses = $bonuses->select(
+            DB::raw("SUM( IF(AT.type='credit', AT.amount, -1*AT.amount) ) as balance"),
+            'p.id as product_id',
+            'p.name',
+            'p.type',
+            'p.enable_stock',
+            'variations.id',
+            'p.account_id',
+            'p.category_id',
+            'variations.name as variation',
+            'VLD.qty_available',
+            'variations.default_sell_price as selling_price',
+            'variations.sub_sku'
+        )
+            ->with(['media'])
+            ->orderBy('p.name', 'asc')
+            ->paginate(40);
+
+        // $bonus_types = [];
+        // $values = [10, 30, 50, 100];
+        // foreach($values as $value){
+        //     $object = [];
+        //     $object['type'] = 'percent';
+        //     $object['amount'] = $value;
+        //     $object['text'] = 'Bonus - '.$value.'%';
+        //     $bonus_types[] = $object;
+        // }
+        // foreach($values as $value){
+        //     $object = [];
+        //     $object['type'] = 'fixed';
+        //     $object['amount'] = $value;
+        //     $object['text'] = 'CNY++ - RM'.$value;
+        //     $bonus_types[] = $object;
+        // }
 
         return view('sale_pos_deposit.create')
             ->with(compact(
@@ -279,7 +349,8 @@ class SellPosDepositController extends Controller
                 'bank_brands',
                 'accounts',
                 'price_groups',
-                'services'
+                'services',
+                'bonuses'
             ));
     }
 
@@ -1415,7 +1486,7 @@ class SellPosDepositController extends Controller
                     $edit_price = auth()->user()->can('edit_product_price_from_pos_screen');
                 }
                 $amount = 0;
-                if(request()->get('is_service')){
+                if(request()->get('product_type') != 0){
                     $amount = request()->get('amount');
                 }
                 $cnt = GameId::where('service_id', $product->account_id)->where('contact_id', $customer_id)->count();
@@ -1534,7 +1605,7 @@ class SellPosDepositController extends Controller
             $payment_lines[] = ['account_id' => $key, 'method' => $method, 'amount' => $payment['amount'], 'note' => '', 'card_transaction_number' => '', 'card_number' => '', 'card_type' => $card_type, 'card_holder_name' => '', 'card_month' => '', 'card_year' => '', 'card_security' => '', 'cheque_number' => '', 'bank_account_number' => '',
                 'is_return' => 0, 'transaction_no' => '', 'category_name' => $data->name];
         }
-        if(!empty($bonus_amount) && !$is_free_credit){
+        if(!empty($bonus_amount) && !$is_free_credit){  
             $bonus_key = Account::where('business_id', $business_id)->where('name', 'Bonus Account')->get()[0]->id;
             $query = Category::where('name', 'Banking');
             $data = $query->get()[0];
@@ -1974,7 +2045,8 @@ class SellPosDepositController extends Controller
                         'others' => '<small>' . $ref_no . '</small>',
                         'bank_in_time' => $payment->bank_in_time,
                         'user' => $user['first_name'].' '.$user['last_name'],
-                        'is_default' => $payment->is_default
+                        'is_default' => $payment->is_default,
+                        'account_name' => $payment->account_name
                     ];
                 } else {
                     $ledger_by_payment[$payment->transaction_id]['debit'] += ($payment->card_type == 'debit' && $payment->method != 'service_transfer') ? $payment->amount : 0;
@@ -1996,7 +2068,7 @@ class SellPosDepositController extends Controller
                 }
             }
             foreach ($ledger_by_payment as $transaction_id => $item){
-                if(isset($item['bank_id']) && $item['bank_id'] == $selected_bank){
+                if( $selected_bank == 'free_credit' && $item['free_credit'] != 0 || isset($item['bank_id']) && $item['bank_id'] == $selected_bank){
                     $item['transaction_id'] = $transaction_id;
                     $ledger[] = $item;
                 }

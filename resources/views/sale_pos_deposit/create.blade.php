@@ -129,6 +129,13 @@
 							</div>
 						</div>
 						<div class="@if(!empty($commission_agent)) col-sm-8 @else col-sm-6 @endif">
+							<div style="float:left">
+								<select class="form-control" id="bonus">
+									@foreach($bonuses as $bonus)
+										<option data-variation_id="{{$bonus->id}}" data-name="{{$bonus->name}}" data-amount="{{$bonus->selling_price}}">{{$bonus->name.' - '.$bonus->variation }}</option>
+									@endforeach
+								</select>
+							</div>
 							<div style="float: right">
 								{!! Form::label('bank_in_time', 'Bank-in Time:') !!}
 								<input type="time" name="bank_in_time" id="bank_in_time" value="@php echo date("H:i", strtotime('now')); @endphp">

@@ -130,7 +130,7 @@ Route::middleware(['IsInstalled', 'auth', 'SetSessionData', 'language', 'timezon
     Route::resource('withdraw', 'WithDrawController');
     Route::get('/pos_ledger', 'PosLedgerController@index');
 
-    Route::get('/sells/pos/get_product_row/{variation_id}/{location_id}', 'SellPosController@getProductRow');
+    Route::get('/sells/pos/get_product_row/{variation_id}/{location_id}', 'SellPosController@`getProductRow`');
     Route::post('/sells/pos/get_payment_row', 'SellPosController@getPaymentRow');
     Route::post('/sells/pos/get-reward-details', 'SellPosController@getRewardDetails');
     Route::get('/sells/pos/get-recent-transactions', 'SellPosController@getRecentTransactions');

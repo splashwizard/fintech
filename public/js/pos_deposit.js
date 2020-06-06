@@ -1,3 +1,4 @@
+var selected_bank = 0;
 function copyTextToClipboard(text) {
     var textArea = document.createElement("textarea");
 
@@ -927,6 +928,7 @@ $(document).ready(function() {
             }
 
             if (cnf) {
+                selected_bank = $('#pos_table tbody').children().first().find('.account_id').val();
                 $('#customer_id').prop('disabled', false);
                 $('div.pos-processing').show();
                 $('#pos-save').attr('disabled', 'true');
@@ -957,7 +959,9 @@ $(document).ready(function() {
                                 },3000)
                             }
 
+
                             $('#modal_success').modal('show');
+
                             get_contact_ledger();
                             
                             var location_id = $('input#location_id').val();
@@ -1253,10 +1257,12 @@ $(document).ready(function() {
         } else {
             variation_ids.push($(this).data('variation_id'));
             // $('#account_0').val($(this).data('account_id')).trigger('change');
-            let is_service = 0;
+            let product_type = 0; // bank
             if($(this).parent().parent().attr('id') === 'product_list_body2')
-                is_service = 1;
-            pos_product_row($(this).data('variation_id'), is_service);
+                product_type = 1; // service
+            // if($(this).parent().parent().attr('id') === 'product_list_body3')
+            //     product_type = 2; // bonus
+            pos_product_row($(this).data('variation_id'), product_type);
 
             let data = new FormData(pos_form_obj[0]);
             data.delete('_method');
@@ -1278,6 +1284,35 @@ $(document).ready(function() {
                 }
             });
         }
+    });
+
+    // bonus select
+    $('#bonus').change(function (e) {
+        const optionSelected = $("option:selected", this);
+        const variation_id = optionSelected.data('variation_id');
+        variation_ids.push(variation_id);
+        const product_type = 2; // bonus
+        pos_product_row(variation_id, product_type, optionSelected.data('name'), optionSelected.data('amount'));
+
+        let data = new FormData(pos_form_obj[0]);
+        data.delete('_method');
+        $.ajax({
+            method:'POST',
+            url: '/sells/pos_deposit/get_payment_rows',
+            data: data,
+            contentType: false, // NEEDED, DON'T OMIT THIS (requires jQuery 1.6+)
+            processData: false,
+            dataType: 'html',
+            success: function(result) {
+                if(result){
+                    $('#payment_rows_div').html(result);
+                    $('.game_id_but').click(function (e) {
+                        e.preventDefault();
+                        copyTextToClipboard($(this).text());
+                    });
+                }
+            }
+        });
     });
 
     $(document).on('shown.bs.modal', '.row_description_modal', function() {
@@ -1502,7 +1537,6 @@ $(document).ready(function() {
 
 });
 
-var selected_bank = 0;
 function get_contact_ledger() {
 
     var start_date = '';
@@ -1679,7 +1713,7 @@ function get_recent_transactions(status, element_obj) {
     });
 }
 
-function pos_product_row(variation_id, is_service = 0) {
+function pos_product_row(variation_id, product_type = 0, name = 'Bonus',  percentage = 0) {
     //Get item addition method
     var item_addtn_method = 0;
     var add_via_ajax = true;
@@ -1749,6 +1783,16 @@ function pos_product_row(variation_id, is_service = 0) {
             price_group = $('#price_group').val();
         }
 
+        let amount = 0;
+        if(product_type === 1){ // service
+            amount = $('#total_earned').html();
+        } else if(product_type === 2) { // bonus
+            if(name === 'Bonus')
+                amount = $('#credit').html() * percentage / 100;
+            else
+                amount = percentage;
+        }
+
         $.ajax({
             method: 'GET',
             url: '/sells/pos_deposit/get_product_row/' + variation_id + '/' + location_id,
@@ -1758,12 +1802,20 @@ function pos_product_row(variation_id, is_service = 0) {
                 customer_id: customer_id,
                 is_direct_sell: is_direct_sell,
                 price_group: price_group,
-                is_service: is_service,
-                amount: $('#total_earned').html()
+                product_type: product_type,
+                amount: amount
             },
             dataType: 'json',
             success: function(result) {
                 if (result.success) {
+                    if(product_type == 2){ // bonus
+                        $('table#pos_table tbody tr.product_row').each(function(index){
+                            if($(this).find('.account_name').val() == 'Bonus Account'){
+                                $(this).next().remove();
+                                $(this).remove();
+                            }
+                        })
+                    }
                     $('table#pos_table tbody')
                         .append(result.html_content)
                         .find('input.pos_quantity');
@@ -1862,6 +1914,7 @@ function pos_total_row() {
             debit += line_total;
         }
     });
+    basic_bonus = Math.floor(basic_bonus);
     if(special_bonus !== 0)
         basic_bonus = 0;
     $('#credit').html(credit);

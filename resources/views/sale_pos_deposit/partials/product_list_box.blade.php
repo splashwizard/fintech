@@ -50,7 +50,6 @@
 </div>
 
 <div class="box box-widget">
-	<!-- /.box-header -->
 	<input type="hidden" id="suggestion_page3" value="1">
 	<div class="box-body" id="bonus_box">
 		<div class="row">
@@ -62,7 +61,6 @@
 			</div>
 		</div>
 	</div>
-	<!-- /.box-body -->
 </div>
 
 <div class="box box-widget">

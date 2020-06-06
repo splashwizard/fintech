@@ -13,24 +13,6 @@
           data-href="{{ action('CashRegisterController@getCloseRegister')}}">
             <strong><i class="fa fa-window-close fa-lg"></i></strong>
       </button>
-      
-      <button type="button" id="register_details" title="{{ __('cash_register.register_details') }}" data-toggle="tooltip" data-placement="bottom" class="btn btn-success btn-flat m-6 btn-xs m-5 btn-modal pull-right" data-container=".register_details_modal" 
-          data-href="{{ action('CashRegisterController@getRegisterDetails')}}">
-            <strong><i class="fa fa-briefcase fa-lg" aria-hidden="true"></i></strong>
-      </button>
-
-      <button title="@lang('lang_v1.calculator')" id="btnCalculator" type="button" class="btn btn-success btn-flat pull-right m-5 btn-xs mt-10 popover-default" data-toggle="popover" data-trigger="click" data-content='@include("layouts.partials.calculator")' data-html="true" data-placement="bottom">
-            <strong><i class="fa fa-calculator fa-lg" aria-hidden="true"></i></strong>
-        </button>
-
-      <button type="button" title="{{ __('lang_v1.full_screen') }}" data-toggle="tooltip" data-placement="bottom" class="btn btn-primary btn-flat m-6 hidden-xs btn-xs m-5 pull-right" id="full_screen">
-            <strong><i class="fa fa-window-maximize fa-lg"></i></strong>
-      </button>
-
-      <button type="button" id="view_suspended_sales" title="{{ __('lang_v1.view_suspended_sales') }}" data-toggle="tooltip" data-placement="bottom" class="btn bg-yellow btn-flat m-6 btn-xs m-5 btn-modal pull-right" data-container=".view_modal" 
-          data-href="{{ action('SellController@index')}}?suspended=1">
-            <strong><i class="fa fa-pause-circle-o fa-lg"></i></strong>
-      </button>
 
       @if(Module::has('Repair'))
         @include('repair::layouts.partials.pos_header')
