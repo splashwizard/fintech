@@ -144,13 +144,14 @@ $(document).ready(function() {
             },
         },
         templateResult: function (data) { 
-            var template = data.text + "<br>" + LANG.mobile + ": " + data.mobile;
-            if (typeof(data.total_rp) != "undefined") {
-                var rp = data.total_rp ? data.total_rp : 0;
-                template += "<br><i class='fa fa-gift text-success'></i> " + rp;
-            }
+            // var template = data.text + "<br>" + LANG.mobile + ": " + data.mobile;
+            // if (typeof(data.total_rp) != "undefined") {
+            //     var rp = data.total_rp ? data.total_rp : 0;
+            //     template += "<br><i class='fa fa-gift text-success'></i> " + rp;
+            // }
+            var template = data.contact_id;
 
-            return  template;
+            return template;
         },
         minimumInputLength: 1,
         language: {
@@ -379,6 +380,10 @@ $(document).ready(function() {
         tr.find('input.pos_line_total').val(line_total);
         tr.find('span.pos_line_total_text').text(__currency_trans_from_en(line_total, true));
         pos_each_row(tr);
+        const first_service_row = $('table#pos_table tbody tr.service_row').first();
+        const first_service_total = $('#total_earned').html() - line_total;
+        first_service_row.find('input.pos_line_total').val(first_service_total);
+        first_service_row.find('span.pos_line_total_text').text(__currency_trans_from_en(first_service_total, true));
         pos_total_row();
         round_row_to_iraqi_dinnar(tr);
         let data = new FormData(pos_form_obj[0]);
@@ -393,6 +398,10 @@ $(document).ready(function() {
             success: function(result) {
                 if(result){
                     $('#payment_rows_div').html(result);
+                    $('.game_id_but').click(function (e) {
+                        e.preventDefault();
+                        copyTextToClipboard($(this).text());
+                    });
                 }
             }
         });
@@ -769,6 +778,7 @@ $(document).ready(function() {
         //
         // $('#modal_payment').modal('show');
     });
+
     $('#modal_payment').on('shown.bs.modal', function() {
         $('#modal_payment')
             .find('input')
@@ -892,6 +902,27 @@ $(document).ready(function() {
                 }
             },
         });
+    });
+
+
+
+    $(document).on('blur', '.game_input', function () {
+        const service_id = $(this).parents('tr').find('.account_id').val();
+        $.ajax({
+            method: 'POST',
+            url: '/sells/pos_deposit/update_game_id',
+            data: { contact_id: $('select#customer_id').val(), service_id: service_id, game_id: $(this).val() },
+            dataType: 'html',
+            success: function(result) {
+            },
+        });
+    });
+
+    $(document).on('shown.bs.modal', '.view_modal', function () {
+        console.log('shown.bs.modal');
+        $('select#withdraw_to')
+            .val($('select#customer_id').val())
+            .trigger('change');
     });
 
     $(document).on('click', '.remove_payment_row', function() {
@@ -1260,8 +1291,6 @@ $(document).ready(function() {
             let product_type = 0; // bank
             if($(this).parent().parent().attr('id') === 'product_list_body2')
                 product_type = 1; // service
-            // if($(this).parent().parent().attr('id') === 'product_list_body3')
-            //     product_type = 2; // bonus
             pos_product_row($(this).data('variation_id'), product_type);
 
             let data = new FormData(pos_form_obj[0]);
@@ -1793,6 +1822,7 @@ function pos_product_row(variation_id, product_type = 0, name = 'Bonus',  percen
                 amount = percentage;
         }
 
+        const is_first_service = $('.service_row').length === 0 ? 1 : 0;
         $.ajax({
             method: 'GET',
             url: '/sells/pos_deposit/get_product_row/' + variation_id + '/' + location_id,
@@ -1803,7 +1833,8 @@ function pos_product_row(variation_id, product_type = 0, name = 'Bonus',  percen
                 is_direct_sell: is_direct_sell,
                 price_group: price_group,
                 product_type: product_type,
-                amount: amount
+                amount: amount,
+                is_first_service: is_first_service
             },
             dataType: 'json',
             success: function(result) {

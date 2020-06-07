@@ -35,7 +35,19 @@
 {{--          </div>--}}
 {{--        </div>--}}
 
-        
+
+        <div class="col-md-4 customer_fields">
+          <div class="form-group">
+              {!! Form::label('contact_id', __('contact.contact_id') . ':*') !!}
+              <div class="input-group">
+              <span class="input-group-addon">
+                  <i class="fa fa-id-badge"></i>
+              </span>
+                  {!! Form::text('contact_id', $contact->contact_id, ['class' => 'form-control','placeholder' => __('contact.contact_id'), 'required']); !!}
+              </div>
+          </div>
+        </div>
+
         <div class="col-md-4 customer_fields">
           <div class="form-group">
               {!! Form::label('customer_group_id', __('lang_v1.customer_group') . ':') !!}

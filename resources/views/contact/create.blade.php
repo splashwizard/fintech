@@ -181,10 +181,14 @@
               {!! Form::textarea('remarks', null, ['class' => 'form-control', 'placeholder' => __( 'remarks.remarks' ), 'rows' => 4]); !!}
           </div>
       </div>
+
+      {!! Form::hidden('remark', null, ['id' => 'new_remark']) !!}
+      {!! Form::hidden('type', null, ['id' => 'contact_add_type']) !!}
     </div>
     </div>
     <div class="modal-footer">
-      <button type="submit" class="btn btn-primary">@lang( 'messages.save' )</button>
+      <button type="submit" class="btn btn-danger" id="btn-add_blacklist">@lang( 'messages.blacklist' )</button>
+      <button type="submit" class="btn btn-primary" id="btn-save">@lang( 'messages.save' )</button>
       <button type="button" class="btn btn-default" data-dismiss="modal">@lang( 'messages.close' )</button>
     </div>
 

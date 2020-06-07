@@ -16,23 +16,46 @@
                 {!! Form::hidden('account_id', $account->id) !!}
             </div>
 
+            <div id="bank_account_detail">
+            </div>
+
+            <div class="form-group">
+                {!! Form::label('withdraw_mode', __( 'account.withdraw_mode' ) .":*") !!}
+                <div class="row" style="margin: 0">
+                    <div class="col-sm-4" style="padding-left: 5px; padding-right: 5px">
+                        <button class="form-control btn-withdraw_mode btn-info" style="padding: 10px" data-mode="b">Withdraw to customer</button>
+                    </div>
+                    <div class="col-sm-4" style="padding-left: 5px; padding-right: 5px">
+                        <button class="form-control btn-withdraw_mode" data-mode="gt">Game Credit Transfer</button>
+                    </div>
+                    <div class="col-sm-4" style="padding-left: 5px; padding-right: 5px">
+                        <button class="form-control btn-withdraw_mode" data-mode="gd">Game Credit Deduction</button>
+                    </div>
+                </div>
+            </div>
             <div class="form-group">
                 {!! Form::label('amount', __( 'sale.amount' ) .":*") !!}
                 {!! Form::text('amount', 0, ['class' => 'form-control input_number', 'required','placeholder' => __( 'sale.amount' ) ]); !!}
             </div>
 
+{{--            <div class="form-group">--}}
+{{--                {!! Form::label('withdraw_mode', __( 'account.withdraw_mode' ) .":*") !!}--}}
+{{--                {!! Form::select('withdraw_mode', $withdraw_mode, null, ['class' => 'form-control', 'required' ]); !!}--}}
+{{--            </div>--}}
             <div class="form-group">
-                {!! Form::label('withdraw_mode', __( 'account.withdraw_mode' ) .":*") !!}
-                {!! Form::select('withdraw_mode', $withdraw_mode, null, ['class' => 'form-control', 'required' ]); !!}
+
             </div>
 
             <div class="form-group">
                 {!! Form::label('withdraw_to', __( 'account.withdraw_to' ) .":*") !!}
-                {!! Form::select('withdraw_to', $to_users, null, ['class' => 'form-control', 'required', 'style' => 'width:100%' ]); !!}
-            </div>
-
-            <div id="bank_account_detail">
-
+                <div class="row" style="margin: 0">
+                    <div class="col-sm-6" style="padding-left: 5px; padding-right: 5px">
+                        {!! Form::select('withdraw_to', $to_users, null, ['class' => 'form-control', 'required', 'style' => 'width:100%' ]); !!}
+                    </div>
+                    <div class="col-sm-6" style="padding-left: 5px; padding-right: 5px">
+                        <button class="form-control" id="btn-game_id"></button>
+                    </div>
+                </div>
             </div>
 
             <div class="form-group" id="bank_div">
@@ -72,7 +95,7 @@
         </div>
 
         <div class="modal-footer">
-            <button type="submit" class="btn btn-primary">@lang( 'messages.submit' )</button>
+            <button type="submit" class="btn btn-primary" id="btn-withdraw_submit">@lang( 'messages.submit' )</button>
             <button type="button" class="btn btn-default" data-dismiss="modal">@lang( 'messages.close' )</button>
         </div>
 
@@ -112,7 +135,7 @@
         function copyTextToClipboard(text) {
 
 
-            $('.view_modal').find('.modal-body').append('<textarea id="copy_clipboard">'+ text+'</textarea>');
+            $('.view_modal').find('.modal-body').prepend('<textarea id="copy_clipboard">'+ text+'</textarea>');
             $('#copy_clipboard').focus();
             $('#copy_clipboard').select();
 
@@ -126,6 +149,40 @@
 
             $('#copy_clipboard').remove();
         }
+
+
+        function getBankDetail(){
+            $.ajax({
+                method: $(this).attr('method'),
+                url: '/contacts/bank_detail',
+                dataType: 'json',
+                data: {user_id: $('#withdraw_to').val()},
+                success: function(result) {
+                    $('#bank_account_detail').html(result.bank_account_detail);
+                    $('.account_detail').click(function (e) {
+                        e.preventDefault();
+                        copyTextToClipboard($(this).text());
+                    });
+                }
+            });
+        }
+        function getGameId(){
+            $.ajax({
+                method: 'post',
+                url: '/service/getGameId',
+                dataType: 'json',
+                data: {
+                    customer_id: $('#withdraw_to').val(),
+                    service_id: '{{$account->id}}'
+                },
+                success: function(result) {
+                    $('#btn-game_id').html(result.game_id);
+                }
+            });
+        }
+
+        getBankDetail();
+        getGameId();
         // fileinput_setting = {
         //     showUpload: false,
         //     showPreview: false,
@@ -133,9 +190,39 @@
         //     removeLabel: LANG.remove,
         // };
         // $('#service_document').fileinput(fileinput_setting);
+
+        $('#btn-game_id').click(function (e) {
+            e.preventDefault();
+            copyTextToClipboard($(this).text());
+        });
         $('#service_div select').removeAttr('required');
         $('#od_datetimepicker').datetimepicker({
             format: moment_date_format + ' ' + moment_time_format
+        });
+
+        $('.btn-withdraw_mode').click(function (e) {
+            e.preventDefault();
+            const withdraw_mode = $(this).data('mode');
+            if (withdraw_mode === 'b') {
+                $('#bank_div').show();
+                $('#service_div').hide();
+                $('#service_div select').removeAttr('required');
+                $('#bank_account_detail').show();
+                // $('#receipt_image_div').show();
+            } else if (withdraw_mode === 'gt') {
+                $('#bank_div').hide();
+                $('#bank_div select').removeAttr('required');
+                $('#service_div').show();
+                $('#bank_account_detail').hide();
+                // $('#receipt_image_div').hide();
+            } else {
+                $('#bank_div').hide();
+                $('#service_div').hide();
+                $('#bank_account_detail').hide();
+                // $('#receipt_image_div').hide();
+            }
+            $(this).addClass('btn-info');
+            $(this).parent().siblings().find('button').removeClass('btn-info');
         });
 
         $('#withdraw_mode').change(function () {
@@ -205,34 +292,38 @@
                 return markup;
             },
         });
-        $.ajax({
-                method: $(this).attr('method'),
-                url: '/contacts/bank_detail',
-                dataType: 'json',
-                data: {user_id: $('#withdraw_to').val()},
-                success: function(result) {
-                    $('#bank_account_detail').html(result.bank_account_detail);
-                    $('.account_detail').click(function (e) {
-                        e.preventDefault();
-                        copyTextToClipboard($(this).text());
-                    });
-                }
-            });
         $('#withdraw_to').on("select2:select", function(e) {
-            // what you would like to happen
+            getBankDetail();
+            getGameId();
+        });
+        $('#btn-withdraw_submit').click(function (e) {
+            e.preventDefault();
             $.ajax({
-                method: $(this).attr('method'),
-                url: '/contacts/bank_detail',
+                method: 'post',
+                url: '/service/checkWithdraw',
                 dataType: 'json',
-                data: {user_id: $('#withdraw_to').val()},
+                data: {
+                    customer_id: $('#withdraw_to').val()
+                },
                 success: function(result) {
-                    $('#bank_account_detail').html(result.bank_account_detail);
-                    $('.account_detail').click(function (e) {
-                        e.preventDefault();
-                        copyTextToClipboard($(this).text());
-                    });
+                    if(result.exceeded) {
+                        swal({
+                            title: LANG.sure,
+                            text: LANG.withdraw_fourth_warning.replace("xxxx", $('#withdraw_to').children('option:selected').html()),
+                            icon: 'warning',
+                            buttons: true,
+                            dangerMode: true,
+                        }).then(willProceed => {
+                            if(willProceed){
+                                $('#withdraw_form').submit();
+                            }
+                        });
+                    }
+                    else
+                        $('#withdraw_form').submit();
+                    // $('#btn-game_id').html(result.game_id);
                 }
             });
-        });
+        })
     });
 </script>

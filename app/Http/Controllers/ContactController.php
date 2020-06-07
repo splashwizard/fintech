@@ -882,22 +882,22 @@ class ContactController extends Controller
                             $user_id = request()->session()->get('user.id');
                             \Notification::send($admins, new EditCustomerNotification(['changed_by' => $user_id, 'contact_id' => $contact->contact_id]));
                             foreach ($game_ids as $service_id => $game_id) {
-                                if (!empty($game_id)) {
-                                    $game_name = Account::find($service_id)->name;
-                                    $game_cnt = GameId::where('service_id', $service_id)->where('contact_id', $id)->count();
-                                    if ($game_cnt == 0) {
+                                $game_name = Account::find($service_id)->name;
+                                $game_cnt = GameId::where('service_id', $service_id)->where('contact_id', $id)->count();
+                                if ($game_cnt == 0) {
+                                    if(!empty($game_id)){
                                         GameId::create([
                                             'service_id' => $service_id,
                                             'contact_id' => $id,
                                             'game_id' => $game_id
                                         ]);
                                         $activity .= chr(10) . chr(13) . $game_name . ': >>>' . $game_id;
-                                    } else {
-                                        $old_game_id = GameId::where('service_id', $service_id)->where('contact_id', $id)->get()[0]->game_id;
-                                        if ($old_game_id != $game_id) {
-                                            GameId::where('service_id', $service_id)->where('contact_id', $id)->update(['game_id' => $game_id]);
-                                            $activity .= chr(10) . chr(13) . $game_name . ': ' . $old_game_id . ' >>>' . $game_id;
-                                        }
+                                    }
+                                } else {
+                                    $old_game_id = GameId::where('service_id', $service_id)->where('contact_id', $id)->get()[0]->game_id;
+                                    if ($old_game_id != $game_id) {
+                                        GameId::where('service_id', $service_id)->where('contact_id', $id)->update(['game_id' => $game_id]);
+                                        $activity .= chr(10) . chr(13) . $game_name . ': ' . $old_game_id . ' >>>' . $game_id;
                                     }
                                 }
                             }
@@ -1101,7 +1101,8 @@ class ContactController extends Controller
             // }
 
             $contacts->select(
-                'contacts.id',
+                'contacts.id' ,
+                'contact_id',
                 DB::raw("IF(contacts.contact_id IS NULL OR contacts.contact_id='', name, CONCAT(name, ' (', contacts.contact_id, ')')) AS text"),
                 'mobile',
                 'landmark',

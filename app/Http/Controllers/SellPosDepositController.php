@@ -1496,9 +1496,11 @@ class SellPosDepositController extends Controller
                 else
                     $game_id = null;
                 $account_name = Account::find($product->account_id)->name;
+                $is_service = Account::find($product->account_id)->is_service;
+                $is_first_service = request()->get('is_first_service');
 
                 $output['html_content'] =  view('sale_pos_deposit.product_row')
-                            ->with(compact('product', 'account_name', 'row_count', 'tax_dropdown', 'enabled_modules', 'pos_settings', 'sub_units', 'discount', 'waiters', 'edit_discount', 'edit_price', 'amount', 'game_id'))
+                            ->with(compact('product', 'account_name', 'is_service', 'is_first_service', 'row_count', 'tax_dropdown', 'enabled_modules', 'pos_settings', 'sub_units', 'discount', 'waiters', 'edit_discount', 'edit_price', 'amount', 'game_id'))
                             ->render();
             }
             
@@ -1900,6 +1902,13 @@ class SellPosDepositController extends Controller
             return view('sale_pos_deposit.partials.product_list')
                 ->with(compact('products'));
         }
+    }
+
+    public function updateGameID(){
+        $contact_id = request()->get('contact_id');
+        $service_id = request()->get('service_id');
+        $row = GameId::where('contact_id', $contact_id)->where('service_id', $service_id)->get(['game_id']);
+        return $row->game_id;
     }
 
     public function getRemarks(){

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\BusinessLocation;
 use App\Contact;
+use App\GameId;
+use App\Transaction;
 use App\User;
 use App\Utils\Util;
 use App\Utils\TransactionUtil;
@@ -581,7 +583,7 @@ class ServiceController extends Controller
                 $contacts->join('user_contact_access AS uca', 'contacts.id', 'uca.contact_id')
                     ->where('uca.user_id', $user_id);
             }
-            $to_users = $contacts->pluck('name', 'id');
+            $to_users = $contacts->pluck('contact_id', 'id');
 
 //            $withdraw_mode = ['w' => 'Wallet', 'b' => 'Bank'];
             $withdraw_mode = ['b' => 'Withdraw to customer', 'gt' => 'Game Credit Transfer', 'gd' => 'Game Credit Deduction'];
@@ -605,6 +607,27 @@ class ServiceController extends Controller
         }
     }
 
+    public function getGameID(){
+        $service_id = request()->get('service_id');
+        $customer_id = request()->get('customer_id');
+        if(GameId::where('service_id', $service_id)->where('contact_id', $customer_id)->count() > 0){
+           return json_encode([ 'game_id' => GameId::where('service_id', $service_id)->where('contact_id', $customer_id)->get()->first()['game_id']]);
+        }
+        return 0;
+    }
+
+    public function checkWithdraw(){
+        $customer_id = request()->get('customer_id');
+        $now = date('Y-m-d H:i:s', strtotime('now'));
+        $yesterday  = date('Y-m-d H:i:s', strtotime('-1 day', strtotime('now')));
+        $query = Transaction::where('type', 'sell_return')->where('contact_id', $customer_id)
+            ->whereBetween(DB::raw('date(transaction_date)'), [$yesterday, $now]);
+        if($query->count() > 2){
+            $exceeded = 1;
+        } else
+            $exceeded = 0;
+        return json_encode(['exceeded' => $exceeded]);
+    }
     /**
      * Deposits amount.
      * @param  Request $request

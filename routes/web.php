@@ -145,6 +145,8 @@ Route::middleware(['IsInstalled', 'auth', 'SetSessionData', 'language', 'timezon
     Route::get('/sells/pos_deposit/get-bonus-suggestion', 'SellPosDepositController@getBonusSuggestion');
     Route::post('/sells/pos_deposit/get_remarks', 'SellPosDepositController@getRemarks');
 
+    Route::post('/sells/pos_deposit/update_game_id', 'SellPosDepositController@updateGameID');
+
     Route::resource('pos_deposit', 'SellPosDepositController');
 
     Route::get('/sells/pos_deposit/ledger', 'SellPosDepositController@getLedger');
@@ -335,6 +337,8 @@ Route::middleware(['IsInstalled', 'auth', 'SetSessionData', 'language', 'timezon
         Route::get('/deposit/{id}', 'ServiceController@getDeposit');
         Route::post('/deposit', 'ServiceController@postDeposit');
         Route::get('/withdraw/{id}', 'ServiceController@getWithdraw');
+        Route::post('/getGameId', 'ServiceController@getGameID');
+        Route::post('/checkWithdraw', 'ServiceController@checkWithdraw');
         Route::post('/withdraw', 'ServiceController@postWithdraw');
         Route::get('/close/{id}', 'ServiceController@close');
         Route::get('/fund-transfer/{id}', 'ServiceController@getFundTransfer');

@@ -1,4 +1,4 @@
-<tr class="product_row" data-row_index="{{$row_count}}">
+<tr class="product_row @if(!isset($is_service) || $is_service == 1) service_row @endif" data-row_index="{{$row_count}}">
 	<td>
 		@php
 			$product_name = $product->product_name . '<br/>' . $product->sub_sku ;
@@ -7,13 +7,17 @@
 
 		@if($edit_price || $edit_discount )
 		<div data-toggle="tooltip" data-placement="bottom" title="@lang('lang_v1.pos_edit_product_price_help')">
-			<span class="text-link text-info cursor-pointer" data-toggle="modal" data-target="#row_edit_product_price_modal_{{$row_count}}" style="width:60%;display:inline-block">
+			<span class="@if(!isset($is_service) || $is_service == 1 && !$is_first_service)text-link text-info cursor-pointer @endif" data-toggle="modal" @if(!isset($is_service) || $is_service == 1 && !$is_first_service) data-target="#row_edit_product_price_modal_{{$row_count}}" @endif style="width:60%;display:inline-block">
 				{!! $product_name !!}
 				&nbsp;<i class="fa fa-info-circle"></i>
 			</span>
 			@if(isset($game_id))
 				<span>{{ $product->product_name.' - '}}</span>
-				<button class="game_id_but">{{$game_id}}</button>
+				@if(!empty($game_id))
+					<button class="game_id_but">{{$game_id}}</button>
+				@else
+					<input class="form-control game_input" style="display: inline-block; width: inherit">
+				@endif
 			@endif
 		</div>
 		@else

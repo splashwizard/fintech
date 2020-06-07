@@ -69,7 +69,7 @@
                                 <th>@lang('contact.total_sale_due')</th>
                                 <th>@lang('lang_v1.total_sell_return_due')</th>
                                 <th>@lang('contact.birthday')</th>
-                                <th>@lang('user.rp_name')</th>
+{{--                                <th>@lang('user.rp_name')</th>--}}
                                 <th>@lang('business.address')</th>
                                 <th>@lang('lang_v1.added_on')</th>
                                 <th>@lang('messages.action')</th>
@@ -80,7 +80,7 @@
                                 <th>@lang('lang_v1.customer_group')</th>
                                 <th>@lang('contact.total_sale_due')</th>
                                 <th>@lang('lang_v1.total_sell_return_due')</th>
-                                <th>@lang('user.rp_name')</th>
+{{--                                <th>@lang('user.rp_name')</th>--}}
                                 <th>@lang('business.address')</th>
                                 <th>@lang('lang_v1.added_on')</th>
                                 <th>@lang('contact.blacklist_by')</th>
@@ -101,9 +101,9 @@
                             <td><span class="display_currency" id="footer_contact_due"></span></td>
                             <td><span class="display_currency" id="footer_contact_return_due"> </span></td>
                             @if( $type == 'blacklisted_customer')
-                                <td colspan="7"></td>
+                                <td colspan="6"></td>
                             @else
-                                <td colspan="5"></td>
+                                <td colspan="4"></td>
                             @endif
                         </tr>
                     </tfoot>
@@ -115,7 +115,36 @@
     <div class="modal fade contact_modal" tabindex="-1" role="dialog" 
     	aria-labelledby="gridSystemModalLabel">
     </div>
-    <div class="modal fade blacklist_modal" tabindex="-1" role="dialog"
+    <div class="modal fade add_blacklist_modal" tabindex="-1" role="dialog"
+         aria-labelledby="gridSystemModalLabel">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                {!! Form::open(['url' => '', 'method' => 'PUT', 'id' => 'contact_edit_blacklist_form']) !!}
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">@lang('contact.blacklist_customer')</h4>
+                </div>
+
+                <div class="modal-body">
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                {!! Form::label('remark', __('contact.remark') . ':*') !!}
+                                {!! Form::text('remark', null, ['class' => 'form-control','placeholder' => __('contact.remark'), 'id' => 'remark', 'required']); !!}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="add_blacklist_item">@lang( 'messages.update' )</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">@lang( 'messages.close' )</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div>
+    <div class="modal fade edit_blacklist_modal" tabindex="-1" role="dialog"
          aria-labelledby="gridSystemModalLabel">
     </div>
     <div class="modal fade pay_contact_due_modal" tabindex="-1" role="dialog" 
@@ -157,7 +186,7 @@
                 {data: 'return_due', width: "10%"},
                 {data: 'birthday', width: "10%"}];
         }
-        columns.push({data: 'total_rp', width: "10%"});
+        // columns.push({data: 'total_rp', width: "10%"});
         if (contact_table_type === 'blacklisted_customer'){
             columns.push.apply(columns, [
                 {data: 'landmark', width: "10%"},
@@ -212,8 +241,28 @@
             contact_table.ajax.reload();
         });
 
+        function copyTextToClipboard(text) {
+
+
+            $('.contact_modal').find('.modal-body').append('<textarea id="copy_clipboard">'+ text+'</textarea>');
+            $('#copy_clipboard').focus();
+            $('#copy_clipboard').select();
+
+            try {
+                var successful = document.execCommand('copy');
+                var msg = successful ? 'successful' : 'unsuccessful';
+                console.log('Copying text command was ' + msg);
+            } catch (err) {
+                console.log('Oops, unable to copy');
+            }
+
+            $('#copy_clipboard').remove();
+        }
+
+
         //On display of add contact modal
         $('.contact_modal').on('shown.bs.modal', function(e) {
+            let submit_button = '';
             if ($('select#contact_type').val() == 'customer') {
                 $('div.supplier_fields').hide();
                 $('div.customer_fields').show();
@@ -239,7 +288,6 @@
 
             $('form#contact_add_form, form#contact_edit_form')
                 .submit(function(e) {
-                    console.log('editing form');
                     e.preventDefault();
                 })
                 .validate({
@@ -270,31 +318,67 @@
                     },
                     submitHandler: function(form) {
                         e.preventDefault();
-                        var data = $(form).serialize();
-                        // $(form)
-                        //     .find('button[type="submit"]')
-                        //     .attr('disabled', true);
-                        $.ajax({
-                            method: 'POST',
-                            url: $(form).attr('action'),
-                            dataType: 'json',
-                            data: data,
-                            success: function(result) {
-                                if (result.success == true) {
-                                    $('div.contact_modal').modal('hide');
-                                    toastr.success(result.msg);
-                                    contact_table.ajax.reload();
-                                } else {
-                                    toastr.error(result.msg);
-                                }
-                            },
-                        });
+                        if($("button[type=submit][clicked=true]").attr('id') === 'btn-add_blacklist'){
+                            $('.add_blacklist_modal').modal();
+                        } else {
+                            var data = $(form).serialize();
+                            // $(form)
+                            //     .find('button[type="submit"]')
+                            //     .attr('disabled', true);
+
+                            $.ajax({
+                                method: 'POST',
+                                url: $(form).attr('action'),
+                                dataType: 'json',
+                                data: data,
+                                success: function(result) {
+                                    if (result.success == true) {
+                                        $('div.contact_modal').modal('hide');
+                                        toastr.success(result.msg);
+                                        if($(form).attr('id') === 'contact_add_form'){
+                                            copyTextToClipboard(result.data.contact_id);
+                                        }
+                                        contact_table.ajax.reload();
+                                    } else {
+                                        toastr.error(result.msg);
+                                    }
+                                },
+                            });
+                        }
                     },
                 });
+            $("form#contact_add_form button[type=submit]").click(function() {
+                $("button[type=submit]", $(this).parents("form")).removeAttr("clicked");
+                $(this).attr("clicked", "true");
+            });
+        });
+
+        $('#add_blacklist_item').click(function (e) {
+            e.preventDefault();
+            $('#new_remark').val($('#remark').val());
+            $('#contact_add_type').val('blacklisted_customer');
+            var data = $('#contact_add_form').serialize();
+            $.ajax({
+                method: 'POST',
+                url: $('#contact_add_form').attr('action'),
+                dataType: 'json',
+                data: data,
+                success: function(result) {
+                    if (result.success == true) {
+                        $('div.add_blacklist_modal').modal('hide');
+                        $('div.contact_modal').modal('hide');
+                        toastr.success(result.msg);
+                        copyTextToClipboard(result.data.contact_id);
+                        window.location.href="/contacts?type=blacklisted_customer";
+                    } else {
+                        toastr.error(result.msg);
+                    }
+                },
+            });
         });
 
         //On display of add contact modal
-        $('.blacklist_modal').on('shown.bs.modal', function(e) {
+        $('.edit_blacklist_modal').on('shown.bs.modal', function(e) {
             $('form#contact_edit_blacklist_form')
                 .submit(function(e) {
                     console.log('editing form');
@@ -314,7 +398,7 @@
                             data: data,
                             success: function(result) {
                                 if (result.success == true) {
-                                    $('div.blacklist_modal').modal('hide');
+                                    $('div.edit_blacklist_modal').modal('hide');
                                     toastr.success(result.msg);
                                     contact_table.ajax.reload();
                                 } else {
@@ -361,7 +445,7 @@
 
         $(document).on('click', '.edit_blacklist_button', function(e) {
             e.preventDefault();
-            $('div.blacklist_modal').load($(this).attr('href'), function() {
+            $('div.edit_blacklist_modal').load($(this).attr('href'), function() {
                 $(this).modal('show');
             });
         });

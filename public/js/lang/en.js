@@ -104,6 +104,7 @@ LANG = {
     'all': 'All',
     'filter_by_date': 'Filter by date',
     'form_will_get_reset': 'All added products will be removed.',
+    'withdraw_fourth_warning': 'This is the 4th withdrawal for xxxx (contact ID) in the past 24 hours, proceed?',
     'tour_step3_content_modified': 'Add Multiple Locations, Tax Rates, Invoice Settings for your shop.',
     'tour_step5_content_modified': 'Add Products - Simple or Variable Products <br> Create Variations for variable products <br> Create Units, Brands and Categories <br> Print labels',
     'pos_max_qty_error': 'Only :max_val :unit_name available',
