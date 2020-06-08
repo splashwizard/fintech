@@ -67,7 +67,7 @@
 				<div class="col-sm-4">
                     <div class="form-group">
                         {!! Form::label('document', __('purchase.attach_document') . ':') !!}
-						<textarea id="pasteArea" placeholder="Paste Image Here"></textarea>
+						<textarea id="pasteArea" placeholder="Paste Image Here" required></textarea>
                         {!! Form::file('document', ['id' => 'upload_document', 'style'=>'display:none']); !!}
                         <p class="help-block">@lang('purchase.max_file_size', ['size' => (config('constants.document_size_limit') / 1000000)])</p>
                     </div>

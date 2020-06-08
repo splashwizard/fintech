@@ -29,7 +29,8 @@
         "srmklive/paypal": "^1.6",
         "stripe/stripe-php": "^6.10",
         "yajra/laravel-datatables-buttons": "3.*",
-        "yajra/laravel-datatables-oracle": "^8.3"
+        "yajra/laravel-datatables-oracle": "^8.3",
+      "ext-json": "*"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.2",

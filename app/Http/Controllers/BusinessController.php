@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Business;
+use App\CountryCode;
 use App\Currency;
 use App\System;
 use App\TaxRate;
@@ -346,7 +347,9 @@ class BusinessController extends Controller
 
         $custom_labels = !empty($business->custom_labels) ? json_decode($business->custom_labels, true) : [];
 
-        return view('business.settings', compact('business', 'currencies', 'tax_rates', 'timezone_list', 'months', 'accounting_methods', 'commission_agent_dropdown', 'units_dropdown', 'date_formats', 'shortcuts', 'pos_settings', 'modules', 'theme_colors', 'email_settings', 'sms_settings', 'mail_drivers', 'allow_superadmin_email_settings', 'custom_labels'));
+        $country_codes = CountryCode::get();
+
+        return view('business.settings', compact('business', 'currencies', 'country_codes', 'tax_rates', 'timezone_list', 'months', 'accounting_methods', 'commission_agent_dropdown', 'units_dropdown', 'date_formats', 'shortcuts', 'pos_settings', 'modules', 'theme_colors', 'email_settings', 'sms_settings', 'mail_drivers', 'allow_superadmin_email_settings', 'custom_labels'));
     }
 
     /**
@@ -362,6 +365,11 @@ class BusinessController extends Controller
         }
         
         try {
+            $country_codes = $request->get('country_codes');
+            foreach ($country_codes as $key => $item) {
+                CountryCode::find($key)->update(['basic_bonus_percent' => $item]);
+            }
+
             $business_details = $request->only(['name', 'start_date', 'currency_id', 'tax_label_1', 'tax_number_1', 'tax_label_2', 'tax_number_2', 'basic_bonus', 'default_profit_percent', 'default_sales_tax', 'default_sales_discount', 'sell_price_tax', 'sku_prefix', 'time_zone', 'fy_start_month', 'accounting_method', 'transaction_edit_days', 'sales_cmsn_agnt', 'item_addition_method', 'currency_symbol_placement', 'on_product_expiry',
                 'stop_selling_before', 'default_unit', 'expiry_type', 'date_format',
                 'time_format', 'ref_no_prefixes', 'theme_color', 'email_settings',

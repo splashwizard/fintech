@@ -152,4 +152,32 @@
             </div>
         </div>
     </div>
+
+    <div class="row">
+        <div class="col-sm-6">
+            <table class="table table-striped">
+                <thead>
+                    <th style="width: 50%">Country Code</th>
+                    <th>Basic Bonus:</th>
+                </thead>
+                <tbody>
+                    @foreach($country_codes as $key => $item)
+                        <tr>
+                            <td>{{$item->code}}</td>
+                            <td>
+                                <div class="input-group">
+                                    <input type="text" name="country_codes[{{$item->id}}]" class="form-control" value="{{$item->basic_bonus_percent}}" style="text-align: right">
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-percent"></i>
+                                    </span>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
+<style>
+</style>

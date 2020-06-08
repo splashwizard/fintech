@@ -6,6 +6,7 @@ use App\Account;
 use App\BankBrand;
 use App\Business;
 use App\Contact;
+use App\CountryCode;
 use App\CustomerGroup;
 use App\GameId;
 use App\Membership;
@@ -410,21 +411,44 @@ class ContactController extends Controller
             abort(403, 'Unauthorized action.');
         }
         $business_id = request()->session()->get('user.business_id');
-        if(Contact::where('mobile', $request->get('mobile'))->where('business_id', $business_id)->count() > 0){
-            if(!empty(Contact::where('mobile', $request->get('mobile'))->where('business_id', $business_id)->get()[0]->blacked_by_user))
-                $msg = ' has been blacklisted in the system!';
-            else
-                $msg = ' already exist in the system!';
-            $output = ['success' => false,
-                'msg' => $request->get('mobile').$msg.' Please use another contact!'
-            ];
-        } else if(Contact::where('mobile', $request->get('mobile'))->count() > 0 && Contact::where('mobile', $request->get('mobile'))->get()[0]->banned_by_user){
-            $msg = ' has been banned in the system!';
-            $output = ['success' => false,
-                'msg' => $request->get('mobile').$msg.' Please use another contact!'
-            ];
+        $mobile_list = $request->get('mobile');
+        $data = Contact::where('business_id', $business_id)->get(['mobile', 'blacked_by_user']);
+        foreach ($data as $item){
+            if(!empty($item->mobile)){
+                foreach (json_decode($item->mobile) as $old_mobile){
+                    foreach ($mobile_list as $new_mobile){
+                        if($old_mobile == $new_mobile){
+                            if($item->blacked_by_user){
+                                $msg = ' has been blacklisted in the system!';
+                            } else
+                                $msg = ' already exist in the system!';
+                            $output = ['success' => false,
+                                'msg' => $new_mobile.$msg.' Please use another contact!'
+                            ];
+                            return $output;
+                        }
+                    }
+                }
+            }
         }
-        else if(Contact::where('email', $request->get('email'))->where('business_id', $business_id)->count() && !empty($request->get('email')) > 0){
+
+        $data = Contact::where('banned_by_user', '!=', null)->get(['mobile']);
+        foreach ($data as $item){
+            if(!empty($item->mobile)){
+                foreach (json_decode($item->mobile) as $old_mobile) {
+                    foreach ($mobile_list as $new_mobile) {
+                        if ($old_mobile == $new_mobile) {
+                            $msg = ' has been banned in the system!';
+                            $output = ['success' => false,
+                                'msg' => $request->get('mobile') . $msg . ' Please use another contact!'
+                            ];
+                            return $output;
+                        }
+                    }
+                }
+            }
+        }
+        if(Contact::where('email', $request->get('email'))->where('business_id', $business_id)->count() && !empty($request->get('email')) > 0){
             if(Contact::where('email', $request->get('email'))->where('business_id', $business_id)->get()[0]->blacked_by_user)
                 $msg = ' has been blacklisted in the system!';
             else
@@ -503,7 +527,7 @@ class ContactController extends Controller
                             return $this->moduleUtil->expiredResponse();
                         }
 
-                        $input = $request->only(['supplier_business_name', 'name', 'tax_number', 'pay_term_number', 'pay_term_type', 'mobile', 'landline',
+                        $input = $request->only(['supplier_business_name', 'name', 'tax_number', 'pay_term_number', 'pay_term_type', 'landline',
                             'alternate_number', 'city', 'state', 'country', 'landmark', 'customer_group_id', 'membership_id', 'contact_id', 'birthday', 'email', 'remarks']);
                         $input['type'] = 'customer';
                         $input['business_id'] = $business_id;
@@ -512,6 +536,8 @@ class ContactController extends Controller
                         $input['credit_limit'] = $request->input('credit_limit') != '' ? $this->commonUtil->num_uf($request->input('credit_limit')) : null;
                         $bank_details = $request->get('bank_details');
                         $input['bank_details'] = !empty($bank_details) ? json_encode($bank_details) : null;
+                        $mobile = $request->get('mobile');
+                        $input['mobile'] = !empty($mobile) ? json_encode($mobile) : null;
 
                         $type = $request->get('type');
                         if($type == 'blacklisted_customer'){
@@ -677,8 +703,9 @@ class ContactController extends Controller
             }
             $bank_details = !empty($contact->bank_details) ? json_decode($contact->bank_details, true) : null;
 
+            $country_codes = CountryCode::forDropdown(false);
             return view('contact.edit')
-                ->with(compact('contact', 'bank_details', 'types', 'customer_groups', 'memberships', 'bank_brands', 'opening_balance', 'services', 'game_ids', 'customer_type'));
+                ->with(compact('contact', 'bank_details', 'types', 'customer_groups', 'country_codes', 'memberships', 'bank_brands', 'opening_balance', 'services', 'game_ids', 'customer_type'));
         }
     }
 
@@ -742,22 +769,46 @@ class ContactController extends Controller
             abort(403, 'Unauthorized action.');
         }
         $business_id = request()->session()->get('user.business_id');
-        if(Contact::where('mobile', $request->get('mobile'))->where('business_id', $business_id)->where('id', '!=', $id)->count() > 0){
-            if(!empty(Contact::where('mobile', $request->get('mobile'))->where('business_id', $business_id)->where('id', '!=', $id)->get()[0]->blacked_by_user))
-                $msg = ' has been blacklisted in the system!';
-            else
-                $msg = ' already exist in the system!';
-            $output = ['success' => false,
-                'msg' => $request->get('mobile').$msg.' Please use another contact!'
-            ];
+
+        $mobile_list = $request->get('mobile');
+        $data = Contact::where('business_id', $business_id)->where('id', '!=', $id)->get(['mobile', 'blacked_by_user']);
+        foreach ($data as $item){
+            if(!empty($item->mobile)){
+                foreach (json_decode($item->mobile) as $old_mobile){
+                    foreach ($mobile_list as $new_mobile){
+                        if($old_mobile == $new_mobile){
+                            if($item->blacked_by_user){
+                                $msg = ' has been blacklisted in the system!';
+                            } else
+                                $msg = ' already exist in the system!';
+                            $output = ['success' => false,
+                                'msg' => $new_mobile.$msg.' Please use another contact!'
+                            ];
+                            return $output;
+                        }
+                    }
+                }
+            }
         }
-        else if(Contact::where('mobile', $request->get('mobile'))->where('id', '!=', $id)->count() > 0 && Contact::where('mobile', $request->get('mobile'))->where('id', '!=', $id)->get()[0]->banned_by_user){
-            $msg = ' has been banned in the system!';
-            $output = ['success' => false,
-                'msg' => $request->get('mobile').$msg.' Please use another contact!'
-            ];
+
+        $data = Contact::where('banned_by_user', '!=', null)->where('id', '!=', $id)->get(['mobile']);
+        foreach ($data as $item){
+            if(!empty($item->mobile)){
+                foreach (json_decode($item->mobile) as $old_mobile) {
+                    foreach ($mobile_list as $new_mobile) {
+                        if ($old_mobile == $new_mobile) {
+                            $msg = ' has been banned in the system!';
+                            $output = ['success' => false,
+                                'msg' => $request->get('mobile') . $msg . ' Please use another contact!'
+                            ];
+                            return $output;
+                        }
+                    }
+                }
+            }
         }
-        else if(Contact::where('email', $request->get('email'))->where('business_id', $business_id)->where('id', '!=', $id)->count() && !empty($request->get('email')) > 0){
+
+        if(Contact::where('email', $request->get('email'))->where('business_id', $business_id)->where('id', '!=', $id)->count() && !empty($request->get('email')) > 0){
             if(Contact::where('email', $request->get('email'))->where('business_id', $business_id)->where('id', '!=', $id)->get()[0]->blacked_by_user)
                 $msg = ' has been blacklisted in the system!';
             else
@@ -832,8 +883,8 @@ class ContactController extends Controller
                     ];
                 } else {
                     try {
-                        $input = $request->only(['type', 'supplier_business_name', 'name', 'tax_number', 'pay_term_number', 'pay_term_type', 'mobile', 'landline', 'alternate_number',
-                            'city', 'state', 'country', 'landmark', 'customer_group_id', 'membership_id', 'contact_id', 'birthday', 'email', 'remarks']);
+                        $input = $request->only(['type', 'supplier_business_name', 'name', 'tax_number', 'pay_term_number', 'pay_term_type', 'landline', 'alternate_number',
+                            'city', 'state', 'country', 'landmark', 'customer_group_id', 'membership_id', 'contact_id', 'birthday', 'email', 'remarks', 'country_code_id']);
 
                         $input['credit_limit'] = $request->input('credit_limit') != '' ? $this->commonUtil->num_uf($request->input('credit_limit')) : null;
 
@@ -871,6 +922,7 @@ class ContactController extends Controller
                                 }
                             }
                             $contact->bank_details = json_encode($new_bank_details);
+                            $contact->mobile = json_encode($request->get('mobile'));
                             $type = $request->get('customer_type');
                             if ($type == 'blacklisted_customer') {
                                 $contact->remark = $request->get('remark');

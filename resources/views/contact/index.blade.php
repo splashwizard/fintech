@@ -410,7 +410,19 @@
                 });
         });
 
-        $(document).on('click', '.btn-plus', function(e) {
+        $(document).on('click', '#btn-add_mobile', function(e) {
+            e.preventDefault();
+            let newMobileDiv = $('#div-mobile-origin').clone().removeAttr('id').css('display', 'block');
+            newMobileDiv.find('input').attr('name', 'mobile[]');
+           $('#div-mobile').append(newMobileDiv);
+        });
+
+        $(document).on('click', '.btn-remove_mobile', function(e) {
+            e.preventDefault();
+            $(this).parents('.form-group').remove();
+        });
+
+        $(document).on('click', '.btn-add_bank_detail', function(e) {
             e.preventDefault();
             var account_index = parseInt($('#account_index').val());
             if(account_index === 3){

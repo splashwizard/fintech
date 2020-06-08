@@ -60,7 +60,7 @@
 
 <script src="{{ asset('plugins/printThis.js?v=' . $asset_v) }}"></script>
 
-<script src="{{ asset('plugins/screenfull.min.js?v=' . $asset_v) }}""></script>
+<script src="{{ asset('plugins/screenfull.min.js?v=' . $asset_v) }}"></script>
 
 <script src="{{ asset('plugins/moment-timezone-with-data.min.js?v=' . $asset_v) }}"></script>
 @php

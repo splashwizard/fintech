@@ -3,6 +3,7 @@
     {!! Form::open(['url' => action('ContactController@update', [$contact->id]), 'method' => 'PUT', 'id' => 'contact_edit_form']) !!}
     {!! Form::hidden('customer_type', $customer_type); !!}
     {!! Form::hidden('account_index', empty($bank_details) ? 1 : count($bank_details), ['id' => 'account_index']); !!}
+    {!! Form::hidden('hidden_id', $contact->id, ['id' => 'hidden_id']) !!}
 
     <div class="modal-header">
       <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -12,7 +13,7 @@
     <div class="modal-body">
 
       <div class="row">
-        <div class="col-md-4">
+        <div class="col-md-3">
           <div class="form-group">
               {!! Form::label('name', __('contact.name') . ':*') !!}
               <div class="input-group">
@@ -23,20 +24,9 @@
               </div>
           </div>
         </div>
-{{--        <div class="col-md-4">--}}
-{{--          <div class="form-group">--}}
-{{--              {!! Form::label('opening_balance', __('lang_v1.opening_balance') . ':') !!}--}}
-{{--              <div class="input-group">--}}
-{{--                  <span class="input-group-addon">--}}
-{{--                      <i class="fa fa-money"></i>--}}
-{{--                  </span>--}}
-{{--                  {!! Form::text('opening_balance', $opening_balance, ['class' => 'form-control input_number']); !!}--}}
-{{--              </div>--}}
-{{--          </div>--}}
-{{--        </div>--}}
 
 
-        <div class="col-md-4 customer_fields">
+        <div class="col-md-3 customer_fields">
           <div class="form-group">
               {!! Form::label('contact_id', __('contact.contact_id') . ':*') !!}
               <div class="input-group">
@@ -48,7 +38,7 @@
           </div>
         </div>
 
-        <div class="col-md-4 customer_fields">
+        <div class="col-md-3 customer_fields">
           <div class="form-group">
               {!! Form::label('customer_group_id', __('lang_v1.customer_group') . ':') !!}
               <div class="input-group">
@@ -59,6 +49,19 @@
               </div>
           </div>
         </div>
+
+
+      <div class="col-md-3 customer_fields">
+          <div class="form-group">
+              {!! Form::label('country_code_id', __('lang_v1.customer_group') . ':') !!}
+              <div class="input-group">
+              <span class="input-group-addon">
+                  <i class="fa fa-users"></i>
+              </span>
+                  {!! Form::select('country_code_id', $country_codes, $contact->country_code_id, ['class' => 'form-control']); !!}
+              </div>
+          </div>
+      </div>
 
       <div class="col-md-12">
         <hr/>
@@ -74,17 +77,54 @@
             </div>
         </div>
       </div>
-      <div class="col-md-3">
-        <div class="form-group">
-            {!! Form::label('mobile', __('contact.mobile') . ':*') !!}
-            <div class="input-group">
-                <span class="input-group-addon">
-                    <i class="fa fa-mobile"></i>
-                </span>
-                {!! Form::text('mobile', $contact->mobile, ['class' => 'form-control', 'required', 'placeholder' => __('contact.mobile')]); !!}
-            </div>
-        </div>
+
+      <div class="col-md-3" id="div-mobile">
+          <div class="form-group">
+              {!! Form::label('mobile', __('contact.mobile') . ':*') !!}
+              <div class="input-group">
+                  <span class="input-group-addon">
+                      <i class="fa fa-mobile"></i>
+                  </span>
+                  {!! Form::text('mobile[]', empty($contact->mobile) ? null : json_decode($contact->mobile)[0], ['class' => 'form-control', 'required', 'placeholder' => __('contact.mobile')]); !!}
+                  <span style="display: table-cell; vertical-align: middle">
+                      <span class="btn btn-primary" style="margin-left: 10px" id="btn-add_mobile"><i class="fa fa-plus"></i></span>
+                  </span>
+              </div>
+          </div>
+          @if(!empty($contact->mobile))
+              @foreach(json_decode($contact->mobile) as $key => $item)
+                  @if($key > 0)
+                  <div class="form-group">
+                      {!! Form::label('mobile', __('contact.mobile') . ':*') !!}
+                      <div class="input-group">
+                          <span class="input-group-addon">
+                              <i class="fa fa-mobile"></i>
+                          </span>
+                          {!! Form::text('mobile[]', $item, ['class' => 'form-control', 'required', 'placeholder' => __('contact.mobile')]); !!}
+                          <span style="display: table-cell; vertical-align: middle">
+                            <span class="btn btn-danger btn-remove_mobile" style="margin-left: 10px"><i class="fa fa-minus"></i></span>
+                          </span>
+                      </div>
+                  </div>
+                  @endif
+              @endforeach
+          @endif
+
+          <div class="form-group" id="div-mobile-origin" style="display: none">
+              {!! Form::label('mobile', __('contact.mobile') . ':*') !!}
+              <div class="input-group">
+                  <span class="input-group-addon">
+                      <i class="fa fa-mobile"></i>
+                  </span>
+                  {!! Form::text(null, null, ['class' => 'form-control', 'required', 'placeholder' => __('contact.mobile')]); !!}
+                  <span style="display: table-cell; vertical-align: middle">
+                      <span class="btn btn-danger btn-remove_mobile" style="margin-left: 10px"><i class="fa fa-minus"></i></span>
+                  </span>
+              </div>
+          </div>
       </div>
+
+
       <div class="col-md-3">
           <div class="form-group">
               {!! Form::label('operation_date', __( 'contact.birthday' ) .":*") !!}
@@ -95,10 +135,6 @@
                   </span>
               </div>
           </div>
-{{--        <div class="form-group">--}}
-{{--          {!! Form::label('remark', __('contact.remark') . ':*') !!}--}}
-{{--          {!! Form::text('remark', $contact->remark, ['class' => 'form-control','placeholder' => __('contact.remark')]); !!}--}}
-{{--        </div>--}}
       </div>
 
       <div class="col-md-3">
@@ -118,38 +154,6 @@
       <div class="col-md-12">
         <hr/>
       </div>
-{{--      <div class="col-md-3">--}}
-{{--        <div class="form-group">--}}
-{{--            {!! Form::label('custom_field1', __('lang_v1.custom_field', ['number' => 1]) . ':') !!}--}}
-{{--            {!! Form::text('custom_field1', $contact->custom_field1, ['class' => 'form-control', --}}
-{{--                'placeholder' => __('lang_v1.custom_field', ['number' => 1])]); !!}--}}
-{{--        </div>--}}
-{{--      </div>--}}
-{{--      <div class="col-md-3">--}}
-{{--        <div class="form-group">--}}
-{{--            {!! Form::label('custom_field2', __('lang_v1.custom_field', ['number' => 2]) . ':') !!}--}}
-{{--            {!! Form::text('custom_field2', $contact->custom_field2, ['class' => 'form-control', --}}
-{{--                'placeholder' => __('lang_v1.custom_field', ['number' => 2])]); !!}--}}
-{{--        </div>--}}
-{{--      </div>--}}
-{{--      <div class="col-md-3">--}}
-{{--        <div class="form-group">--}}
-{{--            {!! Form::label('custom_field3', __('lang_v1.custom_field', ['number' => 3]) . ':') !!}--}}
-{{--            {!! Form::text('custom_field3', $contact->custom_field3, ['class' => 'form-control', --}}
-{{--                'placeholder' => __('lang_v1.custom_field', ['number' => 3])]); !!}--}}
-{{--        </div>--}}
-{{--      </div>--}}
-{{--      <div class="col-md-3">--}}
-{{--        <div class="form-group">--}}
-{{--            {!! Form::label('custom_field4', __('lang_v1.custom_field', ['number' => 4]) . ':') !!}--}}
-{{--            {!! Form::text('custom_field4', $contact->custom_field4, ['class' => 'form-control', --}}
-{{--                'placeholder' => __('lang_v1.custom_field', ['number' => 4])]); !!}--}}
-{{--        </div>--}}
-{{--      </div>--}}
-{{--      <div class="clearfix"></div>--}}
-{{--      <div class="col-md-12">--}}
-{{--          <hr/>--}}
-{{--      </div>--}}
 
       @foreach($services as $key => $service)
           <div class="col-md-3">
@@ -177,7 +181,7 @@
               {!! Form::select("bank_details[0][bank_brand_id]", $bank_brands, null, ['class' => 'form-control', 'required']); !!}
           </div>
           <div class="form-group col-md-3">
-              <button type="submit" class="btn btn-primary btn-plus"><i class="fa fa-plus"></i></button>
+              <button type="submit" class="btn btn-primary btn-add_bank_detail"><i class="fa fa-plus"></i></button>
           </div>
           <div class="clearfix"></div>
           @else
@@ -195,7 +199,7 @@
                       {!! Form::select("bank_details[{$account_index}][bank_brand_id]", $bank_brands, $bank_detail['bank_brand_id'], ['class' => 'form-control', 'required']); !!}
                   </div>
                   <div class="form-group col-md-3">
-                      <button type="submit" class="btn btn-primary btn-plus"><i class="fa fa-plus"></i></button>
+                      <button type="submit" class="btn btn-primary btn-add_bank_detail"><i class="fa fa-plus"></i></button>
                   </div>
                   <div class="clearfix"></div>
 

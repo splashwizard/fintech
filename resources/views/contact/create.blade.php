@@ -68,14 +68,29 @@
             </div>
         </div>
       </div>
-      <div class="col-md-3">
+      <div class="col-md-3" id="div-mobile">
         <div class="form-group">
             {!! Form::label('mobile', __('contact.mobile') . ':*') !!}
             <div class="input-group">
                 <span class="input-group-addon">
                     <i class="fa fa-mobile"></i>
                 </span>
-                {!! Form::text('mobile', null, ['class' => 'form-control', 'required', 'placeholder' => __('contact.mobile')]); !!}
+                {!! Form::text('mobile[]', null, ['class' => 'form-control', 'required', 'placeholder' => __('contact.mobile')]); !!}
+                <span style="display: table-cell; vertical-align: middle">
+                    <span class="btn btn-primary" style="margin-left: 10px" id="btn-add_mobile"><i class="fa fa-plus"></i></span>
+                </span>
+            </div>
+        </div>
+        <div class="form-group" id="div-mobile-origin" style="display: none">
+          {!! Form::label('mobile', __('contact.mobile') . ':*') !!}
+            <div class="input-group">
+              <span class="input-group-addon">
+                 <i class="fa fa-mobile"></i>
+              </span>
+              {!! Form::text(null, null, ['class' => 'form-control', 'required', 'placeholder' => __('contact.mobile')]); !!}
+              <span style="display: table-cell; vertical-align: middle">
+                <span class="btn btn-danger btn-remove_mobile" style="margin-left: 10px"><i class="fa fa-minus"></i></span>
+              </span>
             </div>
         </div>
       </div>
@@ -171,7 +186,7 @@
               {!! Form::select("bank_details[0][bank_brand_id]", $bank_brands, null, ['class' => 'form-control', 'required']); !!}
           </div>
           <div class="form-group col-md-3">
-              <button type="submit" class="btn btn-primary btn-plus"><i class="fa fa-plus"></i></button>
+              <button type="submit" class="btn btn-primary btn-add_bank_detail"><i class="fa fa-plus"></i></button>
           </div>
           <div class="clearfix"></div>
       </div>

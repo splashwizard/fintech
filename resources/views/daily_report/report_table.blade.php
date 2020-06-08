@@ -41,6 +41,8 @@
                         <td></td>
                     @elseif(in_array($bank_column, array('in_ticket', 'out_ticket')))
                         <td>{{$total}}</td>
+                    @elseif($total == 0 && $bank_column == 'expenses')
+                        <td id="expense_link_td"><span class="display_currency sell_amount" data-orig-value="{{$total}}" data-highlight=true>{{$total}}</span></td>
                     @else
                         <td><span class="display_currency sell_amount" data-orig-value="{{$total}}" data-highlight=true>{{$total}}</span></td>
                     @endif
@@ -76,9 +78,24 @@
         </tbody>
     </table>
 @endcomponent
+<style>
+    #expense_link_tr:hover {
+        background-color: #9c3328;
+    }
+    #expense_link_tr:hover td {
+        border-color: #9c3328;
+    }
+</style>
 <script>
     $(document).ready(function(){
         __currency_convert_recursively($('#bank_table'));
         __currency_convert_recursively($('#service_table'));
+        var td = $('#expense_link_td');
+        if(td.length > 0){
+            td.parents('tr').attr('id', 'expense_link_tr');
+        }
+        $('#expense_link_tr').click(function (e) {
+            window.location.href = "/expenses";
+        })
     })
 </script>
