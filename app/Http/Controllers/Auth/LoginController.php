@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\User;
+use App\Utils\ModuleUtil;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 
 use App\Utils\BusinessUtil;
+use Modules\Essentials\Entities\EssentialsAttendance;
 
 class LoginController extends Controller
 {
@@ -29,6 +31,7 @@ class LoginController extends Controller
      *
      */
     protected $businessUtil;
+    protected $moduleUtil;
 
     /**
      * Where to redirect users after login.
@@ -42,10 +45,11 @@ class LoginController extends Controller
      *
      * @return void
      */
-    public function __construct(BusinessUtil $businessUtil)
+    public function __construct(ModuleUtil $moduleUtil, BusinessUtil $businessUtil)
     {
         $this->middleware('guest')->except('logout');
         $this->businessUtil = $businessUtil;
+        $this->moduleUtil = $moduleUtil;
     }
 
     /**
@@ -64,6 +68,18 @@ class LoginController extends Controller
         $row = User::where('id', $user_id)->first();
         $row->is_logged = false;
         $row->update();
+        // clock out
+        $business_id = request()->session()->get('user.business_id');
+        $clock_in = EssentialsAttendance::where('business_id', $business_id)
+            ->where('user_id', auth()->user()->id)
+            ->whereNull('clock_out_time')
+            ->first();
+        if (!empty($clock_in)) {
+            $clock_in->clock_out_time = \Carbon::now();
+            $clock_in->clock_out_note = null;
+            $clock_in->save();
+        }
+
         request()->session()->flush();
         \Auth::logout();
         return redirect('/login');
@@ -117,6 +133,22 @@ class LoginController extends Controller
         $user->last_online = $date->format('Y-m-d H:i:s');
         $user->is_logged = true;
         $user->save();
+        // clock in
+        $business_id = $user->business_id;
+        $count = EssentialsAttendance::where('business_id', $business_id)
+            ->where('user_id', auth()->user()->id)
+            ->whereNull('clock_out_time')
+            ->count();
+        if ($count == 0) {
+            $data = [
+                'business_id' => $business_id,
+                'user_id' => auth()->user()->id,
+                'clock_in_time' => \Carbon::now(),
+                'clock_in_note' => null,
+                'ip_address' => $this->moduleUtil->getUserIpAddr()
+            ];
+            EssentialsAttendance::create($data);
+        }
     }
 
     protected function redirectTo()

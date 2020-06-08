@@ -36,6 +36,7 @@ use App\BusinessLocation;
 use App\CashRegister;
 use App\Category;
 use App\Contact;
+use App\CountryCode;
 use App\CustomerGroup;
 use App\GameId;
 use App\Media;
@@ -1560,7 +1561,8 @@ class SellPosDepositController extends Controller
         $payment_data = [];
         $bonus_amount = 0;
         $is_direct_bonus = 0;
-        $bonus_rate = request()->session()->get('business')['basic_bonus'];
+        $customer_id = request()->get('customer_id');
+        $bonus_rate = CountryCode::find(Contact::find($customer_id)->country_code_id)->basic_bonus_percent;
         foreach ($products as $product) {
             if(!isset($payment_data[$product['account_id']]['amount'] )){
                 $p_name = $product['p_name'];
@@ -1924,6 +1926,17 @@ class SellPosDepositController extends Controller
         return $output;
     }
 
+    public function getBasicBonusRate(){
+        try{
+            $customer = Contact::find(request()->get('customer_id'));
+            $output = ['success' => 1, 'basic_bonus_rate' => CountryCode::find($customer->country_code_id)->basic_bonus_percent];
+        } catch (\Exception $e) {
+            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+
+            $output = ['success' => 0];
+        }
+        return $output;
+    }
 
     public function getLedger()
     {

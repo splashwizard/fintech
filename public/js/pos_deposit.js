@@ -201,6 +201,9 @@ $(document).ready(function() {
 
     $('#customer_id').on('select2:select', function(e) {
         selectCustomer();
+        updateBasicBonusRate();
+        updateRemarks();
+        getCustomerRewardPoints();
     });
 
     set_default_customer();
@@ -2401,10 +2404,26 @@ function updateRedeemedAmount(argument) {
     $('#rp_redeemed_amount').val(redeemed_amount);
 }
 
-$(document).on('change', 'select#customer_id', function(){
-    updateRemarks();
-    getCustomerRewardPoints();
-});
+function updateBasicBonusRate(){
+    $('#contact_id').val($('#customer_id').val());
+    $.ajax({
+        method: 'POST',
+        url: '/sells/pos_deposit/get_basic_bonus_rate',
+        data: {customer_id: $('#customer_id').val()},
+        dataType: 'json',
+        success: function(result) {
+            if(result.success){
+                basic_bonus_rate = result.basic_bonus_rate;
+            }
+        }
+    });
+}
+
+// $(document).on('change', 'select#customer_id', function(){
+//     console.log('changing');
+//     updateRemarks();
+//     getCustomerRewardPoints();
+// });
 
 function updateRemarks(){
     $.ajax({

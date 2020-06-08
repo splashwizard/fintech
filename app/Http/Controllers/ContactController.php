@@ -182,7 +182,8 @@ class ContactController extends Controller
                 $q->where('contacts.business_id', $business_id);
                 $q->orWhere('contacts.business_id', 0);
             })
-            ->where('contacts.blacked_by_user', null);
+            ->where('contacts.blacked_by_user', null)
+            ->where('contacts.type', 'customer');
         if($month!="0")
             $query->where(DB::raw('DATE_FORMAT(STR_TO_DATE(birthday, "%Y-%m-%d"), "%m")'), $month);
         $query->addSelect(['contacts.contact_id', 'contacts.name', 'contacts.email', 'contacts.created_at', 'total_rp', 'cg.name as customer_group', 'm.name as membership', 'city', 'state', 'country', 'landmark', 'mobile', 'contacts.id', 'is_default',
