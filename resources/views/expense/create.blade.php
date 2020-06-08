@@ -41,6 +41,8 @@
 						{!! Form::text('ref_no', null, ['class' => 'form-control']); !!}
 					</div>
 				</div>
+			</div>
+			<div class="row">
 				<div class="col-sm-4">
 					<div class="form-group">
 						{!! Form::label('transaction_date', __('messages.date') . ':*') !!}
@@ -64,11 +66,13 @@
 						{!! Form::select('expense_for', $users, null, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select'), 'required']); !!}
 					</div>
 				</div>
+			</div>
+			<div class="row">
 				<div class="col-sm-4">
                     <div class="form-group">
                         {!! Form::label('document', __('purchase.attach_document') . ':') !!}
-						<textarea id="pasteArea" placeholder="Paste Image Here" required></textarea>
-                        {!! Form::file('document', ['id' => 'upload_document', 'style'=>'display:none']); !!}
+						<textarea id="pasteArea" placeholder="Paste Image Here"></textarea>
+                        {!! Form::file('document', ['id' => 'upload_document', 'required', 'style'=>'display:none']); !!}
                         <p class="help-block">@lang('purchase.max_file_size', ['size' => (config('constants.document_size_limit') / 1000000)])</p>
                     </div>
                 </div>
@@ -117,5 +121,7 @@
 				reader.readAsDataURL(blob);
 			}
 		});
+		// $('#pasteArea').val('pasted');
+		$('#add_expense_form').validate({ignore: []});
 	</script>
 @endsection
