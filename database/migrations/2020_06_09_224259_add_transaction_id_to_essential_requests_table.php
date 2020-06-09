@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddRemarksToContactsTable extends Migration
+class AddTransactionIdToEssentialRequestsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,9 @@ class AddRemarksToContactsTable extends Migration
      */
     public function up()
     {
-        Schema::table('contacts', function (Blueprint $table) {
+        Schema::table('essentials_requests', function (Blueprint $table) {
             //
-            $table->text('remarks')->after('membership_id')->nullable();
+            $table->integer('transaction_id')->after('reason')->nullable();
         });
     }
 
@@ -26,9 +26,9 @@ class AddRemarksToContactsTable extends Migration
      */
     public function down()
     {
-        Schema::table('contacts', function (Blueprint $table) {
+        Schema::table('essentials_requests', function (Blueprint $table) {
             //
-            $table->dropColumn('remarks');
+            $table->dropColumn('reason');
         });
     }
 }

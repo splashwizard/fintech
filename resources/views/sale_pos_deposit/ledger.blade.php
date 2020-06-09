@@ -47,6 +47,7 @@
 		{{--			<th>@lang('lang_v1.payment_method')</th>--}}
 		<th>Date/Time</th>
 		<th>User</th>
+		<th></th>
 	</tr>
 	</thead>
 	<tbody>
@@ -66,6 +67,7 @@
 			{{--				<td>{{$data['payment_method']}}</td>--}}
 			<td>{{@format_datetime($data['date'])}}</td>
 			<td>{{ $data['user'] }}</td>
+			<td><i class="fa fa-pencil btn-modal" style="color: rgb(255, 181, 185)" data-href="http://localhost:8000/hrm/request/create/{{$data['transaction_id']}}" data-container="#add_request_modal"></i></td>
 		</tr>
 	@endforeach
 	</tbody>
@@ -82,13 +84,16 @@
 		<th></th>
 		<th></th>
 		<th></th>
+		<th></th>
 	</tr>
 	</tfoot>
 </table>
 <script>
 	$(document).ready(function (e) {
 		$('tr.unclaimed').click(function (e) {
-			window.open('/pos_deposit/' + $(this).data('transaction_id')+'/edit');
+			var target = $( e.target );
+			if(!target.is('i'))
+				window.location.href = '/pos_deposit/' + $(this).data('transaction_id')+'/edit';
 		})
 	})
 </script>

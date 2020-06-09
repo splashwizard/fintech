@@ -1561,8 +1561,8 @@ class SellPosDepositController extends Controller
         $payment_data = [];
         $bonus_amount = 0;
         $is_direct_bonus = 0;
-        $customer_id = request()->get('customer_id');
-        $bonus_rate = CountryCode::find(Contact::find($customer_id)->country_code_id)->basic_bonus_percent;
+        $contact_id = request()->get('contact_id');
+        $bonus_rate = CountryCode::find(Contact::find($contact_id)->country_code_id)->basic_bonus_percent;
         foreach ($products as $product) {
             if(!isset($payment_data[$product['account_id']]['amount'] )){
                 $p_name = $product['p_name'];

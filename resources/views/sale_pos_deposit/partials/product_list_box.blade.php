@@ -1,6 +1,6 @@
 
 <div class="box box-widget">
-	<div class="box-header with-border" style="display: none">
+	<div class="box-header with-border">
 		@if(!empty($bank_categories))
 			<select class="select2" id="product_category" style="width:40% !important">
 				@foreach($bank_categories as $category)

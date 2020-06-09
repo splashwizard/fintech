@@ -28,6 +28,7 @@ class AddCountryCodeIdToContactsTable extends Migration
     {
         Schema::table('contacts', function (Blueprint $table) {
             //
+            $table->dropColumn('country_code_id');
         });
     }
 }

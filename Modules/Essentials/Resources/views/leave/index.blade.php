@@ -2,6 +2,7 @@
 @section('title', __('essentials::lang.leave'))
 
 @section('content')
+<link rel="stylesheet" href="{{ asset('plugins/fullcalendar/fullcalendar.min.css?v='.$asset_v) }}">
 <section class="content-header">
     <h1>@lang('essentials::lang.leave')
     </h1>
@@ -54,6 +55,7 @@
                             <i class="fa fa-plus"></i> @lang( 'messages.add' )</button>
                     </div>
                 @endslot
+                <div id='calendar' style="max-width: 500px; margin-bottom: 30px;"></div>
                 <div class="table-responsive">
                     <table class="table table-bordered table-striped" id="leave_table">
                         <thead>
@@ -83,8 +85,40 @@
 @endsection
 
 @section('javascript')
+    <script src="{{ asset('plugins/fullcalendar/fullcalendar.min.js?v=' . $asset_v) }}"></script>
+
+    @php
+        $fullcalendar_lang_file = session()->get('user.language', config('app.locale') ) . '.js';
+    @endphp
+    @if(file_exists(public_path() . '/plugins/fullcalendar/locale/' . $fullcalendar_lang_file))
+        <script src="{{ asset('plugins/fullcalendar/locale/' . $fullcalendar_lang_file . '?v=' . $asset_v) }}"></script>
+    @endif
     <script type="text/javascript">
         $(document).ready(function() {
+
+            $('#calendar').fullCalendar({
+                // put your options and callbacks here
+                header: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'month,agendaWeek,agendaDay,listWeek'
+                },
+                eventSources: [
+                    {
+                        url: '/hrm/leave/get-calendar-data'
+                    }
+                ],
+                color: 'yellow',   // an option!
+                textColor: 'black' // an option!
+            });
+
+            $('#leave_filter_date_range').daterangepicker(
+                dateRangeSettings,
+                function (start, end) {
+                    $('#leave_filter_date_range').val(start.format(moment_date_format) + ' ~ ' + end.format(moment_date_format));
+                }
+            );
+
             leaves_table = $('#leave_table').DataTable({
                 processing: true,
                 serverSide: true,
@@ -113,7 +147,7 @@
                 ],
                 columns: [
                     { data: 'ref_no', name: 'ref_no' },
-                    { data: 'leave_type', name: 'lt.leave_type' },
+                    { data: 'leave_type', name: 'leave_type' },
                     { data: 'user', name: 'user' },
                     { data: 'start_date', name: 'start_date'},
                     { data: 'reason', name: 'essentials_leaves.reason'},
@@ -122,12 +156,6 @@
                 ],
             });
 
-            $('#leave_filter_date_range').daterangepicker(
-                dateRangeSettings,
-                function (start, end) {
-                    $('#leave_filter_date_range').val(start.format(moment_date_format) + ' ~ ' + end.format(moment_date_format));
-                }
-            );
             $('#leave_filter_date_range').on('cancel.daterangepicker', function(ev, picker) {
                 $('#leave_filter_date_range').val('');
                 leaves_table.ajax.reload();

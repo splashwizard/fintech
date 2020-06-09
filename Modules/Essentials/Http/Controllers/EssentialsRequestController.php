@@ -2,6 +2,8 @@
 
 namespace Modules\Essentials\Http\Controllers;
 
+use App\GameId;
+use App\TransactionPayment;
 use App\User;
 use App\Utils\ModuleUtil;
 use DB;
@@ -48,6 +50,14 @@ class EssentialsRequestController extends Controller
                 'name' => __('essentials::lang.cancelled'),
                 'class' => 'bg-red'
             ]
+        ];
+        $this->transactionTypes = [
+            'sell' => __('sale.sale'),
+            'purchase' => __('lang_v1.purchase'),
+            'sell_return' => __('lang_v1.sell_return'),
+            'purchase_return' =>  __('lang_v1.purchase_return'),
+            'opening_balance' => __('lang_v1.opening_balance'),
+            'payment' => __('lang_v1.payment')
         ];
     }
 
@@ -174,6 +184,80 @@ class EssentialsRequestController extends Controller
         return view('essentials::request.create')->with(compact('request_types', 'instructions'));
     }
 
+    public function createWithTransaction($transaction_id){
+        $business_id = request()->session()->get('user.business_id');
+
+        $request_types = EssentialsRequestType::forDropdown($business_id);
+
+        $settings = request()->session()->get('business.essentials_settings');
+        $settings = !empty($settings) ? json_decode($settings, true) : [];
+
+        $instructions = !empty($settings['leave_instructions']) ? $settings['leave_instructions'] : '';
+        // get transaction info
+        $query2 = TransactionPayment::join(
+            'transactions as t',
+            'transaction_payments.transaction_id',
+            '=',
+            't.id'
+        )
+            ->join('accounts as a', 'a.id', 'transaction_payments.account_id')
+            ->leftJoin('business_locations as bl', 't.location_id', '=', 'bl.id')
+            ->join('contacts as c', 'c.id', 't.contact_id')
+            // ->where('t.contact_id', $contact_id)
+            ->where('t.business_id', $business_id)
+            ->where('t.id', $transaction_id);
+
+        $payments = $query2->select('transaction_payments.*', 't.id as transaction_id', 't.bank_in_time as bank_in_time', 'bl.name as location_name', 't.type as transaction_type', 't.ref_no', 't.invoice_no'
+            , 'c.id as contact_primary_key', 'c.contact_id as contact_id', 'c.is_default as is_default', 'a.id as account_id', 'a.name as account_name', 't.created_by as created_by')->get();
+
+        $ledger_by_payment = [];
+        foreach ($payments as $payment) {
+            if(empty($ledger_by_payment[$payment->transaction_id])){
+                $ref_no = in_array($payment->transaction_type, ['sell', 'sell_return']) ?  $payment->invoice_no :  $payment->ref_no;
+                $user = User::find($payment->created_by);
+                $ledger_by_payment[$payment->transaction_id] = [
+                    'date' => $payment->paid_on,
+                    'ref_no' => $payment->payment_ref_no,
+                    'type' => $this->transactionTypes['payment'],
+                    'location' => $payment->location_name,
+                    'contact_id' => $payment->contact_id,
+                    'payment_method' => !empty($paymentTypes[$payment->method]) ? $paymentTypes[$payment->method] : '',
+                    'debit' => ($payment->card_type == 'debit' && $payment->method != 'service_transfer') ? $payment->amount : 0,
+                    'credit' => ($payment->card_type == 'credit' && $payment->method == 'bank_transfer') ? $payment->amount : 0,
+                    'free_credit' => ($payment->card_type == 'credit' && $payment->method == 'free_credit') ? $payment->amount : 0 ,
+                    'service_debit' => ($payment->card_type == 'debit' && $payment->method == 'service_transfer') ? $payment->amount : 0,
+                    'service_credit' => ($payment->card_type == 'credit' && $payment->method == 'service_transfer' ) ? $payment->amount : 0,
+                    'others' => '<small>' . $ref_no . '</small>',
+                    'bank_in_time' => $payment->bank_in_time,
+                    'user' => $user['first_name'].' '.$user['last_name'],
+                    'is_default' => $payment->is_default,
+                    'account_name' => $payment->account_name
+                ];
+            } else {
+                $ledger_by_payment[$payment->transaction_id]['debit'] += ($payment->card_type == 'debit' && $payment->method != 'service_transfer') ? $payment->amount : 0;
+                $ledger_by_payment[$payment->transaction_id]['credit'] += ($payment->card_type == 'credit' && $payment->method == 'bank_transfer') ? $payment->amount : 0;
+                $ledger_by_payment[$payment->transaction_id]['free_credit'] += ($payment->card_type == 'credit' && $payment->method == 'free_credit') ? $payment->amount : 0;
+                $ledger_by_payment[$payment->transaction_id]['service_debit'] += ($payment->card_type == 'debit' && $payment->method == 'service_transfer') ? $payment->amount : 0;
+                $ledger_by_payment[$payment->transaction_id]['service_credit'] += ($payment->card_type == 'credit' && $payment->method == 'service_transfer' ) ? $payment->amount : 0;
+            }
+            if(($payment->transaction_type == 'sell' || $payment->transaction_type == 'sell_return' ) && $payment->method == 'service_transfer'){
+                $ledger_by_payment[$payment->transaction_id]['service_name'] = $payment->account_name;
+                $game_data = GameId::where('contact_id', $payment->contact_primary_key)->where('service_id', $payment->account_id)->get();
+                if(count($game_data) >= 1){
+                    $game_id = $game_data[0]->game_id;
+                    $ledger_by_payment[$payment->transaction_id]['game_id'] = $game_id;
+                }
+            }
+            if($payment->method == 'bank_transfer') {
+                $ledger_by_payment[$payment->transaction_id]['bank_id'] = $payment->account_id;
+            }
+        }
+        $transaction = $ledger_by_payment[$transaction_id];
+        $transaction['id'] = $transaction_id;
+
+        return view('essentials::request.create_with_transaction')->with(compact('request_types', 'instructions', 'transaction'));
+    }
+
     /**
      * Store a newly created resource in storage.
      * @param  Request $request
@@ -196,6 +280,10 @@ class EssentialsRequestController extends Controller
 //            $input['start_date'] = $this->moduleUtil->uf_date($input['start_date']);
 //            $input['end_date'] = $this->moduleUtil->uf_date($input['end_date']);
             $input['start_date'] = $input['end_date'] = date('Y-m-d', strtotime('now'));
+            $transaction_id = $request->get('transaction_id');
+            if(!empty($transaction_id)){
+                $input['transaction_id'] = $transaction_id;
+            }
 
             //Update reference count
             $ref_count = $this->moduleUtil->setAndGetReferenceCount('leave');

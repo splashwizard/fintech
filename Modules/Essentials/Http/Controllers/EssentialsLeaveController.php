@@ -238,7 +238,7 @@ class EssentialsLeaveController extends Controller
      */
     public function edit()
     {
-        return view('essentials::edit');
+//        return view('essentials::edit');
     }
 
     /**
@@ -418,5 +418,33 @@ class EssentialsLeaveController extends Controller
                     ->find($user_id);
         
         return view('essentials::leave.user_leave_summary')->with(compact('leaves_summary', 'leave_types', 'statuses', 'user', 'status_summary'));
+    }
+
+    public function getCalendarData(){
+        $business_id = request()->session()->get('user.business_id');
+        $leaves = EssentialsLeave::where('essentials_leaves.business_id', $business_id)
+            ->join('users as u', 'u.id', '=', 'essentials_leaves.user_id')
+            ->join('essentials_leave_types as lt', 'lt.id', '=', 'essentials_leaves.essentials_leave_type_id')
+            ->select([
+                'essentials_leaves.id',
+                DB::raw("CONCAT(COALESCE(u.surname, ''), ' ', COALESCE(u.first_name, ''), ' ', COALESCE(u.last_name, '')) as user"),
+                'lt.leave_type as leave_type',
+                'start_date',
+                'end_date',
+                'ref_no',
+                'essentials_leaves.status',
+                'essentials_leaves.business_id',
+                'reason',
+                'status_note'
+            ]);
+        $data = [];
+        foreach ($leaves->get() as $item){
+            $temp['title'] = $item->user.'-'.$item->leave_type;
+            $temp['start'] = date("Y-m-d", strtotime($item->start_date));
+            $temp['end'] = date("Y-m-d", strtotime($item->end_date));
+
+            $data[] = $temp;
+        }
+        return json_encode($data);
     }
 }
