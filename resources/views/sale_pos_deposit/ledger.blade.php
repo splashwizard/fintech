@@ -1,5 +1,5 @@
 <style>
-	#ledger_table tbody tr:hover{
+	#ledger_table tbody tr.unclaimed:hover{
 		background-color: rgb(220,255,220);
 	}
 	#ledger_table tr.unclaimed{
@@ -92,6 +92,8 @@
 	$(document).ready(function (e) {
 		$('tr.unclaimed').click(function (e) {
 			var target = $( e.target );
+			console.log("target.is('i')");
+			console.log(target.is('i'));
 			if(!target.is('i'))
 				window.location.href = '/pos_deposit/' + $(this).data('transaction_id')+'/edit';
 		})

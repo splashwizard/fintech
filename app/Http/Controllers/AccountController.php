@@ -248,6 +248,7 @@ class AccountController extends Controller
             }
 
             $start_date = request()->input('start_date');
+//            $start_date = "2020-06-11";
             $end_date = request()->input('end_date');
 
             if (!empty($start_date) && !empty($end_date)) {

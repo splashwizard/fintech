@@ -258,7 +258,7 @@ class SellPosDepositController extends Controller
         // Bonuses
         $location_id = $default_location;
 
-        $bonuses = Variation::join('products as p', 'variations.product_id', '=', 'p.id')
+        $bonuses_query = Variation::join('products as p', 'variations.product_id', '=', 'p.id')
             ->leftjoin(
                 'variation_location_details AS VLD',
                 function ($join) use ($location_id) {
@@ -287,10 +287,12 @@ class SellPosDepositController extends Controller
             ->where('p.type', '!=', 'modifier')
             ->where('p.is_inactive', 0)
             ->where('p.not_for_selling', 0);
-        $bonuses->where('accounts.name', '=', 'Bonus Account');
+        $bonuses_query->where('accounts.name', '=', 'Bonus Account');
 
-
-        $bonuses = $bonuses->select(
+        $no_bonus = (object)['id' => -1, 'name' => '', 'selling_price' => 0, 'variation' => 'No Bonus'];
+        $bonuses = [];
+        $bonuses[] = $no_bonus;
+        $bonuses_data = $bonuses_query->select(
             DB::raw("SUM( IF(AT.type='credit', AT.amount, -1*AT.amount) ) as balance"),
             'p.id as product_id',
             'p.name',
@@ -300,13 +302,14 @@ class SellPosDepositController extends Controller
             'p.account_id',
             'p.category_id',
             'variations.name as variation',
-            'VLD.qty_available',
             'variations.default_sell_price as selling_price',
-            'variations.sub_sku'
         )
-            ->with(['media'])
             ->orderBy('p.name', 'asc')
-            ->paginate(40);
+            ->get();
+        foreach ($bonuses_data as $item) {
+            $bonuses[] = $item;
+        }
+
 
         // $bonus_types = [];
         // $values = [10, 30, 50, 100];
@@ -1561,7 +1564,7 @@ class SellPosDepositController extends Controller
         $payment_data = [];
         $bonus_amount = 0;
         $is_direct_bonus = 0;
-        $contact_id = request()->get('contact_id');
+        $contact_id = request()->get('customer_id');
         $bonus_rate = CountryCode::find(Contact::find($contact_id)->country_code_id)->basic_bonus_percent;
         foreach ($products as $product) {
             if(!isset($payment_data[$product['account_id']]['amount'] )){
@@ -1909,8 +1912,12 @@ class SellPosDepositController extends Controller
     public function updateGameID(){
         $contact_id = request()->get('contact_id');
         $service_id = request()->get('service_id');
-        $row = GameId::where('contact_id', $contact_id)->where('service_id', $service_id)->get(['game_id']);
-        return $row->game_id;
+        $game_id = request()->get('game_id');
+        if(GameId::where('contact_id', $contact_id)->where('service_id', $service_id)->count())
+            GameId::where('contact_id', $contact_id)->where('service_id', $service_id)->update(['game_id' => $game_id]);
+        else
+            GameId::create(['contact_id' => $contact_id, 'service_id' => $service_id, 'game_id' => $game_id]);
+        return 1;
     }
 
     public function getRemarks(){

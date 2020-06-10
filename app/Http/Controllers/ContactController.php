@@ -1142,6 +1142,7 @@ class ContactController extends Controller
                     ->where('uca.user_id', $user_id);
                 }
                 $contacts->where('blacked_by_user', null);
+                $contacts->where('is_default', 0);
                 $contacts->where(function ($query) use ($term) {
                     $query->where('name', 'like', '%' . $term .'%')
                             ->orWhere('supplier_business_name', 'like', '%' . $term .'%')

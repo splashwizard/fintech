@@ -1,4 +1,3 @@
-
 <div class="box box-widget">
 	<div class="box-header with-border">
 		@if(!empty($bank_categories))
@@ -36,7 +35,7 @@
 	</div>
 	<!-- /.box-header -->
 	<input type="hidden" id="suggestion_page" value="1">
-	<div class="box-body" id="bank_box">
+	<div class="box-body">
 		<div class="row">
 			<div class="col-md-12">
 				<div class="eq-height-row" id="product_list_body"></div>
@@ -49,21 +48,21 @@
 	<!-- /.box-body -->
 </div>
 
-<div class="box box-widget">
-	<input type="hidden" id="suggestion_page3" value="1">
-	<div class="box-body" id="bonus_box">
-		<div class="row">
-			<div class="col-md-12">
-				<div class="eq-height-row" id="product_list_body3"></div>
-			</div>
-			<div class="col-md-12 text-center" id="suggestion_page_loader3" style="display: none;">
-				<i class="fa fa-spinner fa-spin fa-2x"></i>
-			</div>
-		</div>
-	</div>
-</div>
+{{--<div class="box box-widget" id="bonus_box" style="display: none">--}}
+{{--	<input type="hidden" id="suggestion_page3" value="1">--}}
+{{--	<div class="box-body">--}}
+{{--		<div class="row">--}}
+{{--			<div class="col-md-12">--}}
+{{--				<div class="eq-height-row" id="product_list_body3"></div>--}}
+{{--			</div>--}}
+{{--			<div class="col-md-12 text-center" id="suggestion_page_loader3" style="display: none;">--}}
+{{--				<i class="fa fa-spinner fa-spin fa-2x"></i>--}}
+{{--			</div>--}}
+{{--		</div>--}}
+{{--	</div>--}}
+{{--</div>--}}
 
-<div class="box box-widget">
+<div class="box box-widget" id="service_box" style="display: none">
 	<div class="box-header with-border" style="display:none">
 
 {{--		@if(!empty($service_categories))--}}
@@ -108,7 +107,7 @@
 	</div>
 	<!-- /.box-header -->
 	<input type="hidden" id="suggestion_page2" value="1">
-	<div class="box-body" id="service_box">
+	<div class="box-body">
 		<div class="row">
 			<div class="col-md-12">
 				<div class="eq-height-row" id="product_list_body2"></div>

@@ -26,14 +26,7 @@
 			@component('components.widget', ['class' => 'box-success'])
 				@slot('header')
 					<div class="col-sm-6">
-						<h3 class="box-title">Editing 
-							@if($transaction->status == 'draft' && $transaction->is_quotation == 1) 
-								@lang('lang_v1.quotation')
-							@elseif($transaction->status == 'draft') 
-								Draft 
-							@elseif($transaction->status == 'final') 
-								Invoice 
-							@endif 
+						<h3 class="box-title">Edit Unclaimed Trans
 						<span class="text-success">#{{$transaction->invoice_no}}</span> <i class="fa fa-keyboard-o hover-q text-muted" aria-hidden="true" data-container="body" data-toggle="popover" data-placement="bottom" data-content="@include('sale_pos_deposit.partials.keyboard_shortcuts_details')" data-html="true" data-trigger="hover" data-original-title="" title=""></i></h3>
 					</div>
 					<input type="hidden" id="item_addition_method" value="{{$business_details->item_addition_method}}">
@@ -140,6 +133,7 @@
 								<input type="hidden" name="bank_changed" id="bank_changed" value="0">
 							</div>
 						</div>
+						<input type="hidden" name="customer_id" id="contact_id" value="1">
 						<input type="hidden" name="pay_term_number" id="pay_term_number" value="{{$transaction->pay_term_number}}">
 						<input type="hidden" name="pay_term_type" id="pay_term_type" value="{{$transaction->pay_term_type}}">
 
@@ -240,13 +234,13 @@
 		</div>
 	</div>
 
-	@component('components.widget', ['class' => 'box-primary', 'title' => __('lang_v1.ledger')])
-		<div class="row">
-			<div class="col-md-12">
-				<div id="contact_ledger_div"></div>
-			</div>
-		</div>
-	@endcomponent
+{{--	@component('components.widget', ['class' => 'box-primary', 'title' => __('lang_v1.ledger')])--}}
+{{--		<div class="row">--}}
+{{--			<div class="col-md-12">--}}
+{{--				<div id="contact_ledger_div"></div>--}}
+{{--			</div>--}}
+{{--		</div>--}}
+{{--	@endcomponent--}}
 </section>
 
 <!-- This will be printed1 -->

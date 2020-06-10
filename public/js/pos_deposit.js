@@ -64,7 +64,8 @@ $(document).ready(function() {
     if(edit_page){
         variation_ids = variation_ids_before;
         // $('#bank_in_time').attr('readonly', '');
-        $('#bank_box').hide();
+        // $('#bank_box').hide();
+        $('body').css('background-color', 'lightblue');
     }
 
     //Prevent enter key function except texarea
@@ -177,9 +178,9 @@ $(document).ready(function() {
         var text = $('#customer_id').select2('data')[0].text;
         if( text == "Unclaimed Trans") {
             $('#service_box').hide();
-            $('#bonus_box').hide();
+            // $('#bonus_box').hide();
         } else {
-            $('#bonus_box').show();
+            // $('#bonus_box').show();
             $('#service_box').show();
         }
 
@@ -207,16 +208,9 @@ $(document).ready(function() {
     });
 
     set_default_customer();
+    $('#contact_id').val($('#customer_id').val());
 
     const text = $('#customer_id').select2('data')[0].text;
-    if( text === "Unclaimed Trans") {
-        // if(edit_page)
-        //     $('#bank_in_time').attr('readonly', '');
-        if(!edit_page){
-            $('#service_box').hide();
-            $('#bonus_box').hide();
-        }
-    }
     updateRemarks();
 
 
@@ -989,7 +983,7 @@ $(document).ready(function() {
                                 }
                             } else {
                                 setTimeout(function () {
-                                    window.top.close();
+                                    window.location.href="/pos_deposit/create";
                                 },3000)
                             }
 
@@ -1532,7 +1526,8 @@ $(document).ready(function() {
             }
         }
     };
-    get_contact_ledger();
+    if(!edit_page)
+        get_contact_ledger();
 
     $(document).on('submit', 'form#withdraw_form', function(e){
         e.preventDefault();
@@ -1817,7 +1812,15 @@ function pos_product_row(variation_id, product_type = 0, name = 'Bonus',  percen
 
         let amount = 0;
         if(product_type === 1){ // service
-            amount = $('#total_earned').html();
+            if($('table#pos_table tbody tr.service_row').length ===  1){
+                amount = $('#total_earned').html() / 2;
+                const first_service_row = $('table#pos_table tbody tr.service_row').first();
+                const first_service_total = amount;
+                first_service_row.find('input.pos_line_total').val(first_service_total);
+                first_service_row.find('span.pos_line_total_text').text(__currency_trans_from_en(first_service_total, false));
+            }
+            else
+                amount = $('#total_earned').html();
         } else if(product_type === 2) { // bonus
             if(name === 'Bonus')
                 amount = $('#credit').html() * percentage / 100;
@@ -1826,6 +1829,17 @@ function pos_product_row(variation_id, product_type = 0, name = 'Bonus',  percen
         }
 
         const is_first_service = $('.service_row').length === 0 ? 1 : 0;
+
+        if(variation_id == -1) {
+            $('table#pos_table tbody tr.product_row').each(function(index){
+                if($(this).find('.account_name').val() === 'Bonus Account'){
+                    $(this).next().remove();
+                    $(this).remove();
+                }
+            });
+            pos_total_row();
+        }
+        else {
         $.ajax({
             method: 'GET',
             url: '/sells/pos_deposit/get_product_row/' + variation_id + '/' + location_id,
@@ -1844,7 +1858,7 @@ function pos_product_row(variation_id, product_type = 0, name = 'Bonus',  percen
                 if (result.success) {
                     if(product_type == 2){ // bonus
                         $('table#pos_table tbody tr.product_row').each(function(index){
-                            if($(this).find('.account_name').val() == 'Bonus Account'){
+                            if($(this).find('.account_name').val() === 'Bonus Account'){
                                 $(this).next().remove();
                                 $(this).remove();
                             }
@@ -1901,6 +1915,7 @@ function pos_product_row(variation_id, product_type = 0, name = 'Bonus',  percen
                 }
             },
         });
+        }
     }
 }
 

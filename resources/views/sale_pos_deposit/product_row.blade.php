@@ -11,8 +11,8 @@
 				{!! $product_name !!}
 				&nbsp;<i class="fa fa-info-circle"></i>
 			</span>
-			@if(isset($game_id))
-				<span>{{ $product->product_name.' - '}}</span>
+			<span>{{ $product->product_name.' - '}}</span>
+			@if($is_service)
 				@if(!empty($game_id))
 					<button class="game_id_but">{{$game_id}}</button>
 				@else

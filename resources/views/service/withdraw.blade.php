@@ -47,12 +47,13 @@
             </div>
 
             <div class="form-group">
-                {!! Form::label('withdraw_to', __( 'account.withdraw_to' ) .":*") !!}
                 <div class="row" style="margin: 0">
                     <div class="col-sm-6" style="padding-left: 5px; padding-right: 5px">
+                        {!! Form::label('withdraw_to', __( 'account.withdraw_to' ) .":*") !!}
                         {!! Form::select('withdraw_to', $to_users, null, ['class' => 'form-control', 'required', 'style' => 'width:100%' ]); !!}
                     </div>
                     <div class="col-sm-6" style="padding-left: 5px; padding-right: 5px">
+                        {!! Form::label('withdraw_to', "Game ID" .":*") !!}
                         <button class="form-control" id="btn-game_id"></button>
                     </div>
                 </div>

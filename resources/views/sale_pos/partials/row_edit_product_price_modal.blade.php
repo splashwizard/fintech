@@ -23,17 +23,17 @@
 				@if(!empty($discount))
 					{!! Form::hidden("products[$row_count][discount_id]", $discount->id); !!}
 				@endif
-				<div class="form-group col-xs-12 col-sm-6 @if(!$edit_discount) hide @endif">
-					<label>@lang('sale.discount_type')</label>
-						{!! Form::select("products[$row_count][line_discount_type]", ['fixed' => __('lang_v1.fixed'), 'percentage' => __('lang_v1.percentage')], $discount_type , ['class' => 'form-control row_discount_type']); !!}
-					@if(!empty($discount))
-						<p class="help-block">{!! __('lang_v1.applied_discount_text', ['discount_name' => $discount->name, 'starts_at' => $discount->formated_starts_at, 'ends_at' => $discount->formated_ends_at]) !!}</p>
-					@endif
-				</div>
-				<div class="form-group col-xs-12 col-sm-6 @if(!$edit_discount) hide @endif">
-					<label>@lang('sale.discount_amount')</label>
-						{!! Form::text("products[$row_count][line_discount_amount]", @num_format($discount_amount), ['class' => 'form-control input_number row_discount_amount']); !!}
-				</div>
+{{--				<div class="form-group col-xs-12 col-sm-6 @if(!$edit_discount) hide @endif">--}}
+{{--					<label>@lang('sale.discount_type')</label>--}}
+{{--						{!! Form::select("products[$row_count][line_discount_type]", ['fixed' => __('lang_v1.fixed'), 'percentage' => __('lang_v1.percentage')], $discount_type , ['class' => 'form-control row_discount_type']); !!}--}}
+{{--					@if(!empty($discount))--}}
+{{--						<p class="help-block">{!! __('lang_v1.applied_discount_text', ['discount_name' => $discount->name, 'starts_at' => $discount->formated_starts_at, 'ends_at' => $discount->formated_ends_at]) !!}</p>--}}
+{{--					@endif--}}
+{{--				</div>--}}
+{{--				<div class="form-group col-xs-12 col-sm-6 @if(!$edit_discount) hide @endif">--}}
+{{--					<label>@lang('sale.discount_amount')</label>--}}
+{{--						{!! Form::text("products[$row_count][line_discount_amount]", @num_format($discount_amount), ['class' => 'form-control input_number row_discount_amount']); !!}--}}
+{{--				</div>--}}
 				<div class="form-group col-xs-12 {{$hide_tax}}">
 					<label>@lang('sale.tax')</label>
 
@@ -44,7 +44,7 @@
 			</div>
 		</div>
 		<div class="modal-footer">
-			<button type="button" class="btn btn-default" data-dismiss="modal">@lang('messages.close')</button>
+			<button type="button" class="btn btn-default" data-dismiss="modal">@lang('messages.confirm')</button>
 		</div>
 	</div>
 </div>
