@@ -121,6 +121,10 @@ class LoginController extends Controller
                     );
             }
         }
+        $date = new \DateTime('now');
+        $user->last_online = $date->format('Y-m-d H:i:s');
+        $user->is_logged = true;
+        $user->save();
 //        if($user->is_logged){
 //            \Auth::logout();
 //            return redirect('/login')
@@ -129,26 +133,7 @@ class LoginController extends Controller
 //                    ['success' => 0, 'msg' => __('lang_v1.another_log')]
 //                );
 //        }
-        $date = new \DateTime('now');
-        $user->last_online = $date->format('Y-m-d H:i:s');
-        $user->is_logged = true;
-        $user->save();
-        // clock in
-        $business_id = $user->business_id;
-        $count = EssentialsAttendance::where('business_id', $business_id)
-            ->where('user_id', auth()->user()->id)
-            ->whereNull('clock_out_time')
-            ->count();
-        if ($count == 0) {
-            $data = [
-                'business_id' => $business_id,
-                'user_id' => auth()->user()->id,
-                'clock_in_time' => \Carbon::now(),
-                'clock_in_note' => null,
-                'ip_address' => $this->moduleUtil->getUserIpAddr()
-            ];
-            EssentialsAttendance::create($data);
-        }
+
     }
 
     protected function redirectTo()

@@ -1,4 +1,17 @@
 <div class="box box-widget">
+	<input type="hidden" id="bank_suggestion_page" value="1">
+	<div class="box-body">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="eq-height-row" id="bank_products_list"></div>
+			</div>
+			<div class="col-md-12 text-center" id="bank_suggestion_page_loader" style="display: none;">
+				<i class="fa fa-spinner fa-spin fa-2x"></i>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="box box-widget">
 	<div class="box-header with-border">
 		@if(!empty($bank_categories))
 			<select class="select2" id="product_category" style="width:40% !important">
@@ -30,7 +43,6 @@
 		<div class="box-tools pull-right">
 			<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
 		</div>
-
 		<!-- /.box-tools -->
 	</div>
 	<!-- /.box-header -->

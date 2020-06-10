@@ -8,9 +8,16 @@ use Illuminate\Support\Facades\Auth;
 use App\Utils\BusinessUtil;
 
 use App\Business;
+use Modules\Essentials\Entities\EssentialsAttendance;
+use App\Utils\ModuleUtil;
 
 class SetSessionData
 {
+    protected $moduleUtil;
+    public function __construct(ModuleUtil $moduleUtil)
+    {
+        $this->moduleUtil = $moduleUtil;
+    }
     /**
      * Checks if session data is set or not for a user. If data is not set then set it.
      *
@@ -32,6 +39,23 @@ class SetSessionData
             }
             else
                 $business_id = $user->business_id;
+            // clock in
+            $count = EssentialsAttendance::where('business_id', $business_id)
+                ->where('user_id', auth()->user()->id)
+                ->whereNull('clock_out_time')
+                ->count();
+            if ($count == 0) {
+                $data = [
+                    'business_id' => $business_id,
+                    'user_id' => auth()->user()->id,
+                    'clock_in_time' => \Carbon::now(),
+                    'clock_in_note' => null,
+                    'ip_address' => $this->moduleUtil->getUserIpAddr()
+                ];
+                EssentialsAttendance::create($data);
+            }
+
+
             $session_data = ['id' => $user->id,
                             'surname' => $user->surname,
                             'first_name' => $user->first_name,

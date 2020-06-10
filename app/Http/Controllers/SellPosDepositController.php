@@ -1732,6 +1732,65 @@ class SellPosDepositController extends Controller
      * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
+    public function getBankProductSuggestion(Request $request)
+    {
+        if ($request->ajax()) {
+            $category_id = $request->get('category_id');
+            $location_id = $request->get('location_id');
+            $term = $request->get('term');
+
+            $check_qty = false;
+            $business_id = $request->session()->get('user.business_id');
+
+            $products = Product::join('accounts', 'products.account_id', 'accounts.id')
+                ->leftjoin('account_transactions as AT', function ($join) {
+                    $join->on('AT.account_id', '=', 'accounts.id');
+                    $join->whereNull('AT.deleted_at');
+                })
+                ->groupBy('accounts.id')
+                ->where('products.business_id', $business_id)
+                ->where('products.type', '!=', 'modifier')
+                ->where('products.is_inactive', 0)
+                ->where('accounts.name', '!=', 'Bonus Account')
+                ->where('products.not_for_selling', 0);
+
+            //Include search
+            if (!empty($term)) {
+                $products->where(function ($query) use ($term) {
+                    $query->where('products.name', 'like', '%' . $term .'%');
+                    $query->orWhere('sku', 'like', '%' . $term .'%');
+                    $query->orWhere('sub_sku', 'like', '%' . $term .'%');
+                });
+            }
+
+
+            if ($category_id != 'all') {
+                $products->where(function ($query) use ($category_id) {
+                    $query->where('products.category_id', $category_id);
+                    $query->orWhere('products.sub_category_id', $category_id);
+                });
+            }
+
+
+            $products = $products->select(
+                DB::raw("SUM( IF(AT.type='credit', AT.amount, -1*AT.amount) ) as balance"),
+                'products.id',
+                'products.name'
+            )
+                ->orderBy('products.name', 'asc')
+                ->paginate(40);
+
+            return view('sale_pos_deposit.partials.bank_product_list')
+                ->with(compact('products'));
+        }
+    }
+
+    /**
+     * Gives suggetion for product based on category
+     *
+     * @param  \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\Response
+     */
     public function getProductSuggestion(Request $request)
     {
         if ($request->ajax()) {
@@ -1822,7 +1881,7 @@ class SellPosDepositController extends Controller
                 ->with(['media'])
                 ->orderBy('p.name', 'asc')
                 ->paginate(40);
-
+//            return $products;
             return view('sale_pos_deposit.partials.product_list')
                 ->with(compact('products'));
         }

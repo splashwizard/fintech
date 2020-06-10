@@ -536,6 +536,20 @@ table.table-text-center td, table.table-text-center th{
     height: 45px;
     /*width: 45px*/
 }
+.bank_product_box{
+    width: 100%;
+    padding-top: 5px;
+    padding-bottom: 2px;
+    margin-bottom: 10px;
+    text-align: center;
+    cursor: pointer;
+    border: 1px solid darkgray;
+    font-weight: 600;
+}
+
+.bank_product_box.selected{
+    border: 1px solid rgb(135, 109, 41);
+}
 .eq-height-row{
     display: -webkit-box;
     display: -webkit-flex;

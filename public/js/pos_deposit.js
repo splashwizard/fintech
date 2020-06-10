@@ -197,7 +197,7 @@ $(document).ready(function() {
         for(var i = 0; i < variation_ids.length; i++){
             pos_product_row(variation_ids[i]);
         }
-        get_product_suggestion_list(category_id, product_id, brand_id, location_id);
+        // get_product_suggestion_list(category_id, product_id, brand_id, location_id);
     }
 
     $('#customer_id').on('select2:select', function(e) {
@@ -998,7 +998,7 @@ $(document).ready(function() {
                             var product_id = $('select#bank_products').val();
                             var brand_id = $('select#product_brand').val();
 
-                            get_product_suggestion_list(category_id, product_id, brand_id, location_id);
+                            get_bank_product_suggestion_list();
                             get_product2_suggestion_list(category_id2, product_id, brand_id, location_id);
                             get_product3_suggestion_list(location_id);
 
@@ -1229,14 +1229,17 @@ $(document).ready(function() {
         }
     });
 
+    //Show bank_products_list
+    get_bank_product_suggestion_list($('input#location_id').val());
+
     //Show product list.
-    get_product_suggestion_list(
-        $('select#product_category').val(),
-        $('select#bank_products').val(),
-        $('select#product_brand').val(),
-        $('input#location_id').val(),
-        null
-    );
+    // get_product_suggestion_list(
+    //     $('select#product_category').val(),
+    //     $('select#bank_products').val(),
+    //     $('select#product_brand').val(),
+    //     $('input#location_id').val(),
+    //     null
+    // );
 
     get_product2_suggestion_list(
         $('select#product_category2').val(),
@@ -1249,6 +1252,7 @@ $(document).ready(function() {
         $('input#location_id').val(),
         null
     );
+
     $('select#product_category, select#product_brand, select#bank_products').on('change', function(e) {
         $('input#suggestion_page').val(1);
         var location_id = $('input#location_id').val();
@@ -1552,7 +1556,7 @@ $(document).ready(function() {
                     var product_id = $('select#bank_products').val();
                     var brand_id = $('select#product_brand').val();
 
-                    get_product_suggestion_list(category_id, product_id, brand_id, location_id);
+                    get_bank_product_suggestion_list();
                     get_product2_suggestion_list(category_id2, product_id, brand_id, location_id);
                     get_product3_suggestion_list(location_id);
                 } else {
@@ -1631,6 +1635,71 @@ function get_contact_ledger() {
     });
 }
 
+function select_first_bank(){
+    const firstBankItem = $('.bank_product_box').first();
+    firstBankItem.addClass('selected');
+    $('input#suggestion_page').val(1);
+    var location_id = $('input#location_id').val();
+    const account_id = firstBankItem.data('account_id');
+    if (location_id != '' || location_id != undefined) {
+        get_product_suggestion_list(
+            $('select#product_category').val(),
+            account_id,
+            $('select#product_brand').val(),
+            $('input#location_id').val(),
+            null
+        );
+    }
+}
+
+function get_bank_product_suggestion_list() {
+    var location_id = $('input#location_id').val();
+    if($('div#bank_products_list').length == 0) {
+        return false;
+    }
+    $('#bank_suggestion_page_loader').fadeIn(700);
+    var page = $('input#bank_suggestion_page').val();
+    if (page == 1) {
+        $('div#bank_products_list').html('');
+    }
+    if ($('div#bank_products_list').find('input#no_products_found').length > 0) {
+        $('#bank_suggestion_page_loader').fadeOut(700);
+        return false;
+    }
+    $.ajax({
+        method: 'GET',
+        url: '/sells/pos_deposit/get-bank-product-suggestion',
+        data: {
+            category_id: 66,
+            location_id: location_id,
+            page: page
+        },
+        dataType: 'html',
+        success: function(result) {
+            $('div#bank_products_list').append(result);
+            $('#bank_suggestion_page_loader').fadeOut(700);
+
+            select_first_bank();
+            $('.bank_product_box').click(function (e) {
+                $('.bank_product_box').removeClass('selected');
+                $(this).addClass('selected');
+                $('input#suggestion_page').val(1);
+                var location_id = $('input#location_id').val();
+                const account_id = $(this).data('account_id');
+                if (location_id != '' || location_id != undefined) {
+                    get_product_suggestion_list(
+                        $('select#product_category').val(),
+                        account_id,
+                        $('select#product_brand').val(),
+                        $('input#location_id').val(),
+                        null
+                    );
+                }
+            });
+        },
+    });
+}
+
 function get_product_suggestion_list(category_id, product_id, brand_id, location_id, url = null) {
 
     if($('div#product_list_body').length == 0) {
@@ -1640,14 +1709,9 @@ function get_product_suggestion_list(category_id, product_id, brand_id, location
     if (url == null) {
         url = '/sells/pos_deposit/get-product-suggestion';
     }
-    $('#suggestion_page_loader').fadeIn(700);
     var page = $('input#suggestion_page').val();
     if (page == 1) {
         $('div#product_list_body').html('');
-    }
-    if ($('div#product_list_body').find('input#no_products_found').length > 0) {
-        $('#suggestion_page_loader').fadeOut(700);
-        return false;
     }
     $.ajax({
         method: 'GET',
@@ -1662,7 +1726,6 @@ function get_product_suggestion_list(category_id, product_id, brand_id, location
         dataType: 'html',
         success: function(result) {
             $('div#product_list_body').append(result);
-            $('#suggestion_page_loader').fadeOut(700);
         },
     });
 }
