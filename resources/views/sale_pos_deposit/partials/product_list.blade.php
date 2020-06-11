@@ -8,7 +8,7 @@
 {{--				<img src="{{asset('/img/default.png')}}" alt="Product Image">--}}
 {{--			@endif--}}
 {{--		</div>--}}
-			<div class="text text-muted text-uppercase">
+			<div class="text text-muted text-uppercase ft-16">
 				<small>{{$product->name}}
 				@if($product->type == 'variable')
 					- {{$product->variation}}

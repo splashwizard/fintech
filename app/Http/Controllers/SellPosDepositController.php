@@ -1972,10 +1972,12 @@ class SellPosDepositController extends Controller
         $contact_id = request()->get('contact_id');
         $service_id = request()->get('service_id');
         $game_id = request()->get('game_id');
-        if(GameId::where('contact_id', $contact_id)->where('service_id', $service_id)->count())
-            GameId::where('contact_id', $contact_id)->where('service_id', $service_id)->update(['game_id' => $game_id]);
-        else
-            GameId::create(['contact_id' => $contact_id, 'service_id' => $service_id, 'game_id' => $game_id]);
+        if(!empty($game_id)){
+            if(GameId::where('contact_id', $contact_id)->where('service_id', $service_id)->count())
+                GameId::where('contact_id', $contact_id)->where('service_id', $service_id)->update(['game_id' => $game_id]);
+            else
+                GameId::create(['contact_id' => $contact_id, 'service_id' => $service_id, 'game_id' => $game_id]);
+        }
         return 1;
     }
 
@@ -2013,7 +2015,7 @@ class SellPosDepositController extends Controller
         $business_id = request()->session()->get('user.business_id');
         $contact_id = request()->input('contact_id');
         $selected_bank = request()->input('selected_bank');
-        $bank_list = Account::where('is_service', 0)->where('business_id', $business_id)->where('is_safe', 0)->where('name', '!=', 'Bonus Account')->get();
+        $bank_list = Account::where('is_service', 0)->where('business_id', $business_id)->where('is_safe', 0)->where('name', '!=', 'Bonus Account')->where('name', '!=', 'HQ')->get();
         if(empty($selected_bank))
             $selected_bank = $bank_list[0]->id;
         $transaction_types = explode(',', request()->input('transaction_types'));

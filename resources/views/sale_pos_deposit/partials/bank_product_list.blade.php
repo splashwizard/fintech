@@ -1,7 +1,7 @@
 @forelse($products as $product)
 	<div class="col-md-3 col-xs-4 product_list no-print">
 		<div class="bank_product_box bg-gray" data-toggle="tooltip" data-placement="bottom" data-account_id="{{$product->id}}" title="{{$product->name}}">
-			<div class="text text-muted text-uppercase">
+			<div class="text text-muted text-uppercase ft-16">
 				<small>{{$product->name}}
 				</small>
 			</div>

@@ -37,7 +37,7 @@
                 {!! Form::label('amount', __( 'sale.amount' ) .":*") !!}
                 {!! Form::text('amount', 0, ['class' => 'form-control input_number', 'required','placeholder' => __( 'sale.amount' ) ]); !!}
             </div>
-
+            {!! Form::hidden('withdraw_mode', 'b', ['id' => 'withdraw_mode']) !!}
 {{--            <div class="form-group">--}}
 {{--                {!! Form::label('withdraw_mode', __( 'account.withdraw_mode' ) .":*") !!}--}}
 {{--                {!! Form::select('withdraw_mode', $withdraw_mode, null, ['class' => 'form-control', 'required' ]); !!}--}}
@@ -204,6 +204,7 @@
         $('.btn-withdraw_mode').click(function (e) {
             e.preventDefault();
             const withdraw_mode = $(this).data('mode');
+            $('#withdraw_mode').val(withdraw_mode);
             if (withdraw_mode === 'b') {
                 $('#bank_div').show();
                 $('#service_div').hide();

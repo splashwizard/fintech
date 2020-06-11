@@ -517,11 +517,11 @@ table.table-text-center td, table.table-text-center th{
 .product_box{
   width: 100%;
   padding-top: 5px;
-  padding-bottom: 2px;
+  padding-bottom: 5px;
   margin-bottom: 10px;
   text-align: center;
   cursor: pointer;
-  border: 1px solid darkgray;
+  border: 3px solid darkgray;
   font-weight: 600;
 }
 .product_box .image-container{
@@ -536,19 +536,25 @@ table.table-text-center td, table.table-text-center th{
     height: 45px;
     /*width: 45px*/
 }
-.bank_product_box{
+.bank_product_box {
     width: 100%;
     padding-top: 5px;
-    padding-bottom: 2px;
+    padding-bottom: 5px;
     margin-bottom: 10px;
     text-align: center;
     cursor: pointer;
-    border: 1px solid darkgray;
+    border: 2px solid darkgray;
     font-weight: 600;
 }
 
-.bank_product_box.selected{
-    border: 1px solid rgb(135, 109, 41);
+.bank_product_box.selected {
+    /*border-color: rgb(247, 184, 19);*/
+    background: darkgray!important;
+    color: #f7f72f!important;
+}
+
+.ft-16{
+    font-size: 16px!important;
 }
 .eq-height-row{
     display: -webkit-box;

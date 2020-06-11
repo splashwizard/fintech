@@ -1,4 +1,5 @@
 var selected_bank = 0;
+var selected_bank_suggestion_id = 0;
 function copyTextToClipboard(text) {
     var textArea = document.createElement("textarea");
 
@@ -760,20 +761,15 @@ $(document).ready(function() {
             toastr.warning(LANG.deposit_incoincidence_error);
             return false;
         }
-        if(customer !== "Unclaimed Trans" && $('.game_id_but').length === 0){
-            toastr.warning(LANG.game_id_empty);
-            return false;
+        if(customer !== "Unclaimed Trans"){
+            $('.game_input').each((index, item) => {
+                if(!$(item).val()){
+                    toastr.warning(LANG.game_id_empty);
+                    return false;
+                }
+            });
         }
         pos_form_obj.submit();
-        // if ($('#reward_point_enabled').length) {
-        //     var validate_rp = isValidatRewardPoint();
-        //     if (!validate_rp['is_valid']) {
-        //         toastr.error(validate_rp['msg']);
-        //         return false;
-        //     }
-        // }
-        //
-        // $('#modal_payment').modal('show');
     });
 
     $('#modal_payment').on('shown.bs.modal', function() {
@@ -905,10 +901,13 @@ $(document).ready(function() {
 
     $(document).on('blur', '.game_input', function () {
         const service_id = $(this).parents('tr').find('.account_id').val();
+        const game_id = $(this).val();
+        if(!game_id)
+            return;
         $.ajax({
             method: 'POST',
             url: '/sells/pos_deposit/update_game_id',
-            data: { contact_id: $('select#customer_id').val(), service_id: service_id, game_id: $(this).val() },
+            data: { contact_id: $('select#customer_id').val(), service_id: service_id, game_id: game_id },
             dataType: 'html',
             success: function(result) {
             },
@@ -1635,12 +1634,21 @@ function get_contact_ledger() {
     });
 }
 
-function select_first_bank(){
-    const firstBankItem = $('.bank_product_box').first();
-    firstBankItem.addClass('selected');
+function select_bank_suggestion(){
+    let selectedBankItem = $('.bank_product_box').first(), account_id;
     $('input#suggestion_page').val(1);
     var location_id = $('input#location_id').val();
-    const account_id = firstBankItem.data('account_id');
+    if(selected_bank_suggestion_id === 0){
+        selectedBankItem = $('.bank_product_box').first();
+        selectedBankItem.children('div').removeClass('text-muted');
+        selectedBankItem.addClass('selected');
+        account_id = selectedBankItem.data('account_id');
+    } else {
+        selectedBankItem = $(`.bank_product_box[data-account_id=${selected_bank_suggestion_id}]`);
+        selectedBankItem.children('div').removeClass('text-muted');
+        selectedBankItem.addClass('selected');
+        account_id = selected_bank_suggestion_id;
+    }
     if (location_id != '' || location_id != undefined) {
         get_product_suggestion_list(
             $('select#product_category').val(),
@@ -1679,13 +1687,16 @@ function get_bank_product_suggestion_list() {
             $('div#bank_products_list').append(result);
             $('#bank_suggestion_page_loader').fadeOut(700);
 
-            select_first_bank();
+            select_bank_suggestion();
             $('.bank_product_box').click(function (e) {
                 $('.bank_product_box').removeClass('selected');
+                $('.bank_product_box').children('div').addClass('text-muted');
+                $(this).children('div').removeClass('text-muted');
                 $(this).addClass('selected');
                 $('input#suggestion_page').val(1);
                 var location_id = $('input#location_id').val();
                 const account_id = $(this).data('account_id');
+                selected_bank_suggestion_id = account_id;
                 if (location_id != '' || location_id != undefined) {
                     get_product_suggestion_list(
                         $('select#product_category').val(),
