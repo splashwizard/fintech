@@ -1,4 +1,4 @@
-<tr class="product_row @if(!isset($is_service) || $is_service == 1) service_row @endif" data-row_index="{{$row_count}}">
+<tr class="product_row @if(isset($is_service) && $is_service == 1) service_row @endif" data-row_index="{{$row_count}}">
 	<td>
 		@php
 			$product_name = $product->product_name . '<br/>' . $product->sub_sku ;
@@ -12,7 +12,7 @@
 				&nbsp;<i class="fa fa-info-circle"></i>
 			</span>
 			<span>{{ $product->product_name.' - '}}</span>
-			@if($is_service)
+			@if(isset($is_service) && $is_service == 1))
 				@if(!empty($game_id))
 					<button class="game_id_but">{{$game_id}}</button>
 				@else
