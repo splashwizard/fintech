@@ -395,7 +395,7 @@ class ContactController extends Controller
         $bank_brands = BankBrand::forDropdown($business_id);
 
 
-        $services = Account::where('business_id', $business_id)->where('is_service', 1)->get();
+        $services = Account::where('business_id', $business_id)->where('is_service', 1)->where('name', '!=', 'Safe Kiosk Account')->get();
         return view('contact.create')
             ->with(compact('types', 'customer_groups', 'memberships', 'bank_brands', 'type', 'services'));
     }
@@ -681,7 +681,7 @@ class ContactController extends Controller
             $memberships = Membership::forDropdown($business_id);
             $bank_brands = BankBrand::forDropdown($business_id);
 
-            $services = Account::where('business_id', $business_id)->where('is_service', 1)->get();
+            $services = Account::where('business_id', $business_id)->where('is_service', 1)->where('name', '!=', 'Safe Kiosk Account')->get();
 
             $ob_transaction =  Transaction::where('contact_id', $id)
                                             ->where('type', 'opening_balance')
@@ -912,6 +912,7 @@ class ContactController extends Controller
                             foreach ($input as $key => $value) {
                                 $contact->$key = $value;
                             }
+                            $contact->no_bonus = $request->input('no_bonus') ? true : false;
                             $new_bank_details = $request->get('bank_details');
                             if (!empty($contact->bank_details)) {
                                 foreach (json_decode($contact->bank_details) as $old_bank_detail) {

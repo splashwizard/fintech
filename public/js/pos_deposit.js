@@ -141,7 +141,7 @@ $(document).ready(function() {
                 if (!result.is_shift_closed) {
                     swal({
                         title: LANG.shift_warning,
-                        text: LANG.shift_description.replace("xxtime", moment().format("HH:mm")).replace("xxdate", moment().format("Do MMM YYYY")),
+                        text: LANG.shift_description.replace("xxtime", moment().format("HH:mm")).replace("xxdate", moment().subtract(1, "days").format("Do MMM YYYY")),
                         icon: 'warning',
                         buttons: ["Cancel", "Ignore"],
                         dangerMode: true,
@@ -150,8 +150,6 @@ $(document).ready(function() {
                             window.location.href = "/sells";
                         }
                     });
-                } else {
-                    window.location.href = "/sells";
                 }
             }
         });
@@ -234,6 +232,22 @@ $(document).ready(function() {
         for(var i = 0; i < variation_ids.length; i++){
             pos_product_row(variation_ids[i]);
         }
+        // disable or enable no-bonus option
+        $.ajax({
+            method: 'POST',
+            url: '/sells/pos_deposit/get_no_bonus',
+            data: {customer_id: $('#customer_id').val()},
+            dataType: 'json',
+            success: function(result) {
+                if(result.no_bonus){
+                    $('#bonus').prop( "disabled", true);
+                    // $('select option:first-child').attr("selected", "selected");
+                } else {
+                    $('#bonus').css('disabled', false);
+                }
+            }
+        });
+        //
         // get_product_suggestion_list(category_id, product_id, brand_id, location_id);
     }
 
@@ -2252,6 +2266,7 @@ function reset_pos_form(){
 	set_location();
 
     updateRemarks();
+    $('#bonus').prop('disabled', false);
 
 	// $('tr.product_row').remove();
     $('tr.product_row').remove();

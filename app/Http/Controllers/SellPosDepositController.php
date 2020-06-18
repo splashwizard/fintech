@@ -373,6 +373,11 @@ class SellPosDepositController extends Controller
         return ['is_shift_closed' => $is_shift_closed];
     }
 
+    public function getNoBonus(Request $request){
+        $customer_id = $request->get('customer_id');
+        $no_bonus = Contact::find($customer_id)->no_bonus;
+        return ['no_bonus' => $no_bonus];
+    }
     /**
      * Store a newly created resource in storage.
      *
@@ -2188,7 +2193,8 @@ class SellPosDepositController extends Controller
                 }
             }
         }
-        $data = CashRegister::join('users as u', 'u.id', 'user_id')->where('closed_at', '>=', $start)->where('closed_at', '<=', $end )->get();
+        $user_id = request()->session()->get('user.id');
+        $data = CashRegister::join('users as u', 'u.id', 'user_id')->where('user_id', $user_id)->where('closed_at', '>=', $start)->where('closed_at', '<=', $end )->get();
         foreach($data as $row){
             $ledger[] = ['date' => $row->closed_at,
                 'user' => $row['first_name'].' '.$row['last_name']];

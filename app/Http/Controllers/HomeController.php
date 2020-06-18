@@ -281,7 +281,7 @@ class HomeController extends Controller
             $join->on('AT.account_id', '=', 'accounts.id');
             $join->whereNull('AT.deleted_at');
         })
-            ->where('is_service', 1)
+            ->where('is_service', 1)->where('accounts.name', '!=', 'Safe Kiosk Account')
             ->where('business_id', $business_id)
             ->select(['name', 'account_number', 'accounts.note', 'accounts.id',
                 'is_closed', DB::raw("SUM( IF(AT.type='credit', amount, -1*amount) ) as balance")
@@ -445,6 +445,7 @@ class HomeController extends Controller
                 $join->whereNull('AT.deleted_at');
             })
                 ->where('is_service', 1)
+                ->where('name', '!=', 'Safe Kiosk Account')
                 ->where('business_id', $business_id)
 //                ->whereBetween(\Illuminate\Support\Facades\DB::raw('date(AT.operation_date)'), [$start, $end])
                 ->select(['name', 'account_number', 'accounts.note', 'accounts.id',

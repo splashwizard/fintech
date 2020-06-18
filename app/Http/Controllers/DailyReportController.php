@@ -208,7 +208,7 @@ class DailyReportController extends Controller
         }
         // services start
 
-        $services = Account::where('business_id', $business_id)->where('is_service', 1)->get();
+        $services = Account::where('business_id', $business_id)->where('is_service', 1)->where('accounts.name', '!=', 'Safe Kiosk Account')->get();
         $services_obj = [];
         $services_obj[0] = '';
         foreach ($services as $row){

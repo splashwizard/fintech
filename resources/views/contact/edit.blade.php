@@ -153,16 +153,27 @@
       <div class="clearfix"></div>
       <div class="col-md-12">
         <hr/>
-      </div>
-
-      @foreach($services as $key => $service)
-          <div class="col-md-3">
-              <div class="form-group">
-                  {!! Form::label('game_ids['.$service->id.']', $service->name) !!}
-                  {!! Form::text('game_ids['.$service->id.']', isset($game_ids[$service->id]) ? $game_ids[$service->id] : null, ['class' => 'form-control']) !!}
+          <div style="display:flex; justify-content:space-between;align-items:center">
+              <label style="text-decoration: underline" >Game ID List <input type="checkbox" data-toggle="collapse" data-target="#services"> </label>
+              <div class="checkbox">
+                  <label>
+                      {!! Form::checkbox('no_bonus', 1, $contact->no_bonus, ['class' => 'input-icheck', 'id' => 'no_bonus']); !!} No Bonus
+                  </label>
               </div>
           </div>
-      @endforeach
+      </div>
+
+      <div id="services" class="collapse">
+          @foreach($services as $key => $service)
+              <div class="col-md-3">
+                  <div class="form-group">
+                      {!! Form::label('game_ids['.$service->id.']', $service->name) !!}
+                      {!! Form::text('game_ids['.$service->id.']', isset($game_ids[$service->id]) ? $game_ids[$service->id] : null, ['class' => 'form-control', 'placeholder' => 'Current Game ID', 'style' => 'margin-bottom:10px']) !!}
+                      {!! Form::text('', isset($game_ids[$service->id]) ? $game_ids[$service->id] : null, ['class' => 'form-control', 'placeholder' => 'Old Game ID', 'readonly' => true] ) !!}
+                  </div>
+              </div>
+          @endforeach
+      </div>
       <div class="col-md-12">
         <hr/>
       </div>
