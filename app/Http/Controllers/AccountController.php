@@ -239,7 +239,8 @@ class AccountController extends Controller
                                 'sub_type', 'transfer_transaction_id',
                                 DB::raw('(SELECT SUM(IF(AT.type="credit", AT.amount, -1 * AT.amount)) from account_transactions as AT WHERE AT.operation_date <= account_transactions.operation_date AND AT.account_id  =account_transactions.account_id AND AT.deleted_at IS NULL) as balance'),
                                 'transaction_id',
-                                'account_transactions.id'
+                                'account_transactions.id',
+                                'account_transactions.note AS note'
                                 ])
                              ->groupBy('account_transactions.id')
                              ->orderBy('account_transactions.operation_date', 'desc');
@@ -278,12 +279,8 @@ class AccountController extends Controller
                                 $details = '';
                                 if (!empty($row->sub_type)) {
                                     $details = __('account.' . $row->sub_type);
-                                    if ($row->sub_type == 'deposit' && !empty($row->transfer_transaction)) {
-//                                        if ($row->type == 'credit') {
-//                                            $details .= ' ( ' . __('account.from') .': ' . $row->transfer_transaction->account->name . ')';
-//                                        } else {
-//                                            $details .= ' ( ' . __('account.to') .': ' . $row->transfer_transaction->account->name . ')';
-//                                        }
+                                    if ($row->sub_type == 'deposit') {
+                                        $details .= ' - '.$row->note;
                                     }
                                     else if($row->sub_type == 'withdraw'){
                                         $details =

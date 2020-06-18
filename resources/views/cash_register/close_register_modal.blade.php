@@ -3,7 +3,7 @@
     {!! Form::open(['url' => action('CashRegisterController@postCloseRegister'), 'method' => 'post' ]) !!}
     <div class="modal-header">
       <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-      <h3 class="modal-title">@lang( 'cash_register.current_register' ) ( {{ \Carbon::createFromFormat('Y-m-d H:i:s', $register_details->open_time)->format('jS M, Y h:i A') }} - {{ \Carbon::now()->format('jS M, Y h:i A') }})</h3>
+      <h3 class="modal-title">@lang( 'cash_register.current_shift' ) ( {{ \Carbon::createFromFormat('Y-m-d H:i:s', $register_details->open_time)->format('jS M, Y h:i A') }} - {{ \Carbon::now()->format('jS M, Y h:i A') }})</h3>
     </div>
 
     <div class="modal-body">
@@ -173,7 +173,7 @@
     </div>
     <div class="modal-footer">
       <button type="button" class="btn btn-default" data-dismiss="modal">@lang( 'messages.cancel' )</button>
-      <button type="submit" class="btn btn-primary">@lang( 'cash_register.close_register' )</button>
+      <button type="submit" class="btn btn-primary">@lang( 'cash_register.close_shift' )</button>
     </div>
     {!! Form::close() !!}
   </div><!-- /.modal-content -->

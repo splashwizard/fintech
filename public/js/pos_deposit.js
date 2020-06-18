@@ -127,6 +127,31 @@ $(document).ready(function() {
         });
     });
 
+    $('.btn-back').click(function (e) {
+        e.preventDefault();
+        $.ajax({
+            method: 'POST',
+            url: '/sells/pos_deposit/check_shift_closed',
+            success: function(result) {
+                if (!result.is_shift_closed) {
+                    swal({
+                        title: LANG.shift_warning,
+                        text: LANG.shift_description.replace("xxtime", moment().format("HH:mm")).replace("xxdate", moment().format("Do MMM YYYY")),
+                        icon: 'warning',
+                        buttons: ["Cancel", "Ignore"],
+                        dangerMode: true,
+                    }).then(willProceed => {
+                        if(willProceed){
+                            window.location.href = "/sells";
+                        }
+                    });
+                } else {
+                    window.location.href = "/sells";
+                }
+            }
+        });
+    });
+
     //get customer
     $('#customer_id').select2({
         ajax: {
@@ -762,12 +787,16 @@ $(document).ready(function() {
             return false;
         }
         if(customer !== "Unclaimed Trans"){
+            let game_id_empty = false;
             $('.game_input').each((index, item) => {
                 if(!$(item).val()){
+                    game_id_empty = true;
                     toastr.warning(LANG.game_id_empty);
                     return false;
                 }
             });
+            if(game_id_empty)
+                return false;
         }
         pos_form_obj.submit();
     });
@@ -1546,6 +1575,8 @@ $(document).ready(function() {
             processData:false,
             success: function(result){
                 if(result.success == true){
+                    if($('#bank_div').css('display') === 'block')
+                        selected_bank = $('#bank_account_id').val();
                     $('div.view_modal').modal('hide');
                     toastr.success(result.msg);
                     get_contact_ledger();
@@ -1587,7 +1618,7 @@ function get_contact_ledger() {
             __currency_convert_recursively($('#ledger_table'));
 
             $('#ledger_table').DataTable({
-                "dom": 't<"bottom"iflp>', 
+                "dom": 't<"bottom"iflp>',
                 searchable: false,
                 ordering:false,
                 "footerCallback": function ( row, data, start, end, display ) {

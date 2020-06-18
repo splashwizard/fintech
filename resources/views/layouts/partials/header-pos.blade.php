@@ -5,11 +5,11 @@
 
     <div class="col-md-10">
 
-      <a href="{{ action('SellController@index')}}" title="{{ __('lang_v1.go_back') }}" data-toggle="tooltip" data-placement="bottom" class="btn btn-info btn-flat m-6 btn-xs m-5 pull-right">
+      <a href="{{ action('SellController@index')}}" title="{{ __('lang_v1.go_back') }}" data-toggle="tooltip" data-placement="bottom" class="btn btn-info btn-flat m-6 btn-xs m-5 pull-right btn-back">
         <strong><i class="fa fa-backward fa-lg"></i></strong>
       </a>
 
-      <button type="button" id="close_register" title="{{ __('cash_register.close_register') }}" data-toggle="tooltip" data-placement="bottom" class="btn btn-danger btn-flat m-6 btn-xs m-5 btn-modal pull-right" data-container=".close_register_modal" 
+      <button type="button" id="close_register" title="{{ __('cash_register.close_shift') }}" data-toggle="tooltip" data-placement="bottom" class="btn btn-danger btn-flat m-6 btn-xs m-5 btn-modal pull-right" data-container=".close_register_modal"
           data-href="{{ action('CashRegisterController@getCloseRegister')}}">
             <strong><i class="fa fa-window-close fa-lg"></i></strong>
       </button>

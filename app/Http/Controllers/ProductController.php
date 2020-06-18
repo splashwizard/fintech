@@ -89,6 +89,7 @@ class ProductController extends Controller
                     'products.type',
                     'c1.name as category',
                     'c2.name as sub_category',
+                    'products.priority as priority',
                     'units.actual_name as unit',
                     'brands.name as brand',
                     'tax_rates.name as tax',
@@ -524,7 +525,7 @@ class ProductController extends Controller
 
         try {
             $business_id = $request->session()->get('user.business_id');
-            $product_details = $request->only(['name', 'brand_id', 'unit_id', 'account_id', 'category_id', 'tax', 'barcode_type', 'sku', 'alert_quantity', 'tax_type', 'weight', 'product_custom_field1', 'product_custom_field2', 'product_custom_field3', 'product_custom_field4', 'product_description', 'sub_unit_ids']);
+            $product_details = $request->only(['name', 'brand_id', 'unit_id', 'account_id', 'priority', 'category_id', 'tax', 'barcode_type', 'sku', 'alert_quantity', 'tax_type', 'weight', 'product_custom_field1', 'product_custom_field2', 'product_custom_field3', 'product_custom_field4', 'product_description', 'sub_unit_ids']);
 
             DB::beginTransaction();
             
@@ -544,6 +545,7 @@ class ProductController extends Controller
             $product->brand_id = $product_details['brand_id'];
             $product->unit_id = $product_details['unit_id'];
             $product->account_id = $product_details['account_id'];
+            $product->priority = $product_details['priority'];
             $product->category_id = $product_details['category_id'];
             $product->tax = $product_details['tax'];
             $product->barcode_type = $product_details['barcode_type'];

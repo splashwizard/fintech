@@ -134,6 +134,7 @@
                     "orderable": false,
                     "searchable": false
                 } ],
+                "orderMulti": false,
                 aaSorting: [2, 'asc'],
                 columns: [
                         { data: 'mass_delete'  },
@@ -143,7 +144,8 @@
                         { data: 'current_stock', searchable: false},
                         { data: 'type', name: 'products.type'},
                         { data: 'category', name: 'c1.name'},
-                        { data: 'sub_category', name: 'c2.name'},
+                        // { data: 'sub_category', name: 'c2.name'},
+                        { data: 'priority', name: 'priority'},
                         { data: 'brand', name: 'brands.name'},
                         { data: 'tax', name: 'tax_rates.name', searchable: false},
                         { data: 'sku', name: 'products.sku'},

@@ -39,7 +39,7 @@ return [
     'deposit' => 'Deposit',
     'deposited_successfully' => 'Amount deposited successfully',
     'withdraw' => 'Withdraw',
-    'withdrawed_successfully' => 'Amount withdrawed successfully',
+    'withdrawn_successfully' => 'Amount withdrawn successfully',
     'from' => 'From',
     'to' => 'To',
     'balance_sheet' => 'Balance Sheet',

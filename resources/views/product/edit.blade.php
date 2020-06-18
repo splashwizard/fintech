@@ -43,6 +43,14 @@
               </div>
             </div>
 
+            <div class="col-sm-4">
+                <div class="form-group">
+                    {!! Form::label('priority', __('product.priority') . ':*') !!}
+                    {!! Form::text('priority', $product->priority, ['class' => 'form-control', 'required',
+                    'placeholder' => __('product.priority')]); !!}
+                </div>
+            </div>
+
             <div class="clearfix"></div>
             
             <div class="col-sm-4">

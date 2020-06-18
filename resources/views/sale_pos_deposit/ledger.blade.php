@@ -33,7 +33,9 @@
 <table class="table table-striped" id="ledger_table">
 	<thead>
 	<tr>
-		@if($selected_bank == 'free_credit')<th>Bank</th> @endif
+		@if($selected_bank == 'free_credit')
+			<th>Bank</th>
+		@endif
 		<th>Ticket #</th>
 		<th>Bank-in Time</th>
 		<th>ID</th>
@@ -52,22 +54,40 @@
 	</thead>
 	<tbody>
 	@foreach($ledger as $data)
-		<tr class="@if($data['is_default'] == 1) unclaimed @endif" data-transaction_id = "{{$data['transaction_id']}}">
-			@if($selected_bank == 'free_credit')<td>{!! $data['account_name'] !!}</td> @endif
-			<td>{!! $data['others'] !!}</td>
-			<td>{!! $data['bank_in_time'] !!}</td>
-			<td>{!! $data['contact_id'] !!}</td>
-			<td>@if($data['credit'] != '') <span class="display_currency">{{$data['credit']}}</span> @endif</td>
-			<td>@if($data['debit'] != '') <span class="display_currency">{{$data['debit']}}</span> @endif</td>
-			<td>@if(isset($data['service_name'])){!! $data['service_name'] !!}@endif</td>
-			<td>{!! isset($data['game_id']) ? $data['game_id'] : null !!}</td>
-			<td>@if($data['free_credit'] != '') <span class="display_currency text-red">{{$data['free_credit']}}</span> @endif</td>
-			<td>@if($data['service_credit'] != '') <span class="display_currency">{{$data['service_credit']}}</span> @endif</td>
-			<td>@if($data['service_debit'] != '') <span class="display_currency">{{$data['service_debit']}}</span> @endif</td>
-			{{--				<td>{{$data['payment_method']}}</td>--}}
-			<td>{{@format_datetime($data['date'])}}</td>
-			<td>{{ $data['user'] }}</td>
-			<td><i class="fa fa-pencil btn-modal" style="color: rgb(255, 181, 185)" data-href="/hrm/request/create/{{$data['transaction_id']}}" data-container="#add_request_modal"></i></td>
+		<tr class="@if(isset($data['is_default']) && $data['is_default'] == 1) unclaimed @endif" data-transaction_id = "{{ isset($data['transaction_id']) ? $data['transaction_id'] : 0}}">
+			@if(!isset($data['others']))
+				@if($selected_bank == 'free_credit')
+					<td colspan="11" style="text-align: center; background-color: lightgrey"> -------------------------------- SHIFT CLOSED -------------------------------- </td>
+					@php for($i = 0; $i < 10; $i++) {
+						echo '<td style="display: none"></td>';
+					} @endphp
+				@else
+					<td colspan="10" style="text-align: center; background-color: lightgrey"> -------------------------------- SHIFT CLOSED -------------------------------- </td>
+					@php for($i = 0; $i < 9; $i++) {
+						echo '<td style="display: none"></td>';
+					} @endphp
+				@endif
+				<td>{{@format_datetime($data['date'])}}</td>
+				<td>{{ $data['user'] }}</td>
+				<td></td>
+			@else
+				@if($selected_bank == 'free_credit')
+					<td>{!! $data['account_name'] !!}</td>
+				@endif
+				<td>{!! $data['others'] !!}</td>
+				<td>{!! $data['bank_in_time'] !!}</td>
+				<td>{!! $data['contact_id'] !!}</td>
+				<td>@if($data['credit'] != '') <span class="display_currency">{{$data['credit']}}</span> @endif</td>
+				<td>@if($data['debit'] != '') <span class="display_currency">{{$data['debit']}}</span> @endif</td>
+				<td>@if(isset($data['service_name'])){!! $data['service_name'] !!}@endif</td>
+				<td>{!! isset($data['game_id']) ? $data['game_id'] : null !!}</td>
+				<td>@if($data['free_credit'] != '') <span class="display_currency text-red">{{$data['free_credit']}}</span> @endif</td>
+				<td>@if($data['service_credit'] != '') <span class="display_currency">{{$data['service_credit']}}</span> @endif</td>
+				<td>@if($data['service_debit'] != '') <span class="display_currency">{{$data['service_debit']}}</span> @endif</td>
+				<td>{{@format_datetime($data['date'])}}</td>
+				<td>{{ $data['user'] }}</td>
+				<td><i class="fa fa-pencil btn-modal" style="color: rgb(255, 181, 185)" data-href="{{route('essentials_request.createWithTransaction', $data['transaction_id'])}}" data-container="#add_request_modal"></i></td>
+			@endif
 		</tr>
 	@endforeach
 	</tbody>

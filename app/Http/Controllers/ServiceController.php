@@ -77,6 +77,8 @@ class ServiceController extends Controller
                 });
             }
 
+            $accounts->where('name', '!=', 'Safe Kiosk Account');
+
             $is_admin_or_super = auth()->user()->hasRole('Admin#' . auth()->user()->business_id) || auth()->user()->hasRole('Superadmin') || auth()->user()->hasRole('Admin');
 
             return DataTables::of($accounts)
@@ -166,7 +168,7 @@ class ServiceController extends Controller
                 $input['created_by'] = $user_id;
                 $input['account_type'] = 'saving_current';
                 $input['is_service'] = 1;
-               
+
                 $account = Account::create($input);
 
                 //Opening Balance
@@ -628,6 +630,22 @@ class ServiceController extends Controller
             $exceeded = 0;
         return json_encode(['exceeded' => $exceeded]);
     }
+
+
+    private function createOrGetKioskAccount($business_id, $user_id){
+        if(Account::where('business_id', $business_id)->where('name', 'Safe Kiosk Account')->count() > 0){ // get id
+            return Account::where('business_id', $business_id)->where('name', 'Safe Kiosk Account')->get()[0]->id;
+        }
+        // create
+        $input['business_id'] = $business_id;
+        $input['created_by'] = $user_id;
+        $input['account_type'] = 'saving_current';
+        $input['is_service'] = 1;
+        $input['name'] = 'Safe Kiosk Account';
+
+        $account = Account::create($input);
+        return $account->id;
+    }
     /**
      * Deposits amount.
      * @param  Request $request
@@ -641,15 +659,16 @@ class ServiceController extends Controller
 
         try {
             $business_id = session()->get('user.business_id');
+            $user_id = $request->session()->get('user.id');
 
             $amount = $this->commonUtil->num_uf($request->input('amount'));
             $account_id = $request->input('account_id');
             $note = $request->input('note');
 
-            $from_account = $request->input('from_account');
+//            $from_account = $request->input('from_account');
+            $from_account = $this->createOrGetKioskAccount($business_id, $user_id);
 
-            $account = Account::where('business_id', $business_id)
-                            ->findOrFail($account_id);
+
 
             if (!empty($amount)) {
                 $date = new \DateTime('now');
@@ -854,7 +873,7 @@ class ServiceController extends Controller
             }
 
             $output = ['success' => true,
-                'msg' => __("account.deposited_successfully")
+                'msg' => __("account.withdrawn_successfully")
             ];
         } catch (\Exception $e) {
             DB::rollBack();

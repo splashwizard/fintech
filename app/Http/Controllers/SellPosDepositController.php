@@ -109,6 +109,7 @@ class SellPosDepositController extends Controller
             'opening_balance' => __('lang_v1.opening_balance'),
             'payment' => __('lang_v1.payment')
         ];
+        date_default_timezone_set('Asia/ShangHai');
     }
 
     /**
@@ -358,6 +359,20 @@ class SellPosDepositController extends Controller
             ));
     }
 
+    private function isShiftClosed($business_id){
+        $start = date('Y-m-d H:i:s', strtotime('today'));
+        $end = date('Y-m-d H:i:s', strtotime('now'));
+        if(CashRegister::where('business_id', $business_id)->where('closed_at', '>=', $start)->where('closed_at', '<=', $end)->count() > 0)
+            return 1;
+        return 0;
+    }
+
+    public function checkShiftClosed(Request $request){
+        $business_id = $request->session()->get('user.business_id');
+        $is_shift_closed = $this->isShiftClosed($business_id);
+        return ['is_shift_closed' => $is_shift_closed];
+    }
+
     /**
      * Store a newly created resource in storage.
      *
@@ -369,6 +384,7 @@ class SellPosDepositController extends Controller
         if (!auth()->user()->can('sell.create') && !auth()->user()->can('direct_sell.access')) {
             abort(403, 'Unauthorized action.');
         }
+
 
         $is_direct_sale = false;
         if (!empty($request->input('is_direct_sale'))) {
@@ -524,6 +540,11 @@ class SellPosDepositController extends Controller
 
 
                 if (!$transaction->is_suspend && !empty($input['payment'])) {
+                    if(!$this->isShiftClosed($business_id)){
+                        foreach( $input['payment'] as $i => $payment){
+                            $input['payment'][$i]['paid_on'] = date('Y-m-d H:i:s', strtotime('today') - 1);
+                        }
+                    }
                     $this->transactionUtil->createOrUpdatePaymentLines($transaction, $input['payment']);
                 }
 
@@ -1752,7 +1773,8 @@ class SellPosDepositController extends Controller
                 ->where('products.type', '!=', 'modifier')
                 ->where('products.is_inactive', 0)
                 ->where('accounts.name', '!=', 'Bonus Account')
-                ->where('products.not_for_selling', 0);
+                ->where('products.not_for_selling', 0)
+                ->orderBy('priority', 'ASC');
 
             //Include search
             if (!empty($term)) {
@@ -1834,7 +1856,8 @@ class SellPosDepositController extends Controller
                 ->where('p.type', '!=', 'modifier')
                 ->where('p.is_inactive', 0)
                 ->where('accounts.name', '!=', 'Bonus Account')
-                ->where('p.not_for_selling', 0);
+                ->where('p.not_for_selling', 0)
+                ->orderBy('p.priority', 'ASC');
 
             //Include search
             if (!empty($term)) {
@@ -2164,7 +2187,11 @@ class SellPosDepositController extends Controller
                 }
             }
         }
-//        print_r($ledger_by_payment);exit;
+        $data = CashRegister::join('users as u', 'u.id', 'user_id')->where('closed_at', '>=', $start)->where('closed_at', '<=', $end )->get();
+        foreach($data as $row){
+            $ledger[] = ['date' => $row->closed_at,
+                'user' => $row['first_name'].' '.$row['last_name']];
+        }
         //Sort by date
         if (!empty($ledger)) {
             usort($ledger, function ($a, $b) {

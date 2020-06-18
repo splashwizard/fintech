@@ -33,7 +33,7 @@ Route::group(['middleware' => ['web','IsInstalled', 'auth', 'SetSessionData', 'l
         Route::get('/leave/user-leave-summary', 'EssentialsLeaveController@getUserLeaveSummary');
 
         Route::resource('/request', 'EssentialsRequestController');
-        Route::get('/request/create/{id}', 'EssentialsRequestController@createWithTransaction');
+        Route::get('/request/create/{id}', 'EssentialsRequestController@createWithTransaction')->name('essentials_request.createWithTransaction');
         Route::post('/request/change-status', 'EssentialsRequestController@changeStatus');
         Route::get('/request/activity/{id}', 'EssentialsRequestController@activity');
         Route::get('/request/user-leave-summary', 'EssentialsRequestController@getUserLeaveSummary');

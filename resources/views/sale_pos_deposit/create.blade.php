@@ -47,7 +47,7 @@
 							</div>
 						</div>
 					@endif
-					<div class="box-tools">
+					<div class="box-tools" style="display: none">
 						<button type="button" class="btn btn-block btn-primary btn-modal" data-href="{{action('\Modules\Essentials\Http\Controllers\EssentialsRequestController@create')}}" data-container="#add_request_modal">
 							<i class="fa fa-plus"></i> Request</button>
 					</div>

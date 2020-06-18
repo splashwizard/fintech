@@ -172,7 +172,7 @@ class CashRegisterController extends Controller
                                 ->where('status', 'open')
                                 ->update($input);
             $output = ['success' => 1,
-                            'msg' => __('cash_register.close_success')
+                            'msg' => __('cash_register.close_shift_success')
                         ];
         } catch (\Exception $e) {
             \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
