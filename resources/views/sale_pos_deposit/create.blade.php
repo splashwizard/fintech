@@ -161,7 +161,8 @@
 						<div class="col-md-12">
 							<div class="form-group">
 								{!! Form::label('remarks', __( 'contact.remarks' )) !!}
-								{!! Form::textarea('remarks', '', ['class' => 'form-control', 'placeholder' => __( 'contact.remarks' ), 'rows' => 2, 'id' => 'remarks']); !!}
+								<button class="btn btn-block" id="remarks" style="min-height: 32px"></button>
+{{--								{!! Form::textarea('remarks', '', ['class' => 'form-control', 'placeholder' => __( 'contact.remarks' ), 'rows' => 2, 'id' => 'remarks']); !!}--}}
 							</div>
 						</div>
 					</div>

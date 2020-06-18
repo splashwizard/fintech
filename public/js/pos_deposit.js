@@ -89,6 +89,11 @@ $(document).ready(function() {
         initialize_printer();
     }
 
+    $('#remarks').click(function (e) {
+        e.preventDefault();
+       copyTextToClipboard($(this).html());
+    });
+
     $('select#select_location_id').change(function() {
         reset_pos_form();
     });
@@ -1320,7 +1325,8 @@ $(document).ready(function() {
             let product_type = 0; // bank
             if($(this).parent().parent().attr('id') === 'product_list_body2')
                 product_type = 1; // service
-            pos_product_row($(this).data('variation_id'), product_type);
+            let is_product_any = $(this).hasClass('product_any') ? 1 : 0;
+            pos_product_row($(this).data('variation_id'), product_type, '', 0, is_product_any);
 
             let data = new FormData(pos_form_obj[0]);
             data.delete('_method');
@@ -1845,7 +1851,7 @@ function get_recent_transactions(status, element_obj) {
     });
 }
 
-function pos_product_row(variation_id, product_type = 0, name = 'Bonus',  percentage = 0) {
+function pos_product_row(variation_id, product_type = 0, name = 'Bonus',  percentage = 0, is_product_any = 0) {
     //Get item addition method
     var item_addtn_method = 0;
     var add_via_ajax = true;
@@ -1875,7 +1881,7 @@ function pos_product_row(variation_id, product_type = 0, name = 'Bonus',  percen
                 }
 
                 if (
-                    row_v_id == variation_id &&
+                    (row_v_id == variation_id && !is_product_any) &&
                     enable_sr_no !== '1' &&
                     !modifiers_exist &&
                     !is_added
@@ -1956,7 +1962,8 @@ function pos_product_row(variation_id, product_type = 0, name = 'Bonus',  percen
                 price_group: price_group,
                 product_type: product_type,
                 amount: amount,
-                is_first_service: is_first_service
+                is_first_service: is_first_service,
+                is_product_any: is_product_any
             },
             dataType: 'json',
             success: function(result) {
@@ -1972,6 +1979,9 @@ function pos_product_row(variation_id, product_type = 0, name = 'Bonus',  percen
                     $('table#pos_table tbody')
                         .append(result.html_content)
                         .find('input.pos_quantity');
+                    if(is_product_any){
+                        $('table#pos_table tbody .product_row:last .row_edit_product_price_model').modal('show');
+                    }
                     //increment row count
                     $('input#product_row_count').val(parseInt(product_row) + 1);
                     var this_row = $('table#pos_table tbody')

@@ -1436,6 +1436,7 @@ class SellPosDepositController extends Controller
         $output = [];
 
         try {
+            $is_product_any = request()->get('is_product_any');
             $row_count = request()->get('product_row');
             $row_count = $row_count + 1;
             $is_direct_sell = false;
@@ -1525,7 +1526,7 @@ class SellPosDepositController extends Controller
                 $is_first_service = request()->get('is_first_service');
 
                 $output['html_content'] =  view('sale_pos_deposit.product_row')
-                            ->with(compact('product', 'account_name', 'is_service', 'is_first_service', 'row_count', 'tax_dropdown', 'enabled_modules', 'pos_settings', 'sub_units', 'discount', 'waiters', 'edit_discount', 'edit_price', 'amount', 'game_id'))
+                            ->with(compact('product', 'account_name', 'is_service', 'is_first_service', 'is_product_any', 'row_count', 'tax_dropdown', 'enabled_modules', 'pos_settings', 'sub_units', 'discount', 'waiters', 'edit_discount', 'edit_price', 'amount', 'game_id'))
                             ->render();
             }
             

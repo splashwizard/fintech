@@ -7,7 +7,7 @@
 
 		@if($edit_price || $edit_discount )
 		<div data-toggle="tooltip" data-placement="bottom" title="@lang('lang_v1.pos_edit_product_price_help')">
-			<span class="@if(!isset($is_service) || $is_service == 1 && !$is_first_service)text-link text-info cursor-pointer @endif" data-toggle="modal" @if(!isset($is_service) || $is_service == 1 && !$is_first_service) data-target="#row_edit_product_price_modal_{{$row_count}}" @endif style="width:60%;display:inline-block">
+			<span class="@if((!isset($is_service) || $is_service == 1 && !$is_first_service) || isset($is_product_any) && $is_product_any)text-link text-info cursor-pointer @endif" data-toggle="modal" @if((!isset($is_service) || $is_service == 1 && !$is_first_service) || isset($is_product_any) && $is_product_any) data-target="#row_edit_product_price_modal_{{$row_count}}" @endif style="width:60%;display:inline-block">
 				{!! $product_name !!}
 				&nbsp;<i class="fa fa-info-circle"></i>
 			</span>

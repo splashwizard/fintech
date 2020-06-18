@@ -50,7 +50,7 @@
                 <div class="row" style="margin: 0">
                     <div class="col-sm-6" style="padding-left: 5px; padding-right: 5px">
                         {!! Form::label('withdraw_to', __( 'account.withdraw_to' ) .":*") !!}
-                        {!! Form::select('withdraw_to', $to_users, null, ['class' => 'form-control', 'required', 'style' => 'width:100%' ]); !!}
+                        {!! Form::select('withdraw_to', $to_users, null, ['class' => 'form-control', 'required', 'style' => 'width:100%']); !!}
                     </div>
                     <div class="col-sm-6" style="padding-left: 5px; padding-right: 5px">
                         {!! Form::label('withdraw_to', "Game ID" .":*") !!}
@@ -181,9 +181,6 @@
                 }
             });
         }
-
-        getBankDetail();
-        getGameId();
         // fileinput_setting = {
         //     showUpload: false,
         //     showPreview: false,
@@ -294,7 +291,10 @@
                 return markup;
             },
         });
-        $('#withdraw_to').on("select2:select", function(e) {
+
+        getBankDetail();
+        getGameId();
+        $('#withdraw_to').on("change", function(e) {
             getBankDetail();
             getGameId();
         });
