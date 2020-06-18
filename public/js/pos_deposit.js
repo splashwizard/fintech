@@ -33,6 +33,7 @@ function copyTextToClipboard(text) {
     textArea.style.padding = 0;
 
     // Clean up any borders.
+
     textArea.style.border = 'none';
     textArea.style.outline = 'none';
     textArea.style.boxShadow = 'none';
@@ -132,8 +133,7 @@ $(document).ready(function() {
         });
     });
 
-    $('.btn-back').click(function (e) {
-        e.preventDefault();
+    function checkAndShowShiftAlert(){
         $.ajax({
             method: 'POST',
             url: '/sells/pos_deposit/check_shift_closed',
@@ -155,7 +155,13 @@ $(document).ready(function() {
                 }
             }
         });
+    }
+
+    $('.btn-back').click(function (e) {
+        e.preventDefault();
+        checkAndShowShiftAlert();
     });
+    checkAndShowShiftAlert();
 
     //get customer
     $('#customer_id').select2({
