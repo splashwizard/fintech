@@ -134,10 +134,40 @@ $(document).ready(function() {
     });
 
     function checkAndShowShiftAlert(){
+        if(is_shift_enabled){
+            $.ajax({
+                method: 'POST',
+                url: '/sells/pos_deposit/check_shift_closed',
+                success: function(result) {
+                    if (!result.is_shift_closed) {
+                        swal({
+                            title: LANG.shift_warning,
+                            text: LANG.shift_description.replace("xxtime", moment().format("HH:mm")).replace("xxdate", moment().subtract(1, "days").format("Do MMM YYYY")),
+                            icon: 'warning',
+                            buttons: ["Cancel", "Ignore"],
+                            dangerMode: true,
+                        }).then(willProceed => {
+                            if(willProceed){
+                                window.location.href = "/sells";
+                            }
+                        });
+                    } else
+                        window.location.href = "/sells";
+                }
+            });
+        } else window.location.href = "/sells";
+    }
+
+    $('.btn-back').click(function (e) {
+        e.preventDefault();
+        checkAndShowShiftAlert();
+    });
+
+    if(is_shift_enabled) {
         $.ajax({
             method: 'POST',
             url: '/sells/pos_deposit/check_shift_closed',
-            success: function(result) {
+            success: function (result) {
                 if (!result.is_shift_closed) {
                     swal({
                         title: LANG.shift_warning,
@@ -146,37 +176,11 @@ $(document).ready(function() {
                         buttons: ["Cancel", "Ignore"],
                         dangerMode: true,
                     }).then(willProceed => {
-                        if(willProceed){
-                            window.location.href = "/sells";
-                        }
                     });
-                } else
-                    window.location.href = "/sells";
+                }
             }
         });
     }
-
-    $('.btn-back').click(function (e) {
-        e.preventDefault();
-        checkAndShowShiftAlert();
-    });
-
-    $.ajax({
-        method: 'POST',
-        url: '/sells/pos_deposit/check_shift_closed',
-        success: function(result) {
-            if (!result.is_shift_closed) {
-                swal({
-                    title: LANG.shift_warning,
-                    text: LANG.shift_description.replace("xxtime", moment().format("HH:mm")).replace("xxdate", moment().subtract(1, "days").format("Do MMM YYYY")),
-                    icon: 'warning',
-                    buttons: ["Cancel", "Ignore"],
-                    dangerMode: true,
-                }).then(willProceed => {
-                });
-            }
-        }
-    });
 
     //get customer
     $('#customer_id').select2({
@@ -1047,7 +1051,7 @@ $(document).ready(function() {
                                 variation_ids = [];
                                 reset_pos_form();
                                 var text = $('#customer_id').select2('data')[0].text;
-                                if( text === "Unclaimed Trans") {
+                                if( text === "Unclaimed Trans") {D
                                     if(!edit_page)
                                         $('#service_box').hide();
                                 }

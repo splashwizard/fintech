@@ -266,6 +266,7 @@
 	<script>
 		let basic_bonus_rate = '{{session()->get('business')['basic_bonus']}}';
 		const edit_page = 0;
+		const is_shift_enabled = parseInt('{{auth()->user()->hasRole('Admin#' . auth()->user()->business_id) || auth()->user()->hasRole('Superadmin') ? 0 : 1}}');
 	</script>
 	<script src="{{ asset('js/pos_deposit.js?v=' . $asset_v) }}"></script>
 	<script src="{{ asset('js/printer.js?v=' . $asset_v) }}"></script>

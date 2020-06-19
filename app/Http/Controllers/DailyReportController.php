@@ -225,6 +225,7 @@ class DailyReportController extends Controller
         })
             ->where('is_service', 1)
             ->where('business_id', $business_id)
+            ->where('accounts.name', '!=', 'Safe Kiosk Account')
             ->select(['name', 'account_number', 'accounts.note', 'accounts.id as account_id',
                 'is_closed', DB::raw("SUM( IF(AT.type='credit', amount, -1*amount) ) as balance")
                 , DB::raw("SUM( IF(AT.type='credit', amount, 0) ) as total_deposit")
