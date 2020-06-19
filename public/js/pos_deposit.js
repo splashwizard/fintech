@@ -1,4 +1,4 @@
-var selected_bank = 0;
+var selected_bank = localStorage.getItem('selected_bank') ? localStorage.getItem('selected_bank') : 0;
 var selected_bank_suggestion_id = 0;
 function copyTextToClipboard(text) {
     var textArea = document.createElement("textarea");
@@ -1052,9 +1052,11 @@ $(document).ready(function() {
                                         $('#service_box').hide();
                                 }
                             } else {
-                                setTimeout(function () {
-                                    window.location.href="/pos_deposit/create";
-                                },3000)
+                                localStorage.setItem("selected_bank", selected_bank);
+                                window.location.href="/pos_deposit/create";
+                                // setTimeout(function () {
+                                //     window.location.href="/pos_deposit/create";
+                                // },100);
                             }
 
 
