@@ -169,7 +169,7 @@
                   <div class="form-group">
                       {!! Form::label('game_ids['.$service->id.']', $service->name) !!}
                       {!! Form::text('game_ids['.$service->id.']', isset($game_ids[$service->id]) ? $game_ids[$service->id] : null, ['class' => 'form-control', 'placeholder' => 'Current Game ID', 'style' => 'margin-bottom:10px']) !!}
-                      {!! Form::text('', isset($game_ids[$service->id]) ? $game_ids[$service->id] : null, ['class' => 'form-control', 'placeholder' => 'Old Game ID', 'readonly' => true] ) !!}
+                      {!! Form::text('', null, ['class' => 'form-control', 'placeholder' => 'Old Game ID'] ) !!}
                   </div>
               </div>
           @endforeach

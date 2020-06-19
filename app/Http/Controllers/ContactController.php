@@ -533,6 +533,7 @@ class ContactController extends Controller
                         $input['type'] = 'customer';
                         $input['business_id'] = $business_id;
                         $input['created_by'] = $request->session()->get('user.id');
+                        $input['no_bonus'] = $request->input('no_bonus') ? true : false;
 
                         $input['credit_limit'] = $request->input('credit_limit') != '' ? $this->commonUtil->num_uf($request->input('credit_limit')) : null;
                         $bank_details = $request->get('bank_details');

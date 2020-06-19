@@ -159,9 +159,13 @@
       <div class="clearfix"></div>
       <div class="col-md-12">
           <hr/>
-          <div style="display: flex; justify-content: space-between">
-            <label style="text-decoration: underline" >Game ID List <input type="checkbox" data-toggle="collapse" data-target="#services"> </label>
-            <label> No Bonus <input type="checkbox" name="no_bonus"> </label>
+          <div style="display:flex; justify-content:space-between;align-items:center">
+              <label style="text-decoration: underline" >Game ID List <input type="checkbox" data-toggle="collapse" data-target="#services"> </label>
+              <div class="checkbox">
+                  <label>
+                      {!! Form::checkbox('no_bonus', 1, 0, ['class' => 'input-icheck', 'id' => 'no_bonus']); !!} No Bonus
+                  </label>
+              </div>
           </div>
       </div>
       <div id="services" class="collapse">
@@ -170,7 +174,7 @@
                   <div class="form-group">
                       {!! Form::label('game_ids['.$service->id.']', $service->name) !!}
                       {!! Form::text('game_ids['.$service->id.']', null, ['class' => 'form-control', 'placeholder' => 'Current Game ID', 'style' => 'margin-bottom:10px']) !!}
-                      {!! Form::text('', null, ['class' => 'form-control', 'placeholder' => 'Old Game ID']) !!}
+                      {!! Form::text('', null, ['class' => 'form-control', 'placeholder' => 'Old Game ID'] ) !!}
                   </div>
               </div>
           @endforeach
