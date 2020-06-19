@@ -359,17 +359,17 @@ class SellPosDepositController extends Controller
             ));
     }
 
-    private function isShiftClosed($business_id){
+    private function isShiftClosed($user_id){
         $start = date('Y-m-d H:i:s', strtotime('today'));
         $end = date('Y-m-d H:i:s', strtotime('now'));
-        if(CashRegister::where('business_id', $business_id)->where('closed_at', '>=', $start)->where('closed_at', '<=', $end)->count() > 0)
+        if(CashRegister::where('user_id', $user_id)->where('closed_at', '>=', $start)->where('closed_at', '<=', $end)->count() > 0)
             return 1;
         return 0;
     }
 
     public function checkShiftClosed(Request $request){
-        $business_id = $request->session()->get('user.business_id');
-        $is_shift_closed = $this->isShiftClosed($business_id);
+        $user_id = $request->session()->get('user.id');
+        $is_shift_closed = $this->isShiftClosed($user_id);
         return ['is_shift_closed' => $is_shift_closed];
     }
 
@@ -545,7 +545,7 @@ class SellPosDepositController extends Controller
 
 
                 if (!$transaction->is_suspend && !empty($input['payment'])) {
-                    if(!$this->isShiftClosed($business_id)){
+                    if(!$this->isShiftClosed($user_id)){
                         foreach( $input['payment'] as $i => $payment){
                             $input['payment'][$i]['paid_on'] = date('Y-m-d H:i:s', strtotime('today') - 1);
                         }
@@ -1085,12 +1085,67 @@ class SellPosDepositController extends Controller
         $services = Account::where('business_id', $business_id)->where('is_service', 1)->get();
         $memberships = Membership::forDropdown($business_id);
         $bank_brands  = BankBrand::forDropdown($business_id);
+
+        // Bonuses
+        $location_id = $default_location;
+
+        $bonuses_query = Variation::join('products as p', 'variations.product_id', '=', 'p.id')
+            ->leftjoin(
+                'variation_location_details AS VLD',
+                function ($join) use ($location_id) {
+                    $join->on('variations.id', '=', 'VLD.variation_id');
+
+                    //Include Location
+                    if (!empty($location_id)) {
+                        $join->where(function ($query) use ($location_id) {
+                            $query->where('VLD.location_id', '=', $location_id);
+                            //Check null to show products even if no quantity is available in a location.
+                            //TODO: Maybe add a settings to show product not available at a location or not.
+                            $query->orWhereNull('VLD.location_id');
+                        });
+                        ;
+                    }
+                }
+            )
+            ->join('accounts', 'p.account_id', 'accounts.id')
+            ->leftjoin('account_transactions as AT', function ($join) {
+                $join->on('AT.account_id', '=', 'accounts.id');
+                $join->whereNull('AT.deleted_at');
+            })
+            ->groupBy('accounts.id')
+            ->groupBy('variations.id')
+            ->where('accounts.business_id', $business_id)
+            ->where('p.type', '!=', 'modifier')
+            ->where('p.is_inactive', 0)
+            ->where('p.not_for_selling', 0);
+        $bonuses_query->where('accounts.name', '=', 'Bonus Account');
+
+        $no_bonus = (object)['id' => -1, 'name' => '', 'selling_price' => 0, 'variation' => 'No Bonus'];
+        $bonuses = [];
+        $bonuses[] = $no_bonus;
+        $bonuses_data = $bonuses_query->select(
+            DB::raw("SUM( IF(AT.type='credit', AT.amount, -1*AT.amount) ) as balance"),
+            'p.id as product_id',
+            'p.name',
+            'p.type',
+            'p.enable_stock',
+            'variations.id',
+            'p.account_id',
+            'p.category_id',
+            'variations.name as variation',
+            'variations.default_sell_price as selling_price',
+        )
+            ->orderBy('p.name', 'asc')
+            ->get();
+        foreach ($bonuses_data as $item) {
+            $bonuses[] = $item;
+        }
         
         return view('sale_pos_deposit.edit')
             ->with(compact('business_details', 'taxes', 'payment_types', 'default_location', 'walk_in_customer', 'sell_details', 'transaction', 'payment_lines', 'location_printer_type', 'shortcuts', 'commission_agent', 'bank_categories',
             'service_categories',
             'bank_products', 'services', 'memberships', 'bank_brands',
-            'service_products', 'pos_settings', 'change_return', 'types', 'customer_groups', 'brands', 'accounts', 'price_groups', 'waiters', 'redeem_details', 'edit_price', 'edit_discount'));
+            'service_products', 'pos_settings', 'change_return', 'types', 'customer_groups', 'brands', 'accounts', 'price_groups', 'waiters', 'redeem_details', 'edit_price', 'edit_discount', 'bonuses'));
     }
 
     /**

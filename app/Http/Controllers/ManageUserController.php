@@ -58,15 +58,14 @@ class ManageUserController extends Controller
                         return $role_name;
                     }
                 )
+//                @can("user.view")
+//                <a href="{{action('ManageUserController@show', [$id])}}" class="btn btn-xs btn-info"><i class="fa fa-eye"></i> @lang("messages.view")</a>
+//                    &nbsp;
+//                    @endcan
                 ->addColumn(
                     'action',
                     '@can("user.update")
                         <a href="{{action(\'ManageUserController@edit\', [$id])}}" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</a>
-                        &nbsp;
-                    @endcan
-                    @can("user.view")
-                    <a href="{{action(\'ManageUserController@show\', [$id])}}" class="btn btn-xs btn-info"><i class="fa fa-eye"></i> @lang("messages.view")</a>
-                    &nbsp;
                     @endcan
                     @can("user.delete")
                         <button data-href="{{action(\'ManageUserController@destroy\', [$id])}}" class="btn btn-xs btn-danger delete_user_button"><i class="glyphicon glyphicon-trash"></i> @lang("messages.delete")</button>

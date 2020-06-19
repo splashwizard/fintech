@@ -106,7 +106,7 @@ LANG = {
     'form_will_get_reset': 'All added products will be removed.',
     'withdraw_fourth_warning': 'This is the 4th withdrawal for xxxx (contact ID) in the past 24 hours, proceed?',
     'shift_warning': 'Warning! Pls Close Shift!',
-    'shift_description': "The time now is xxtime hours, and you have not closed the shift for today's transaction [xxdate]. Please close shift now or all the date/time of the transsactions you key in will be adjusted to 23:59 hours to be sorted under yesterday.",
+    'shift_description': "The time now is xxtime hours, and you have not closed the shift for yesterday's transaction [xxdate]. Please close shift now or all the date/time of the transsactions you key in will be adjusted to 23:59 hours to be sorted under yesterday.",
     'tour_step3_content_modified': 'Add Multiple Locations, Tax Rates, Invoice Settings for your shop.',
     'tour_step5_content_modified': 'Add Products - Simple or Variable Products <br> Create Variations for variable products <br> Create Units, Brands and Categories <br> Print labels',
     'pos_max_qty_error': 'Only :max_val :unit_name available',

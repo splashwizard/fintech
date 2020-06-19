@@ -150,7 +150,8 @@ $(document).ready(function() {
                             window.location.href = "/sells";
                         }
                     });
-                }
+                } else
+                    window.location.href = "/sells";
             }
         });
     }
@@ -159,7 +160,23 @@ $(document).ready(function() {
         e.preventDefault();
         checkAndShowShiftAlert();
     });
-    checkAndShowShiftAlert();
+
+    $.ajax({
+        method: 'POST',
+        url: '/sells/pos_deposit/check_shift_closed',
+        success: function(result) {
+            if (!result.is_shift_closed) {
+                swal({
+                    title: LANG.shift_warning,
+                    text: LANG.shift_description.replace("xxtime", moment().format("HH:mm")).replace("xxdate", moment().subtract(1, "days").format("Do MMM YYYY")),
+                    icon: 'warning',
+                    buttons: ["Cancel", "Ignore"],
+                    dangerMode: true,
+                }).then(willProceed => {
+                });
+            }
+        }
+    });
 
     //get customer
     $('#customer_id').select2({
@@ -1670,7 +1687,7 @@ function get_contact_ledger() {
                             .column( columns[i], { page: 'current'} )
                             .data()
                             .reduce( function (a, b) {
-                                return intVal(__number_uf(a)) + intVal(__number_uf(b));
+                                return intVal(a) + intVal(b);
                             }, 0 );
 
                         // Update footer
