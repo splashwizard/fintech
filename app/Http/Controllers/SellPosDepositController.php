@@ -303,7 +303,7 @@ class SellPosDepositController extends Controller
             'p.account_id',
             'p.category_id',
             'variations.name as variation',
-            'variations.default_sell_price as selling_price',
+            'variations.default_sell_price as selling_price'
         )
             ->orderBy('p.name', 'asc')
             ->get();
@@ -545,9 +545,11 @@ class SellPosDepositController extends Controller
 
 
                 if (!$transaction->is_suspend && !empty($input['payment'])) {
-                    if(!$this->isShiftClosed($user_id)){
-                        foreach( $input['payment'] as $i => $payment){
-                            $input['payment'][$i]['paid_on'] = date('Y-m-d H:i:s', strtotime('today') - 1);
+                    if(!(auth()->user()->hasRole('Admin#' . auth()->user()->business_id) || auth()->user()->hasRole('Admin') || auth()->user()->hasRole('Superadmin'))){
+                        if(!$this->isShiftClosed($user_id)){
+                            foreach( $input['payment'] as $i => $payment){
+                                $input['payment'][$i]['paid_on'] = date('Y-m-d H:i:s', strtotime('today') - 1);
+                            }
                         }
                     }
                     $this->transactionUtil->createOrUpdatePaymentLines($transaction, $input['payment']);

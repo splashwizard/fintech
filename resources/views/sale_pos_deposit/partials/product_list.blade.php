@@ -14,6 +14,9 @@
 					@if($product->type == 'variable')
 						- {{$product->variation}}
 					@endif
+						@if($product->category_id === 67)
+						<span class="text-red">({{round($product->balance)}})</span>
+							@endif
 					</small>
 				</div>
 				@if($product->category_id === 67)

@@ -1051,7 +1051,7 @@ $(document).ready(function() {
                                 variation_ids = [];
                                 reset_pos_form();
                                 var text = $('#customer_id').select2('data')[0].text;
-                                if( text === "Unclaimed Trans") {D
+                                if( text === "Unclaimed Trans") {
                                     if(!edit_page)
                                         $('#service_box').hide();
                                 }
@@ -1976,7 +1976,7 @@ function pos_product_row(variation_id, product_type = 0, name = 'Bonus',  percen
             else
                 amount = $('#total_earned').html();
         } else if(product_type === 2) { // bonus
-            if(name === 'Bonus')
+            if( name.indexOf('Bonus') !== -1)
                 amount = $('#credit').html() * percentage / 100;
             else
                 amount = percentage;
