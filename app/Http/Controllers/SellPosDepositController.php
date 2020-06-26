@@ -473,6 +473,12 @@ class SellPosDepositController extends Controller
                 } else {
                     $input['transaction_date'] = $this->productUtil->uf_date($request->input('transaction_date'), true);
                 }
+                if(!(auth()->user()->hasRole('Admin#' . auth()->user()->business_id) || auth()->user()->hasRole('Admin') || auth()->user()->hasRole('Superadmin'))){
+                    if(!$this->isShiftClosed($user_id)){
+                        $input['transaction_date'] = date('Y-m-d H:i:s', strtotime('today') - 1);
+                    }
+                }
+
                 if ($is_direct_sale) {
                     $input['is_direct_sale'] = 1;
                 }
@@ -1276,6 +1282,14 @@ class SellPosDepositController extends Controller
                             $change_return['id'] = $input['change_return_id'];
                         }
                         $input['payment'][] = $change_return;
+
+                        if(!(auth()->user()->hasRole('Admin#' . auth()->user()->business_id) || auth()->user()->hasRole('Admin') || auth()->user()->hasRole('Superadmin'))){
+                            if(!$this->isShiftClosed($user_id)){
+                                foreach( $input['payment'] as $i => $payment){
+                                    $input['payment'][$i]['paid_on'] = date('Y-m-d H:i:s', strtotime('today') - 1);
+                                }
+                            }
+                        }
 
                         $this->transactionUtil->createOrUpdatePaymentLines($transaction, $input['payment']);
 

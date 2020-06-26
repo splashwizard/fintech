@@ -97,6 +97,7 @@ class DailyReportController extends Controller
         $bank_account_balances = $bank_accounts_sql->get();
         foreach ($bank_account_balances as $bank_account) {
             $bank_accounts_obj['balance'][$bank_account['account_id']] = $bank_account['balance'];
+            $bank_accounts_obj['overall'][$bank_account['account_id']] = $bank_account['balance'];
         }
         if (!empty($start) && !empty($end)) {
             $bank_accounts_sql->whereDate('AT.operation_date', '>=', $start)
@@ -108,7 +109,7 @@ class DailyReportController extends Controller
             $bank_accounts_obj['withdraw'][$bank_account['account_id']] = $bank_account['total_withdraw'];
             $bank_accounts_obj['transfer_in'][$bank_account['account_id']] = $bank_account['transfer_in'];
             $bank_accounts_obj['transfer_out'][$bank_account['account_id']] = $bank_account['transfer_out'];
-            $bank_accounts_obj['overall'][$bank_account['account_id']] = $bank_account['balance'] + $bank_account['total_deposit'] - $bank_account['total_withdraw'];
+            $bank_accounts_obj['overall'][$bank_account['account_id']] += $bank_account['total_deposit'] - $bank_account['total_withdraw'];
             $bank_accounts_obj['win_loss'][$bank_account['account_id']] = $bank_account['total_deposit'] - $bank_account['total_withdraw'];
         }
         //unclaimed trans
