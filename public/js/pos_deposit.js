@@ -1,5 +1,7 @@
 var selected_bank = localStorage.getItem('selected_bank') ? localStorage.getItem('selected_bank') : 0;
+var bonus_variation_id = -1;
 var selected_bank_suggestion_id = 0;
+var no_bonus = 0;
 function copyTextToClipboard(text) {
     var textArea = document.createElement("textarea");
 
@@ -201,12 +203,11 @@ $(document).ready(function() {
             },
         },
         templateResult: function (data) { 
-            // var template = data.text + "<br>" + LANG.mobile + ": " + data.mobile;
-            // if (typeof(data.total_rp) != "undefined") {
-            //     var rp = data.total_rp ? data.total_rp : 0;
-            //     template += "<br><i class='fa fa-gift text-success'></i> " + rp;
-            // }
-            var template = data.contact_id;
+            var template = data.text;
+            if (typeof(data.game_text) != "undefined") {
+                template += "<br><i class='fa fa-gift text-success'></i> " + data.game_text;
+            }
+            // var template = data.contact_id;
 
             return template;
         },
@@ -246,13 +247,13 @@ $(document).ready(function() {
         var brand_id = $('select#product_brand').val();
 
         var cur_customer_id = $('#customer_id').val();
-        reset_pos_form();
+        // reset_pos_form();
         $('select#customer_id')
             .val(cur_customer_id)
             .trigger('change');
-        for(var i = 0; i < variation_ids.length; i++){
-            pos_product_row(variation_ids[i]);
-        }
+        // for(var i = 0; i < variation_ids.length; i++){
+        //     pos_product_row(variation_ids[i]);
+        // }
         // disable or enable no-bonus option
         $.ajax({
             method: 'POST',
@@ -262,9 +263,11 @@ $(document).ready(function() {
             success: function(result) {
                 if(result.no_bonus){
                     $('#bonus').prop( "disabled", true);
+                    no_bonus = 1;
                     // $('select option:first-child').attr("selected", "selected");
                 } else {
-                    $('#bonus').css('disabled', false);
+                    $('#bonus').prop('disabled', false);
+                    no_bonus = 0;
                 }
             }
         });
@@ -1158,6 +1161,49 @@ $(document).ready(function() {
             .select();
     });
 
+    $(document).on('click', '#confirm_btn',function () {
+        var edit_product_price = $(this).parents('.row_edit_product_price_model').find('.input_number');
+        if(edit_product_price.val() > 1000) {
+            if(!edit_product_price.next().is('.error')){
+                edit_product_price.parent('div').append('<label class="error">Error. Maximum deposit amount is 1000.</label>');
+            }
+            return;
+        }
+        $(this).parents('.row_edit_product_price_model').modal('hide');
+    });
+    $(document).on('keyup', '.row_edit_product_price_model.in .input_number', function (e) {
+        if($(this).val() <= 1000) {
+            $(this).next().hide();
+        } else
+            $(this).next().show();
+    });
+    $(document).on('keydown',  function (e) {
+        if($('.row_edit_product_price_model.in').length > 0) {
+            var key = e.which;
+            if (key == 13) { //This is an ENTER
+                $('.row_edit_product_price_model.in .modal-footer button').trigger('click');
+            }
+        }
+        else if($('#withdraw_form').parents('.view_modal').hasClass('in')){
+            var key = e.which;
+            if (key == 13) { //This is an ENTER
+                $('#withdraw_form>.modal-footer>.btn-primary').trigger('click');
+            }
+        }
+        else{
+            if(e.which == 13) {
+                $('#pos-finalize').trigger('click');
+            }
+        }
+    });
+
+    // $(document).on('keypress',function(e) {
+    //     if(e.which == 13) {
+    //         alert('Final');
+    //         // $('#pos-finalize').trigger('click');
+    //     }
+    // });
+
     //Update Order tax
     $('button#posEditOrderTaxModalUpdate').click(function() {
         //Close modal
@@ -1397,7 +1443,9 @@ $(document).ready(function() {
     $('#bonus').change(function (e) {
         const optionSelected = $("option:selected", this);
         const variation_id = optionSelected.data('variation_id');
-        variation_ids.push(variation_id);
+        bonus_variation_id = variation_id;
+        $('#bonus_variation_id').val(bonus_variation_id);
+        // variation_ids.push(variation_id);
         const product_type = 2; // bonus
         pos_product_row(variation_id, product_type, optionSelected.data('name'), optionSelected.data('amount'));
 
@@ -1994,85 +2042,86 @@ function pos_product_row(variation_id, product_type = 0, name = 'Bonus',  percen
             pos_total_row();
         }
         else {
-        $.ajax({
-            method: 'GET',
-            url: '/sells/pos_deposit/get_product_row/' + variation_id + '/' + location_id,
-            async: false,
-            data: {
-                product_row: product_row,
-                customer_id: customer_id,
-                is_direct_sell: is_direct_sell,
-                price_group: price_group,
-                product_type: product_type,
-                amount: amount,
-                is_first_service: is_first_service,
-                is_product_any: is_product_any
-            },
-            dataType: 'json',
-            success: function(result) {
-                if (result.success) {
-                    if(product_type == 2){ // bonus
-                        $('table#pos_table tbody tr.product_row').each(function(index){
-                            if($(this).find('.account_name').val() === 'Bonus Account'){
-                                $(this).next().remove();
-                                $(this).remove();
-                            }
-                        })
-                    }
-                    $('table#pos_table tbody')
-                        .append(result.html_content)
-                        .find('input.pos_quantity');
-                    if(is_product_any){
-                        $('table#pos_table tbody .product_row:last .row_edit_product_price_model').modal('show');
-                    }
-                    //increment row count
-                    $('input#product_row_count').val(parseInt(product_row) + 1);
-                    var this_row = $('table#pos_table tbody')
-                        .find('tr')
-                        .last();
-                    pos_each_row(this_row);
-
-                    //For initial discount if present
-                    var line_total = __read_number(this_row.find('input.pos_line_total'));
-                    this_row.find('span.pos_line_total_text').text(line_total);
-
-                    pos_total_row();
-
-                    //Check if multipler is present then multiply it when a new row is added.
-                    if(__getUnitMultiplier(this_row) > 1){
-                        this_row.find('select.sub_unit').trigger('change');
-                    }
-
-                    if (result.enable_sr_no == '1') {
-                        var new_row = $('table#pos_table tbody')
+            $.ajax({
+                method: 'GET',
+                url: '/sells/pos_deposit/get_product_row/' + variation_id + '/' + location_id,
+                async: false,
+                data: {
+                    product_row: product_row,
+                    customer_id: customer_id,
+                    is_direct_sell: is_direct_sell,
+                    price_group: price_group,
+                    product_type: product_type,
+                    amount: amount,
+                    is_first_service: is_first_service,
+                    is_product_any: is_product_any
+                },
+                dataType: 'json',
+                success: function(result) {
+                    if (result.success) {
+                        if(product_type == 2){ // bonus
+                            $('table#pos_table tbody tr.product_row').each(function(index){
+                                if($(this).find('.account_name').val() === 'Bonus Account'){
+                                    $(this).next().remove();
+                                    $(this).remove();
+                                }
+                            })
+                        }
+                        else
+                            $('table#pos_table tbody')
+                                .append(result.html_content)
+                                .find('input.pos_quantity');
+                        if(is_product_any){
+                            $('table#pos_table tbody .product_row:last .row_edit_product_price_model').modal('show');
+                        }
+                        //increment row count
+                        $('input#product_row_count').val(parseInt(product_row) + 1);
+                        var this_row = $('table#pos_table tbody')
                             .find('tr')
                             .last();
-                        new_row.find('.add-pos-row-description').trigger('click');
+                        pos_each_row(this_row);
+
+                        //For initial discount if present
+                        var line_total = __read_number(this_row.find('input.pos_line_total'));
+                        this_row.find('span.pos_line_total_text').text(line_total);
+
+                        pos_total_row();
+
+                        //Check if multipler is present then multiply it when a new row is added.
+                        if(__getUnitMultiplier(this_row) > 1){
+                            this_row.find('select.sub_unit').trigger('change');
+                        }
+
+                        if (result.enable_sr_no == '1') {
+                            var new_row = $('table#pos_table tbody')
+                                .find('tr')
+                                .last();
+                            new_row.find('.add-pos-row-description').trigger('click');
+                        }
+
+                        round_row_to_iraqi_dinnar(this_row);
+                        __currency_convert_recursively(this_row);
+
+                        $('input#search_product')
+                            .focus()
+                            .select();
+
+                        //Used in restaurant module
+                        if (result.html_modifier) {
+                            $('table#pos_table tbody')
+                                .find('tr')
+                                .last()
+                                .find('td:first')
+                                .append(result.html_modifier);
+                        }
+                    } else {
+                        toastr.error(result.msg);
+                        $('input#search_product')
+                            .focus()
+                            .select();
                     }
-
-                    round_row_to_iraqi_dinnar(this_row);
-                    __currency_convert_recursively(this_row);
-
-                    $('input#search_product')
-                        .focus()
-                        .select();
-
-                    //Used in restaurant module
-                    if (result.html_modifier) {
-                        $('table#pos_table tbody')
-                            .find('tr')
-                            .last()
-                            .find('td:first')
-                            .append(result.html_modifier);
-                    }
-                } else {
-                    toastr.error(result.msg);
-                    $('input#search_product')
-                        .focus()
-                        .select();
-                }
-            },
-        });
+                },
+            });
         }
     }
 }
@@ -2106,24 +2155,29 @@ function pos_each_row(row_obj) {
 
 function pos_total_row() {
     let credit = 0, basic_bonus = 0, special_bonus = 0, debit = 0;
-
     $('table#pos_table tbody tr').each(function() {
-        const p_name = $(this).find('input.account_name').val();
+        // const p_name = $(this).find('input.account_name').val();
         const category_id = parseInt($(this).find('input.category_id').val());
-        if(p_name === 'Bonus Account'){
-            special_bonus += __read_number($(this).find('input.pos_line_total'));
-        } else if(category_id === 66){
+        // if(p_name === 'Bonus Account'){
+        //     special_bonus += __read_number($(this).find('input.pos_line_total'));
+        if(category_id === 66){
             const line_total = __read_number($(this).find('input.pos_line_total'));
             credit += line_total;
-            basic_bonus += basic_bonus_rate * line_total / 100;
         } else {
             const line_total = __read_number($(this).find('input.pos_line_total'));
             debit += line_total;
         }
     });
-    basic_bonus = Math.floor(basic_bonus);
-    if(special_bonus !== 0)
-        basic_bonus = 0;
+    const selected = $('#bonus option:selected');
+    if(bonus_variation_id !== -1){
+        if(selected.data('name') === 'Bonus') {
+            special_bonus = Math.floor(selected.data('amount') * credit / 100);
+        } else {
+            special_bonus = Math.floor(selected.data('amount'));
+        }
+    } else if(no_bonus === 0) {
+        basic_bonus = Math.floor(basic_bonus_rate * credit / 100);
+    }
     $('#credit').html(credit);
     $('#basic_bonus').html(basic_bonus);
     $('#special_bonus').html(special_bonus);
@@ -2290,6 +2344,7 @@ function reset_pos_form(){
 
     updateRemarks();
     $('#bonus').prop('disabled', false);
+    no_bonus = 0;
 
 	// $('tr.product_row').remove();
     $('tr.product_row').remove();

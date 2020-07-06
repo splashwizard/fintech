@@ -26,6 +26,7 @@ return [
     'kiosk_in' => 'Kiosk In',
     'kiosk_out' => 'Kiosk Out',
     'free_credit' => 'Free Credit',
+    'basic_bonus' => 'Basic Bonus',
     'account_name' => 'Account Name',
     'transaction_type' => 'Transaction Type',
     'fund_transfer' => 'Fund Transfer',

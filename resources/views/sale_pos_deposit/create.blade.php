@@ -142,6 +142,7 @@
 								<input type="hidden" name="bank_changed" id="bank_changed" value="0">
 							</div>
 						</div>
+						<input type="hidden" name="bonus_variation_id" id="bonus_variation_id" value="-1">
 						<input type="hidden" name="customer_id" id="contact_id" value="1">
 						<input type="hidden" name="pay_term_number" id="pay_term_number" value="{{$walk_in_customer['pay_term_number']}}">
 						<input type="hidden" name="pay_term_type" id="pay_term_type" value="{{$walk_in_customer['pay_term_type']}}">

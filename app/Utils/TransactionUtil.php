@@ -87,6 +87,7 @@ class TransactionUtil extends Util
             'rp_redeemed' => !empty($input['rp_redeemed']) ? $this->calculateRewardPoints($business_id, $input['rp_redeemed']) : 0,
             'rp_redeemed_amount' => !empty($input['rp_redeemed_amount']) ? $input['rp_redeemed_amount'] : 0,
             'is_created_from_api' => !empty($input['is_created_from_api']) ? 1 : 0,
+            'bonus_variation_id' => $input['bonus_variation_id']
         ]);
 
         return $transaction;

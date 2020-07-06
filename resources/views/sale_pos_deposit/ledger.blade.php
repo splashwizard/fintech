@@ -44,6 +44,7 @@
 		<th>Games</th>
 		<th>Games ID</th>
 		<th>@lang('account.free_credit')</th>
+		<th>@lang('account.basic_bonus')</th>
 		<th>@lang('account.kiosk_in')</th>
 		<th>@lang('account.kiosk_out')</th>
 		{{--			<th>@lang('lang_v1.payment_method')</th>--}}
@@ -57,13 +58,13 @@
 		<tr class="@if(isset($data['is_default']) && $data['is_default'] == 1) unclaimed @endif" data-transaction_id = "{{ isset($data['transaction_id']) ? $data['transaction_id'] : 0}}">
 			@if(!isset($data['others']))
 				@if($selected_bank == 'free_credit')
-					<td colspan="11" style="text-align: center; background-color: lightgrey"> -------------------------------- SHIFT CLOSED -------------------------------- </td>
-					@php for($i = 0; $i < 10; $i++) {
+					<td colspan="12" style="text-align: center; background-color: lightgrey"> -------------------------------- SHIFT CLOSED -------------------------------- </td>
+					@php for($i = 0; $i < 11; $i++) {
 						echo '<td style="display: none"></td>';
 					} @endphp
 				@else
-					<td colspan="10" style="text-align: center; background-color: lightgrey"> -------------------------------- SHIFT CLOSED -------------------------------- </td>
-					@php for($i = 0; $i < 9; $i++) {
+					<td colspan="11" style="text-align: center; background-color: lightgrey"> -------------------------------- SHIFT CLOSED -------------------------------- </td>
+					@php for($i = 0; $i < 10; $i++) {
 						echo '<td style="display: none"></td>';
 					} @endphp
 				@endif
@@ -82,6 +83,7 @@
 				<td>@if(isset($data['service_name'])){!! $data['service_name'] !!}@endif</td>
 				<td>{!! isset($data['game_id']) ? $data['game_id'] : null !!}</td>
 				<td>@if($data['free_credit'] != '') <span class="display_currency text-red">{{$data['free_credit']}}</span> @endif</td>
+				<td>@if($data['basic_bonus'] != '') <span class="display_currency text-green">{{$data['basic_bonus']}}</span> @endif</td>
 				<td>@if($data['service_credit'] != '') <span class="display_currency">{{$data['service_credit']}}</span> @endif</td>
 				<td>@if($data['service_debit'] != '') <span class="display_currency">{{$data['service_debit']}}</span> @endif</td>
 				<td>{{@format_datetime($data['date'])}}</td>

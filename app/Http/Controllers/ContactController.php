@@ -587,7 +587,7 @@ class ContactController extends Controller
 
                             $output = ['success' => true,
                                         'data' => $contact,
-                                        'msg' => __("contact.added_success")
+                                        'msg' => __("contact.added_success").'</br>Name: '.$contact->name.'</br>Contact ID:'.$contact->contact_id
                                     ];
                         } else {
                             throw new \Exception("Error Processing Request", 1);
@@ -1133,6 +1133,7 @@ class ContactController extends Controller
             $business_id = request()->session()->get('user.business_id');
             $user_id = request()->session()->get('user.id');
 
+//            $contacts = Contact::join('game_ids', 'game_ids.contact_id', 'contacts.id');
             if (empty($term)) {
                 $contacts = Contact::where('business_id', 0);
             } else{
@@ -1159,7 +1160,7 @@ class ContactController extends Controller
             $contacts->select(
                 'contacts.id' ,
                 'contact_id',
-                DB::raw("IF(contacts.contact_id IS NULL OR contacts.contact_id='', name, CONCAT(name, ' (', contacts.contact_id, ')')) AS text"),
+                DB::raw("IF(contact_id IS NULL OR contact_id='', name, CONCAT('(', contact_id, ') ', name)) AS text"),
                 'mobile',
                 'landmark',
                 'city',
@@ -1172,8 +1173,46 @@ class ContactController extends Controller
             if (request()->session()->get('business.enable_rp') == 1) {
                 $contacts->addSelect('total_rp');
             }
-            $contacts = $contacts->get();
-            return json_encode($contacts);
+            $result = $contacts->get();
+            $contacts_final = [];
+            foreach ($result as $item){
+                $contacts_final[] = $item;
+            }
+
+            $contacts = Contact::join('game_ids', 'game_ids.contact_id', 'contacts.id');
+            $contacts->join('accounts', 'game_ids.service_id', 'accounts.id');
+            $contacts->where('contacts.business_id', $business_id);
+
+            $selected_contacts = User::isSelectedContacts($user_id);
+            if ($selected_contacts) {
+                $contacts->join('user_contact_access AS uca', 'contacts.id', 'uca.contact_id')
+                    ->where('uca.user_id', $user_id);
+            }
+            $contacts->where('blacked_by_user', null);
+            $contacts->where('is_default', 0);
+            $contacts->where(function ($query) use ($term) {
+                $query->where('game_ids.game_id', 'like', '%' . $term .'%');
+            });
+            $contacts->select(
+                'contacts.id' ,
+                'contacts.contact_id',
+                DB::raw("IF(contacts.contact_id IS NULL OR contacts.contact_id='', contacts.name, CONCAT('(', contacts.contact_id, ') ', contacts.name)) AS text"),
+                DB::raw("CONCAT( accounts.name, ': ', game_ids.game_id) AS game_text"),
+                'mobile',
+                'landmark',
+                'city',
+                'state',
+                'pay_term_number',
+                'pay_term_type'
+            )
+            ->onlyCustomers();
+
+            $result = $contacts->get();
+            foreach ($result as $item){
+                $contacts_final[] = $item;
+            }
+
+            return json_encode($contacts_final);
         }
     }
 
