@@ -3,6 +3,10 @@
 @if( ($request->segment(1) == 'pos' || $request->segment(1) == 'pos_deposit') && ($request->segment(2) == 'create' || $request->segment(3) == 'edit'))
     @php
         $pos_layout = true;
+        if($request->segment(2) == 'create')
+            $pos_action = 'create';
+        else
+            $pos_action = 'edit';
     @endphp
 @else
     @php
@@ -40,7 +44,7 @@
                 @include('layouts.partials.header')
                 @include('layouts.partials.sidebar')
             @else
-                @include('layouts.partials.header-pos')
+                @include('layouts.partials.header-pos', ['pos_action' => $pos_action])
             @endif
 
             <!-- Content Wrapper. Contains page content -->

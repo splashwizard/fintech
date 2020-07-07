@@ -241,6 +241,16 @@
 			@include('sale_pos_deposit.partials.right_div')
 		</div>
 	</div>
+	<div class="row">
+		<div class="col-md-12">
+			<button type="button" style="float: right" class="btn btn-success btn-flat btn-lg no-print @if($pos_settings['disable_pay_checkout'] != 0) hide @endif pos-express-btn" id="pos-finalize" title="@lang('lang_v1.tooltip_checkout_multi_pay')">
+				<div class="text-center">
+					<i class="fa fa-check" aria-hidden="true"></i>
+					<b>@lang('lang_v1.deposit')</b>
+				</div>
+			</button>
+		</div>
+	</div>
 
 {{--	@component('components.widget', ['class' => 'box-primary', 'title' => __('lang_v1.ledger')])--}}
 {{--		<div class="row">--}}

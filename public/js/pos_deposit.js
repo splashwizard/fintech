@@ -1757,14 +1757,14 @@ function get_contact_ledger() {
                     }
                 }
             });
-            if(localStorage.getItem("updated") == "true"){
-                var scrollX = parseInt(localStorage.getItem("scrollX"));
-                var scrollY = parseInt(localStorage.getItem("scrollY"));
-                // var scrollX = parseInt($('#contact_ledger_div').offset().left);
-                // var scrollY = parseInt($('#contact_ledger_div').offset().top);
-                window.scrollTo(scrollX, scrollY);
-                localStorage.setItem("updated", "false");
-            }
+            // if(localStorage.getItem("updated") == "true"){
+            //     var scrollX = parseInt(localStorage.getItem("scrollX"));
+            //     var scrollY = parseInt(localStorage.getItem("scrollY"));
+            //     // var scrollX = parseInt($('#contact_ledger_div').offset().left);
+            //     // var scrollY = parseInt($('#contact_ledger_div').offset().top);
+            //     window.scrollTo(scrollX, scrollY);
+            //     localStorage.setItem("updated", "false");
+            // }
             $('.nav-link').click(function (e) {
                 selected_bank = $(this).data('bank_id');
                 get_contact_ledger();

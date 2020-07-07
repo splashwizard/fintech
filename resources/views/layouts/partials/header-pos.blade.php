@@ -4,7 +4,7 @@
   <div class="row">
 
     <div class="col-md-10">
-
+      @if($pos_action == 'create')
       <a href="{{ action('SellController@index')}}" title="{{ __('lang_v1.go_back') }}" data-toggle="tooltip" data-placement="bottom" class="btn btn-info btn-flat m-6 btn-xs m-5 pull-right btn-back">
         <strong><i class="fa fa-backward fa-lg"></i></strong>
       </a>
@@ -13,6 +13,7 @@
           data-href="{{ action('CashRegisterController@getCloseRegister')}}">
             <strong><i class="fa fa-window-close fa-lg"></i></strong>
       </button>
+      @endif
 
       @if(Module::has('Repair'))
         @include('repair::layouts.partials.pos_header')
