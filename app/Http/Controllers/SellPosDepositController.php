@@ -374,17 +374,17 @@ class SellPosDepositController extends Controller
             ));
     }
 
-    private function isShiftClosed($user_id){
+    private function isShiftClosed($business_id){
         $start = date('Y-m-d H:i:s', strtotime('today'));
         $end = date('Y-m-d H:i:s', strtotime('now'));
-        if(CashRegister::where('user_id', $user_id)->where('closed_at', '>=', $start)->where('closed_at', '<=', $end)->count() > 0)
+        if(CashRegister::where('business_id', $business_id)->where('closed_at', '>=', $start)->where('closed_at', '<=', $end)->count() > 0)
             return 1;
         return 0;
     }
 
     public function checkShiftClosed(Request $request){
-        $user_id = $request->session()->get('user.id');
-        $is_shift_closed = $this->isShiftClosed($user_id);
+        $business_id = $request->session()->get('business.id');
+        $is_shift_closed = $this->isShiftClosed($business_id);
         return ['is_shift_closed' => $is_shift_closed];
     }
 
@@ -490,7 +490,7 @@ class SellPosDepositController extends Controller
                     $input['transaction_date'] = $this->productUtil->uf_date($request->input('transaction_date'), true);
                 }
                 if(!(auth()->user()->hasRole('Admin#' . auth()->user()->business_id) || auth()->user()->hasRole('Admin') || auth()->user()->hasRole('Superadmin'))){
-                    if(!$this->isShiftClosed($user_id)){
+                    if(!$this->isShiftClosed($business_id)){
                         $input['transaction_date'] = date('Y-m-d H:i:s', strtotime('today') - 1);
                     }
                 }
@@ -653,7 +653,7 @@ class SellPosDepositController extends Controller
 
                     if (!$transaction->is_suspend && !empty($input['payment'])) {
                         if(!(auth()->user()->hasRole('Admin#' . auth()->user()->business_id) || auth()->user()->hasRole('Admin') || auth()->user()->hasRole('Superadmin'))){
-                            if(!$this->isShiftClosed($user_id)){
+                            if(!$this->isShiftClosed($business_id)){
                                 foreach( $input['payment'] as $i => $payment){
                                     $input['payment'][$i]['paid_on'] = date('Y-m-d H:i:s', strtotime('today') - 1);
                                 }
@@ -808,7 +808,7 @@ class SellPosDepositController extends Controller
 
                         if (!$transaction->is_suspend && !empty($input['payment'])) {
                             if(!(auth()->user()->hasRole('Admin#' . auth()->user()->business_id) || auth()->user()->hasRole('Admin') || auth()->user()->hasRole('Superadmin'))){
-                                if(!$this->isShiftClosed($user_id)){
+                                if(!$this->isShiftClosed($business_id)){
                                     foreach( $input['payment'] as $i => $payment){
                                         $input['payment'][$i]['paid_on'] = date('Y-m-d H:i:s', strtotime('today') - 1);
                                     }
@@ -1542,7 +1542,7 @@ class SellPosDepositController extends Controller
                         $input['payment'][] = $change_return;
 
                         if(!(auth()->user()->hasRole('Admin#' . auth()->user()->business_id) || auth()->user()->hasRole('Admin') || auth()->user()->hasRole('Superadmin'))){
-                            if(!$this->isShiftClosed($user_id)){
+                            if(!$this->isShiftClosed($business_id)){
                                 foreach( $input['payment'] as $i => $payment){
                                     $input['payment'][$i]['paid_on'] = date('Y-m-d H:i:s', strtotime('today') - 1);
                                 }

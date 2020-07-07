@@ -323,6 +323,7 @@
                     }
                     else
                         $('#withdraw_form').submit();
+                    $('#pos-cancel').trigger('click');
                     // $('#btn-game_id').html(result.game_id);
                 }
             });

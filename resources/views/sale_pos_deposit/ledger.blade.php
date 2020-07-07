@@ -116,8 +116,12 @@
 			var target = $( e.target );
 			console.log("target.is('i')");
 			console.log(target.is('i'));
-			if(!target.is('i'))
+			if(!target.is('i')){
 				window.location.href = '/pos_deposit/' + $(this).data('transaction_id')+'/edit';
+				localStorage.setItem("updated", "true");
+				localStorage.setItem("scrollX", window.scrollX.toString());
+				localStorage.setItem("scrollY", window.scrollY.toString());
+			}
 		})
 	})
 </script>

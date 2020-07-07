@@ -62,6 +62,14 @@ function copyTextToClipboard(text) {
 }
 var pos_form_obj;
 $(document).ready(function() {
+    if(!edit_page)
+        get_contact_ledger();
+    // console.log($('#contact_ledger_div').offset());
+    // var scrollX = parseInt($('#contact_ledger_div').offset().left);
+    // var scrollY = parseInt($('#contact_ledger_div').offset().top);
+    // window.scrollTo(scrollX, scrollY);
+    // var scrollX = parseInt($('#contact_ledger_div').offset().left);
+    // var scrollY = parseInt($('#contact_ledger_div').offset().top);
     customer_set = false;
 
     var variation_ids = [];
@@ -1196,7 +1204,6 @@ $(document).ready(function() {
             }
         }
     });
-
     // $(document).on('keypress',function(e) {
     //     if(e.which == 13) {
     //         alert('Final');
@@ -1655,8 +1662,6 @@ $(document).ready(function() {
             }
         }
     };
-    if(!edit_page)
-        get_contact_ledger();
 
     $(document).on('submit', 'form#withdraw_form', function(e){
         e.preventDefault();
@@ -1707,7 +1712,8 @@ function get_contact_ledger() {
         end_date = $('#ledger_date_range').data('daterangepicker').endDate.format('YYYY-MM-DD');
     }
     $.ajax({
-        url: '/sells/pos_deposit/ledger?contact_id=' + $('#customer_id').val()+ '&transaction_types=' + transaction_types + '&show_payments=' + show_payments + '&selected_bank=' + selected_bank,
+        // url: '/sells/pos_deposit/ledger?contact_id=' + $('#customer_id').val()+ '&transaction_types=' + transaction_types + '&show_payments=' + show_payments + '&selected_bank=' + selected_bank,
+        url: '/sells/pos_deposit/ledger?transaction_types=' + transaction_types + '&show_payments=' + show_payments + '&selected_bank=' + selected_bank,
         dataType: 'html',
         success: function(result) {
             $('#contact_ledger_div')
@@ -1751,6 +1757,14 @@ function get_contact_ledger() {
                     }
                 }
             });
+            if(localStorage.getItem("updated") == "true"){
+                var scrollX = parseInt(localStorage.getItem("scrollX"));
+                var scrollY = parseInt(localStorage.getItem("scrollY"));
+                // var scrollX = parseInt($('#contact_ledger_div').offset().left);
+                // var scrollY = parseInt($('#contact_ledger_div').offset().top);
+                window.scrollTo(scrollX, scrollY);
+                localStorage.setItem("updated", "false");
+            }
             $('.nav-link').click(function (e) {
                 selected_bank = $(this).data('bank_id');
                 get_contact_ledger();
