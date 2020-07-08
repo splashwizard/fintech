@@ -75,6 +75,7 @@ Route::middleware(['IsInstalled', 'auth', 'SetSessionData', 'language', 'timezon
     Route::post('/contacts/import', 'ContactController@postImportContacts');
     Route::post('/contacts/check-contact-id', 'ContactController@checkContactId');
     Route::get('/contacts/customers', 'ContactController@getCustomers');
+    Route::get('/contacts/customersWithId', 'ContactController@getCustomersWithId');
     Route::get('/contacts/blacklist/{id}', 'ContactController@blacklist');
     Route::put('/contacts/blacklist/{id}', 'ContactController@updateBlackList');
     Route::get('/contacts/bank_detail_html', 'ContactController@getBankDetailHtml');

@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddTransactionIdToEssentialRequestsTable extends Migration
+class AddRequestDataToEssentialsRequestsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -15,7 +15,7 @@ class AddTransactionIdToEssentialRequestsTable extends Migration
     {
         Schema::table('essentials_requests', function (Blueprint $table) {
             //
-            $table->integer('transaction_id')->after('reason')->nullable();
+            $table->string('request_data')->after('transaction_id')->nullable();
         });
     }
 
@@ -28,7 +28,7 @@ class AddTransactionIdToEssentialRequestsTable extends Migration
     {
         Schema::table('essentials_requests', function (Blueprint $table) {
             //
-            $table->dropColumn('transaction_id');
+            $table->dropColumn('request_data');
         });
     }
 }

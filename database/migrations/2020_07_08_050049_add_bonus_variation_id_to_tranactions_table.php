@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddTransactionIdToEssentialRequestsTable extends Migration
+class AddBonusVariationIdToTranactionsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,9 @@ class AddTransactionIdToEssentialRequestsTable extends Migration
      */
     public function up()
     {
-        Schema::table('essentials_requests', function (Blueprint $table) {
+        Schema::table('transactions', function (Blueprint $table) {
             //
-            $table->integer('transaction_id')->after('reason')->nullable();
+            $table->integer('bonus_variation_id')->after('final_total')->default(-1);
         });
     }
 
@@ -26,9 +26,8 @@ class AddTransactionIdToEssentialRequestsTable extends Migration
      */
     public function down()
     {
-        Schema::table('essentials_requests', function (Blueprint $table) {
+        Schema::table('transactions', function (Blueprint $table) {
             //
-            $table->dropColumn('transaction_id');
         });
     }
 }

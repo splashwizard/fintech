@@ -3,6 +3,7 @@
 namespace Modules\Essentials\Http\Controllers;
 
 use App\GameId;
+use App\Transaction;
 use App\TransactionPayment;
 use App\User;
 use App\Utils\ModuleUtil;
@@ -283,21 +284,34 @@ class EssentialsRequestController extends Controller
             $transaction_id = $request->get('transaction_id');
             if(!empty($transaction_id)){
                 $input['transaction_id'] = $transaction_id;
+                $request_data = [];
+                $request_keys = ['bank_in_time', 'credit', 'debit', 'free_credit', 'basic_bonus', 'service_credit', 'service_debit', 'contact_id', 'service_id'];
+                foreach ($request_keys as $request_key){
+                    if(!empty($request->get($request_key))){
+                        $request_data[$request_key] = $request->get($request_key);
+                    }
+                }
+                $input['request_data'] = serialize($request_data);
             }
 
             //Update reference count
             $ref_count = $this->moduleUtil->setAndGetReferenceCount('leave');
             //Generate reference number
-            if (empty($input['ref_no'])) {
-                $settings = request()->session()->get('business.essentials_settings');
-                $settings = !empty($settings) ? json_decode($settings, true) : [];
-//                $prefix = !empty($settings['leave_ref_no_prefix']) ? $settings['leave_ref_no_prefix'] : '';
-                $input['ref_no'] = $this->moduleUtil->generateReferenceNumber('leave', $ref_count, null, 'req');
+            if(!empty($transaction_id) && EssentialsRequest::where('transaction_id', $transaction_id)->count() > 0){
+                $leave = EssentialsRequest::where('transaction_id', $transaction_id)->get()->first();
+                $leave->update($input);
             }
-            ActivityLogger::activity("Created request, reference no ".$input['ref_no']);
+            else {
+                if (empty($input['ref_no'])) {
+                    $settings = request()->session()->get('business.essentials_settings');
+                    $settings = !empty($settings) ? json_decode($settings, true) : [];
+    //                $prefix = !empty($settings['leave_ref_no_prefix']) ? $settings['leave_ref_no_prefix'] : '';
+                    $input['ref_no'] = $this->moduleUtil->generateReferenceNumber('leave', $ref_count, null, 'req');
+                }
+                ActivityLogger::activity("Created request, reference no ".$input['ref_no']);
 
-            $leave = EssentialsRequest::create($input);
-
+                $leave = EssentialsRequest::create($input);
+            }
             $admins = $this->moduleUtil->get_admins($business_id);
 
             \Notification::send($admins, new NewRequestNotification($leave));
@@ -311,6 +325,118 @@ class EssentialsRequestController extends Controller
             $output = ['success' => false,
                             'msg' => __("messages.something_went_wrong")
                         ];
+        }
+
+        return $output;
+    }
+
+    public function approveRequest(Request $request){
+
+        try {
+            $business_id = $request->session()->get('user.business_id');
+            $transaction_id = $request->get('transaction_id');
+//            $request_keys = ['bank_in_time', 'credit', 'debit', 'free_credit', 'basic_bonus', 'service_credit', 'service_debit'];
+            if(!empty($request->get('bank_in_time'))) {
+                $bank_in_time = $request->get('bank_in_time');
+                Transaction::find($transaction_id)->update(['bank_in_time' => $bank_in_time]);
+            }
+
+            if(!empty($request->get('contact_id'))){
+                $contact_id = $request->get('contact_id');
+                Transaction::find($transaction_id)->update(['contact_id' => $contact_id]);
+            }
+
+            if(!empty($request->get('service_id'))){
+                $service_id = $request->get('service_id');
+                if(TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'service_transfer')->count() > 0) {
+                    TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'service_transfer')->update(['account_id' => $service_id]);
+                }
+            }
+            if(!empty($request->get('credit'))){
+                $credit = $request->get('credit');
+                if(TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'bank_transfer')->where('card_type','credit')->count() > 0){
+                    TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'bank_transfer')->where('card_type','credit')->update(['amount' => $credit]);
+                }
+            }
+
+            if(!empty($request->get('debit'))){
+                $debit = $request->get('debit');
+                if(TransactionPayment::where('transaction_id', $transaction_id)->where('method', '!=', 'service_transfer')->where('card_type','credit')->count() > 0){
+                    TransactionPayment::where('transaction_id', $transaction_id)->where('method', '!=', 'service_transfer')->where('card_type','debit')->update(['amount' => $debit]);
+                }
+            }
+
+            if(!empty($request->get('free_credit'))){
+                $free_credit = $request->get('free_credit');
+                if(TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'free_credit')->where('card_type','credit')->count() > 0){
+                    TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'free_credit')->where('card_type','credit')->update(['amount' => $free_credit]);
+                }
+            }
+
+            if(!empty($request->get('basic_bonus'))){
+                $basic_bonus = $request->get('basic_bonus');
+                if(TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'basic_bonus')->where('card_type','credit')->count() > 0){
+                    TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'basic_bonus')->where('card_type','credit')->update(['amount' => $basic_bonus]);
+                }
+            }
+
+
+            if(!empty($request->get('service_credit'))){
+                $service_credit = $request->get('service_credit');
+                if(TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'service_transfer')->where('card_type','credit')->count() > 0){
+                    TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'service_transfer')->where('card_type','credit')->update(['amount' => $service_credit]);
+                }
+            }
+
+
+            if(!empty($request->get('service_debit'))){
+                $service_debit = $request->get('service_debit');
+                if(TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'service_transfer')->where('card_type','debit')->count() > 0){
+                    TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'service_transfer')->where('card_type','debit')->update(['amount' => $service_debit]);
+                }
+            }
+            $request_row = EssentialsRequest::where('transaction_id', $transaction_id)->get()->first();
+            $request_row->update(['status' => 'approved']);
+            ActivityLogger::activity("Approved request, reference no ".$request_row['ref_no']);
+            $admins = $this->moduleUtil->get_admins($business_id);
+
+            \Notification::send($admins, new NewRequestNotification($request_row));
+
+            $output = ['success' => true,
+                'msg' => __("lang_v1.approved_success")
+            ];
+        } catch (\Exception $e) {
+            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+
+            $output = ['success' => false,
+                'msg' => __("messages.something_went_wrong")
+            ];
+        }
+
+        return $output;
+    }
+
+    public function rejectRequest(Request $request){
+
+        try {
+            $business_id = $request->session()->get('user.business_id');
+            $transaction_id = $request->get('transaction_id');
+            $request_row = EssentialsRequest::where('transaction_id', $transaction_id)->get()->first();
+            $request_row->update(['status' => 'cancelled']);
+            ActivityLogger::activity("Approved request, reference no ".$request_row['ref_no']);
+            $admins = $this->moduleUtil->get_admins($business_id);
+
+            \Notification::send($admins, new NewRequestNotification($request_row));
+
+            $output = ['success' => true,
+                'msg' => __("lang_v1.approved_success")
+            ];
+        } catch (\Exception $e) {
+            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+
+            $output = ['success' => false,
+                'msg' => __("messages.something_went_wrong")
+            ];
         }
 
         return $output;
@@ -423,6 +549,15 @@ class EssentialsRequestController extends Controller
                         ];
         }
 
+        return $output;
+    }
+
+    public function getRequestData($transaction_id){
+        if(EssentialsRequest::where('transaction_id', $transaction_id)->where('status', 'pending')->count() > 0){
+            $row = EssentialsRequest::where('transaction_id', $transaction_id)->where('status', 'pending')->get()->first();
+            $request_data = unserialize($row['request_data']);
+            $output = [ 'exist' => 1, 'request_data' => $request_data, 'request_type_id' => $row['essentials_request_type_id'], 'reason' => $row['reason']];
+        } else $output = [ 'exist' => 0];
         return $output;
     }
 

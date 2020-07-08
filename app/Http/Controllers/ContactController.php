@@ -1216,6 +1216,97 @@ class ContactController extends Controller
         }
     }
 
+    public function getCustomersWithId()
+    {
+        if (request()->ajax()) {
+            $term = request()->input('q', '');
+
+            $business_id = request()->session()->get('user.business_id');
+            $user_id = request()->session()->get('user.id');
+
+//            $contacts = Contact::join('game_ids', 'game_ids.contact_id', 'contacts.id');
+            if (empty($term)) {
+                $contacts = Contact::where('business_id', 0);
+            } else{
+                $contacts = Contact::where('business_id', $business_id);
+
+                $selected_contacts = User::isSelectedContacts($user_id);
+                if ($selected_contacts) {
+                    $contacts->join('user_contact_access AS uca', 'contacts.id', 'uca.contact_id')
+                        ->where('uca.user_id', $user_id);
+                }
+                $contacts->where('blacked_by_user', null);
+                $contacts->where('is_default', 0);
+                $contacts->where(function ($query) use ($term) {
+                    $query->where('name', 'like', '%' . $term .'%')
+                        ->orWhere('supplier_business_name', 'like', '%' . $term .'%')
+                        ->orWhere('mobile', 'like', '%' . $term .'%')
+                        ->orWhere('contacts.contact_id', 'like', '%' . $term .'%');
+                });
+            }
+            // else {
+            //     $contacts->where('business_id', 0);
+            // }
+
+            $contacts->select(
+                'contacts.id' ,
+                'contact_id',
+                DB::raw("IF(contact_id IS NULL OR contact_id='', name, contact_id) AS text"),
+                'mobile',
+                'landmark',
+                'city',
+                'state',
+                'pay_term_number',
+                'pay_term_type'
+            )
+                ->onlyCustomers();
+
+            if (request()->session()->get('business.enable_rp') == 1) {
+                $contacts->addSelect('total_rp');
+            }
+            $result = $contacts->get();
+            $contacts_final = [];
+            foreach ($result as $item){
+                $contacts_final[] = $item;
+            }
+
+            $contacts = Contact::join('game_ids', 'game_ids.contact_id', 'contacts.id');
+            $contacts->join('accounts', 'game_ids.service_id', 'accounts.id');
+            $contacts->where('contacts.business_id', $business_id);
+
+            $selected_contacts = User::isSelectedContacts($user_id);
+            if ($selected_contacts) {
+                $contacts->join('user_contact_access AS uca', 'contacts.id', 'uca.contact_id')
+                    ->where('uca.user_id', $user_id);
+            }
+            $contacts->where('blacked_by_user', null);
+            $contacts->where('is_default', 0);
+            $contacts->where(function ($query) use ($term) {
+                $query->where('game_ids.game_id', 'like', '%' . $term .'%');
+            });
+            $contacts->select(
+                'contacts.id' ,
+                'contacts.contact_id',
+                DB::raw("IF(contacts.contact_id IS NULL OR contacts.contact_id='', contacts.name, CONCAT('(', contacts.contact_id, ') ', contacts.name)) AS text"),
+                DB::raw("CONCAT( accounts.name, ': ', game_ids.game_id) AS game_text"),
+                'mobile',
+                'landmark',
+                'city',
+                'state',
+                'pay_term_number',
+                'pay_term_type'
+            )
+                ->onlyCustomers();
+
+            $result = $contacts->get();
+            foreach ($result as $item){
+                $contacts_final[] = $item;
+            }
+
+            return json_encode($contacts_final);
+        }
+    }
+
     /**
      * Checks if the given contact id already exist for the current business.
      *

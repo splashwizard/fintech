@@ -59,6 +59,8 @@ use App\Variation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Modules\Essentials\Entities\EssentialsRequest;
+use Modules\Essentials\Entities\EssentialsRequestType;
 use Yajra\DataTables\Facades\DataTables;
 use \jeremykenedy\LaravelLogger\App\Http\Traits\ActivityLogger;
 
@@ -1406,7 +1408,7 @@ class SellPosDepositController extends Controller
         foreach ($bonuses_data as $item) {
             $bonuses[] = $item;
         }
-        
+
         return view('sale_pos_deposit.edit')
             ->with(compact('business_details', 'taxes', 'payment_types', 'default_location', 'walk_in_customer', 'sell_details', 'transaction', 'payment_lines', 'location_printer_type', 'shortcuts', 'commission_agent', 'bank_categories',
             'service_categories',
@@ -2519,6 +2521,10 @@ class SellPosDepositController extends Controller
             foreach ($ledger_by_payment as $transaction_id => $item){
                 if( ( $selected_bank == 'free_credit' && $item['free_credit'] != 0) || (isset($item['bank_id']) && $item['bank_id'] == $selected_bank)){
                     $item['transaction_id'] = $transaction_id;
+                    if(EssentialsRequest::where('transaction_id', $transaction_id)->where('status', 'pending')->count() > 0)
+                        $item['is_edit_request'] = 1;
+                    else
+                        $item['is_edit_request'] = 0;
                     $ledger[] = $item;
                 }
             }
@@ -2537,8 +2543,14 @@ class SellPosDepositController extends Controller
                 return $t2 - $t1;
             });
         }
+
+        $request_types = EssentialsRequestType::forDropdown($business_id);
+        $service_accounts = Account::where('business_id', $business_id)
+            ->where('is_service', 1)
+            ->NotClosed()
+            ->pluck('name', 'id');
         return view('sale_pos_deposit.ledger')
-            ->with(compact('ledger', 'bank_list', 'selected_bank'));
+            ->with(compact('ledger', 'bank_list', 'selected_bank', 'request_types', 'service_accounts'));
     }
 
     /**

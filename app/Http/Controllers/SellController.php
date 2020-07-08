@@ -277,7 +277,8 @@ class SellController extends Controller
                            }
                        }
 
-                        if (auth()->user()->can("direct_sell.delete") || auth()->user()->can("sell.delete")) {
+//                        if (auth()->user()->can("direct_sell.delete") || auth()->user()->can("sell.delete")) {
+                        if(auth()->user()->hasRole('Superadmin') || auth()->user()->hasRole('Admin')){
                             $html .= '<li><a href="' . action('SellPosController@destroy', [$row->id]) . '" class="delete-sale"><i class="fa fa-trash"></i> ' . __("messages.cancel") . '</a></li>';
                         }
 
