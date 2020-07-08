@@ -49,8 +49,8 @@ class BusinessUtil extends Util
         $business = Business::findOrFail($business_id);
 
         //Update reference count
-        $ref_count = $this->setAndGetReferenceCount('contacts', $business_id);
-        $contact_id = $this->generateReferenceNumber('contacts', $ref_count, $business_id);
+//        $ref_count = $this->setAndGetReferenceCount('contacts', $business_id);
+//        $contact_id = $this->generateReferenceNumber('contacts', $ref_count, $business_id);
 
         //Add Default/Walk-In Customer for new business
         $customer = [
@@ -59,7 +59,7 @@ class BusinessUtil extends Util
                         'name' => 'Unclaimed Trans',
                         'created_by' => $user_id,
                         'is_default' => 1,
-                        'contact_id' => $contact_id
+                        'contact_id' => 'UNCLAIM'
                     ];
         Contact::create($customer);
 
