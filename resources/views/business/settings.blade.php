@@ -30,33 +30,42 @@
             <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2 pos-tab-menu">
                 <div class="list-group">
                     <a href="#" class="list-group-item text-center active">@lang('business.business')</a>
+                    @role('Superadmin')
                     <a href="#" class="list-group-item text-center">@lang('business.tax') @show_tooltip(__('tooltip.business_tax'))</a>
+                    @endrole
                     <a href="#" class="list-group-item text-center">@lang('business.product')</a>
+                    @role('Superadmin')
                     <a href="#" class="list-group-item text-center">@lang('business.sale')</a>
                     <a href="#" class="list-group-item text-center">@lang('sale.pos_sale')</a>
                     <a href="#" class="list-group-item text-center">@lang('purchase.purchases')</a>
                     @if(!config('constants.disable_expiry', true))
                     <a href="#" class="list-group-item text-center">@lang('business.dashboard')</a>
                     @endif
+                    @endrole
                     <a href="#" class="list-group-item text-center">@lang('business.system')</a>
+                    @role('Superadmin')
                     <a href="#" class="list-group-item text-center">@lang('lang_v1.prefixes')</a>
                     <a href="#" class="list-group-item text-center">@lang('lang_v1.email_settings')</a>
                     <a href="#" class="list-group-item text-center">@lang('lang_v1.sms_settings')</a>
                     <a href="#" class="list-group-item text-center">@lang('lang_v1.reward_point_settings')</a>
                     <a href="#" class="list-group-item text-center">@lang('lang_v1.modules')</a>
                     <a href="#" class="list-group-item text-center">@lang('lang_v1.custom_labels')</a>
+                    @endrole
                 </div>
             </div>
             <div class="col-lg-10 col-md-10 col-sm-10 col-xs-10 pos-tab">
                 <!-- tab 1 start -->
                 @include('business.partials.settings_business')
                 <!-- tab 1 end -->
+                @role('Superadmin')
                 <!-- tab 2 start -->
                 @include('business.partials.settings_tax')
                 <!-- tab 2 end -->
+                @endrole
                 <!-- tab 3 start -->
                 @include('business.partials.settings_product')
                 <!-- tab 3 end -->
+                @role('Superadmin')
                 <!-- tab 4 start -->
                 @include('business.partials.settings_sales')
                 @include('business.partials.settings_pos')
@@ -69,9 +78,11 @@
                     @include('business.partials.settings_dashboard')
                 @endif
                 <!-- tab 6 end -->
+                @endrole
                 <!-- tab 7 start -->
                 @include('business.partials.settings_system')
                 <!-- tab 7 end -->
+                @role('Superadmin')
                 <!-- tab 8 start -->
                 @include('business.partials.settings_prefixes')
                 <!-- tab 8 end -->
@@ -88,6 +99,7 @@
                 @include('business.partials.settings_modules')
                 <!-- tab 12 end -->
                 @include('business.partials.settings_custom_labels')
+                @endrole
             </div>
         </div>
         <!--  </pos-tab-container> -->

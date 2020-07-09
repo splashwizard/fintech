@@ -284,7 +284,7 @@ class AccountController extends Controller
                                     }
                                     else if($row->sub_type == 'withdraw'){
                                         $details =
-//                                            '<b>' . __('contact.customer') . ':</b> ' . $row->transaction->contact->name . '<br><b>'.
+                                            '<b>' . __('contact.customer') . ':</b> (' . $row->transaction->contact->contact_id . ') '.$row->transaction->contact->name . '<br><b>'.
                                             __('sale.invoice_no') . ':</b> ' . $row->transaction->invoice_no;
                                     }
                                     else if($row->sub_type == 'currency_exchange'){
@@ -301,7 +301,7 @@ class AccountController extends Controller
                                             $details = '<b>' . __('purchase.supplier') . ':</b> ' . $row->transaction->contact->name . '<br><b>'.
                                             __('purchase.ref_no') . ':</b> ' . $row->transaction->ref_no;
                                         } elseif ($row->transaction->type == 'sell') {
-                                            $details = '<b>' . __('contact.customer') . ':</b> ' . $row->transaction->contact->name . '<br><b>'.
+                                            $details = '<b>' . __('contact.customer') . ':</b> (' . $row->transaction->contact->contact_id . ') '.$row->transaction->contact->name . '<br><b>'.
                                             __('sale.invoice_no') . ':</b> ' . $row->transaction->invoice_no;
                                         } elseif ($row->transaction->type == 'expense') {
                                             if(!empty($row->transaction->expense_for)){

@@ -1055,10 +1055,13 @@ $(document).ready(function() {
                     dataType: 'json',
                     success: function(result) {
                         if (result.success == 1) {
-                            $('#modal_payment').modal('hide');
-                            toastr.success(result.msg);
+                            if(edit_page){
+                                localStorage.setItem("selected_bank", selected_bank);
+                                localStorage.setItem("pos_updated_msg", result.msg);
+                                window.location.href="/pos_deposit/create";
+                            } else {
 
-                            if(!edit_page){
+                                $('#modal_payment').modal('hide');
                                 variation_ids = [];
                                 reset_pos_form();
                                 var text = $('#customer_id').select2('data')[0].text;
@@ -1066,35 +1069,30 @@ $(document).ready(function() {
                                     if(!edit_page)
                                         $('#service_box').hide();
                                 }
-                            } else {
-                                localStorage.setItem("selected_bank", selected_bank);
-                                window.location.href="/pos_deposit/create";
-                                // setTimeout(function () {
-                                //     window.location.href="/pos_deposit/create";
-                                // },100);
+                                toastr.success(result.msg);
+
+
+                                $('#modal_success').modal('show');
+
+                                get_contact_ledger();
+
+                                var location_id = $('input#location_id').val();
+                                var category_id = $('select#product_category').val();
+                                var category_id2 = $('select#product_category2').val();
+                                var product_id = $('select#bank_products').val();
+                                var brand_id = $('select#product_brand').val();
+
+                                get_bank_product_suggestion_list();
+                                get_product2_suggestion_list(category_id2, product_id, brand_id, location_id);
+                                get_product3_suggestion_list(location_id);
+
+                                //Check if enabled or not
+                                // if (result.receipt.is_enabled) {
+                                //     pos_print(result.receipt);
+                                // }
+
+                                get_recent_transactions('final', $('div#tab_final'));
                             }
-
-
-                            $('#modal_success').modal('show');
-
-                            get_contact_ledger();
-                            
-                            var location_id = $('input#location_id').val();
-                            var category_id = $('select#product_category').val();
-                            var category_id2 = $('select#product_category2').val();
-                            var product_id = $('select#bank_products').val();
-                            var brand_id = $('select#product_brand').val();
-
-                            get_bank_product_suggestion_list();
-                            get_product2_suggestion_list(category_id2, product_id, brand_id, location_id);
-                            get_product3_suggestion_list(location_id);
-
-                            //Check if enabled or not
-                            // if (result.receipt.is_enabled) {
-                            //     pos_print(result.receipt);
-                            // }
-
-                            get_recent_transactions('final', $('div#tab_final'));
                         } else {
                             toastr.error(result.msg);
                         }
@@ -1757,14 +1755,15 @@ function get_contact_ledger() {
                     }
                 }
             });
-            // if(localStorage.getItem("updated") == "true"){
-            //     var scrollX = parseInt(localStorage.getItem("scrollX"));
-            //     var scrollY = parseInt(localStorage.getItem("scrollY"));
-            //     // var scrollX = parseInt($('#contact_ledger_div').offset().left);
-            //     // var scrollY = parseInt($('#contact_ledger_div').offset().top);
-            //     window.scrollTo(scrollX, scrollY);
-            //     localStorage.setItem("updated", "false");
-            // }
+            if(localStorage.getItem("updated") == "true"){
+                var scrollX = parseInt(localStorage.getItem("scrollX"));
+                var scrollY = parseInt(localStorage.getItem("scrollY"));
+                // var scrollX = parseInt($('#contact_ledger_div').offset().left);
+                // var scrollY = parseInt($('#contact_ledger_div').offset().top);
+                window.scrollTo(scrollX, scrollY);
+                toastr.success(localStorage.getItem("pos_updated_msg"));
+                localStorage.setItem("updated", "false");
+            }
             $('.nav-link').click(function (e) {
                 selected_bank = $(this).data('bank_id');
                 get_contact_ledger();
@@ -1961,53 +1960,53 @@ function pos_product_row(variation_id, product_type = 0, name = 'Bonus',  percen
     var item_addtn_method = 0;
     var add_via_ajax = true;
 
-    if ($('#item_addition_method').length) {
-        item_addtn_method = $('#item_addition_method').val();
-    }
-
-    if (item_addtn_method == 0) {
-        add_via_ajax = true;
-    } else {
-        var is_added = false;
-
-        //Search for variation id in each row of pos table
-        $('#pos_table tbody')
-            .find('tr')
-            .each(function() {
-                var row_v_id = $(this)
-                    .find('.row_variation_id')
-                    .val();
-                var enable_sr_no = $(this)
-                    .find('.enable_sr_no')
-                    .val();
-                var modifiers_exist = false;
-                if ($(this).find('input.modifiers_exist').length > 0) {
-                    modifiers_exist = true;
-                }
-
-                if (
-                    (row_v_id == variation_id && !is_product_any) &&
-                    enable_sr_no !== '1' &&
-                    !modifiers_exist &&
-                    !is_added
-                ) {
-                    add_via_ajax = false;
-                    is_added = true;
-
-                    //Increment product quantity
-                    qty_element = $(this).find('.pos_quantity');
-                    var qty = __read_number(qty_element);
-                    __write_number(qty_element, qty + 1);
-                    qty_element.change();
-
-                    round_row_to_iraqi_dinnar($(this));
-
-                    $('input#search_product')
-                        .focus()
-                        .select();
-                }
-            });
-    }
+    // if ($('#item_addition_method').length) {
+    //     item_addtn_method = $('#item_addition_method').val();
+    // }
+    //
+    // if (item_addtn_method == 0) {
+    //     add_via_ajax = true;
+    // } else {
+    //     var is_added = false;
+    //
+    //     //Search for variation id in each row of pos table
+    //     $('#pos_table tbody')
+    //         .find('tr')
+    //         .each(function() {
+    //             var row_v_id = $(this)
+    //                 .find('.row_variation_id')
+    //                 .val();
+    //             var enable_sr_no = $(this)
+    //                 .find('.enable_sr_no')
+    //                 .val();
+    //             var modifiers_exist = false;
+    //             if ($(this).find('input.modifiers_exist').length > 0) {
+    //                 modifiers_exist = true;
+    //             }
+    //
+    //             if (
+    //                 (row_v_id == variation_id && !is_product_any) &&
+    //                 enable_sr_no !== '1' &&
+    //                 !modifiers_exist &&
+    //                 !is_added
+    //             ) {
+    //                 add_via_ajax = false;
+    //                 is_added = true;
+    //
+    //                 //Increment product quantity
+    //                 qty_element = $(this).find('.pos_quantity');
+    //                 var qty = __read_number(qty_element);
+    //                 __write_number(qty_element, qty + 1);
+    //                 qty_element.change();
+    //
+    //                 round_row_to_iraqi_dinnar($(this));
+    //
+    //                 $('input#search_product')
+    //                     .focus()
+    //                     .select();
+    //             }
+    //         });
+    // }
 
     if (add_via_ajax) {
         var product_row = $('input#product_row_count').val();

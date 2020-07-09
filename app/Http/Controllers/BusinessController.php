@@ -363,21 +363,27 @@ class BusinessController extends Controller
         if (!auth()->user()->can('business_settings.access')) {
             abort(403, 'Unauthorized action.');
         }
-        
+
         try {
             $country_codes = $request->get('country_codes');
             foreach ($country_codes as $key => $item) {
                 CountryCode::find($key)->update(['basic_bonus_percent' => $item]);
             }
 
-            $business_details = $request->only(['name', 'start_date', 'currency_id', 'tax_label_1', 'tax_number_1', 'tax_label_2', 'tax_number_2', 'basic_bonus', 'default_profit_percent', 'default_sales_tax', 'default_sales_discount', 'sell_price_tax', 'sku_prefix', 'time_zone', 'fy_start_month', 'accounting_method', 'transaction_edit_days', 'sales_cmsn_agnt', 'item_addition_method', 'currency_symbol_placement', 'on_product_expiry',
-                'stop_selling_before', 'default_unit', 'expiry_type', 'date_format',
-                'time_format', 'ref_no_prefixes', 'theme_color', 'email_settings',
-                'sms_settings', 'rp_name', 'amount_for_unit_rp',
-                'min_order_total_for_rp', 'max_rp_per_order',
-                'redeem_amount_per_unit_rp', 'min_order_total_for_redeem',
-                'min_redeem_point', 'max_redeem_point', 'rp_expiry_period',
-                'rp_expiry_type', 'custom_labels']);
+            if(auth()->user()->hasRole('Superadmin')){
+                $business_details = $request->only(['name', 'start_date', 'currency_id', 'tax_label_1', 'tax_number_1', 'tax_label_2', 'tax_number_2', 'basic_bonus', 'default_profit_percent', 'default_sales_tax', 'default_sales_discount', 'sell_price_tax', 'sku_prefix', 'time_zone', 'fy_start_month', 'accounting_method', 'transaction_edit_days', 'sales_cmsn_agnt', 'item_addition_method', 'currency_symbol_placement', 'on_product_expiry',
+                    'stop_selling_before', 'default_unit', 'expiry_type', 'date_format',
+                    'time_format', 'ref_no_prefixes', 'theme_color', 'email_settings',
+                    'sms_settings', 'rp_name', 'amount_for_unit_rp',
+                    'min_order_total_for_rp', 'max_rp_per_order',
+                    'redeem_amount_per_unit_rp', 'min_order_total_for_redeem',
+                    'min_redeem_point', 'max_redeem_point', 'rp_expiry_period',
+                    'rp_expiry_type', 'custom_labels']);
+            } else {
+                $business_details = $request->only(['name', 'start_date', 'currency_id', 'default_profit_percent', 'sell_price_tax', 'sku_prefix', 'time_zone', 'fy_start_month', 'accounting_method', 'transaction_edit_days', 'currency_symbol_placement', 'on_product_expiry',
+                    'stop_selling_before', 'default_unit', 'expiry_type', 'date_format',
+                    'time_format', 'theme_color']);
+            }
 
             if (!empty($request->input('enable_rp')) &&  $request->input('enable_rp') == 1) {
                 $business_details['enable_rp'] = 1;
@@ -385,14 +391,17 @@ class BusinessController extends Controller
                 $business_details['enable_rp'] = 0;
             }
 
-            $business_details['amount_for_unit_rp'] = !empty($business_details['amount_for_unit_rp']) ? $this->businessUtil->num_uf($business_details['amount_for_unit_rp']) : 1;
-            $business_details['min_order_total_for_rp'] = !empty($business_details['min_order_total_for_rp']) ? $this->businessUtil->num_uf($business_details['min_order_total_for_rp']) : 1;
-            $business_details['redeem_amount_per_unit_rp'] = !empty($business_details['redeem_amount_per_unit_rp']) ? $this->businessUtil->num_uf($business_details['redeem_amount_per_unit_rp']) : 1;
-            $business_details['min_order_total_for_redeem'] = !empty($business_details['min_order_total_for_redeem']) ? $this->businessUtil->num_uf($business_details['min_order_total_for_redeem']) : 1;
+            if(auth()->user()->hasRole('Superadmin')) {
+                $business_details['amount_for_unit_rp'] = !empty($business_details['amount_for_unit_rp']) ? $this->businessUtil->num_uf($business_details['amount_for_unit_rp']) : 1;
+                $business_details['min_order_total_for_rp'] = !empty($business_details['min_order_total_for_rp']) ? $this->businessUtil->num_uf($business_details['min_order_total_for_rp']) : 1;
+                $business_details['redeem_amount_per_unit_rp'] = !empty($business_details['redeem_amount_per_unit_rp']) ? $this->businessUtil->num_uf($business_details['redeem_amount_per_unit_rp']) : 1;
+                $business_details['min_order_total_for_redeem'] = !empty($business_details['min_order_total_for_redeem']) ? $this->businessUtil->num_uf($business_details['min_order_total_for_redeem']) : 1;
+            }
 
             $business_details['default_profit_percent'] = !empty($business_details['default_profit_percent']) ? $this->businessUtil->num_uf($business_details['default_profit_percent']) : 0;
-
-            $business_details['default_sales_discount'] = !empty($business_details['default_sales_discount']) ? $this->businessUtil->num_uf($business_details['default_sales_discount']) : 0;
+            if(auth()->user()->hasRole('Superadmin')) {
+                $business_details['default_sales_discount'] = !empty($business_details['default_sales_discount']) ? $this->businessUtil->num_uf($business_details['default_sales_discount']) : 0;
+            }
 
             if (!empty($business_details['start_date'])) {
                 $business_details['start_date'] = $this->businessUtil->uf_date($business_details['start_date']);
@@ -409,17 +418,19 @@ class BusinessController extends Controller
                 $business_details['stop_selling_before'] = null;
             }
 
-            $business_details['stock_expiry_alert_days'] = !empty($request->input('stock_expiry_alert_days')) ? $request->input('stock_expiry_alert_days') : 30;
 
             //Check for Purchase currency
-            if (!empty($request->input('purchase_in_diff_currency')) &&  $request->input('purchase_in_diff_currency') == 1) {
-                $business_details['purchase_in_diff_currency'] = 1;
-                $business_details['purchase_currency_id'] = $request->input('purchase_currency_id');
-                $business_details['p_exchange_rate'] = $request->input('p_exchange_rate');
-            } else {
-                $business_details['purchase_in_diff_currency'] = 0;
-                $business_details['purchase_currency_id'] = null;
-                $business_details['p_exchange_rate'] = 1;
+            if(auth()->user()->hasRole('Superadmin')) {
+                $business_details['stock_expiry_alert_days'] = !empty($request->input('stock_expiry_alert_days')) ? $request->input('stock_expiry_alert_days') : 30;
+                if (!empty($request->input('purchase_in_diff_currency')) && $request->input('purchase_in_diff_currency') == 1) {
+                    $business_details['purchase_in_diff_currency'] = 1;
+                    $business_details['purchase_currency_id'] = $request->input('purchase_currency_id');
+                    $business_details['p_exchange_rate'] = $request->input('p_exchange_rate');
+                } else {
+                    $business_details['purchase_in_diff_currency'] = 0;
+                    $business_details['purchase_currency_id'] = null;
+                    $business_details['p_exchange_rate'] = 1;
+                }
             }
 
             //upload logo
@@ -428,14 +439,19 @@ class BusinessController extends Controller
                 $business_details['logo'] = $logo_name;
             }
 
-            $checkboxes = ['enable_editing_product_from_purchase',
-                'enable_inline_tax',
-                'enable_brand', 'enable_category', 'enable_sub_category', 'enable_price_tax', 'enable_purchase_status',
-                'enable_lot_number', 'enable_racks', 'enable_row', 'enable_position', 'enable_sub_units'];
+            if(auth()->user()->hasRole('Superadmin')) {
+                $checkboxes = ['enable_editing_product_from_purchase',
+                    'enable_inline_tax',
+                    'enable_brand', 'enable_category', 'enable_sub_category', 'enable_price_tax', 'enable_purchase_status',
+                    'enable_lot_number', 'enable_racks', 'enable_row', 'enable_position', 'enable_sub_units'];
+            } else {
+                $checkboxes = [
+                    'enable_brand', 'enable_category', 'enable_sub_category', 'enable_price_tax', 'enable_racks', 'enable_row', 'enable_position', 'enable_sub_units'];
+            }
             foreach ($checkboxes as $value) {
                 $business_details[$value] = !empty($request->input($value)) &&  $request->input($value) == 1 ? 1 : 0;
             }
-            
+
             $business_id = request()->session()->get('user.business_id');
             $business = Business::where('id', $business_id)->first();
 
@@ -446,21 +462,23 @@ class BusinessController extends Controller
                 unset($business_details['logo']);
             }
 
-            //System settings
-            $shortcuts = $request->input('shortcuts');
-            $business_details['keyboard_shortcuts'] = json_encode($shortcuts);
+            if(auth()->user()->hasRole('Superadmin')) {
+                //System settings
+                $shortcuts = $request->input('shortcuts');
+                $business_details['keyboard_shortcuts'] = json_encode($shortcuts);
 
-            //pos_settings
-            $pos_settings = $request->input('pos_settings');
-            $default_pos_settings = $this->businessUtil->defaultPosSettings();
-            foreach ($default_pos_settings as $key => $value) {
-                if (!isset($pos_settings[$key])) {
-                    $pos_settings[$key] = $value;
+                //pos_settings
+                $pos_settings = $request->input('pos_settings');
+                $default_pos_settings = $this->businessUtil->defaultPosSettings();
+                foreach ($default_pos_settings as $key => $value) {
+                    if (!isset($pos_settings[$key])) {
+                        $pos_settings[$key] = $value;
+                    }
                 }
-            }
-            $business_details['pos_settings'] = json_encode($pos_settings);
+                $business_details['pos_settings'] = json_encode($pos_settings);
 
-            $business_details['custom_labels'] = json_encode($business_details['custom_labels']);
+                $business_details['custom_labels'] = json_encode($business_details['custom_labels']);
+            }
 
             //Enabled modules
             $enabled_modules = $request->input('enabled_modules');
@@ -491,7 +509,7 @@ class BusinessController extends Controller
                         ];
         } catch (\Exception $e) {
             \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-            
+
             $output = ['success' => 0,
                             'msg' => __('messages.something_went_wrong')
                         ];

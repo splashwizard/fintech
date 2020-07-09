@@ -190,12 +190,14 @@
                                             class="fa fa-download"></i><span> 6.4 @lang('product.import_products')</span></a>
                             </li>
                         @endcan
+                        @if($is_superadmin)
                         @can('product.opening_stock')
                             <li class="{{ $request->segment(1) == 'import-opening-stock' ? 'active' : '' }}"><a
                                         href="{{action('ImportOpeningStockController@index')}}"><i
                                             class="fa fa-download"></i><span> 6.5 @lang('lang_v1.import_opening_stock')</span></a>
                             </li>
                         @endcan
+                        @endif
                         @if($is_superadmin)
                             @can('product.create')
                                 <li class="{{ $request->segment(1) == 'selling-price-group' ? 'active' : '' }}"><a
@@ -651,6 +653,7 @@
                                                 class="fa fa-map-marker"></i> @lang('business.business_locations')</a>
                                 </li>
                             @endif
+                            @if($is_superadmin)
                             @can('invoice_settings.access')
                                 <li class="@if( in_array($request->segment(1), ['invoice-schemes', 'invoice-layouts']) ) {{'active'}} @endif">
                                     <a href="{{action('InvoiceSchemeController@index')}}">
@@ -677,6 +680,7 @@
                                 <li class="{{ $request->segment(1) == 'tax-rates' ? 'active' : '' }}">
                                     <a href="{{action('TaxRateController@index')}}"><i class="fa fa-bolt"></i> <span> 10.5 @lang('tax_rate.tax_rates')</span></a>
                                 </li>
+                            @endif
                             @endif
 
                             <li class="{{ $request->segment(1) == 'display-group' ? 'active' : '' }}">

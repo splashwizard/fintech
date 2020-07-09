@@ -53,7 +53,7 @@
 
       <div class="col-md-3 customer_fields">
           <div class="form-group">
-              {!! Form::label('country_code_id', __('lang_v1.customer_group') . ':') !!}
+              {!! Form::label('country_code_id', __('lang_v1.country_code') . ':') !!}
               <div class="input-group">
               <span class="input-group-addon">
                   <i class="fa fa-users"></i>

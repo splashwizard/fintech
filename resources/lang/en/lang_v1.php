@@ -81,6 +81,7 @@ return [
     'disable_order_tax' => 'Disable order tax',
     'customer_groups' => 'Customer Sources',
     'customer_group' => 'Customer Source',
+    'country_code' => 'Country code',
     'all_your_customer_groups' => 'All Customer Groups',
     'membership' => 'Membership',
     'membership_name' => 'Membership Name',

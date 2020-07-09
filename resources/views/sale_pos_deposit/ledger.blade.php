@@ -132,11 +132,11 @@
 			console.log("target.is('i')");
 			console.log(target.is('i'));
 			if(!target.is('i')){
-				// window.location.href = '/pos_deposit/' + $(this).data('transaction_id')+'/edit';
-				window.open('/pos_deposit/' + $(this).data('transaction_id')+'/edit');
-				// localStorage.setItem("updated", "true");
-				// localStorage.setItem("scrollX", window.scrollX.toString());
-				// localStorage.setItem("scrollY", window.scrollY.toString());
+				localStorage.setItem("updated", "true");
+				localStorage.setItem("scrollX", window.scrollX.toString());
+				localStorage.setItem("scrollY", window.scrollY.toString());
+				window.location.href = '/pos_deposit/' + $(this).data('transaction_id')+'/edit';
+				// window.open('/pos_deposit/' + $(this).data('transaction_id')+'/edit');
 			}
 		});
 		function format(transaction_id){

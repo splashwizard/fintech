@@ -396,8 +396,9 @@ class ContactController extends Controller
 
 
         $services = Account::where('business_id', $business_id)->where('is_service', 1)->where('name', '!=', 'Safe Kiosk Account')->get();
+        $country_codes = CountryCode::forDropdown(false);
         return view('contact.create')
-            ->with(compact('types', 'customer_groups', 'memberships', 'bank_brands', 'type', 'services'));
+            ->with(compact('types', 'customer_groups', 'country_codes', 'memberships', 'bank_brands', 'type', 'services'));
     }
 
     /**
@@ -529,7 +530,7 @@ class ContactController extends Controller
                         }
 
                         $input = $request->only(['supplier_business_name', 'name', 'tax_number', 'pay_term_number', 'pay_term_type', 'landline',
-                            'alternate_number', 'city', 'state', 'country', 'landmark', 'customer_group_id', 'membership_id', 'contact_id', 'birthday', 'email', 'remarks']);
+                            'alternate_number', 'city', 'state', 'country', 'landmark', 'customer_group_id', 'membership_id', 'contact_id', 'birthday', 'email', 'remarks', 'country_code_id']);
                         $input['type'] = 'customer';
                         $input['business_id'] = $business_id;
                         $input['created_by'] = $request->session()->get('user.id');

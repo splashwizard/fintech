@@ -327,6 +327,7 @@ class SellPosDepositController extends Controller
         // Bonuses
 
         $bonuses = $this->getBonuses($business_id);
+        $country_codes = CountryCode::forDropdown(false);
 
 
         // $bonus_types = [];
@@ -372,7 +373,8 @@ class SellPosDepositController extends Controller
                 'accounts',
                 'price_groups',
                 'services',
-                'bonuses'
+                'bonuses',
+                'country_codes'
             ));
     }
 
@@ -485,15 +487,15 @@ class SellPosDepositController extends Controller
                 if(empty($request->input('bank_changed'))){
                     $input['bank_in_time'] = null;
                 }
-
-                if (empty($request->input('transaction_date'))) {
-                    $input['transaction_date'] =  \Carbon::now();
-                } else {
-                    $input['transaction_date'] = $this->productUtil->uf_date($request->input('transaction_date'), true);
-                }
-                if(!(auth()->user()->hasRole('Admin#' . auth()->user()->business_id) || auth()->user()->hasRole('Admin') || auth()->user()->hasRole('Superadmin'))){
-                    if(!$this->isShiftClosed($business_id)){
+                if(!(auth()->user()->hasRole('Admin#' . auth()->user()->business_id) || auth()->user()->hasRole('Admin') || auth()->user()->hasRole('Superadmin'))) {
+                    if (!$this->isShiftClosed($business_id)) {
                         $input['transaction_date'] = date('Y-m-d H:i:s', strtotime('today') - 1);
+                    }
+                } else {
+                    if (empty($request->input('transaction_date'))) {
+                        $input['transaction_date'] =  \Carbon::now();
+                    } else {
+                        $input['transaction_date'] = $this->productUtil->uf_date($request->input('transaction_date'), true);
                     }
                 }
 
@@ -590,7 +592,7 @@ class SellPosDepositController extends Controller
                             $special_bonus = $bonus_amount;
                         }
                     } else if($no_bonus == 0) {
-                        $basic_bonus = $total_credit * $bonus_rate / 100;
+                        $basic_bonus = floor($total_credit * $bonus_rate / 100);
                     }
                     foreach ($payment_data as $key => $payment){
                         $query = Category::where('id', $payment['category_id']);
@@ -811,9 +813,9 @@ class SellPosDepositController extends Controller
                         if (!$transaction->is_suspend && !empty($input['payment'])) {
                             if(!(auth()->user()->hasRole('Admin#' . auth()->user()->business_id) || auth()->user()->hasRole('Admin') || auth()->user()->hasRole('Superadmin'))){
                                 if(!$this->isShiftClosed($business_id)){
-                                    foreach( $input['payment'] as $i => $payment){
-                                        $input['payment'][$i]['paid_on'] = date('Y-m-d H:i:s', strtotime('today') - 1);
-                                    }
+//                                    foreach( $input['payment'] as $i => $payment){
+//                                        $input['payment'][$i]['paid_on'] = date('Y-m-d H:i:s', strtotime('today') - 1);
+//                                    }
                                 }
                             }
                             $this->transactionUtil->createOrUpdatePaymentLines($transaction, $input['payment']);
@@ -1409,11 +1411,13 @@ class SellPosDepositController extends Controller
             $bonuses[] = $item;
         }
 
+        $country_codes = CountryCode::forDropdown(false);
+
         return view('sale_pos_deposit.edit')
             ->with(compact('business_details', 'taxes', 'payment_types', 'default_location', 'walk_in_customer', 'sell_details', 'transaction', 'payment_lines', 'location_printer_type', 'shortcuts', 'commission_agent', 'bank_categories',
             'service_categories',
             'bank_products', 'services', 'memberships', 'bank_brands',
-            'service_products', 'pos_settings', 'change_return', 'types', 'customer_groups', 'brands', 'accounts', 'price_groups', 'waiters', 'redeem_details', 'edit_price', 'edit_discount', 'bonuses'));
+            'service_products', 'pos_settings', 'change_return', 'types', 'customer_groups', 'brands', 'accounts', 'price_groups', 'waiters', 'redeem_details', 'edit_price', 'edit_discount', 'bonuses', 'country_codes'));
     }
 
     /**
@@ -1534,6 +1538,80 @@ class SellPosDepositController extends Controller
                     $deleted_lines = $this->transactionUtil->createOrUpdateSellLines($transaction, $input['products'], $input['location_id'], true, $status_before);
                     //Update update lines
                     if (!$is_direct_sale && !$transaction->is_suspend) {
+                        $products = $input['products'];
+                        $contact_id = request()->get('customer_id');
+                        $bonus_rate = CountryCode::find(Contact::find($contact_id)->country_code_id)->basic_bonus_percent;
+                        $payments = [];
+                        // sum to one transaction
+                        $bonus_amount = 0;
+                        $bonus_name = '';
+                        $bonus_variation_id = $input['bonus_variation_id'];
+                        $bonuses = $this->getBonuses($business_id);
+                        foreach ($bonuses as $bonus){
+                            if($bonus->id == $bonus_variation_id) {
+                                $bonus_name = $bonus->name;
+                                $bonus_amount = $bonus->selling_price;
+                            }
+                        }
+                        $no_bonus = Contact::find($contact_id)->no_bonus;
+                        $total_credit = 0;
+                        $payment_data = [];
+                        foreach ($products as $product) {
+                            if($product['category_id'] == 66) {
+                                $total_credit += $product['amount'];
+                            }
+                            if(!isset($payment_data[$product['account_id']]['amount'] )){
+                                $p_name = $product['p_name'];
+                                $payment_data[$product['account_id']]['amount'] = $product['amount'];
+                                $payment_data[$product['account_id']]['category_id'] = $product['category_id'];
+                                $payment_data[$product['account_id']]['p_name'] = $p_name;
+                            }
+                            else{
+                                $payment_data[$product['account_id']]['amount'] += $product['amount'];
+                            }
+                        }
+                        $basic_bonus = 0;
+                        $special_bonus = 0;
+                        if($bonus_variation_id != -1){
+                            if($bonus_name === 'Bonus') {
+                                $special_bonus = $total_credit * $bonus_amount / 100;
+                            } else {
+                                $special_bonus = $bonus_amount;
+                            }
+                        } else if($no_bonus == 0) {
+                            $basic_bonus = floor($total_credit * $bonus_rate / 100);
+                        }
+                        foreach ($payment_data as $key => $payment){
+                            $query = Category::where('id', $payment['category_id']);
+                            $data = $query->get()[0];
+                            if($data->name == 'Banking'){
+                                $card_type = 'credit';
+                                $method = 'bank_transfer';
+                            } else {
+                                $method = 'service_transfer';
+                                $card_type = 'debit';
+                            }
+                            $payments[] = ['account_id' => $key, 'method' => $method, 'amount' => $payment['amount'], 'note' => '', 'card_transaction_number' => '', 'card_number' => '', 'card_type' => $card_type, 'card_holder_name' => '', 'card_month' => '', 'card_year' => '', 'card_security' => '', 'cheque_number' => '', 'bank_account_number' => '',
+                                'is_return' => 0, 'transaction_no' => '', 'category_name' => $data->name];
+                        }
+                        if(!empty($basic_bonus) || !empty($special_bonus)){
+                            if($bonus_variation_id == -1) {
+                                $bonus_key = Account::where('business_id', $business_id)->where('name', 'Bonus Account')->get()[0]->id;
+                                $query = Category::where('name', 'Banking');
+                                $data = $query->get()[0];
+                                $payments[] = ['account_id' => $bonus_key, 'method' => 'basic_bonus', 'amount' => $basic_bonus, 'note' => '', 'card_transaction_number' => '', 'card_number' => '', 'card_type' => 'credit', 'card_holder_name' => '', 'card_month' => '', 'card_year' => '', 'card_security' => '', 'cheque_number' => '', 'bank_account_number' => '',
+                                    'is_return' => 0, 'transaction_no' => '', 'category_name' => $data->name];
+                            } else {
+                                $bonus_key = Account::where('business_id', $business_id)->where('name', 'Bonus Account')->get()[0]->id;
+                                $query = Category::where('name', 'Banking');
+                                $data = $query->get()[0];
+                                $payments[] = ['account_id' => $bonus_key, 'method' => 'free_credit', 'amount' => $special_bonus, 'note' => '', 'card_transaction_number' => '', 'card_number' => '', 'card_type' => 'credit', 'card_holder_name' => '', 'card_month' => '', 'card_year' => '', 'card_security' => '', 'cheque_number' => '', 'bank_account_number' => '',
+                                    'is_return' => 0, 'transaction_no' => '', 'category_name' => $data->name];
+                            }
+                        }
+                        $input['payment'] = $payments;
+                        //payment end
+
                         //Add change return
                         $change_return = $this->dummyPaymentLine;
                         $change_return['amount'] = $input['change_return'];
@@ -1542,6 +1620,7 @@ class SellPosDepositController extends Controller
                             $change_return['id'] = $input['change_return_id'];
                         }
                         $input['payment'][] = $change_return;
+
 
                         if(!(auth()->user()->hasRole('Admin#' . auth()->user()->business_id) || auth()->user()->hasRole('Admin') || auth()->user()->hasRole('Superadmin'))){
                             if(!$this->isShiftClosed($business_id)){
@@ -1628,7 +1707,7 @@ class SellPosDepositController extends Controller
                             $receipt = '';
                         }
                     } elseif ($input['status'] == 'final') {
-                        $msg = trans("sale.pos_sale_updated");
+                        $msg = trans("sale.pos_sale_updated"). "<br/> Ticket number " . $transaction->invoice_no;
                         if (!$is_direct_sale && !$transaction->is_suspend) {
                             $receipt = $this->receiptContent($business_id, $input['location_id'], $transaction->id);
                         } else {
@@ -2434,10 +2513,10 @@ class SellPosDepositController extends Controller
             $query2->where('t.sub_type', 'game_credit_transfer');
         else if($selected_bank == 'Deduction')
             $query2->where('t.sub_type', 'game_credit_deduct');
-        $query2->where('paid_on', '>=', $start)
-            ->where('paid_on', '<=', $end);
+        $query2->where('transaction_date', '>=', $start)
+            ->where('transaction_date', '<=', $end);
 
-        $payments = $query2->select('transaction_payments.*', 't.id as transaction_id', 't.bank_in_time as bank_in_time', 'bl.name as location_name', 't.type as transaction_type', 't.ref_no', 't.invoice_no'
+        $payments = $query2->select('transaction_payments.*', 't.id as transaction_id', 't.bank_in_time as bank_in_time', 't.transaction_date as transaction_date', 'bl.name as location_name', 't.type as transaction_type', 't.ref_no', 't.invoice_no'
             , 'c.id as contact_primary_key', 'c.contact_id as contact_id', 'c.is_default as is_default', 'a.id as account_id', 'a.name as account_name', 't.created_by as created_by')->get();
 //        $total_deposit = $query2->where('t.type', 'sell')->where('transaction_payments.method', '!=', 'service_transfer')->where('transaction_payments.method','!=', 'bonus')->sum('transaction_payments.amount');
         $paymentTypes = $this->transactionUtil->payment_types();
@@ -2453,7 +2532,7 @@ class SellPosDepositController extends Controller
                     $game_id = $game_data[0]->game_id;
                 }
                 $ledger[] = [
-                    'date' => $payment->paid_on,
+                    'date' => $payment->transaction_date,
                     'ref_no' => $payment->payment_ref_no,
                     'type' => $this->transactionTypes['payment'],
                     'location' => $payment->location_name,
@@ -2480,7 +2559,7 @@ class SellPosDepositController extends Controller
                     $ref_no = in_array($payment->transaction_type, ['sell', 'sell_return']) ?  $payment->invoice_no :  $payment->ref_no;
                     $user = User::find($payment->created_by);
                     $ledger_by_payment[$payment->transaction_id] = [
-                        'date' => $payment->paid_on,
+                        'date' => $payment->transaction_date,
                         'ref_no' => $payment->payment_ref_no,
                         'type' => $this->transactionTypes['payment'],
                         'location' => $payment->location_name,
