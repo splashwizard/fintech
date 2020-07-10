@@ -104,7 +104,7 @@ LANG = {
     'all': 'All',
     'filter_by_date': 'Filter by date',
     'form_will_get_reset': 'All added products will be removed.',
-    'withdraw_fourth_warning': '<b>More than 3 withdrawal</b> has been done for <b>xxxx</b> in the past 24 hours, proceed?',
+    'withdraw_fourth_warning': 'More than 3 withdrawal has been done for xxxx in the past 24 hours, proceed?',
     'shift_warning': 'Warning! Pls Close Shift!',
     'shift_description': "The time now is xxtime hours, and you have not closed the shift for yesterday's transaction [xxdate]. Please close shift now or all the date/time of the transsactions you key in will be adjusted to 23:59 hours to be sorted under yesterday.",
     'tour_step3_content_modified': 'Add Multiple Locations, Tax Rates, Invoice Settings for your shop.',
