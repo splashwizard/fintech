@@ -277,6 +277,7 @@ $(document).ready(function() {
                     $('#bonus').prop('disabled', false);
                     no_bonus = 0;
                 }
+                pos_total_row();
             }
         });
         //
@@ -1060,7 +1061,7 @@ $(document).ready(function() {
                                 localStorage.setItem("pos_updated_msg", result.msg);
                                 window.location.href="/pos_deposit/create";
                             } else {
-
+                                localStorage.removeItem("updated_transaction_id");
                                 $('#modal_payment').modal('hide');
                                 variation_ids = [];
                                 reset_pos_form();
@@ -1184,27 +1185,26 @@ $(document).ready(function() {
             $(this).next().show();
     });
     $(document).on('keydown',  function (e) {
-        console.log(e.target);
         if($(e.target).hasClass('select2-search__field')){
-            toastr.error('here');
+            return;
         }
-        // if($('.row_edit_product_price_model.in').length > 0) {
-        //     var key = e.which;
-        //     if (key == 13) { //This is an ENTER
-        //         $('.row_edit_product_price_model.in .modal-footer button').trigger('click');
-        //     }
-        // }
-        // else if($('#withdraw_form').parents('.view_modal').hasClass('in')){
-        //     var key = e.which;
-        //     if (key == 13) { //This is an ENTER
-        //         $('#withdraw_form>.modal-footer>.btn-primary').trigger('click');
-        //     }
-        // }
-        // else{
-        //     if(e.which == 13) {
-        //         $('#pos-finalize').trigger('click');
-        //     }
-        // }
+        if($('.row_edit_product_price_model.in').length > 0) {
+            var key = e.which;
+            if (key == 13) { //This is an ENTER
+                $('.row_edit_product_price_model.in .modal-footer button').trigger('click');
+            }
+        }
+        else if($('#withdraw_form').parents('.view_modal').hasClass('in')){
+            var key = e.which;
+            if (key == 13) { //This is an ENTER
+                $('#withdraw_form>.modal-footer>.btn-primary').trigger('click');
+            }
+        }
+        else{
+            if(e.which == 13) {
+                $('#pos-finalize').trigger('click');
+            }
+        }
     });
     // $(document).on('keypress',function(e) {
     //     if(e.which == 13) {

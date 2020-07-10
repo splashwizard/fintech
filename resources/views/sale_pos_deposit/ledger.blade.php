@@ -124,12 +124,14 @@
 <script>
 	$(document).ready(function (e) {
 		var is_admin_or_super = '<?php echo $is_admin_or_super; ?>';
+		$('#ledger_table tr[data-transaction_id="' + localStorage.getItem("updated_transaction_id")+ '"]').css('background-color', '#fbfba2');
 		$('tr.unclaimed').click(function (e) {
 			var target = $( e.target );
 			console.log("target.is('i')");
 			console.log(target.is('i'));
 			if(!target.is('i')){
 				localStorage.setItem("updated", "true");
+				localStorage.setItem("updated_transaction_id", $(this).data('transaction_id'));
 				localStorage.setItem("scrollX", window.scrollX.toString());
 				localStorage.setItem("scrollY", window.scrollY.toString());
 				window.location.href = '/pos_deposit/' + $(this).data('transaction_id')+'/edit';
@@ -243,7 +245,7 @@
 			element.find('input[name="debit"]').unbind('keyup');
 			element.find('input[name="debit"]').bind('keyup', updatePosDebitData);
 			element.find('.btn-submit-pos').unbind('click');
-			element.find('.btn-submit-pos').bind('click', onSubmitPosForm);
+			element.find('form').submit(onSubmitPosForm);
 			element.find('.btn-approve').unbind('click');
 			element.find('.btn-approve').bind('click', onClickApprove);
 			element.find('.btn-reject').unbind('click');
@@ -296,28 +298,30 @@
 			$(this).closest('.pos-edit-row').remove();
 		}
 		function onSubmitPosForm(e) {
-			e.preventDefault();
-			$(this).find('button[type="submit"]').attr('disabled', true);
-			var formElem = $(this);
-			var data = $(this).serialize();
+            var formElem = $(this).closest('form');
+            if(formElem.validate()){
+                e.preventDefault();
+                $(this).attr('disabled', true);
+                var data = formElem.serialize();
 
-			$.ajax({
-				method: $(this).attr('method'),
-				url: $(this).attr('action'),
-				dataType: 'json',
-				data: data,
-				success: function(result) {
-					if (result.success == true) {
-						toastr.success(result.msg);
-						formElem.closest('.pos-edit-row').remove();
-					} else {
-						toastr.error(result.msg);
-					}
-				},
-			});
+                $.ajax({
+                    method: formElem.attr('method'),
+                    url: formElem.attr('action'),
+                    dataType: 'json',
+                    data: data,
+                    success: function(result) {
+                        if (result.success == true) {
+                            toastr.success(result.msg);
+                            formElem.closest('.pos-edit-row').remove();
+                        } else {
+                            toastr.error(result.msg);
+                        }
+                    },
+                });
+            }
 		}
 		function onClickApprove(e) {
-			var formElem = $(this).parents('form');
+			var formElem = $(this).closest('form');
 			var data = formElem.serialize();
 
 			$.ajax({

@@ -487,15 +487,14 @@ class SellPosDepositController extends Controller
                 if(empty($request->input('bank_changed'))){
                     $input['bank_in_time'] = null;
                 }
+                if (empty($request->input('transaction_date'))) {
+                    $input['transaction_date'] =  \Carbon::now();
+                } else {
+                    $input['transaction_date'] = $this->productUtil->uf_date($request->input('transaction_date'), true);
+                }
                 if(!(auth()->user()->hasRole('Admin#' . auth()->user()->business_id) || auth()->user()->hasRole('Admin') || auth()->user()->hasRole('Superadmin'))) {
                     if (!$this->isShiftClosed($business_id)) {
                         $input['transaction_date'] = date('Y-m-d H:i:s', strtotime('today') - 1);
-                    }
-                } else {
-                    if (empty($request->input('transaction_date'))) {
-                        $input['transaction_date'] =  \Carbon::now();
-                    } else {
-                        $input['transaction_date'] = $this->productUtil->uf_date($request->input('transaction_date'), true);
                     }
                 }
 
@@ -2639,15 +2638,17 @@ class SellPosDepositController extends Controller
                     'debit' => 0,
                     'credit' => 0,
                     'free_credit' => 0,
+                    'basic_bonus' => 0,
                     'service_debit' => $payment->card_type == 'debit' ? $payment->amount : 0,
                     'service_credit' => $payment->card_type == 'credit' ? $payment->amount : 0,
                     'others' => '<small>' . $ref_no . '</small>',
                     'bank_in_time' => $payment->bank_in_time,
                     'user' => $user['first_name'] . ' ' . $user['last_name'],
                     'service_name' => $payment->account_name,
-                    'game_id' => $game_id,
+                    'game_id' => $payment->game_id,
                     'transaction_id' => $payment->transaction_id,
-                    'is_default' => 0
+                    'is_default' => 0,
+                    'is_edit_request' => 0
                 ];
             }
         } else {

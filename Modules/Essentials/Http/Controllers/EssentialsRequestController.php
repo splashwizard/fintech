@@ -120,6 +120,11 @@ class EssentialsRequestController extends Controller
                 $end =  request()->end_date;
                 $request->whereDate('essentials_requests.start_date', '>=', $start)
                             ->whereDate('essentials_requests.start_date', '<=', $end);
+            } else {
+                $start = date('Y-m-d', strtotime('today'));
+                $end = date('Y-m-d', strtotime('today'));
+                $request->whereDate('essentials_requests.start_date', '>=', $start)
+                    ->whereDate('essentials_requests.start_date', '<=', $end);
             }
 
             return Datatables::of($request)
