@@ -283,6 +283,7 @@
 @section('javascript')
 	<script>
 		let basic_bonus_rate = '{{session()->get('business')['basic_bonus']}}';
+		var bonus_variation_id = '{{isset($transaction->bonus_variation_id) ? $transaction->bonus_variation_id : -1 }}';
 		const edit_page = 1;
 		const sell_details = JSON.parse('<?php echo json_encode($sell_details);?>');
 		let variation_ids_before = [];

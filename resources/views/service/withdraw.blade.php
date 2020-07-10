@@ -304,6 +304,10 @@
                 toastr.error('Game ID is needed');
                 return;
             }
+            if($('#amount').val() == "" || $('#amount').val() == 0){
+                toastr.error('Amount cannot be 0');
+                return;
+            }
             $.ajax({
                 method: 'post',
                 url: '/service/checkWithdraw',

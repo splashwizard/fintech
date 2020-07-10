@@ -171,9 +171,9 @@
           @foreach($services as $key => $service)
               <div class="col-md-3">
                   <div class="form-group">
-                      {!! Form::label('game_ids['.$service->id.'][0]', $service->name) !!}
-                      {!! Form::text('game_ids['.$service->id.'][0]', isset($game_ids[$service->id][0]) ? $game_ids[$service->id][0] : null, ['class' => 'form-control', 'placeholder' => 'Current Game ID', 'style' => 'margin-bottom:10px']) !!}
-                      {!! Form::text('game_ids['.$service->id.'][1]', isset($game_ids[$service->id][1]) ? $game_ids[$service->id][1] : null, ['class' => 'form-control', 'placeholder' => 'Old Game ID'] ) !!}
+                      {!! Form::label('game_ids['.$service->id.'][cur_game_id]', $service->name) !!}
+                      {!! Form::text('game_ids['.$service->id.'][cur_game_id]', isset($game_ids[$service->id]->cur_game_id) ? $game_ids[$service->id]->cur_game_id : null, ['class' => 'form-control', 'placeholder' => 'Current Game ID', 'style' => 'margin-bottom:10px']) !!}
+                      {!! Form::text('game_ids['.$service->id.'][old_game_id]', isset($game_ids[$service->id]->old_game_id) ? $game_ids[$service->id]->old_game_id : null, ['class' => 'form-control', 'placeholder' => 'Old Game ID'] ) !!}
                   </div>
               </div>
           @endforeach

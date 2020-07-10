@@ -1426,25 +1426,26 @@ $(document).ready(function() {
             let is_product_any = $(this).hasClass('product_any') ? 1 : 0;
             pos_product_row($(this).data('variation_id'), product_type, '', 0, is_product_any);
 
+            pos_total_row();
             let data = new FormData(pos_form_obj[0]);
             data.delete('_method');
-            $.ajax({
-                method:'POST',
-                url: '/sells/pos_deposit/get_payment_rows',
-                data: data,
-                contentType: false, // NEEDED, DON'T OMIT THIS (requires jQuery 1.6+)
-                processData: false,
-                dataType: 'html',
-                success: function(result) {
-                    if(result){
-                        $('#payment_rows_div').html(result);
-                        $('.game_id_but').click(function (e) {
-                            e.preventDefault();
-                            copyTextToClipboard($(this).text());
-                        });
-                    }
-                }
-            });
+            // $.ajax({
+            //     method:'POST',
+            //     url: '/sells/pos_deposit/get_payment_rows',
+            //     data: data,
+            //     contentType: false, // NEEDED, DON'T OMIT THIS (requires jQuery 1.6+)
+            //     processData: false,
+            //     dataType: 'html',
+            //     success: function(result) {
+            //         if(result){
+            //             $('#payment_rows_div').html(result);
+            //             $('.game_id_but').click(function (e) {
+            //                 e.preventDefault();
+            //                 copyTextToClipboard($(this).text());
+            //             });
+            //         }
+            //     }
+            // });
         }
     });
 
@@ -2195,6 +2196,7 @@ function pos_total_row() {
     } else if(no_bonus === 0) {
         basic_bonus = Math.floor(basic_bonus_rate * credit / 100);
     }
+    debit = credit + basic_bonus + special_bonus;
     $('#credit').html(credit);
     $('#basic_bonus').html(basic_bonus);
     $('#special_bonus').html(special_bonus);
@@ -2660,6 +2662,7 @@ function updateBasicBonusRate(){
         success: function(result) {
             if(result.success){
                 basic_bonus_rate = result.basic_bonus_rate;
+                pos_total_row();
             }
         }
     });

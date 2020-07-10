@@ -638,7 +638,7 @@ class ContactController extends Controller
 
 
         $game_data = GameId::join('accounts', 'accounts.id', 'game_ids.service_id')->where('game_ids.contact_id', $id)
-            ->select('accounts.name', 'game_ids.game_id')
+            ->select('accounts.name', 'game_ids.cur_game_id')
             ->get();
 //        print_r($game_data);exit;
 
@@ -702,7 +702,7 @@ class ContactController extends Controller
             $game_data = GameId::where('contact_id', $id)->get();
             $game_ids = [];
             foreach ($game_data as $game){
-                $game_ids[$game->service_id] = unserialize($game->game_id);
+                $game_ids[$game->service_id] = $game;
             }
             $bank_details = !empty($contact->bank_details) ? json_decode($contact->bank_details, true) : null;
 
@@ -885,7 +885,7 @@ class ContactController extends Controller
                         'msg' => $bank_account_number . $msg . ' Please use another account number!'
                     ];
                 } else {
-                    try {
+//                    try {
                         $input = $request->only(['type', 'supplier_business_name', 'name', 'tax_number', 'pay_term_number', 'pay_term_type', 'landline', 'alternate_number',
                             'city', 'state', 'country', 'landmark', 'customer_group_id', 'membership_id', 'contact_id', 'birthday', 'email', 'remarks', 'country_code_id']);
 
@@ -908,7 +908,6 @@ class ContactController extends Controller
                         }
 
                         if ($count == 0) {
-                            $game_ids = $request->get('game_ids');
                             $contact = Contact::where('business_id', $business_id)->findOrFail($id);
                             $activity = 'Customer ID: ' . $contact->contact_id;
                             foreach ($input as $key => $value) {
@@ -937,23 +936,32 @@ class ContactController extends Controller
                             $admins = $this->moduleUtil->get_admins($business_id);
                             $user_id = request()->session()->get('user.id');
                             \Notification::send($admins, new EditCustomerNotification(['changed_by' => $user_id, 'contact_id' => $contact->contact_id]));
+                            $game_ids = $request->get('game_ids');
                             foreach ($game_ids as $service_id => $game_id) {
                                 $game_name = Account::find($service_id)->name;
                                 $game_cnt = GameId::where('service_id', $service_id)->where('contact_id', $id)->count();
                                 if ($game_cnt == 0) {
-                                    if(!empty($game_id[0]) || !empty($game_id[1])){
+                                    if(!empty($game_id['cur_game_id']) || !empty($game_id['old_game_id'])){
                                         GameId::create([
                                             'service_id' => $service_id,
                                             'contact_id' => $id,
-                                            'game_id' => serialize($game_id)
+                                            'cur_game_id' => $game_id['cur_game_id'],
+                                            'old_game_id' => $game_id['old_game_id']
                                         ]);
-                                        $activity .= chr(10) . chr(13) . $game_name . ': >>>' . $game_id[0];
+                                        if(!$game_id['cur_game_id'])
+                                            $activity .= chr(10) . chr(13) . $game_name . ': >>>' . $game_id['cur_game_id'];
+                                        if(!$game_id['old_game_id'])
+                                            $activity .= chr(10) . chr(13) . 'Old - '.$game_name . ': >>>' . $game_id['old_game_id'];
                                     }
                                 } else {
-                                    $old_game_id = unserialize(GameId::where('service_id', $service_id)->where('contact_id', $id)->get()[0]->game_id);
-                                    if ( !$old_game_id || $old_game_id[0] != $game_id[0] ) {
-                                        GameId::where('service_id', $service_id)->where('contact_id', $id)->update(['game_id' => serialize($game_id)]);
-                                        $activity .= chr(10) . chr(13) . $game_name . ': ' . $old_game_id[0] . ' >>>' . $game_id[0];
+                                    $row = GameId::where('service_id', $service_id)->where('contact_id', $id)->get()->first();
+                                    if ( $row->cur_game_id != $game_id['cur_game_id']) {
+                                        GameId::where('service_id', $service_id)->where('contact_id', $id)->update(['cur_game_id' => $game_id['cur_game_id']]);
+                                        $activity .= chr(10) . chr(13) . $game_name . ': ' . $row->cur_game_id . ' >>>' . $game_id['cur_game_id'];
+                                    }
+                                    if ( $row->old_game_id != $game_id['old_game_id']) {
+                                        GameId::where('service_id', $service_id)->where('contact_id', $id)->update(['old_game_id' => $game_id['old_game_id']]);
+                                        $activity .= chr(10) . chr(13) . 'Old - '.$game_name . ': ' . $row->old_game_id . ' >>>' . $game_id['old_game_id'];
                                     }
                                 }
                             }
@@ -988,13 +996,13 @@ class ContactController extends Controller
                         } else {
                             throw new \Exception("Error Processing Request", 1);
                         }
-                    } catch (\Exception $e) {
-                        \Log::emergency("File:" . $e->getFile() . "Line:" . $e->getLine() . "Message:" . $e->getMessage());
-
-                        $output = ['success' => false,
-                            'msg' => __("messages.something_went_wrong")
-                        ];
-                    }
+//                    } catch (\Exception $e) {
+//                        \Log::emergency("File:" . $e->getFile() . "Line:" . $e->getLine() . "Message:" . $e->getMessage());
+//
+//                        $output = ['success' => false,
+//                            'msg' => __("messages.something_went_wrong")
+//                        ];
+//                    }
                 }
             }
         }
@@ -1192,13 +1200,13 @@ class ContactController extends Controller
             $contacts->where('blacked_by_user', null);
             $contacts->where('is_default', 0);
             $contacts->where(function ($query) use ($term) {
-                $query->where('game_ids.game_id', 'like', '%' . $term .'%');
+                $query->where('game_ids.cur_game_id', 'like', '%' . $term .'%');
             });
             $contacts->select(
                 'contacts.id' ,
                 'contacts.contact_id',
                 DB::raw("IF(contacts.contact_id IS NULL OR contacts.contact_id='', contacts.name, CONCAT('(', contacts.contact_id, ') ', contacts.name)) AS text"),
-                DB::raw("CONCAT( accounts.name, ': ', game_ids.game_id) AS game_text"),
+                DB::raw("CONCAT( accounts.name, ': ', game_ids.cur_game_id) AS game_text"),
                 'mobile',
                 'landmark',
                 'city',
@@ -1283,13 +1291,13 @@ class ContactController extends Controller
             $contacts->where('blacked_by_user', null);
             $contacts->where('is_default', 0);
             $contacts->where(function ($query) use ($term) {
-                $query->where('game_ids.game_id', 'like', '%' . $term .'%');
+                $query->where('game_ids.cur_game_id', 'like', '%' . $term .'%');
             });
             $contacts->select(
                 'contacts.id' ,
                 'contacts.contact_id',
                 DB::raw("IF(contacts.contact_id IS NULL OR contacts.contact_id='', contacts.name, CONCAT('(', contacts.contact_id, ') ', contacts.name)) AS text"),
-                DB::raw("CONCAT( accounts.name, ': ', game_ids.game_id) AS game_text"),
+                DB::raw("CONCAT( accounts.name, ': ', game_ids.cur_game_id) AS game_text"),
                 'mobile',
                 'landmark',
                 'city',
@@ -1597,6 +1605,9 @@ class ContactController extends Controller
             $bank_details = json_decode($user->bank_details);
             if(empty($bank_details))
                 $bank_details = [];
+            foreach($bank_details as $key => $bank_detail){
+                $bank_details[$key]->bank_name = BankBrand::find($bank_detail->bank_brand_id)->name;
+            }
             $bank_account_detail = view('service.bank_account_detail')
                 ->with(['bank_details' => $bank_details])->render();
             return json_encode(['bank_account_detail'=> $bank_account_detail]);

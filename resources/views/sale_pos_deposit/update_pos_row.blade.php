@@ -8,11 +8,11 @@
 				<tr class="pos_data">
 					<td style="width: 8%"></td>
 					<td style="width: 10%"><input type="time" name="bank_in_time" ></td>
-					<td style="width: 10%">{!! Form::select("contact_id", $to_users, null, ["class" => "form-control mousetrap contact_select", "placeholder" => "Customer Id", "required", "style" => "width: 100%;", "id" => "contact_select"]); !!}</td>
+					<td style="width: 10%">{!! Form::select("contact_id", $to_users, null, ["class" => "form-control mousetrap contact_select", "placeholder" => "Customer Id", "style" => "width: 100%;", "id" => "contact_select"]); !!}</td>
 					<td style="width: 5%"><input class="form-control" name="credit" placeholder="credit" @if($disabled_data['credit']) disabled @endif></td>
 					<td style="width: 5%"><input class="form-control" name="debit" placeholder="debit" @if($disabled_data['debit']) disabled @endif></td>
-					<td style="width: 10%">{!! Form::select("service_id", $service_accounts, null, ["class" => "form-control service_select", "required" ]); !!}</td>
-					<td style="width: 10%">{!! Form::select("game_id", $filtered_game_ids, $selected_game_id, ["class" => "form-control service_select", "required" ]); !!}</td>
+					<td style="width: 10%">{!! Form::select("service_id", $service_accounts, null, ["class" => "form-control service_select" ]); !!}</td>
+					<td style="width: 10%">{!! Form::select("game_id", [], null, ["class" => "form-control service_select" ]); !!}</td>
 					<td style="width: 5%"><input class="form-control" name="free_credit" placeholder="Free Credit" @if($disabled_data['free_credit']) disabled @endif></td>
 					<td style="width: 5%"><input class="form-control" name="basic_bonus" placeholder="Basic Bonus" @if($disabled_data['basic_bonus']) disabled @endif></td>
 					<td style="width: 5%"><input class="form-control" name="service_credit" placeholder="Kiosk in" @if($disabled_data['service_credit']) disabled @endif></td>

@@ -613,7 +613,7 @@ class ServiceController extends Controller
         $service_id = request()->get('service_id');
         $customer_id = request()->get('customer_id');
         if(GameId::where('service_id', $service_id)->where('contact_id', $customer_id)->count() > 0){
-           return json_encode([ 'game_id' => unserialize(GameId::where('service_id', $service_id)->where('contact_id', $customer_id)->get()->first()['game_id'])[0]]);
+           return json_encode([ 'game_id' => GameId::where('service_id', $service_id)->where('contact_id', $customer_id)->get()->first()->cur_game_id ] );
         }
         return 0;
     }
@@ -734,6 +734,24 @@ class ServiceController extends Controller
                 ]);
 
                 $withdraw_mode = request()->get('withdraw_mode');
+
+                if($withdraw_mode == 'b' ){
+                    $bank_account_id = $request->input('bank_account_id');
+                    $accounts = Account::leftjoin('account_transactions as AT', function ($join) {
+                        $join->on('AT.account_id', '=', 'accounts.id');
+                        $join->whereNull('AT.deleted_at');
+                    })
+                        ->leftjoin('currencies', 'currencies.id', 'accounts.currency_id')
+                        ->where('accounts.id', $bank_account_id)
+                        ->select([DB::raw("SUM( IF(AT.type='credit', amount, -1*amount) ) as balance")])
+                        ->groupBy('accounts.id');
+                    if($accounts->get()->first()->balance < $amount){
+                        $output = ['success' => false,
+                            'msg' => 'Insufficient Bank Balance, please top up bank credit!'
+                        ];
+                        return $output;
+                    }
+                }
 
                 $business_locations = BusinessLocation::forDropdown($business_id, false, true);
                 $business_locations = $business_locations['locations'];

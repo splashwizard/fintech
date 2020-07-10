@@ -127,8 +127,6 @@
 		$('#ledger_table tr[data-transaction_id="' + localStorage.getItem("updated_transaction_id")+ '"]').css('background-color', '#fbfba2');
 		$('tr.unclaimed').click(function (e) {
 			var target = $( e.target );
-			console.log("target.is('i')");
-			console.log(target.is('i'));
 			if(!target.is('i')){
 				localStorage.setItem("updated", "true");
 				localStorage.setItem("updated_transaction_id", $(this).data('transaction_id'));
@@ -224,11 +222,13 @@
 											editRow.find('select[name="essentials_request_type_id"]').val(result.request_type_id);
 											editRow.find('select[name="game_id"]').val(request_data.game_id);
 										}
+										updateGameIds(editRow);
 									}
 								},
 							});
 						}
-						bindEvents(curRow.next());
+						bindEvents(editRow);
+						enableInputs(editRow);
 					},
 				});
 			}
@@ -238,10 +238,29 @@
 				return 0;
 			return parseInt(v);
 		}
-		
+
+		function enableInputs(editRow) {
+			var element = editRow;
+			const transaction_id = element.prev().data('transaction_id');
+
+			$.ajax({
+				method: 'GET',
+				url: '/sells/pos_deposit/get_enable_pos_data/' + transaction_id,
+				success: function(result) {
+					const data = result.data;
+					for(var i = 0; i < data.length; i ++){
+						element.find('input[name="' + data[i] +'"]').prop('disabled', false);
+					}
+				}
+			});
+		}
 		function bindEvents(element) {
 			element.find('input[name="credit"]').unbind('keyup');
 			element.find('input[name="credit"]').bind('keyup', updatePosCreditData);
+			element.find('input[name="free_credit"]').unbind('keyup');
+			element.find('input[name="free_credit"]').bind('keyup', updatePosCreditData);
+			element.find('input[name="basic_bonus"]').unbind('keyup');
+			element.find('input[name="basic_bonus"]').bind('keyup', updatePosCreditData);
 			element.find('input[name="debit"]').unbind('keyup');
 			element.find('input[name="debit"]').bind('keyup', updatePosDebitData);
 			element.find('.btn-submit-pos').unbind('click');
@@ -253,17 +272,33 @@
 			element.find('.btn-close-edit-row').unbind('click');
 			element.find('.btn-close-edit-row').bind('click', onCloseEditRow);
 			element.find('select[name="essentials_request_type_id"]').bind('change',onChangeRequestType);
-
+			element.find('select[name="contact_id"]').change(function (){
+				updateGameIds(element);
+			});
+			element.find('select[name="service_id"]').change(function (){
+				updateGameIds(element);
+			});
+		}
+		function updateGameIds(element) {
+			$.ajax({
+				method: 'GET',
+				url: '/sells/pos_deposit/get_game_ids',
+				data: {contact_id: element.find('select[name="contact_id"]').val(),
+					service_id: element.find('select[name="service_id"]').val()},
+				success: function(result) {
+					var html;
+					for(var i = 0; i < result.data.length; i ++){
+						html += '<option value="' + result.data[i].type + '">' + result.data[i].game_id + '</option>';
+					}
+					element.find('select[name="game_id"]').html(html);
+				}
+			});
 		}
 		function onChangeRequestType() {
 			var elem = $(this).closest('tr').prev();
 			if($(this).val() === '2'){
-				elem.find('select[name="contact_id"]').prop('required', false);
-				elem.find('select[name="service_id"]').prop('required', false);
 				elem.hide();
 			} else {
-				elem.find('select[name="contact_id"]').prop('required', true);
-				elem.find('select[name="service_id"]').prop('required', true);
 				elem.show();
 			}
 		}
@@ -272,27 +307,33 @@
 			var element = $(this).closest('.pos-edit-row');
 			element.find('input[name="service_credit"]').val($(this).val());
 		}
+		function getNum(s){
+			if(s==="" || s === undefined || isNaN(s))
+				return 0;
+			return parseInt(s);
+		}
 		function updatePosCreditData() {
 			var element = $(this).closest('.pos-edit-row');
-			const transaction_id = element.prev().data('transaction_id');
+			var service_debit = getNum(element.find('input[name="credit"]').val()) + getNum(element.find('input[name="basic_bonus"]').val()) + getNum(element.find('input[name="free_credit"]').val());
+			element.find('input[name="service_debit"]').val(service_debit);
 
-			$.ajax({
-				method: 'GET',
-				url: '/sells/pos_deposit/get_update_pos_data/' + transaction_id,
-				data: {total_credit: $(this).val()},
-				// dataType: 'json',
-				success: function(result) {
-					const data = result.data;
-					console.log(data);
-					console.log(data.basic_bonus);
-					if(data.basic_bonus)
-						element.find('input[name="basic_bonus"]').val(data.basic_bonus);
-					if(data.free_credit)
-						element.find('input[name="free_credit"]').val(data.free_credit);
-					if(data.service_debit)
-						element.find('input[name="service_debit"]').val(data.service_debit);
-				}
-			});
+			// const transaction_id = element.prev().data('transaction_id');
+			// $.ajax({
+			// 	method: 'GET',
+			// 	url: '/sells/pos_deposit/get_update_pos_data/' + transaction_id,
+			// 	data: {total_credit: $(this).val()},
+			// 	success: function(result) {
+			// 		const data = result.data;
+			// 		console.log(data);
+			// 		console.log(data.basic_bonus);
+			// 		if(data.basic_bonus)
+			// 			element.find('input[name="basic_bonus"]').val(data.basic_bonus);
+			// 		if(data.free_credit)
+			// 			element.find('input[name="free_credit"]').val(data.free_credit);
+			// 		if(data.service_debit)
+			// 			element.find('input[name="service_debit"]').val(data.service_debit);
+			// 	}
+			// });
 		}
 		function onCloseEditRow(e) {
 			$(this).closest('.pos-edit-row').remove();

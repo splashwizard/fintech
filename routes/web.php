@@ -147,6 +147,8 @@ Route::middleware(['IsInstalled', 'auth', 'SetSessionData', 'language', 'timezon
     Route::get('/sells/pos_deposit/get-bonus-suggestion', 'SellPosDepositController@getBonusSuggestion');
     Route::get('/sells/pos_deposit/get_update_pos_row/{transaction_id}', 'SellPosDepositController@getUpdatePosRow');
     Route::get('/sells/pos_deposit/get_update_pos_data/{transaction_id}', 'SellPosDepositController@getUpdatePosData');
+    Route::get('/sells/pos_deposit/get_enable_pos_data/{transaction_id}', 'SellPosDepositController@getEnablePosData');
+    Route::get('/sells/pos_deposit/get_game_ids', 'SellPosDepositController@getGameIds');
 
     Route::post('/sells/pos_deposit/get_remarks', 'SellPosDepositController@getRemarks');
     Route::post('/sells/pos_deposit/get_basic_bonus_rate', 'SellPosDepositController@getBasicBonusRate');

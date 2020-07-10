@@ -568,7 +568,7 @@ class SellPosDepositController extends Controller
                 $no_bonus = Contact::find($contact_id)->no_bonus;
 //                bonus_variation_id
                 if($is_service) {
-                    $input['game_id'] = unserialize(GameId::where('service_id', $service_id)->where('contact_id', $contact_id)->get()->first()->game_id)[0];
+                    $input['game_id'] = GameId::where('service_id', $service_id)->where('contact_id', $contact_id)->get()->first()->cur_game_id;
                     $total_credit = 0;
                     $payment_data = [];
                     foreach ($products as $product) {
@@ -1538,7 +1538,7 @@ class SellPosDepositController extends Controller
                         }
                     }
 
-                    $input['game_id'] = unserialize(GameId::where('service_id', $service_id)->where('contact_id', $contact_id)->get()->first()->game_id)[0];
+                    $input['game_id'] = GameId::where('service_id', $service_id)->where('contact_id', $contact_id)->get()->first()->cur_game_id;
 
                     //Begin transaction
                     DB::beginTransaction();
@@ -1945,7 +1945,7 @@ class SellPosDepositController extends Controller
                 $cnt = GameId::where('service_id', $product->account_id)->where('contact_id', $customer_id)->count();
                 // print_r($game_id);exit;
                 if($cnt > 0)
-                    $game_id = unserialize(GameId::where('service_id', $product->account_id)->where('contact_id', $customer_id)->get()[0]->game_id)[0];
+                    $game_id = GameId::where('service_id', $product->account_id)->where('contact_id', $customer_id)->get()->first()->cur_game_id;
                 else
                     $game_id = null;
                 $account_name = Account::find($product->account_id)->name;
@@ -1987,8 +1987,6 @@ class SellPosDepositController extends Controller
             ->prepend(__('lang_v1.none'), '');
         $contact_id = Transaction::find($transaction_id)->contact_id;
         $disabled_data = null;
-        $filtered_game_ids = null;
-        $selected_game_id = 0;
         if(Contact::find($contact_id)->contact_id == "UNCLAIM"){
             $pos_type = 'unclaimed';
             $default_request_type = 2;
@@ -1997,15 +1995,6 @@ class SellPosDepositController extends Controller
         else{
             $default_request_type = 1;
             $request_types = EssentialsRequestType::forDropdown($business_id);
-            $service_id = TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'service_transfer')->get()->first()->account_id;
-            $filtered_game_ids = [];
-            if(GameId::where('contact_id', $contact_id)->where('service_id', $service_id)->get()->count() > 0){
-                $game_ids = unserialize(GameId::where('contact_id', $contact_id)->where('service_id', $service_id)->get()->first()->game_id);
-                foreach ($game_ids as $key => $item){
-                    if(!empty($item))
-                        $filtered_game_ids[$key] = $item;
-                }
-            }
             if(Transaction::find($transaction_id)->type=='sell'){
                 $pos_type = 'deposit';
                 $disabled_data = [ 'credit' => false, 'debit' => true, 'free_credit' => true, 'basic_bonus' => true, 'service_credit' => true, 'service_debit' => true];
@@ -2026,7 +2015,7 @@ class SellPosDepositController extends Controller
         }
         $to_users = $contacts->pluck('contact_id', 'id');
         $html = view('sale_pos_deposit.update_pos_row')->with(compact('transaction_id', 'request_types', 'service_accounts', 'pos_type',
-            'disabled_data', 'default_request_type', 'filtered_game_ids', 'selected_game_id', 'to_users'))->render();
+            'disabled_data', 'default_request_type', 'to_users'))->render();
         return $html;
     }
 
@@ -2057,6 +2046,45 @@ class SellPosDepositController extends Controller
             $data['basic_bonus'] = floor($total_credit * $bonus_rate / 100);
         }
         $data['service_debit'] = $total_credit + $data['basic_bonus'] + $data['special_bonus'];
+        return ['data' => $data];
+    }
+
+    public function getEnablePosData($transaction_id){
+        $data = [];
+        if(TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'bank_transfer')->where('card_type','credit')->count() > 0){
+            $data[] = 'credit';
+        }
+        if(TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'free_credit')->where('card_type','credit')->count() > 0){
+            $data[] = 'free_credit';
+        }
+        if(TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'basic_bonus')->where('card_type','credit')->count() > 0){
+            $data[] = 'basic_bonus';
+        }
+        if(TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'service_transfer')->where('card_type','debit')->count() > 0){
+            $data[] = 'service_debit';
+        }
+        if(TransactionPayment::where('transaction_id', $transaction_id)->where('method', '!=', 'service_transfer')->where('card_type','debit')->count() > 0){
+            $data[] = 'debit';
+        }
+        if(TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'service_transfer')->where('card_type','credit')->count() > 0){
+            $data[] = 'service_credit';
+        }
+        return ['data' => $data];
+    }
+
+    public function getGameIds(){
+        $contact_id = request()->get('contact_id');
+        $service_id = request()->get('service_id');
+        $data = [];
+        if($contact_id != -1 && $service_id != -1){
+            $row = GameId::where('contact_id', $contact_id)->where('service_id', $service_id)->get()->first();
+            if(!empty($row->cur_game_id)){
+                $data[] = [ 'type' => 'cur_game_id', 'game_id' => $row->cur_game_id];
+            }
+            if(!empty($row->old_game_id)){
+                $data[] = [ 'type' => 'old_game_id', 'game_id' => $row->old_game_id];
+            }
+        }
         return ['data' => $data];
     }
 
@@ -2506,12 +2534,10 @@ class SellPosDepositController extends Controller
         $game_id = request()->get('game_id');
         if(!empty($game_id)){
             if(GameId::where('contact_id', $contact_id)->where('service_id', $service_id)->count()){
-                $game_id_arr = unserialize(GameId::where('contact_id', $contact_id)->where('service_id', $service_id)->get()->first()->game_id);
-                $game_id_arr[0] = $game_id;
-                GameId::where('contact_id', $contact_id)->where('service_id', $service_id)->update(['game_id' => serialize($game_id_arr)]);
+                GameId::where('contact_id', $contact_id)->where('service_id', $service_id)->update(['cur_game_id' => $game_id]);
             }
             else
-                GameId::create(['contact_id' => $contact_id, 'service_id' => $service_id, 'game_id' => serialize([$game_id])]);
+                GameId::create(['contact_id' => $contact_id, 'service_id' => $service_id, 'cur_game_id' => $game_id]);
         }
         return 1;
     }
@@ -2612,6 +2638,8 @@ class SellPosDepositController extends Controller
             $query2->where('t.sub_type', 'game_credit_deduct');
         $query2->where('transaction_date', '>=', $start)
             ->where('transaction_date', '<=', $end);
+        $query2->orderBy('transaction_date', 'DESC');
+        $query2->orderBy('invoice_no', 'DESC');
 
         $payments = $query2->select('transaction_payments.*', 't.id as transaction_id', 't.bank_in_time as bank_in_time', 't.transaction_date as transaction_date', 'bl.name as location_name', 't.type as transaction_type', 't.ref_no', 't.invoice_no'
             , 't.game_id as game_id', 'c.id as contact_primary_key', 'c.contact_id as contact_id', 'c.is_default as is_default', 'a.id as account_id', 'a.name as account_name', 't.created_by as created_by')->get();

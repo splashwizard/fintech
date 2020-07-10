@@ -296,7 +296,8 @@ class EssentialsRequestController extends Controller
                 $input['transaction_id'] = $transaction_id;
                 if($input['essentials_request_type_id'] == 1){
                     $request_data = [];
-                    $request_keys = ['bank_in_time', 'credit', 'debit', 'contact_id', 'service_id'];
+                    $request_keys = ['bank_in_time', 'credit', 'debit', 'free_credit', 'basic_bonus', 'service_credit', 'service_debit', 'contact_id', 'service_id', 'game_id'];
+//                    $request_keys = ['bank_in_time', 'credit', 'debit', 'free_credit', 'basic_bonus', 'contact_id', 'service_id'];
                     foreach ($request_keys as $request_key){
                         if(!empty($request->get($request_key))){
                             $request_data[$request_key] = $request->get($request_key);
@@ -350,7 +351,6 @@ class EssentialsRequestController extends Controller
             $business_id = $request->session()->get('user.business_id');
             $transaction_id = $request->get('transaction_id');
             $bonus_account_id = Account::where('business_id', $business_id)->where('name', 'Bonus Account')->get()->first()->id;
-            $service_id = $request->get('service_id');
             $essentials_request_type_id = $request->get('essentials_request_type_id');
             if($essentials_request_type_id == 1){ // change request
                 if(!empty($request->get('bank_in_time'))) {
@@ -360,60 +360,67 @@ class EssentialsRequestController extends Controller
 
                 if(!empty($request->get('contact_id'))){
                     $contact_id = $request->get('contact_id');
-//                Transaction::find($transaction_id)->update(['contact_id' => $contact_id]);
-                }
-                if(!empty($request->get('contact_id'))){
-                    $game_id_index = $request->get('game_id');
-                    $game_id = unserialize(GameId::where('contact_id', $contact_id)->where('service_id', $service_id)->get()->first()->game_id)[$game_id_index];
-                    Transaction::find($transaction_id)->update(['game_id' => $game_id]);
+                    Transaction::find($transaction_id)->update(['contact_id' => $contact_id]);
+                    if(!empty($request->get('service_id'))){
+                        $game_id_index = $request->get('game_id');
+                        $service_id = $request->get('service_id');
+                        $game_id = GameId::where('contact_id', $contact_id)->where('service_id', $service_id)->get()->first()[$game_id_index];
+                        Transaction::find($transaction_id)->update(['game_id' => $game_id]);
+                    }
                 }
                 if(!empty($request->get('credit'))) {
                     $request_data = [];
                     $credit = $request->get('credit');
-                    $bonus_amount = 0;
-                    $bonus_name = '';
-                    $bonus_variation_id = Transaction::find($transaction_id)->bonus_variation_id;
-                    $business_id = request()->session()->get('user.business_id');
-                    $bonuses = $this->getBonuses($business_id);
-                    foreach ($bonuses as $bonus){
-                        if($bonus->id == $bonus_variation_id) {
-                            $bonus_name = $bonus->name;
-                            $bonus_amount = $bonus->selling_price;
-                        }
-                    }
-                    $contact_id = Transaction::find($transaction_id)->contact_id;
-                    $no_bonus = Contact::find($contact_id)->no_bonus;
-                    $request_data['basic_bonus'] = 0;
-                    $request_data['special_bonus'] = 0;
-                    $request_data['service_debit'] = 0;
-                    if($bonus_variation_id != -1){
-                        if($bonus_name === 'Bonus') {
-                            $request_data['special_bonus'] = $credit * $bonus_amount / 100;
-                        } else {
-                            $request_data['special_bonus'] = $bonus_amount;
-                        }
-                    } else if($no_bonus == 0) {
-                        $bonus_rate = CountryCode::find(Contact::find($contact_id)->country_code_id)->basic_bonus_percent;
-                        $request_data['basic_bonus'] = floor($credit * $bonus_rate / 100);
-                    }
-                    $request_data['service_debit'] = $credit + $request_data['basic_bonus'] + $request_data['special_bonus'];
+                    $free_credit = $request->get('free_credit');
+                    $basic_bonus = $request->get('basic_bonus');
+                    $service_debit = $request->get('service_debit');
+//                    $bonus_amount = 0;
+//                    $bonus_name = '';
+//                    $bonus_variation_id = Transaction::find($transaction_id)->bonus_variation_id;
+//                    $business_id = request()->session()->get('user.business_id');
+//                    $bonuses = $this->getBonuses($business_id);
+//                    foreach ($bonuses as $bonus){
+//                        if($bonus->id == $bonus_variation_id) {
+//                            $bonus_name = $bonus->name;
+//                            $bonus_amount = $bonus->selling_price;
+//                        }
+//                    }
+//                    $contact_id = Transaction::find($transaction_id)->contact_id;
+//                    $no_bonus = Contact::find($contact_id)->no_bonus;
+//                    $request_data['basic_bonus'] = 0;
+//                    $request_data['special_bonus'] = 0;
+//                    $request_data['service_debit'] = 0;
+//                    if($bonus_variation_id != -1){
+//                        if($bonus_name === 'Bonus') {
+//                            $request_data['special_bonus'] = $credit * $bonus_amount / 100;
+//                        } else {
+//                            $request_data['special_bonus'] = $bonus_amount;
+//                        }
+//                    } else if($no_bonus == 0) {
+//                        $bonus_rate = CountryCode::find(Contact::find($contact_id)->country_code_id)->basic_bonus_percent;
+//                        $request_data['basic_bonus'] = floor($credit * $bonus_rate / 100);
+//                    }
+//                    $request_data['service_debit'] = $credit + $request_data['basic_bonus'] + $request_data['special_bonus'];
 
-//                print_r($request_data);exit;
                     if(TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'bank_transfer')->where('card_type','credit')->count() > 0){
                         TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'bank_transfer')->where('card_type','credit')->update(['amount' => $credit]);
                         AccountTransaction::where('transaction_id', $transaction_id)->where('account_id', '!=', $bonus_account_id)->update(['amount' => $credit]);
                     }
                     if(TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'free_credit')->where('card_type','credit')->count() > 0){
-                        TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'free_credit')->where('card_type','credit')->update(['amount' => $request_data['special_bonus']]);
-                        AccountTransaction::where('transaction_id', $transaction_id)->where('account_id', $bonus_account_id)->update(['amount' => $request_data['special_bonus']]);
+                        TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'free_credit')->where('card_type','credit')->update(['amount' => $free_credit]);
+                        AccountTransaction::where('transaction_id', $transaction_id)->where('account_id', $bonus_account_id)->update(['amount' => $free_credit]);
                     }
                     if(TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'basic_bonus')->where('card_type','credit')->count() > 0){
-                        TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'basic_bonus')->where('card_type','credit')->update(['amount' => $request_data['basic_bonus']]);
-                        AccountTransaction::where('transaction_id', $transaction_id)->where('account_id', $bonus_account_id)->update(['amount' => $request_data['basic_bonus']]);
+                        TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'basic_bonus')->where('card_type','credit')->update(['amount' => $basic_bonus]);
+                        AccountTransaction::where('transaction_id', $transaction_id)->where('account_id', $bonus_account_id)->update(['amount' => $basic_bonus]);
                     }
                     if(TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'service_transfer')->where('card_type','debit')->count() > 0){
-                        TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'service_transfer')->where('card_type','debit')->update(['amount' => $request_data['service_debit'], 'account_id' => $service_id]);
-                        AccountTransaction::where('transaction_id', $transaction_id)->where('type', 'debit')->update(['amount' => $request_data['service_debit'], 'account_id' => $service_id]);
+                        TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'service_transfer')->where('card_type','debit')->update(['amount' => $service_debit]);
+                        if(!empty($request->get('service_id'))) {
+                            $service_id = $request->get('service_id');
+                            TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'service_transfer')->where('card_type','debit')->update(['account_id' => $service_id]);
+                            AccountTransaction::where('transaction_id', $transaction_id)->where('type', 'debit')->update(['amount' => $request_data['service_debit'], 'account_id' => $service_id]);
+                        }
                     }
                 }
                 else if(!empty($request->get('debit'))) {
@@ -424,7 +431,10 @@ class EssentialsRequestController extends Controller
                     }
                     if(TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'service_transfer')->where('card_type','credit')->count() > 0){
                         TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'service_transfer')->where('card_type','credit')->update(['amount' => $debit]);
-                        AccountTransaction::where('transaction_id', $transaction_id)->where('type', 'debit')->update(['amount' => $debit, 'account_id' => $service_id]);
+                        if(!empty($request->get('service_id'))) {
+                            $service_id = $request->get('service_id');
+                            AccountTransaction::where('transaction_id', $transaction_id)->where('type', 'debit')->update(['amount' => $debit, 'account_id' => $service_id]);
+                        }
                     }
                 }
                 $request_row = EssentialsRequest::where('transaction_id', $transaction_id)->get()->first();
@@ -437,7 +447,7 @@ class EssentialsRequestController extends Controller
                 $output = ['success' => true,
                     'msg' => __("lang_v1.approved_success")
                 ];
-            } else if ($essentials_request_type_id == 2){ // delete request
+            } else if ($essentials_request_type_id == 2) { // delete request
                 AccountTransaction::where('transaction_id', $transaction_id)->delete();
                 TransactionPayment::where('transaction_id', $transaction_id)->delete();
 //                $request_row = EssentialsRequest::where('transaction_id', $transaction_id)->get()->first();
@@ -668,38 +678,38 @@ class EssentialsRequestController extends Controller
         if(EssentialsRequest::where('transaction_id', $transaction_id)->where('status', 'pending')->count() > 0){
             $row = EssentialsRequest::where('transaction_id', $transaction_id)->where('status', 'pending')->get()->first();
             $request_data = unserialize($row['request_data']);
-            if(isset($request_data['credit'])){ //deposit
-                $total_credit = $request_data['credit'];
-                $bonus_amount = 0;
-                $bonus_name = '';
-                $bonus_variation_id = Transaction::find($transaction_id)->bonus_variation_id;
-                $business_id = request()->session()->get('user.business_id');
-                $bonuses = $this->getBonuses($business_id);
-                foreach ($bonuses as $bonus){
-                    if($bonus->id == $bonus_variation_id) {
-                        $bonus_name = $bonus->name;
-                        $bonus_amount = $bonus->selling_price;
-                    }
-                }
-                $contact_id = Transaction::find($transaction_id)->contact_id;
-                $no_bonus = Contact::find($contact_id)->no_bonus;
-                $request_data['basic_bonus'] = 0;
-                $request_data['special_bonus'] = 0;
-                $request_data['service_debit'] = 0;
-                if($bonus_variation_id != -1){
-                    if($bonus_name === 'Bonus') {
-                        $request_data['special_bonus'] = $total_credit * $bonus_amount / 100;
-                    } else {
-                        $request_data['special_bonus'] = $bonus_amount;
-                    }
-                } else if($no_bonus == 0) {
-                    $bonus_rate = CountryCode::find(Contact::find($contact_id)->country_code_id)->basic_bonus_percent;
-                    $request_data['basic_bonus'] = floor($total_credit * $bonus_rate / 100);
-                }
-                $request_data['service_debit'] = $total_credit + $request_data['basic_bonus'] + $request_data['special_bonus'];
-            } else if ($request_data['debit']){ // withdraw
-                $request_data['service_credit'] = $request_data['debit'];
-            }
+//            if(isset($request_data['credit'])){ //deposit
+//                $total_credit = $request_data['credit'];
+//                $bonus_amount = 0;
+//                $bonus_name = '';
+//                $bonus_variation_id = Transaction::find($transaction_id)->bonus_variation_id;
+//                $business_id = request()->session()->get('user.business_id');
+//                $bonuses = $this->getBonuses($business_id);
+//                foreach ($bonuses as $bonus){
+//                    if($bonus->id == $bonus_variation_id) {
+//                        $bonus_name = $bonus->name;
+//                        $bonus_amount = $bonus->selling_price;
+//                    }
+//                }
+//                $contact_id = Transaction::find($transaction_id)->contact_id;
+//                $no_bonus = Contact::find($contact_id)->no_bonus;
+//                $request_data['basic_bonus'] = 0;
+//                $request_data['special_bonus'] = 0;
+//                $request_data['service_debit'] = 0;
+//                if($bonus_variation_id != -1){
+//                    if($bonus_name === 'Bonus') {
+//                        $request_data['special_bonus'] = $total_credit * $bonus_amount / 100;
+//                    } else {
+//                        $request_data['special_bonus'] = $bonus_amount;
+//                    }
+//                } else if($no_bonus == 0) {
+//                    $bonus_rate = CountryCode::find(Contact::find($contact_id)->country_code_id)->basic_bonus_percent;
+//                    $request_data['basic_bonus'] = floor($total_credit * $bonus_rate / 100);
+//                }
+//                $request_data['service_debit'] = $total_credit + $request_data['basic_bonus'] + $request_data['special_bonus'];
+//            } else if ($request_data['debit']){ // withdraw
+//                $request_data['service_credit'] = $request_data['debit'];
+//            }
             $output = [ 'exist' => 1, 'request_data' => $request_data, 'request_type_id' => $row['essentials_request_type_id'], 'reason' => $row['reason']];
         } else $output = [ 'exist' => 0];
         return $output;
@@ -718,10 +728,10 @@ class EssentialsRequestController extends Controller
                     $data['free_credit'] = false;
                 else if($payment->card_type == 'credit' && $payment->method == 'basic_bonus')
                     $data['basic_bonus'] = false;
-                else if($payment->card_type == 'credit' && $payment->method == 'service_transfer')
-                    $data['service_credit'] = false;
-                else if($payment->card_type == 'debit' && $payment->method == 'service_transfer')
-                    $data['service_debit'] = false;
+//                else if($payment->card_type == 'credit' && $payment->method == 'service_transfer')
+//                    $data['service_credit'] = false;
+//                else if($payment->card_type == 'debit' && $payment->method == 'service_transfer')
+//                    $data['service_debit'] = false;
             }
             $output = ['success' => true,
                 'data' => $data
