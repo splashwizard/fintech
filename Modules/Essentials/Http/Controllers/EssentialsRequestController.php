@@ -448,14 +448,16 @@ class EssentialsRequestController extends Controller
                     'msg' => __("lang_v1.approved_success")
                 ];
             } else if ($essentials_request_type_id == 2) { // delete request
+                Transaction::find($transaction_id)->delete();
                 AccountTransaction::where('transaction_id', $transaction_id)->delete();
+                DB::table('account_transactions')->where('transaction_id', $transaction_id)->delete();
                 TransactionPayment::where('transaction_id', $transaction_id)->delete();
-//                $request_row = EssentialsRequest::where('transaction_id', $transaction_id)->get()->first();
-//                $request_row->update(['status' => 'approved']);
-//                ActivityLogger::activity("Approved delete request, reference no ".$request_row['ref_no']);
-//                $admins = $this->moduleUtil->get_admins($business_id);
+                $request_row = EssentialsRequest::where('transaction_id', $transaction_id)->get()->first();
+                $request_row->update(['status' => 'approved']);
+                ActivityLogger::activity("Approved delete request, reference no ".$request_row['ref_no']);
+                $admins = $this->moduleUtil->get_admins($business_id);
 
-//                \Notification::send($admins, new NewRequestNotification($request_row));
+                \Notification::send($admins, new NewRequestNotification($request_row));
 
                 $output = ['success' => true,
                     'msg' => __("lang_v1.approved_success")
