@@ -300,6 +300,10 @@
         });
         $('#btn-withdraw_submit').click(function (e) {
             e.preventDefault();
+            if($('#btn-game_id').html() == ""){
+                toastr.error('Game ID is needed');
+                return;
+            }
             $.ajax({
                 method: 'post',
                 url: '/service/checkWithdraw',

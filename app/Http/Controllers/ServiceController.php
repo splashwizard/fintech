@@ -613,7 +613,7 @@ class ServiceController extends Controller
         $service_id = request()->get('service_id');
         $customer_id = request()->get('customer_id');
         if(GameId::where('service_id', $service_id)->where('contact_id', $customer_id)->count() > 0){
-           return json_encode([ 'game_id' => GameId::where('service_id', $service_id)->where('contact_id', $customer_id)->get()->first()['game_id']]);
+           return json_encode([ 'game_id' => unserialize(GameId::where('service_id', $service_id)->where('contact_id', $customer_id)->get()->first()['game_id'])[0]]);
         }
         return 0;
     }

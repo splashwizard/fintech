@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddBonusVariationIdToTranactionsTable extends Migration
+class AddGameIdToTransactionsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -15,7 +15,7 @@ class AddBonusVariationIdToTranactionsTable extends Migration
     {
         Schema::table('transactions', function (Blueprint $table) {
             //
-            $table->integer('bonus_variation_id')->after('final_total')->default(-1);
+            $table->string('game_id')->after('bonus_variation_id')->nullable();
         });
     }
 
@@ -28,7 +28,7 @@ class AddBonusVariationIdToTranactionsTable extends Migration
     {
         Schema::table('transactions', function (Blueprint $table) {
             //
-            $table->dropColumn('bonus_variation_id');
+            $table->dropColumn('game_id');
         });
     }
 }

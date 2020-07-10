@@ -36,6 +36,7 @@ Route::group(['middleware' => ['web','IsInstalled', 'auth', 'SetSessionData', 'l
         Route::get('/request/create/{id}', 'EssentialsRequestController@createWithTransaction')->name('essentials_request.createWithTransaction');
         Route::post('/request/change-status', 'EssentialsRequestController@changeStatus');
         Route::get('/request/request_data/{id}', 'EssentialsRequestController@getRequestData');
+        Route::get('/request/get_disable_data/{id}', 'EssentialsRequestController@getDisableData');
         Route::post('/request/approve-request', 'EssentialsRequestController@approveRequest');
         Route::post('/request/reject-request', 'EssentialsRequestController@rejectRequest');
         Route::get('/request/activity/{id}', 'EssentialsRequestController@activity');

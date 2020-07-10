@@ -702,7 +702,7 @@ class ContactController extends Controller
             $game_data = GameId::where('contact_id', $id)->get();
             $game_ids = [];
             foreach ($game_data as $game){
-                $game_ids[$game->service_id] = $game->game_id;
+                $game_ids[$game->service_id] = unserialize($game->game_id);
             }
             $bank_details = !empty($contact->bank_details) ? json_decode($contact->bank_details, true) : null;
 
@@ -941,19 +941,19 @@ class ContactController extends Controller
                                 $game_name = Account::find($service_id)->name;
                                 $game_cnt = GameId::where('service_id', $service_id)->where('contact_id', $id)->count();
                                 if ($game_cnt == 0) {
-                                    if(!empty($game_id)){
+                                    if(!empty($game_id[0]) || !empty($game_id[1])){
                                         GameId::create([
                                             'service_id' => $service_id,
                                             'contact_id' => $id,
-                                            'game_id' => $game_id
+                                            'game_id' => serialize($game_id)
                                         ]);
-                                        $activity .= chr(10) . chr(13) . $game_name . ': >>>' . $game_id;
+                                        $activity .= chr(10) . chr(13) . $game_name . ': >>>' . $game_id[0];
                                     }
                                 } else {
-                                    $old_game_id = GameId::where('service_id', $service_id)->where('contact_id', $id)->get()[0]->game_id;
-                                    if ($old_game_id != $game_id) {
-                                        GameId::where('service_id', $service_id)->where('contact_id', $id)->update(['game_id' => $game_id]);
-                                        $activity .= chr(10) . chr(13) . $game_name . ': ' . $old_game_id . ' >>>' . $game_id;
+                                    $old_game_id = unserialize(GameId::where('service_id', $service_id)->where('contact_id', $id)->get()[0]->game_id);
+                                    if ( !$old_game_id || $old_game_id[0] != $game_id[0] ) {
+                                        GameId::where('service_id', $service_id)->where('contact_id', $id)->update(['game_id' => serialize($game_id)]);
+                                        $activity .= chr(10) . chr(13) . $game_name . ': ' . $old_game_id[0] . ' >>>' . $game_id[0];
                                     }
                                 }
                             }

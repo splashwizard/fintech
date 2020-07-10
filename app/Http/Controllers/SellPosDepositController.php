@@ -545,10 +545,12 @@ class SellPosDepositController extends Controller
                 $contact_id = request()->get('customer_id');
                 $bonus_rate = CountryCode::find(Contact::find($contact_id)->country_code_id)->basic_bonus_percent;
                 $is_service = 0;
+                $service_id = -1;
                 //check if service
                 foreach ($products as $product) {
                     if(Account::find($product['account_id'])->is_service){
                         $is_service = 1;
+                        $service_id = $product['account_id'];
                         break;
                     }
                 }
@@ -567,6 +569,7 @@ class SellPosDepositController extends Controller
                 $no_bonus = Contact::find($contact_id)->no_bonus;
 //                bonus_variation_id
                 if($is_service) {
+                    $input['game_id'] = unserialize(GameId::where('service_id', $service_id)->where('contact_id', $contact_id)->get()->first()->game_id)[0];
                     $total_credit = 0;
                     $payment_data = [];
                     foreach ($products as $product) {
@@ -1527,6 +1530,16 @@ class SellPosDepositController extends Controller
                     if ($is_direct_sale && $status_before == 'draft') {
                         $input['invoice_scheme_id'] = $request->input('invoice_scheme_id');
                     }
+                    //check if service
+                    $service_id = -1;
+                    foreach ($input['products'] as $product) {
+                        if(Account::find($product['account_id'])->is_service){
+                            $service_id = $product['account_id'];
+                            break;
+                        }
+                    }
+
+                    $input['game_id'] = unserialize(GameId::where('service_id', $service_id)->where('contact_id', $contact_id)->get()->first()->game_id)[0];
 
                     //Begin transaction
                     DB::beginTransaction();
@@ -1933,7 +1946,7 @@ class SellPosDepositController extends Controller
                 $cnt = GameId::where('service_id', $product->account_id)->where('contact_id', $customer_id)->count();
                 // print_r($game_id);exit;
                 if($cnt > 0)
-                    $game_id = GameId::where('service_id', $product->account_id)->where('contact_id', $customer_id)->get()[0]->game_id;
+                    $game_id = unserialize(GameId::where('service_id', $product->account_id)->where('contact_id', $customer_id)->get()[0]->game_id)[0];
                 else
                     $game_id = null;
                 $account_name = Account::find($product->account_id)->name;
@@ -1964,6 +1977,88 @@ class SellPosDepositController extends Controller
         }
 
         return $output;
+    }
+
+    public function getUpdatePosRow($transaction_id) {
+        $business_id = request()->session()->get('user.business_id');
+        $service_accounts = Account::where('business_id', $business_id)
+            ->where('is_service', 1)
+            ->NotClosed()
+            ->pluck('name', 'id')
+            ->prepend(__('lang_v1.none'), '');
+        $contact_id = Transaction::find($transaction_id)->contact_id;
+        $disabled_data = null;
+        $filtered_game_ids = null;
+        $selected_game_id = 0;
+        if(Contact::find($contact_id)->contact_id == "UNCLAIM"){
+            $pos_type = 'unclaimed';
+            $default_request_type = 2;
+            $request_types = EssentialsRequestType::forDropdown($business_id, 'unclaimed');
+        }
+        else{
+            $default_request_type = 1;
+            $request_types = EssentialsRequestType::forDropdown($business_id);
+            $service_id = TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'service_transfer')->get()->first()->account_id;
+            $filtered_game_ids = [];
+            if(GameId::where('contact_id', $contact_id)->where('service_id', $service_id)->get()->count() > 0){
+                $game_ids = unserialize(GameId::where('contact_id', $contact_id)->where('service_id', $service_id)->get()->first()->game_id);
+                foreach ($game_ids as $key => $item){
+                    if(!empty($item))
+                        $filtered_game_ids[$key] = $item;
+                }
+            }
+            if(Transaction::find($transaction_id)->type=='sell'){
+                $pos_type = 'deposit';
+                $disabled_data = [ 'credit' => false, 'debit' => true, 'free_credit' => true, 'basic_bonus' => true, 'service_credit' => true, 'service_debit' => true];
+            }
+            else{
+                $pos_type = 'withdraw';
+                $disabled_data = [ 'credit' => true, 'debit' => false, 'free_credit' => true, 'basic_bonus' => true, 'service_credit' => true, 'service_debit' => true];
+            }
+        }
+
+        $user_id = session()->get('user.id');
+        $contacts = Contact::where('business_id', $business_id);
+        $selected_contacts = User::isSelectedContacts($user_id);
+
+        if ($selected_contacts) {
+            $contacts->join('user_contact_access AS uca', 'contacts.id', 'uca.contact_id')
+                ->where('uca.user_id', $user_id);
+        }
+        $to_users = $contacts->pluck('contact_id', 'id');
+        $html = view('sale_pos_deposit.update_pos_row')->with(compact('transaction_id', 'request_types', 'service_accounts', 'pos_type',
+            'disabled_data', 'default_request_type', 'filtered_game_ids', 'selected_game_id', 'to_users'))->render();
+        return $html;
+    }
+
+    public function getUpdatePosData($transaction_id){
+        $total_credit = request()->get('total_credit');
+        $bonus_amount = 0;
+        $bonus_name = '';
+        $bonus_variation_id = Transaction::find($transaction_id)->bonus_variation_id;
+        $business_id = request()->session()->get('user.business_id');
+        $bonuses = $this->getBonuses($business_id);
+        foreach ($bonuses as $bonus){
+            if($bonus->id == $bonus_variation_id) {
+                $bonus_name = $bonus->name;
+                $bonus_amount = $bonus->selling_price;
+            }
+        }
+        $contact_id = Transaction::find($transaction_id)->contact_id;
+        $no_bonus = Contact::find($contact_id)->no_bonus;
+        $data = ['basic_bonus' => 0, 'special_bonus' => 0, 'service_debit' => 0];
+        if($bonus_variation_id != -1){
+            if($bonus_name === 'Bonus') {
+                $data['special_bonus'] = $total_credit * $bonus_amount / 100;
+            } else {
+                $data['special_bonus'] = $bonus_amount;
+            }
+        } else if($no_bonus == 0) {
+            $bonus_rate = CountryCode::find(Contact::find($contact_id)->country_code_id)->basic_bonus_percent;
+            $data['basic_bonus'] = floor($total_credit * $bonus_rate / 100);
+        }
+        $data['service_debit'] = $total_credit + $data['basic_bonus'] + $data['special_bonus'];
+        return ['data' => $data];
     }
 
     /**
@@ -2411,10 +2506,13 @@ class SellPosDepositController extends Controller
         $service_id = request()->get('service_id');
         $game_id = request()->get('game_id');
         if(!empty($game_id)){
-            if(GameId::where('contact_id', $contact_id)->where('service_id', $service_id)->count())
-                GameId::where('contact_id', $contact_id)->where('service_id', $service_id)->update(['game_id' => $game_id]);
+            if(GameId::where('contact_id', $contact_id)->where('service_id', $service_id)->count()){
+                $game_id_arr = unserialize(GameId::where('contact_id', $contact_id)->where('service_id', $service_id)->get()->first()->game_id);
+                $game_id_arr[0] = $game_id;
+                GameId::where('contact_id', $contact_id)->where('service_id', $service_id)->update(['game_id' => serialize($game_id_arr)]);
+            }
             else
-                GameId::create(['contact_id' => $contact_id, 'service_id' => $service_id, 'game_id' => $game_id]);
+                GameId::create(['contact_id' => $contact_id, 'service_id' => $service_id, 'game_id' => serialize([$game_id])]);
         }
         return 1;
     }
@@ -2517,7 +2615,7 @@ class SellPosDepositController extends Controller
             ->where('transaction_date', '<=', $end);
 
         $payments = $query2->select('transaction_payments.*', 't.id as transaction_id', 't.bank_in_time as bank_in_time', 't.transaction_date as transaction_date', 'bl.name as location_name', 't.type as transaction_type', 't.ref_no', 't.invoice_no'
-            , 'c.id as contact_primary_key', 'c.contact_id as contact_id', 'c.is_default as is_default', 'a.id as account_id', 'a.name as account_name', 't.created_by as created_by')->get();
+            , 't.game_id as game_id', 'c.id as contact_primary_key', 'c.contact_id as contact_id', 'c.is_default as is_default', 'a.id as account_id', 'a.name as account_name', 't.created_by as created_by')->get();
 //        $total_deposit = $query2->where('t.type', 'sell')->where('transaction_payments.method', '!=', 'service_transfer')->where('transaction_payments.method','!=', 'bonus')->sum('transaction_payments.amount');
         $paymentTypes = $this->transactionUtil->payment_types();
         if($selected_bank == 'GTransfer' || $selected_bank == 'Deduction') {
@@ -2587,11 +2685,12 @@ class SellPosDepositController extends Controller
                 }
                 if(($payment->transaction_type == 'sell' || $payment->transaction_type == 'sell_return' ) && $payment->method == 'service_transfer'){
                     $ledger_by_payment[$payment->transaction_id]['service_name'] = $payment->account_name;
-                    $game_data = GameId::where('contact_id', $payment->contact_primary_key)->where('service_id', $payment->account_id)->get();
-                    if(count($game_data) >= 1){
-                        $game_id = $game_data[0]->game_id;
-                        $ledger_by_payment[$payment->transaction_id]['game_id'] = $game_id;
-                    }
+                    $ledger_by_payment[$payment->transaction_id]['game_id'] = $payment->game_id;
+//                    $game_data = GameId::where('contact_id', $payment->contact_primary_key)->where('service_id', $payment->account_id)->get();
+//                    if(count($game_data) >= 1){
+//                        $game_id = $game_data[0]->game_id;
+//                        $ledger_by_payment[$payment->transaction_id]['game_id'] = $game_id;
+//                    }
                 }
                 if($payment->method == 'bank_transfer') {
                     $ledger_by_payment[$payment->transaction_id]['bank_id'] = $payment->account_id;
@@ -2623,13 +2722,8 @@ class SellPosDepositController extends Controller
             });
         }
 
-        $request_types = EssentialsRequestType::forDropdown($business_id);
-        $service_accounts = Account::where('business_id', $business_id)
-            ->where('is_service', 1)
-            ->NotClosed()
-            ->pluck('name', 'id');
         return view('sale_pos_deposit.ledger')
-            ->with(compact('ledger', 'bank_list', 'selected_bank', 'request_types', 'service_accounts'));
+            ->with(compact('ledger', 'bank_list', 'selected_bank'));
     }
 
     /**

@@ -8,14 +8,13 @@
 	#ledger_table tr.unclaimed{
 		color: dodgerblue;
 	}
-	.pos-edit input{
-		width: 70px!important;
+	.pos-edit-row tr.pos_data input{
+		display: block!important;
+		width: 100%!important;
+		padding: 6px 3px!important;
 	}
-	.pos-edit select{
-		width: 100px;
-	}
-	.pos-edit .select2{
-		width: 100px!important;
+	.pos-edit-row table td{
+		padding: 4px!important;
 	}
 </style>
 <ul class="nav nav-tabs" style="margin-bottom: 30px" id="bank-tabs" role="tablist">
@@ -48,21 +47,20 @@
 		@if($selected_bank == 'free_credit')
 			<th>Bank</th>
 		@endif
-		<th>Ticket #</th>
-		<th>Bank-in Time</th>
-		<th>ID</th>
-		<th>@lang('account.credit')</th>
-		<th>@lang('account.debit')</th>
-		<th>Games</th>
-		<th>Games ID</th>
-		<th>@lang('account.free_credit')</th>
-		<th>@lang('account.basic_bonus')</th>
-		<th>@lang('account.kiosk_in')</th>
-		<th>@lang('account.kiosk_out')</th>
-		{{--			<th>@lang('lang_v1.payment_method')</th>--}}
-		<th>Date/Time</th>
-		<th>User</th>
-		<th></th>
+		<th style="width: 8%">Ticket #</th>
+		<th style="width: 10%">Bank-in Time</th>
+		<th style="width: 10%">ID</th>
+		<th style="width: 5%">@lang('account.credit')</th>
+		<th style="width: 5%">@lang('account.debit')</th>
+		<th style="width: 10%">Games</th>
+		<th style="width: 10%">Games ID</th>
+		<th style="width: 5%">@lang('account.free_credit')</th>
+		<th style="width: 5%">@lang('account.basic_bonus')</th>
+		<th style="width: 5%">@lang('account.kiosk_in')</th>
+		<th style="width: 5%">@lang('account.kiosk_out')</th>
+		<th style="width: 10%">Date/Time</th>
+		<th style="width: 10%">User</th>
+		<th style="width: 2%"></th>
 	</tr>
 	</thead>
 	<tbody>
@@ -100,7 +98,7 @@
 				<td>@if($data['service_debit'] != '') <span class="display_currency">{{$data['service_debit']}}</span> @endif</td>
 				<td>{{@format_datetime($data['date'])}}</td>
 				<td>{{ $data['user'] }}</td>
-				<td> @if( !$is_admin_or_super || $is_admin_or_super && $data['is_edit_request'])<i class="fa fa-pencil pos-edit" style="color: rgb(255, 181, 185)" data-href="{{route('essentials_request.createWithTransaction', $data['transaction_id'])}}" data-container="#add_request_modal"></i> @endif
+				<td> @if( !$is_admin_or_super || $is_admin_or_super && $data['is_edit_request'])<i class="fa fa-pencil pos-edit-icon" style="color: rgb(255, 181, 185)" data-href="{{route('essentials_request.createWithTransaction', $data['transaction_id'])}}" data-container="#add_request_modal"></i> @endif
 				</td>
 			@endif
 		</tr>
@@ -125,7 +123,6 @@
 </table>
 <script>
 	$(document).ready(function (e) {
-		var selected_bank = '<?php echo $selected_bank; ?>';
 		var is_admin_or_super = '<?php echo $is_admin_or_super; ?>';
 		$('tr.unclaimed').click(function (e) {
 			var target = $( e.target );
@@ -139,160 +136,166 @@
 				// window.open('/pos_deposit/' + $(this).data('transaction_id')+'/edit');
 			}
 		});
-		function format(transaction_id){
-			var html = '<tr class="pos-edit">' +
-						'<td colspan="14" style="padding: 0!important">' +
-					'{!! Form::open(["url" => action("\Modules\Essentials\Http\Controllers\EssentialsRequestController@store"), "method" => "post" ]) !!}'+
-							'<table class="table dataTable" style="margin: 0!important;background-color: lightblue">' +
-								'<thead style="display: none">' +
-									'<tr>';
-								if(selected_bank === 'free_credit'){
-									html +="<th>Bank</th>";
-								}
-							html += '<th>Ticket #</th>\n' +
-									'<th>Bank-in Time</th>\n' +
-									'<th>ID</th>\n' +
-									'<th>@lang("account.credit")</th>\n' +
-									'<th>@lang("account.debit")</th>\n' +
-									'<th>Games</th>\n' +
-									'<th>Games ID</th>\n' +
-									'<th>@lang("account.free_credit")</th>' +
-									'<th>@lang("account.basic_bonus")</th>' +
-									'<th>@lang("account.kiosk_in")</th>' +
-									'<th>@lang("account.kiosk_out")</th>' +
-									'<th>Date/Time</th>\n' +
-									'<th>User</th>\n' +
-									'<th></th>' +
-								'</thead>';
-							html +=	'<tbody>' +
-									'<input name="transaction_id" type="hidden" value="' + transaction_id +'">' +
-									'<tr>' +
-										'<td style="width:110px"></td>' +
-										'<td><input type="time" name="bank_in_time"></td>' +
-										'<td>{!! Form::select("contact_id", [], null, ["class" => "form-control mousetrap contact_select", "placeholder" => "Customer Id", "required", "style" => "width: 100%;"]); !!}</td>' +
-										'<td><input class="form-control" name="credit" placeholder="credit"></td>' +
-										'<td><input class="form-control" name="debit" placeholder="debit"></td>' +
-										'<td>{!! Form::select("service_id", $service_accounts, null, ["class" => "form-control service_select", "required" ]); !!}</td>' +
-										'<td><input class="form-control" name="game_id" placeholder="Games ID"></td>' +
-										'<td><input class="form-control" name="free_credit" placeholder="Free Credit"></td>' +
-										'<td><input class="form-control" name="basic_bonus" placeholder="Basic Bonus"></td>' +
-										'<td><input class="form-control" name="service_credit" placeholder="Kiosk in"></td>' +
-										'<td><input class="form-control" name="service_debit" placeholder="Kiosk out"></td>' +
-										'<td><input type="time" name="time"></td>' +
-										'<td style="width:130px"></td>' +
-										'<td style="width:54px"></td>' +
-									'</tr>';
-							html += '<tr>' +
-										'<td colspan="14">' +
-											'<div style="width:50%;float: right">' +
-												'<div class="form-group col-md-12">' +
-													'{!! Form::label("essentials_request_type_id", __( "essentials::lang.request_type" ) . ":*") !!}' +
-													'{!! Form::select("essentials_request_type_id", $request_types, null, ["class" => "form-control", "required", "placeholder" => __( "messages.please_select" ) ]); !!}' +
-												'</div>' +
-												'<div class="form-group col-md-12">\n' +
-													'{!! Form::label("reason", __( "essentials::lang.reason" ) . ":") !!}\n' +
-													'{!! Form::textarea("reason", null, ["class" => "form-control", "placeholder" => __( "essentials::lang.reason" ), "rows" => 4, "required", "style" => "width:100%" ]); !!}\n' +
-												'</div>'+
-												'<div style="float:right;padding:10px 15px 0px 15px">';
-													if(is_admin_or_super){
-														html += '<button type="button" class="btn btn-primary btn-approve">Approve</button>\n' +
-																'<button type="button" class="btn btn-danger btn-reject">Reject</button>';
-													} else {
-														html += '<button type="submit" class="btn btn-primary">@lang( "messages.save" )</button>\n' +
-														'<button type="button" class="btn btn-default btn-close-edit-row">@lang( "messages.close" )</button>';
-													}
-												html += '</div>' +
-											'</div>'+
-										'</td>'+
-									'</tr>' +
-							'</table>'+
-							'{!! Form::close() !!}' +
-						'</td>' +
-					'</tr>';
-			return html;
-		}
-		$('.pos-edit').click(function (e) {
-			if(!( $(this).closest('tr').next() && $(this).closest('tr').next().hasClass('pos-edit'))){
+		$('.pos-edit-icon').click(function (e) {
+			if(!( $(this).closest('tr').next() && $(this).closest('tr').next().hasClass('pos-edit-row'))){
 				const transaction_id = $(this).closest('tr').data('transaction_id');
-				$(this).closest('tr').after( format(transaction_id) );
-				$(this).closest('tr').next().find('.contact_select').select2({
-					ajax: {
-						url: '/contacts/customersWithId',
-						dataType: 'json',
-						delay: 250,
-						data: function(params) {
-							return {
-								q: params.term, // search term
-								page: params.page,
-							};
-						},
-						processResults: function(data) {
-							return {
-								results: data,
-							};
-						},
-					},
-					templateResult: function (data) {
-						var template = data.text;
-						if (typeof(data.game_text) != "undefined") {
-							template += "<br><i class='fa fa-gift text-success'></i> " + data.game_text;
-						}
-						// var template = data.contact_id;
+				var curRow = $(this).closest('tr');
 
-						return template;
-					},
-					minimumInputLength: 1,
-					language: {
-						noResults: function() {
-							var name = $('#customer_id')
-									.data('select2')
-									.dropdown.$search.val();
-							return (
-									'<button type="button" data-name="' +
-									name +
-									'" class="btn btn-link add_new_customer"><i class="fa fa-plus-circle fa-lg" aria-hidden="true"></i>&nbsp; ' +
-									__translate('add_name_as_new_customer', { name: name }) +
-									'</button>'
-							);
-						},
-					},
-					escapeMarkup: function(markup) {
-						return markup;
+				$.ajax({
+					method: 'GET',
+					url: '/sells/pos_deposit/get_update_pos_row/' + transaction_id,
+					// dataType: 'json',
+					success: function(result) {
+						curRow.after(result);
+						var editRow = curRow.next();
+						editRow.find('.contact_select').select2({
+							ajax: {
+								url: '/contacts/customersWithId',
+								dataType: 'json',
+								delay: 250,
+								data: function(params) {
+									return {
+										q: params.term, // search term
+										page: params.page,
+									};
+								},
+								processResults: function(data) {
+									return {
+										results: data,
+									};
+								},
+							},
+							templateResult: function (data) {
+								var template = data.text;
+								if (typeof(data.game_text) != "undefined") {
+									template += "<br><i class='fa fa-gift text-success'></i> " + data.game_text;
+								}
+								// var template = data.contact_id;
+
+								return template;
+							},
+							minimumInputLength: 1,
+							language: {
+								noResults: function() {
+									var name = $('#customer_id')
+											.data('select2')
+											.dropdown.$search.val();
+									return (
+											'<button type="button" data-name="' +
+											name +
+											'" class="btn btn-link add_new_customer"><i class="fa fa-plus-circle fa-lg" aria-hidden="true"></i>&nbsp; ' +
+											__translate('add_name_as_new_customer', { name: name }) +
+											'</button>'
+									);
+								},
+							},
+							escapeMarkup: function(markup) {
+								return markup;
+							},
+						});
+						var request_data = null;
+						if(is_admin_or_super){
+							$.ajax({
+								method: 'GET',
+								url: '/hrm/request/request_data/' + transaction_id,
+								// dataType: 'json',
+								success: function(result) {
+									if (result.exist) {
+										request_data = result.request_data;
+										if(result.request_type_id == 2){ // delete request
+											editRow.find('select[name="contact_id"]').prop('required', false);
+											editRow.find('select[name="service_id"]').prop('required', false);
+											editRow.find('select[name="essentials_request_type_id"]').val(result.request_type_id);
+											editRow.find('textarea[name="reason"]').val(result.reason);
+											editRow.find('.pos_data').hide();
+										} else {
+											editRow.find('input[name="credit"]').val(request_data.credit);
+											editRow.find('input[name="debit"]').val(request_data.debit);
+											editRow.find('input[name="basic_bonus"]').val(request_data.basic_bonus);
+											editRow.find('input[name="free_credit"]').val(request_data.free_credit);
+											editRow.find('input[name="service_credit"]').val(request_data.service_credit);
+											editRow.find('input[name="service_debit"]').val(request_data.service_debit);
+											editRow.find('input[name="bank_in_time"]').val(request_data.bank_in_time);
+											editRow.find('.contact_select').val(request_data.contact_id).trigger('change');
+											editRow.find('.service_select').val(request_data.service_id);
+											editRow.find('textarea[name="reason"]').val(result.reason);
+											editRow.find('select[name="essentials_request_type_id"]').val(result.request_type_id);
+											editRow.find('select[name="game_id"]').val(request_data.game_id);
+										}
+									}
+								},
+							});
+						}
+						bindEvents(curRow.next());
 					},
 				});
-				var element = $(this).closest('tr').next();
-				var request_data = null;
-				if(is_admin_or_super){
-					$.ajax({
-						method: 'GET',
-						url: '/hrm/request/request_data/' + transaction_id,
-						// dataType: 'json',
-						success: function(result) {
-							if (result.exist) {
-								request_data = result.request_data;
-								element.find('input[name="credit"]').val(request_data.credit);
-								element.find('input[name="debit"]').val(request_data.debit);
-								element.find('input[name="basic_bonus"]').val(request_data.basic_bonus);
-								element.find('input[name="free_credit"]').val(request_data.free_credit);
-								element.find('input[name="service_credit"]').val(request_data.service_credit);
-								element.find('input[name="service_credit"]').val(request_data.service_credit);
-								element.find('input[name="bank_in_time"]').val(request_data.bank_in_time);
-								element.find('.contact_select').val(request_data.contact_id).trigger('change');
-								element.find('.service_select').val(request_data.service_id);
-								element.find('textarea[name="reason"]').val(result.reason);
-								element.find('select[name="essentials_request_type_id"]').val(result.request_type_id);
-							}
-						},
-					});
-				}
 			}
 		});
-		$(document).on('click', '.btn-close-edit-row', function (e) {
-			$(this).closest('.pos-edit').remove();
-		});
-		$(document).on('submit', '.pos-edit form', function(e) {
+		function getNumVal(v){
+			if(v === undefined || isNaN(v) || v === "")
+				return 0;
+			return parseInt(v);
+		}
+		
+		function bindEvents(element) {
+			element.find('input[name="credit"]').unbind('keyup');
+			element.find('input[name="credit"]').bind('keyup', updatePosCreditData);
+			element.find('input[name="debit"]').unbind('keyup');
+			element.find('input[name="debit"]').bind('keyup', updatePosDebitData);
+			element.find('.btn-submit-pos').unbind('click');
+			element.find('.btn-submit-pos').bind('click', onSubmitPosForm);
+			element.find('.btn-approve').unbind('click');
+			element.find('.btn-approve').bind('click', onClickApprove);
+			element.find('.btn-reject').unbind('click');
+			element.find('.btn-reject').bind('click', onClickReject);
+			element.find('.btn-close-edit-row').unbind('click');
+			element.find('.btn-close-edit-row').bind('click', onCloseEditRow);
+			element.find('select[name="essentials_request_type_id"]').bind('change',onChangeRequestType);
 
-			console.log('Here');
+		}
+		function onChangeRequestType() {
+			var elem = $(this).closest('tr').prev();
+			if($(this).val() === '2'){
+				elem.find('select[name="contact_id"]').prop('required', false);
+				elem.find('select[name="service_id"]').prop('required', false);
+				elem.hide();
+			} else {
+				elem.find('select[name="contact_id"]').prop('required', true);
+				elem.find('select[name="service_id"]').prop('required', true);
+				elem.show();
+			}
+		}
+		function updatePosDebitData() {
+			console.log('updatePosDebitData');
+			var element = $(this).closest('.pos-edit-row');
+			element.find('input[name="service_credit"]').val($(this).val());
+		}
+		function updatePosCreditData() {
+			var element = $(this).closest('.pos-edit-row');
+			const transaction_id = element.prev().data('transaction_id');
+
+			$.ajax({
+				method: 'GET',
+				url: '/sells/pos_deposit/get_update_pos_data/' + transaction_id,
+				data: {total_credit: $(this).val()},
+				// dataType: 'json',
+				success: function(result) {
+					const data = result.data;
+					console.log(data);
+					console.log(data.basic_bonus);
+					if(data.basic_bonus)
+						element.find('input[name="basic_bonus"]').val(data.basic_bonus);
+					if(data.free_credit)
+						element.find('input[name="free_credit"]').val(data.free_credit);
+					if(data.service_debit)
+						element.find('input[name="service_debit"]').val(data.service_debit);
+				}
+			});
+		}
+		function onCloseEditRow(e) {
+			$(this).closest('.pos-edit-row').remove();
+		}
+		function onSubmitPosForm(e) {
 			e.preventDefault();
 			$(this).find('button[type="submit"]').attr('disabled', true);
 			var formElem = $(this);
@@ -306,14 +309,14 @@
 				success: function(result) {
 					if (result.success == true) {
 						toastr.success(result.msg);
-						formElem.closest('.pos-edit').remove();
+						formElem.closest('.pos-edit-row').remove();
 					} else {
 						toastr.error(result.msg);
 					}
 				},
 			});
-		});
-		$(document).on('click', '.btn-approve', function (e) {
+		}
+		function onClickApprove(e) {
 			var formElem = $(this).parents('form');
 			var data = formElem.serialize();
 
@@ -325,15 +328,15 @@
 				success: function(result) {
 					if (result.success == true) {
 						toastr.success(result.msg);
-						formElem.closest('.pos-edit').remove();
+						formElem.closest('.pos-edit-row').remove();
 						$('#bank-tabs .nav-item.active a').trigger('click');
 					} else {
 						toastr.error(result.msg);
 					}
 				},
 			});
-		});
-		$(document).on('click', '.btn-reject', function (e) {
+		}
+		function onClickReject(e) {
 			var formElem = $(this).parents('form');
 			var data = formElem.serialize();
 			console.log(data);
@@ -346,12 +349,12 @@
 				success: function(result) {
 					if (result.success == true) {
 						toastr.success(result.msg);
-						formElem.closest('.pos-edit').remove();
+						formElem.closest('.pos-edit-row').remove();
 					} else {
 						toastr.error(result.msg);
 					}
 				},
 			});
-		})
+		}
 	})
 </script>

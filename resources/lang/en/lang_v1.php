@@ -283,6 +283,7 @@ return [
    'added_success' => 'Added Successfully',
    'deleted_success' => 'Deleted Successfully',
    'approved_success' => 'Approved Successfully',
+   'rejected_success' => 'Rejected Successfully',
    'enable_disable_modules' => 'Enable/Disable Modules',
    'opening_stock_help_text' =>"<br><br>For variable products separate stock quantities with '|' <br>(Ex: 100|150|200)",
    'applicable_tax_help' => '<br><br/>If purchase Price (Excluding Tax) is not same as <br/>Purchase Price (Including Tax) <br/>then you must supply the tax rate name.',

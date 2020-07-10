@@ -154,7 +154,11 @@
       <div class="col-md-12">
         <hr/>
           <div style="display:flex; justify-content:space-between;align-items:center">
-              <label style="text-decoration: underline" >Game ID List <input type="checkbox" data-toggle="collapse" data-target="#services"> </label>
+{{--              <label style="text-decoration: underline" >Game ID List <input type="checkbox" data-toggle="collapse" data-target="#services"> </label>--}}
+              <a href="#" data-toggle="collapse" data-target="#services">
+                  Game ID List
+                  <i class="more-less glyphicon glyphicon-plus" style="margin-left: 30px"></i>
+              </a>
               <div class="checkbox">
                   <label>
                       {!! Form::checkbox('no_bonus', 1, $contact->no_bonus, ['class' => 'input-icheck', 'id' => 'no_bonus']); !!} No Bonus
@@ -167,9 +171,9 @@
           @foreach($services as $key => $service)
               <div class="col-md-3">
                   <div class="form-group">
-                      {!! Form::label('game_ids['.$service->id.']', $service->name) !!}
-                      {!! Form::text('game_ids['.$service->id.']', isset($game_ids[$service->id]) ? $game_ids[$service->id] : null, ['class' => 'form-control', 'placeholder' => 'Current Game ID', 'style' => 'margin-bottom:10px']) !!}
-                      {!! Form::text('', null, ['class' => 'form-control', 'placeholder' => 'Old Game ID'] ) !!}
+                      {!! Form::label('game_ids['.$service->id.'][0]', $service->name) !!}
+                      {!! Form::text('game_ids['.$service->id.'][0]', isset($game_ids[$service->id][0]) ? $game_ids[$service->id][0] : null, ['class' => 'form-control', 'placeholder' => 'Current Game ID', 'style' => 'margin-bottom:10px']) !!}
+                      {!! Form::text('game_ids['.$service->id.'][1]', isset($game_ids[$service->id][1]) ? $game_ids[$service->id][1] : null, ['class' => 'form-control', 'placeholder' => 'Old Game ID'] ) !!}
                   </div>
               </div>
           @endforeach
@@ -242,5 +246,10 @@
             format:'YYYY-MM-DD',
             minDate: "1990-01-01"
         });
+        function toggleIcon(e) {
+            $(".more-less").toggleClass('glyphicon-plus glyphicon-minus');
+        }
+        $('#services').on('hidden.bs.collapse', toggleIcon);
+        $('#services').on('shown.bs.collapse', toggleIcon);
     });
 </script>

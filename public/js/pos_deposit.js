@@ -1184,23 +1184,27 @@ $(document).ready(function() {
             $(this).next().show();
     });
     $(document).on('keydown',  function (e) {
-        if($('.row_edit_product_price_model.in').length > 0) {
-            var key = e.which;
-            if (key == 13) { //This is an ENTER
-                $('.row_edit_product_price_model.in .modal-footer button').trigger('click');
-            }
+        console.log(e.target);
+        if($(e.target).hasClass('select2-search__field')){
+            toastr.error('here');
         }
-        else if($('#withdraw_form').parents('.view_modal').hasClass('in')){
-            var key = e.which;
-            if (key == 13) { //This is an ENTER
-                $('#withdraw_form>.modal-footer>.btn-primary').trigger('click');
-            }
-        }
-        else{
-            if(e.which == 13) {
-                $('#pos-finalize').trigger('click');
-            }
-        }
+        // if($('.row_edit_product_price_model.in').length > 0) {
+        //     var key = e.which;
+        //     if (key == 13) { //This is an ENTER
+        //         $('.row_edit_product_price_model.in .modal-footer button').trigger('click');
+        //     }
+        // }
+        // else if($('#withdraw_form').parents('.view_modal').hasClass('in')){
+        //     var key = e.which;
+        //     if (key == 13) { //This is an ENTER
+        //         $('#withdraw_form>.modal-footer>.btn-primary').trigger('click');
+        //     }
+        // }
+        // else{
+        //     if(e.which == 13) {
+        //         $('#pos-finalize').trigger('click');
+        //     }
+        // }
     });
     // $(document).on('keypress',function(e) {
     //     if(e.which == 13) {
