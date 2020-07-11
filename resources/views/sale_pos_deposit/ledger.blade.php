@@ -194,6 +194,8 @@
 							},
 						});
 						var request_data = null;
+						bindEvents(editRow);
+						enableInputs(editRow);
 						if(is_admin_or_super){
 							$.ajax({
 								method: 'GET',
@@ -227,8 +229,6 @@
 								},
 							});
 						}
-						bindEvents(editRow);
-						enableInputs(editRow);
 					},
 				});
 			}
@@ -249,7 +249,13 @@
 				success: function(result) {
 					const data = result.data;
 					for(var i = 0; i < data.length; i ++){
-						element.find('input[name="' + data[i] +'"]').prop('disabled', false);
+						element.find('input[name="' + data[i].key +'"]').prop('disabled', false);
+						if(!is_admin_or_super)
+							element.find('input[name="' + data[i].key +'"]').val(data[i].amount);
+					}
+					if(data[0].key == 'credit'){
+						var service_debit = getNum(element.find('input[name="credit"]').val()) + getNum(element.find('input[name="basic_bonus"]').val()) + getNum(element.find('input[name="free_credit"]').val());
+						element.find('input[name="service_debit"]').val(service_debit.toFixed(2));
 					}
 				}
 			});
@@ -286,7 +292,7 @@
 				data: {contact_id: element.find('select[name="contact_id"]').val(),
 					service_id: element.find('select[name="service_id"]').val()},
 				success: function(result) {
-					var html;
+					var html = '';
 					for(var i = 0; i < result.data.length; i ++){
 						html += '<option value="' + result.data[i].type + '">' + result.data[i].game_id + '</option>';
 					}
@@ -340,8 +346,14 @@
 		}
 		function onSubmitPosForm(e) {
             var formElem = $(this).closest('form');
-            if(formElem.validate()){
+            if(formElem.validate()) {
                 e.preventDefault();
+                if(formElem.find('select[name="contact_id"]').val() || formElem.find('select[name="service_id"]').val()){
+                	if(!formElem.find('select[name="game_id"]').val()){
+                		toastr.error("Customer " + formElem.find('select[name="contact_id"] option:selected').html() + " doesn't have a Game ID with " + formElem.find('select[name="service_id"] option:selected').html() + ". Please create at the customer page.");
+                		return;
+					}
+				}
                 $(this).attr('disabled', true);
                 var data = formElem.serialize();
 

@@ -13,6 +13,7 @@ use App\Events\TransactionPaymentAdded;
 use App\Events\TransactionPaymentDeleted;
 use App\Events\TransactionPaymentUpdated;
 use App\Exceptions\PurchaseSellMismatch;
+use App\GameId;
 use App\InvoiceScheme;
 use App\Product;
 use App\PurchaseLine;
@@ -638,7 +639,8 @@ class TransactionUtil extends Util
             'paid_on' => !empty($transaction->transaction_date) ? $transaction->transaction_date : \Carbon::now()->toDateTimeString(),
             'created_by' => empty($user_id) ? auth()->user()->id : $user_id,
             'payment_for' => $transaction->contact_id,
-            'account_id' => !empty($account_id) ? $account_id : null
+            'account_id' => !empty($account_id) ? $account_id : null,
+            'game_id' => $is_service ? GameId::where('service_id', $account_id)->where('contact_id', $transaction->contact_id)->get()->first()->cur_game_id : null
         ];
 
         $transaction_payment = new TransactionPayment($payment_data);

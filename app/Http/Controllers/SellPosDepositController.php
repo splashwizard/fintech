@@ -2052,23 +2052,23 @@ class SellPosDepositController extends Controller
     public function getEnablePosData($transaction_id){
         $data = [];
         if(TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'bank_transfer')->where('card_type','credit')->count() > 0){
-            $data[] = 'credit';
+            $data[] = ['key' => 'credit', 'amount' => number_format((float)TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'bank_transfer')->where('card_type','credit')->get()->first()->amount, 2, '.', '')];
         }
         if(TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'free_credit')->where('card_type','credit')->count() > 0){
-            $data[] = 'free_credit';
+            $data[] = ['key' => 'free_credit', 'amount' => number_format((float)TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'free_credit')->where('card_type','credit')->get()->first()->amount, 2, '.', '')];
         }
         if(TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'basic_bonus')->where('card_type','credit')->count() > 0){
-            $data[] = 'basic_bonus';
-        }
-        if(TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'service_transfer')->where('card_type','debit')->count() > 0){
-            $data[] = 'service_debit';
+            $data[] = ['key' => 'basic_bonus', 'amount' => number_format((float)TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'basic_bonus')->where('card_type','credit')->get()->first()->amount, 2, '.', '')];
         }
         if(TransactionPayment::where('transaction_id', $transaction_id)->where('method', '!=', 'service_transfer')->where('card_type','debit')->count() > 0){
-            $data[] = 'debit';
+            $data[] = ['key' => 'debit', 'amount' => number_format((float)TransactionPayment::where('transaction_id', $transaction_id)->where('method', '!=', 'bank_transfer')->where('card_type','debit')->get()->first()->amount, 2, '.', '')];
         }
-        if(TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'service_transfer')->where('card_type','credit')->count() > 0){
-            $data[] = 'service_credit';
-        }
+//        if(TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'service_transfer')->where('card_type','credit')->count() > 0){
+//            $data[] = 'service_credit';
+//        }
+//        if(TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'service_transfer')->where('card_type','debit')->count() > 0){
+//            $data[] = 'service_debit';
+//        }
         return ['data' => $data];
     }
 
@@ -2642,7 +2642,7 @@ class SellPosDepositController extends Controller
         $query2->orderBy('invoice_no', 'DESC');
 
         $payments = $query2->select('transaction_payments.*', 't.id as transaction_id', 't.bank_in_time as bank_in_time', 't.transaction_date as transaction_date', 'bl.name as location_name', 't.type as transaction_type', 't.ref_no', 't.invoice_no'
-            , 't.game_id as game_id', 'c.id as contact_primary_key', 'c.contact_id as contact_id', 'c.is_default as is_default', 'a.id as account_id', 'a.name as account_name', 't.created_by as created_by')->get();
+            , 't.game_id as game_id', 'transaction_payments.game_id as tp_game_id', 'c.id as contact_primary_key', 'c.contact_id as contact_id', 'c.is_default as is_default', 'a.id as account_id', 'a.name as account_name', 't.created_by as created_by')->get();
 //        $total_deposit = $query2->where('t.type', 'sell')->where('transaction_payments.method', '!=', 'service_transfer')->where('transaction_payments.method','!=', 'bonus')->sum('transaction_payments.amount');
         $paymentTypes = $this->transactionUtil->payment_types();
         if($selected_bank == 'GTransfer' || $selected_bank == 'Deduction') {
@@ -2673,7 +2673,7 @@ class SellPosDepositController extends Controller
                     'bank_in_time' => $payment->bank_in_time,
                     'user' => $user['first_name'] . ' ' . $user['last_name'],
                     'service_name' => $payment->account_name,
-                    'game_id' => $payment->game_id,
+                    'game_id' => $payment->tp_game_id,
                     'transaction_id' => $payment->transaction_id,
                     'is_default' => 0,
                     'is_edit_request' => 0

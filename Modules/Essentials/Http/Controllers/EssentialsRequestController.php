@@ -303,6 +303,14 @@ class EssentialsRequestController extends Controller
                             $request_data[$request_key] = $request->get($request_key);
                         }
                     }
+                    if(!empty($request_data['credit'])){
+                        if(isset($request_data['free_credit']))
+                            $request_data['service_debit'] = $request_data['credit'] + $request_data['free_credit'];
+                        else
+                            $request_data['service_debit'] = $request_data['credit'] + $request_data['basic_bonus'];
+                    }
+                    else
+                        $request_data['service_credit'] = $request_data['debit'];
                     $request_data['game_id'] = $request->get('game_id');
                     $input['request_data'] = serialize($request_data);
                 } else {
@@ -373,7 +381,10 @@ class EssentialsRequestController extends Controller
                     $credit = $request->get('credit');
                     $free_credit = $request->get('free_credit');
                     $basic_bonus = $request->get('basic_bonus');
-                    $service_debit = $request->get('service_debit');
+                    if(isset($basic_bonus))
+                        $service_debit = $credit + $basic_bonus;
+                    else
+                        $service_debit = $credit + $free_credit;
 //                    $bonus_amount = 0;
 //                    $bonus_name = '';
 //                    $bonus_variation_id = Transaction::find($transaction_id)->bonus_variation_id;
