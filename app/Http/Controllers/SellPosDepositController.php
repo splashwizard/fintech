@@ -2014,7 +2014,15 @@ class SellPosDepositController extends Controller
                 ->where('uca.user_id', $user_id);
         }
         $to_users = $contacts->pluck('contact_id', 'id');
-        $html = view('sale_pos_deposit.update_pos_row')->with(compact('transaction_id', 'request_types', 'service_accounts', 'pos_type',
+
+        $sql = Account::where('business_id', $business_id)
+            ->where('is_service', 0)
+            ->where('name', '!=', 'Bonus Account')
+            ->NotClosed();
+        $sql->where('is_safe', 0);
+        $bank_accounts = $sql->pluck('name', 'id');
+        $selected_bank_id = TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'bank_transfer')->get()->first()->account_id;
+        $html = view('sale_pos_deposit.update_pos_row')->with(compact('transaction_id', 'bank_accounts', 'selected_bank_id', 'request_types', 'service_accounts', 'pos_type',
             'disabled_data', 'default_request_type', 'to_users'))->render();
         return $html;
     }

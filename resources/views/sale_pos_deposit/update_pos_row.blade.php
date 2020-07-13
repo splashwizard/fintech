@@ -22,23 +22,31 @@
 				@endif
 				<tr>
 					<td colspan="14">
-						<div style="width:50%;float: right">
-							<div class="form-group col-md-12">
-								{!! Form::label("essentials_request_type_id", __( "essentials::lang.request_type" ) . ":*") !!}
-								{!! Form::select("essentials_request_type_id", $request_types, isset($output) ? $output['request_type_id'] : $default_request_type, ["class" => "form-control", "required" ]); !!}
+						<div class="row">
+							<div class="col-md-6">
+								<div>
+									{!! Form::label('bank_account_id', __( 'product.account' ) .":*") !!}
+									{!! Form::select('bank_account_id', $bank_accounts, $selected_bank_id, ['class' => 'form-control', 'required' ]); !!}
+								</div>
 							</div>
-							<div class="form-group col-md-12">
-								{!! Form::label("reason", __( "essentials::lang.reason" ) . ":") !!}
-								{!! Form::textarea("reason", isset($output) ? $output['reason'] : null, ["class" => "form-control", "placeholder" => __( "essentials::lang.reason" ), "rows" => 4, "required", "style" => "width:100%" ]); !!}
-							</div>
-							<div style="float:right;padding:10px 15px 0px 15px">
-								@if(auth()->user()->hasRole('Admin#' . auth()->user()->business_id) || auth()->user()->hasRole('Superadmin') || auth()->user()->hasRole('Admin'))
-									<button type="button" class="btn btn-primary btn-approve">Approve</button>
-									<button type="button" class="btn btn-danger btn-reject">Reject</button>
-								@else
-									<button type="submit" class="btn btn-primary btn-submit-pos">@lang( "messages.save" )</button>
-									<button type="button" class="btn btn-default btn-close-edit-row">@lang( "messages.close" )</button>
-								@endif
+							<div class="col-md-6">
+								<div class="form-group col-md-12">
+									{!! Form::label("essentials_request_type_id", __( "essentials::lang.request_type" ) . ":*") !!}
+									{!! Form::select("essentials_request_type_id", $request_types, isset($output) ? $output['request_type_id'] : $default_request_type, ["class" => "form-control", "required" ]); !!}
+								</div>
+								<div class="form-group col-md-12">
+									{!! Form::label("reason", __( "essentials::lang.reason" ) . ":") !!}
+									{!! Form::textarea("reason", isset($output) ? $output['reason'] : null, ["class" => "form-control", "placeholder" => __( "essentials::lang.reason" ), "rows" => 4, "required", "style" => "width:100%" ]); !!}
+								</div>
+								<div style="float:right;padding:10px 15px 0px 15px">
+									@if(auth()->user()->hasRole('Admin#' . auth()->user()->business_id) || auth()->user()->hasRole('Superadmin') || auth()->user()->hasRole('Admin'))
+										<button type="button" class="btn btn-primary btn-approve">Approve</button>
+										<button type="button" class="btn btn-danger btn-reject">Reject</button>
+									@else
+										<button type="submit" class="btn btn-primary btn-submit-pos">@lang( "messages.save" )</button>
+										<button type="button" class="btn btn-default btn-close-edit-row">@lang( "messages.close" )</button>
+									@endif
+								</div>
 							</div>
 						</div>
 					</td>

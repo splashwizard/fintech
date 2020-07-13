@@ -124,6 +124,7 @@
 <script>
 	$(document).ready(function (e) {
 		var is_admin_or_super = '<?php echo $is_admin_or_super; ?>';
+		var selected_bank_id = -1;
 		$('#ledger_table tr[data-transaction_id="' + localStorage.getItem("updated_transaction_id")+ '"]').css('background-color', '#fbfba2');
 		$('tr.unclaimed').click(function (e) {
 			var target = $( e.target );
@@ -223,6 +224,8 @@
 											editRow.find('textarea[name="reason"]').val(result.reason);
 											editRow.find('select[name="essentials_request_type_id"]').val(result.request_type_id);
 											editRow.find('select[name="game_id"]').val(request_data.game_id);
+											editRow.find('select[name="bank_account_id"]').val(request_data.bank_account_id);
+											selected_bank_id = request_data.bank_account_id;
 										}
 										updateGameIds(editRow);
 									}
@@ -386,7 +389,7 @@
 					if (result.success == true) {
 						toastr.success(result.msg);
 						formElem.closest('.pos-edit-row').remove();
-						$('#bank-tabs .nav-item.active a').trigger('click');
+						$('#bank-tabs .nav-item a[data-bank_id="' + selected_bank_id + '"]').trigger('click');
 					} else {
 						toastr.error(result.msg);
 					}

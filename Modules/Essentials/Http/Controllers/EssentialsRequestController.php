@@ -296,7 +296,7 @@ class EssentialsRequestController extends Controller
                 $input['transaction_id'] = $transaction_id;
                 if($input['essentials_request_type_id'] == 1){
                     $request_data = [];
-                    $request_keys = ['bank_in_time', 'credit', 'debit', 'free_credit', 'basic_bonus', 'service_credit', 'service_debit', 'contact_id', 'service_id', 'game_id'];
+                    $request_keys = ['bank_in_time', 'credit', 'debit', 'free_credit', 'basic_bonus', 'service_credit', 'service_debit', 'contact_id', 'service_id', 'game_id', 'bank_account_id'];
 //                    $request_keys = ['bank_in_time', 'credit', 'debit', 'free_credit', 'basic_bonus', 'contact_id', 'service_id'];
                     foreach ($request_keys as $request_key){
                         if(!empty($request->get($request_key))){
@@ -306,8 +306,10 @@ class EssentialsRequestController extends Controller
                     if(!empty($request_data['credit'])){
                         if(isset($request_data['free_credit']))
                             $request_data['service_debit'] = $request_data['credit'] + $request_data['free_credit'];
-                        else
+                        else if(isset($request_data['basic_bonus']))
                             $request_data['service_debit'] = $request_data['credit'] + $request_data['basic_bonus'];
+                        else
+                            $request_data['service_debit'] = $request_data['credit'];
                     }
                     else
                         $request_data['service_credit'] = $request_data['debit'];
@@ -414,8 +416,8 @@ class EssentialsRequestController extends Controller
 //                    $request_data['service_debit'] = $credit + $request_data['basic_bonus'] + $request_data['special_bonus'];
 
                     if(TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'bank_transfer')->where('card_type','credit')->count() > 0){
-                        TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'bank_transfer')->where('card_type','credit')->update(['amount' => $credit]);
-                        AccountTransaction::where('transaction_id', $transaction_id)->where('account_id', '!=', $bonus_account_id)->update(['amount' => $credit]);
+                        TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'bank_transfer')->where('card_type','credit')->update(['amount' => $credit, 'account_id' => $request->get('bank_account_id')]);
+                        AccountTransaction::where('transaction_id', $transaction_id)->where('account_id', '!=', $bonus_account_id)->update(['amount' => $credit, 'account_id' => $request->get('bank_account_id')]);
                     }
                     if(TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'free_credit')->where('card_type','credit')->count() > 0){
                         TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'free_credit')->where('card_type','credit')->update(['amount' => $free_credit]);
@@ -437,8 +439,8 @@ class EssentialsRequestController extends Controller
                 else if(!empty($request->get('debit'))) {
                     $debit = $request->get('debit');
                     if(TransactionPayment::where('transaction_id', $transaction_id)->where('method', '!=', 'service_transfer')->where('card_type','debit')->count() > 0){
-                        TransactionPayment::where('transaction_id', $transaction_id)->where('method', '!=', 'service_transfer')->where('card_type','debit')->update(['amount' => $debit]);
-                        AccountTransaction::where('transaction_id', $transaction_id)->where('account_id', '!=', $bonus_account_id)->update(['amount' => $debit]);
+                        TransactionPayment::where('transaction_id', $transaction_id)->where('method', '!=', 'service_transfer')->where('card_type','debit')->update(['amount' => $debit, 'account_id' => $request->get('bank_account_id')]);
+                        AccountTransaction::where('transaction_id', $transaction_id)->where('account_id', '!=', $bonus_account_id)->update(['amount' => $debit, 'account_id' => $request->get('bank_account_id')]);
                     }
                     if(TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'service_transfer')->where('card_type','credit')->count() > 0){
                         TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'service_transfer')->where('card_type','credit')->update(['amount' => $debit]);
