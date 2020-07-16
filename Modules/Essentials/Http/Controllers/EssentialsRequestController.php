@@ -165,7 +165,7 @@ class EssentialsRequestController extends Controller
                     $query->whereRaw("CONCAT(COALESCE(u.surname, ''), ' ', COALESCE(u.first_name, ''), ' ', COALESCE(u.last_name, '')) like ?", ["%{$keyword}%"]);
                 })
                 ->removeColumn('id')
-                ->rawColumns(['action', 'status'])
+                ->rawColumns(['action', 'status', 'reason'])
                 ->make(true);
         }
         $users = [];

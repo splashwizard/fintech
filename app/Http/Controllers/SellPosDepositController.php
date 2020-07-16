@@ -2763,6 +2763,76 @@ class SellPosDepositController extends Controller
             ->with(compact('ledger', 'bank_list', 'selected_bank'));
     }
 
+
+    public function getPastWithdrawLedger($contact_id) {
+        $business_id = request()->session()->get('user.business_id');
+        $start_date = date('Y-m-d H:i:s', strtotime('-24 hours'));
+        $end_date = date('Y-m-d H:i:s', strtotime('now'));
+        // get transaction info
+        $query2 = TransactionPayment::join(
+            'transactions as t',
+            'transaction_payments.transaction_id',
+            '=',
+            't.id'
+        )
+            ->join('accounts as a', 'a.id', 'transaction_payments.account_id')
+            ->leftJoin('business_locations as bl', 't.location_id', '=', 'bl.id')
+            ->join('contacts as c', 'c.id', 't.contact_id')
+            ->where('t.contact_id', $contact_id)
+            ->where('t.type', 'sell_return')
+            ->where('t.business_id', $business_id)
+            ->whereBetween(DB::raw('date(transaction_date)'), [$start_date, $end_date])
+            ->orderBy('t.transaction_date', 'DESC');
+
+        $payments = $query2->select('transaction_payments.*', 't.id as transaction_id', 't.bank_in_time as bank_in_time', 'bl.name as location_name', 't.type as transaction_type', 't.ref_no', 't.invoice_no'
+            , 'c.id as contact_primary_key', 'c.contact_id as contact_id', 'c.is_default as is_default', 'a.id as account_id', 'a.name as account_name', 't.created_by as created_by')->get();
+
+        $ledger_by_payment = [];
+        foreach ($payments as $payment) {
+            if (empty($ledger_by_payment[$payment->transaction_id])) {
+                $ref_no = $payment->invoice_no;
+                $user = User::find($payment->created_by);
+                $ledger_by_payment[$payment->transaction_id] = [
+                    'date' => $payment->paid_on,
+                    'ref_no' => $payment->payment_ref_no,
+                    'type' => $this->transactionTypes['payment'],
+                    'location' => $payment->location_name,
+                    'contact_id' => $payment->contact_id,
+                    'payment_method' => !empty($paymentTypes[$payment->method]) ? $paymentTypes[$payment->method] : '',
+                    'debit' => ($payment->card_type == 'debit' && $payment->method != 'service_transfer') ? $payment->amount : 0,
+                    'credit' => ($payment->card_type == 'credit' && $payment->method == 'bank_transfer') ? $payment->amount : 0,
+                    'free_credit' => ($payment->card_type == 'credit' && $payment->method == 'free_credit') ? $payment->amount : 0,
+                    'service_debit' => ($payment->card_type == 'debit' && $payment->method == 'service_transfer') ? $payment->amount : 0,
+                    'service_credit' => ($payment->card_type == 'credit' && $payment->method == 'service_transfer') ? $payment->amount : 0,
+                    'others' => '<small>' . $ref_no . '</small>',
+                    'bank_in_time' => $payment->bank_in_time,
+                    'user' => $user['first_name'] . ' ' . $user['last_name'],
+                    'is_default' => $payment->is_default,
+                    'account_name' => $payment->account_name
+                ];
+            } else {
+                $ledger_by_payment[$payment->transaction_id]['debit'] += ($payment->card_type == 'debit' && $payment->method != 'service_transfer') ? $payment->amount : 0;
+                $ledger_by_payment[$payment->transaction_id]['credit'] += ($payment->card_type == 'credit' && $payment->method == 'bank_transfer') ? $payment->amount : 0;
+                $ledger_by_payment[$payment->transaction_id]['free_credit'] += ($payment->card_type == 'credit' && $payment->method == 'free_credit') ? $payment->amount : 0;
+                $ledger_by_payment[$payment->transaction_id]['service_debit'] += ($payment->card_type == 'debit' && $payment->method == 'service_transfer') ? $payment->amount : 0;
+                $ledger_by_payment[$payment->transaction_id]['service_credit'] += ($payment->card_type == 'credit' && $payment->method == 'service_transfer') ? $payment->amount : 0;
+            }
+            if (($payment->transaction_type == 'sell' || $payment->transaction_type == 'sell_return') && $payment->method == 'service_transfer') {
+                $ledger_by_payment[$payment->transaction_id]['service_name'] = $payment->account_name;
+                $game_data = GameId::where('contact_id', $payment->contact_primary_key)->where('service_id', $payment->account_id)->get();
+                if (count($game_data) >= 1) {
+                    $game_id = $game_data[0]->game_id;
+                    $ledger_by_payment[$payment->transaction_id]['game_id'] = $game_id;
+                }
+            }
+            if ($payment->method == 'bank_transfer') {
+                $ledger_by_payment[$payment->transaction_id]['bank_id'] = $payment->account_id;
+            }
+        }
+        $html = view('service.withdraw_ledger', compact('ledger_by_payment'))->render();
+        return ['html' => $html];
+    }
+
     /**
      * Shows invoice url.
      *

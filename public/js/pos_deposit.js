@@ -186,6 +186,7 @@ $(document).ready(function() {
                         buttons: ["Cancel", "Ignore"],
                         dangerMode: true,
                     }).then(willProceed => {
+                        $('#customer_id').select2("open");
                     });
                 }
             }
@@ -238,6 +239,9 @@ $(document).ready(function() {
             return markup;
         },
     });
+    if(edit_page){
+        $('#customer_id').select2("open");
+    }
     function selectCustomer(){
         $('#customer_id').prop('disabled', true);
         var text = $('#customer_id').select2('data')[0].text;
@@ -1074,6 +1078,9 @@ $(document).ready(function() {
 
 
                                 $('#modal_success').modal('show');
+                                setTimeout(function () {
+                                    $('#modal_success').modal('hide');
+                                }, 500);
 
                                 get_contact_ledger();
 
@@ -1409,6 +1416,11 @@ $(document).ready(function() {
                 null
             );
         }
+    });
+
+    $(document).on('click', '.game_id_but', function (e) {
+        e.preventDefault();
+        copyTextToClipboard($(this).text());
     });
 
     $(document).on('click', 'div.product_box', function(e) {
@@ -2196,7 +2208,7 @@ function pos_total_row() {
     } else if(no_bonus === 0) {
         basic_bonus = Math.floor(basic_bonus_rate * credit / 100);
     }
-    debit = credit + basic_bonus + special_bonus;
+    // debit = credit + basic_bonus + special_bonus;
     $('#credit').html(credit);
     $('#basic_bonus').html(basic_bonus);
     $('#special_bonus').html(special_bonus);

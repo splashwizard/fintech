@@ -14,9 +14,14 @@
                 <strong>@lang('account.selected_account')</strong>:
                 {{$account->name}}
                 {!! Form::hidden('account_id', $account->id) !!}
+                {!! Form::hidden('is_request', 0, ['id' => 'is_request']) !!}
             </div>
 
             <div id="bank_account_detail">
+            </div>
+
+            <div id="past_withdraw_ledger">
+
             </div>
 
             <div class="form-group">
@@ -167,6 +172,17 @@
                 }
             });
         }
+
+        function getWithdrawLedger(){
+            $.ajax({
+                method: 'GET',
+                url: '/sells/pos_deposit/past_withdraw_ledger/' + $('#withdraw_to').val(),
+                success: function(result) {
+                    $('#past_withdraw_ledger').html(result.html);
+                }
+            });
+        }
+
         function getGameId(){
             $.ajax({
                 method: 'post',
@@ -181,6 +197,7 @@
                 }
             });
         }
+
         // fileinput_setting = {
         //     showUpload: false,
         //     showPreview: false,
@@ -296,6 +313,7 @@
         getGameId();
         $('#withdraw_to').on("change", function(e) {
             getBankDetail();
+            getWithdrawLedger();
             getGameId();
         });
         $('#btn-withdraw_submit').click(function (e) {
@@ -317,17 +335,33 @@
                 },
                 success: function(result) {
                     if(result.exceeded) {
-                        swal({
-                            title: LANG.sure,
-                            text: LANG.withdraw_fourth_warning.replace("xxxx", $('#withdraw_to').children('option:selected').html()),
-                            icon: 'warning',
-                            buttons: true,
-                            dangerMode: true,
-                        }).then(willProceed => {
-                            if(willProceed){
-                                $('#withdraw_form').submit();
-                            }
-                        });
+                        if(result.is_admin_or_super){
+                            swal({
+                                title: LANG.sure,
+                                text: LANG.withdraw_fourth_warning.replace("xxxx", $('#withdraw_to').children('option:selected').html()),
+                                icon: 'warning',
+                                buttons: true,
+                                dangerMode: true,
+                            }).then(willProceed => {
+                                if(willProceed){
+                                    $('#withdraw_form').submit();
+                                }
+                            });
+                        } else {
+                            swal({
+                                title: LANG.sure,
+                                text: LANG.withdraw_fourth_warning_cashier.replace("xxxx", $('#withdraw_to').children('option:selected').html()),
+                                icon: 'warning',
+                                buttons: true,
+                                confirmButtonText: 'Submit',
+                                dangerMode: true,
+                            }).then(willProceed => {
+                                if(willProceed){
+                                    $('#is_request').val(1);
+                                    $('#withdraw_form').submit();
+                                }
+                            });
+                        }
                     }
                     else
                         $('#withdraw_form').submit();

@@ -8,6 +8,7 @@ use App\GameId;
 use App\Transaction;
 use App\User;
 use App\Utils\Util;
+use App\Utils\ModuleUtil;
 use App\Utils\TransactionUtil;
 use App\Utils\ContactUtil;
 use Illuminate\Http\Request;
@@ -17,6 +18,8 @@ use App\Account;
 use App\AccountTransaction;
 use App\TransactionPayment;
 
+use Modules\Essentials\Entities\EssentialsRequest;
+use Modules\Essentials\Notifications\NewRequestNotification;
 use Yajra\DataTables\Facades\DataTables;
 use \jeremykenedy\LaravelLogger\App\Http\Traits\ActivityLogger;
 
@@ -28,6 +31,7 @@ class ServiceController extends Controller
     protected $commonUtil;
     protected $transactionUtil;
     protected $contactUtil;
+    protected $moduleUtil;
 
     /**
      * Constructor
@@ -37,11 +41,13 @@ class ServiceController extends Controller
      */
     public function __construct(Util $commonUtil,
                                 TransactionUtil $transactionUtil,
-                                ContactUtil $contactUtil
+                                ContactUtil $contactUtil,
+                                ModuleUtil $moduleUtil
     ) {
         $this->commonUtil = $commonUtil;
         $this->transactionUtil = $transactionUtil;
         $this->contactUtil = $contactUtil;
+        $this->moduleUtil = $moduleUtil;
     }
 
     /**
@@ -604,10 +610,13 @@ class ServiceController extends Controller
                 ->NotClosed()
                 ->pluck('name', 'id');
 
+
+
             return view('service.withdraw')
                 ->with(compact('account', 'account', 'to_users', 'withdraw_mode', 'bank_accounts', 'service_accounts'));
         }
     }
+
 
     public function getGameID(){
         $service_id = request()->get('service_id');
@@ -628,7 +637,8 @@ class ServiceController extends Controller
             $exceeded = 1;
         } else
             $exceeded = 0;
-        return json_encode(['exceeded' => $exceeded]);
+        $is_admin_or_super = auth()->user()->hasRole('Admin#' . auth()->user()->business_id) || auth()->user()->hasRole('Superadmin') || auth()->user()->hasRole('Admin');
+        return json_encode(['exceeded' => $exceeded, 'is_admin_or_super' => $is_admin_or_super]);
     }
 
 
@@ -724,84 +734,38 @@ class ServiceController extends Controller
 
         try {
             $business_id = session()->get('user.business_id');
-
+            $is_request = $request->input('is_request');
             $amount = $this->commonUtil->num_uf($request->input('amount'));
             $account_id = $request->input('account_id');
-            if (!empty($amount)) {
-                $user_id = $request->session()->get('user.id');
-                $request->validate([
-                    'document' => 'file|max:'. (config('constants.document_size_limit') / 1000)
-                ]);
+            $contact_id = $request->input('withdraw_to');
+            $note = $request->input('note');
+            if($is_request == 0){
+                if (!empty($amount)) {
+                    $user_id = $request->session()->get('user.id');
+                    $request->validate([
+                        'document' => 'file|max:'. (config('constants.document_size_limit') / 1000)
+                    ]);
 
-                $withdraw_mode = request()->get('withdraw_mode');
+                    $withdraw_mode = request()->get('withdraw_mode');
 
-                if($withdraw_mode == 'b' ){
-                    $bank_account_id = $request->input('bank_account_id');
-                    $accounts = Account::leftjoin('account_transactions as AT', function ($join) {
-                        $join->on('AT.account_id', '=', 'accounts.id');
-                        $join->whereNull('AT.deleted_at');
-                    })
-                        ->leftjoin('currencies', 'currencies.id', 'accounts.currency_id')
-                        ->where('accounts.id', $bank_account_id)
-                        ->select([DB::raw("SUM( IF(AT.type='credit', amount, -1*amount) ) as balance")])
-                        ->groupBy('accounts.id');
-                    if($accounts->get()->first()->balance < $amount){
-                        $output = ['success' => false,
-                            'msg' => 'Insufficient Bank Balance, please top up bank credit!'
-                        ];
-                        return $output;
+                    if($withdraw_mode == 'b' ){
+                        $bank_account_id = $request->input('bank_account_id');
+                        $accounts = Account::leftjoin('account_transactions as AT', function ($join) {
+                            $join->on('AT.account_id', '=', 'accounts.id');
+                            $join->whereNull('AT.deleted_at');
+                        })
+                            ->leftjoin('currencies', 'currencies.id', 'accounts.currency_id')
+                            ->where('accounts.id', $bank_account_id)
+                            ->select([DB::raw("SUM( IF(AT.type='credit', amount, -1*amount) ) as balance")])
+                            ->groupBy('accounts.id');
+                        if($accounts->get()->first()->balance < $amount){
+                            $output = ['success' => false,
+                                'msg' => 'Insufficient Bank Balance, please top up bank credit!'
+                            ];
+                            return $output;
+                        }
                     }
-                }
 
-                $business_locations = BusinessLocation::forDropdown($business_id, false, true);
-                $business_locations = $business_locations['locations'];
-                $input = [];
-                if (count($business_locations) >= 1) {
-                    foreach ($business_locations as $id => $name) {
-                        $input['location_id'] = $id;
-                    }
-                }
-                $contact_id = $request->input('withdraw_to');
-                $cg = $this->contactUtil->getCustomerGroup($business_id, $contact_id);
-                $input['customer_group_id'] = (empty($cg) || empty($cg->id)) ? null : $cg->id;
-                $input['contact_id'] = $contact_id;
-                $input['ref_no'] = 0;
-                $now = new \DateTime('now');
-                $input['transaction_date'] = $now->format('Y-m-d H:i:s');
-                $input['discount_type'] = 'percentage';
-                $input['discount_amount'] = 0;
-                $input['final_total'] = $amount;
-                $input['additional_notes'] = $request->input('note');
-                $invoice_total = ['total_before_tax' => $amount, 'tax' => 0];
-//                $transaction = $this->transactionUtil->createSellReturnTransaction($business_id, $input, $invoice_total, $user_id);
-                //upload document
-                $document_name = $this->transactionUtil->uploadFile($request, 'document', 'service_documents');
-                if (!empty($document_name)) {
-                    $input['document'] = $document_name;
-                }
-                if($withdraw_mode == 'b')
-                    $sub_type = 'withdraw_to_customer';
-                else if($withdraw_mode == 'gt')
-                    $sub_type = 'game_credit_transfer';
-                else
-                    $sub_type = 'game_credit_deduct';
-                $transaction = $this->transactionUtil->createSellReturnTransaction($business_id, $input, $invoice_total, $user_id, $sub_type);
-                ActivityLogger::activity("Created transaction, ticket # ".$transaction->invoice_no);
-                $this->transactionUtil->createWithDrawPaymentLine($transaction, $user_id, $account_id, 1, 'credit');
-                $this->transactionUtil->updateCustomerRewardPoints($contact_id, $amount, 0, 0);
-
-                $credit_data = [
-                    'amount' => $amount,
-                    'account_id' => $account_id,
-                    'type' => 'credit',
-                    'sub_type' => 'withdraw',
-                    'operation_date' => $now->format('Y-m-d H:i:s'),
-                    'created_by' => session()->get('user.id'),
-                    'transaction_id' => $transaction->id
-                ];
-
-                AccountTransaction::createAccountTransaction($credit_data);
-                if($withdraw_mode == 'b' || $withdraw_mode == 'gt') { // bank mode
                     $business_locations = BusinessLocation::forDropdown($business_id, false, true);
                     $business_locations = $business_locations['locations'];
                     $input = [];
@@ -810,89 +774,170 @@ class ServiceController extends Controller
                             $input['location_id'] = $id;
                         }
                     }
-                    $bank_account_id = $withdraw_mode == 'b' ? $request->input('bank_account_id') : $request->input('service_id');
-
-                    $contact_id = $request->input('withdraw_to');
                     $cg = $this->contactUtil->getCustomerGroup($business_id, $contact_id);
                     $input['customer_group_id'] = (empty($cg) || empty($cg->id)) ? null : $cg->id;
                     $input['contact_id'] = $contact_id;
                     $input['ref_no'] = 0;
-                    $date = new \DateTime('now');
-                    $input['transaction_date'] = $date->format('Y-m-d H:i:s');
+                    $now = new \DateTime('now');
+                    $input['transaction_date'] = $now->format('Y-m-d H:i:s');
                     $input['discount_type'] = 'percentage';
                     $input['discount_amount'] = 0;
                     $input['final_total'] = $amount;
-                    if($withdraw_mode == 'gt'){
-                        $input['commission_agent'] = null;
-                        $input['status'] = 'final';
-                    }
-                    $input['additional_notes'] = $request->input('note');
+                    $input['additional_notes'] = $note;
                     $invoice_total = ['total_before_tax' => $amount, 'tax' => 0];
-//                    if($withdraw_mode == 's')
-//                        $transaction = $this->transactionUtil->createSellTransaction($business_id, $input, $invoice_total, $user_id);
-//                    else
-//                        $transaction = $this->transactionUtil->createSellReturnTransaction($business_id, $input, $invoice_total, $user_id);
-                    $is_service = $withdraw_mode == 'b' ? 0 : 1;
-                    $this->transactionUtil->createWithDrawPaymentLine($transaction, $user_id, $bank_account_id, $is_service, 'debit');
-                    $this->transactionUtil->updateCustomerRewardPoints($contact_id, 0, 0, $amount);
-
-//                    $debit_data = [
-//                        'amount' => $amount,
-//                        'account_id' => $bank_account_id,
-//                        'type' => 'debit',
-//                        'sub_type' => 'withdraw',
-//                        'operation_date' => $now->format('Y-m-d H:i:s'),
-//                        'created_by' => session()->get('user.id')
-//                    ];
-//
-//                    AccountTransaction::createAccountTransaction($debit_data);
-                    if(!$is_service){
-                        $account = Account::where('business_id', $business_id)
-                            ->findOrFail($bank_account_id);
-                        $amount += $account->service_charge;
+    //                $transaction = $this->transactionUtil->createSellReturnTransaction($business_id, $input, $invoice_total, $user_id);
+                    //upload document
+                    $document_name = $this->transactionUtil->uploadFile($request, 'document', 'service_documents');
+                    if (!empty($document_name)) {
+                        $input['document'] = $document_name;
                     }
+                    if($withdraw_mode == 'b')
+                        $sub_type = 'withdraw_to_customer';
+                    else if($withdraw_mode == 'gt')
+                        $sub_type = 'game_credit_transfer';
+                    else
+                        $sub_type = 'game_credit_deduct';
+                    $transaction = $this->transactionUtil->createSellReturnTransaction($business_id, $input, $invoice_total, $user_id, $sub_type);
+                    ActivityLogger::activity("Created transaction, ticket # ".$transaction->invoice_no);
+                    $this->transactionUtil->createWithDrawPaymentLine($transaction, $user_id, $account_id, 1, 'credit');
+                    $this->transactionUtil->updateCustomerRewardPoints($contact_id, $amount, 0, 0);
+
                     $credit_data = [
                         'amount' => $amount,
-                        'account_id' => $bank_account_id,
-                        'type' => 'debit',
+                        'account_id' => $account_id,
+                        'type' => 'credit',
                         'sub_type' => 'withdraw',
-                        'created_by' => session()->get('user.id'),
-                        'note' => $request->input('note'),
-                        'transfer_account_id' => $account_id,
-                        'transfer_transaction_id' => $transaction->id,
                         'operation_date' => $now->format('Y-m-d H:i:s'),
+                        'created_by' => session()->get('user.id'),
                         'transaction_id' => $transaction->id
                     ];
 
-                    $credit = AccountTransaction::createAccountTransaction($credit_data);
+                    AccountTransaction::createAccountTransaction($credit_data);
+                    if($withdraw_mode == 'b' || $withdraw_mode == 'gt') { // bank mode
+                        $business_locations = BusinessLocation::forDropdown($business_id, false, true);
+                        $business_locations = $business_locations['locations'];
+                        $input = [];
+                        if (count($business_locations) >= 1) {
+                            foreach ($business_locations as $id => $name) {
+                                $input['location_id'] = $id;
+                            }
+                        }
+                        $bank_account_id = $withdraw_mode == 'b' ? $request->input('bank_account_id') : $request->input('service_id');
+
+                        $contact_id = $request->input('withdraw_to');
+                        $cg = $this->contactUtil->getCustomerGroup($business_id, $contact_id);
+                        $input['customer_group_id'] = (empty($cg) || empty($cg->id)) ? null : $cg->id;
+                        $input['contact_id'] = $contact_id;
+                        $input['ref_no'] = 0;
+                        $date = new \DateTime('now');
+                        $input['transaction_date'] = $date->format('Y-m-d H:i:s');
+                        $input['discount_type'] = 'percentage';
+                        $input['discount_amount'] = 0;
+                        $input['final_total'] = $amount;
+                        if($withdraw_mode == 'gt'){
+                            $input['commission_agent'] = null;
+                            $input['status'] = 'final';
+                        }
+                        $input['additional_notes'] = $request->input('note');
+                        $invoice_total = ['total_before_tax' => $amount, 'tax' => 0];
+    //                    if($withdraw_mode == 's')
+    //                        $transaction = $this->transactionUtil->createSellTransaction($business_id, $input, $invoice_total, $user_id);
+    //                    else
+    //                        $transaction = $this->transactionUtil->createSellReturnTransaction($business_id, $input, $invoice_total, $user_id);
+                        $is_service = $withdraw_mode == 'b' ? 0 : 1;
+                        $this->transactionUtil->createWithDrawPaymentLine($transaction, $user_id, $bank_account_id, $is_service, 'debit');
+                        $this->transactionUtil->updateCustomerRewardPoints($contact_id, 0, 0, $amount);
+
+    //                    $debit_data = [
+    //                        'amount' => $amount,
+    //                        'account_id' => $bank_account_id,
+    //                        'type' => 'debit',
+    //                        'sub_type' => 'withdraw',
+    //                        'operation_date' => $now->format('Y-m-d H:i:s'),
+    //                        'created_by' => session()->get('user.id')
+    //                    ];
+    //
+    //                    AccountTransaction::createAccountTransaction($debit_data);
+                        if(!$is_service){
+                            $account = Account::where('business_id', $business_id)
+                                ->findOrFail($bank_account_id);
+                            $amount += $account->service_charge;
+                        }
+                        $credit_data = [
+                            'amount' => $amount,
+                            'account_id' => $bank_account_id,
+                            'type' => 'debit',
+                            'sub_type' => 'withdraw',
+                            'created_by' => session()->get('user.id'),
+                            'note' => $request->input('note'),
+                            'transfer_account_id' => $account_id,
+                            'transfer_transaction_id' => $transaction->id,
+                            'operation_date' => $now->format('Y-m-d H:i:s'),
+                            'transaction_id' => $transaction->id
+                        ];
+
+                        $credit = AccountTransaction::createAccountTransaction($credit_data);
+                    }
+
+    //                $credit_data = [
+    //                    'amount' => $amount,
+    //                    'account_id' => $account_id,
+    //                    'type' => 'credit',
+    //                    'sub_type' => 'deposit',
+    //                    'operation_date' => $this->commonUtil->uf_date($request->input('operation_date'), true),
+    //                    'created_by' => session()->get('user.id'),
+    //                    'note' => $note
+    //                ];
+    //                $credit = AccountTransaction::createAccountTransaction($credit_data);
+    //
+    //                $debit_data = $credit_data;
+    //                $debit_data['type'] = 'debit';
+    //                $debit_data['account_id'] = $from_account;
+    //                $debit_data['transfer_transaction_id'] = $credit->id;
+    //
+    //                $debit = AccountTransaction::createAccountTransaction($debit_data);
+    //
+    //                $credit->transfer_transaction_id = $debit->id;
+    //
+    //                $credit->save();
                 }
 
-//                $credit_data = [
-//                    'amount' => $amount,
-//                    'account_id' => $account_id,
-//                    'type' => 'credit',
-//                    'sub_type' => 'deposit',
-//                    'operation_date' => $this->commonUtil->uf_date($request->input('operation_date'), true),
-//                    'created_by' => session()->get('user.id'),
-//                    'note' => $note
-//                ];
-//                $credit = AccountTransaction::createAccountTransaction($credit_data);
-//
-//                $debit_data = $credit_data;
-//                $debit_data['type'] = 'debit';
-//                $debit_data['account_id'] = $from_account;
-//                $debit_data['transfer_transaction_id'] = $credit->id;
-//
-//                $debit = AccountTransaction::createAccountTransaction($debit_data);
-//
-//                $credit->transfer_transaction_id = $debit->id;
-//
-//                $credit->save();
+                $output = ['success' => true,
+                    'msg' => __("account.withdrawn_successfully")
+                ];
             }
+            else if(request()->get('withdraw_mode') == 'b'){
+                $input['business_id'] = $business_id;
+                $input['essentials_request_type_id'] = 3;
+                $input['user_id'] = request()->session()->get('user.id');
+                $input['status'] = 'pending';
+                $input['start_date'] = $input['end_date'] = date('Y-m-d', strtotime('now'));
+                $bank_account_id = $request->input('bank_account_id');
+                $reason = "<b>Amount:</b> ".$amount;
+                $reason .= "<br/>\n<b>Withdraw to:</b> ". Contact::find($contact_id)->contact_id;
+                $reason .= "<br/>\n<b>Via Account:</b> ". Account::find($bank_account_id)->name;
+                $reason .= "<br/>\n<b>Note:</b> ".$note;
+                $input['reason'] = $reason;
 
-            $output = ['success' => true,
-                'msg' => __("account.withdrawn_successfully")
-            ];
+                //Update reference count
+                $ref_count = $this->moduleUtil->setAndGetReferenceCount('leave');
+                //Generate reference number
+
+                if (empty($input['ref_no'])) {
+                    $settings = request()->session()->get('business.essentials_settings');
+                    $settings = !empty($settings) ? json_decode($settings, true) : [];
+                    $input['ref_no'] = $this->moduleUtil->generateReferenceNumber('leave', $ref_count, null, 'req');
+                }
+                ActivityLogger::activity("Created request, reference no ".$input['ref_no']);
+
+                $leave = EssentialsRequest::create($input);
+                $admins = $this->moduleUtil->get_admins($business_id);
+
+                \Notification::send($admins, new NewRequestNotification($leave));
+                $output = ['success' => true,
+                    'msg' => __("account.requested_successfully")
+                ];
+            }
         } catch (\Exception $e) {
             DB::rollBack();
             \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());

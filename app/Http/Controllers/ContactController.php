@@ -572,11 +572,12 @@ class ContactController extends Controller
 
                             $game_ids = request()->get('game_ids');
                             foreach ($game_ids as $service_id => $game_id){
-                                if(!empty($game_id)){
+                                if(!empty($game_id['cur_game_id']) || !empty($game_id['old_game_id'])){
                                     GameId::create([
                                         'service_id' => $service_id,
                                         'contact_id' => $contact->id,
-                                        'game_id' => $game_id
+                                        'cur_game_id' => $game_id['cur_game_id'],
+                                        'old_game_id' => $game_id['old_game_id']
                                     ]);
                                 }
                             }
