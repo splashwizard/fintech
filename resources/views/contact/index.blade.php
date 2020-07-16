@@ -71,6 +71,7 @@
                                 <th>@lang('contact.birthday')</th>
 {{--                                <th>@lang('user.rp_name')</th>--}}
                                 <th>@lang('business.address')</th>
+                                <th></th>
                                 <th>@lang('lang_v1.added_on')</th>
                                 <th>@lang('messages.action')</th>
                             @elseif( $type == 'blacklisted_customer')
@@ -103,7 +104,7 @@
                             @if( $type == 'blacklisted_customer')
                                 <td colspan="6"></td>
                             @else
-                                <td colspan="4"></td>
+                                <td colspan="5"></td>
                             @endif
                         </tr>
                     </tfoot>
@@ -117,32 +118,32 @@
     </div>
     <div class="modal fade add_blacklist_modal" tabindex="-1" role="dialog"
          aria-labelledby="gridSystemModalLabel">
-        <div class="modal-dialog modal-lg" role="document">
-            <div class="modal-content">
-                {!! Form::open(['url' => '', 'method' => 'PUT', 'id' => 'contact_edit_blacklist_form']) !!}
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">@lang('contact.blacklist_customer')</h4>
-                </div>
+{{--        <div class="modal-dialog modal-lg" role="document">--}}
+{{--            <div class="modal-content">--}}
+{{--                {!! Form::open(['url' => '', 'method' => 'PUT', 'id' => 'contact_edit_blacklist_form']) !!}--}}
+{{--                <div class="modal-header">--}}
+{{--                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>--}}
+{{--                    <h4 class="modal-title">@lang('contact.blacklist_customer')</h4>--}}
+{{--                </div>--}}
 
-                <div class="modal-body">
+{{--                <div class="modal-body">--}}
 
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                {!! Form::label('remark', __('contact.remark') . ':*') !!}
-                                {!! Form::text('remark', null, ['class' => 'form-control','placeholder' => __('contact.remark'), 'id' => 'remark', 'required']); !!}
-                            </div>
-                        </div>
-                    </div>
-                </div>
+{{--                    <div class="row">--}}
+{{--                        <div class="col-md-12">--}}
+{{--                            <div class="form-group">--}}
+{{--                                {!! Form::label('remark', __('contact.remark') . ':*') !!}--}}
+{{--                                {!! Form::text('remark', null, ['class' => 'form-control','placeholder' => __('contact.remark'), 'id' => 'remark', 'required']); !!}--}}
+{{--                            </div>--}}
+{{--                        </div>--}}
+{{--                    </div>--}}
+{{--                </div>--}}
 
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" id="add_blacklist_item">@lang( 'messages.update' )</button>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">@lang( 'messages.close' )</button>
-                </div>
-            </div><!-- /.modal-content -->
-        </div><!-- /.modal-dialog -->
+{{--                <div class="modal-footer">--}}
+{{--                    <button type="button" class="btn btn-primary" id="add_blacklist_item">@lang( 'messages.update' )</button>--}}
+{{--                    <button type="button" class="btn btn-default" data-dismiss="modal">@lang( 'messages.close' )</button>--}}
+{{--                </div>--}}
+{{--            </div><!-- /.modal-content -->--}}
+{{--        </div><!-- /.modal-dialog -->--}}
     </div>
     <div class="modal fade edit_blacklist_modal" tabindex="-1" role="dialog"
          aria-labelledby="gridSystemModalLabel">
@@ -199,9 +200,14 @@
         } else {
             columns.push.apply(columns,[
                 {data: 'landmark', width: "10%"},
+                {data: 'remarks', visible: false, width: "0%"},
                 {data: 'created_at', width: "10%"},
                 {data: 'action', width: "10%"}
             ]);
+        }
+
+        function format(remarks) {
+            return '<div><b>Remark:</b> ' + remarks + '</div>';
         }
         var contact_table = $('#contact_table').DataTable({
             processing: true,
@@ -212,13 +218,6 @@
                     data.month = $('#month').val();
                 }
             },
-            // columnDefs: [
-            //     {
-            //         targets: targets,
-            //         orderable: false,
-            //         searchable: false,
-            //     },
-            // ],
             columns: columns,
             fnDrawCallback: function(oSettings) {
                 var total_due = sum_table_col($('#contact_table'), 'contact_due');
@@ -229,13 +228,16 @@
                 __currency_convert_recursively($('#contact_table'));
             },
             "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
-                console.log(aData);
+                if(aData.remarks)
+                    contact_table.row( nRow ).child(format(aData.remarks)).show();
                 if ( aData.banned_by_user )
                 {
                     $('td', nRow).css('color', 'Red');
                 }
             }
         });
+
+
 
         $('#month').change(function (e) {
             contact_table.ajax.reload();
@@ -381,8 +383,8 @@
         $('.edit_blacklist_modal').on('shown.bs.modal', function(e) {
             $('form#contact_edit_blacklist_form')
                 .submit(function(e) {
-                    console.log('editing form');
-                    e.preventDefault();
+                    // console.log('editing form');
+                    // e.preventDefault();
                 })
                 .validate({
                     submitHandler: function(form) {

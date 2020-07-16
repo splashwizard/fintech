@@ -186,7 +186,7 @@ class ContactController extends Controller
             ->where('contacts.type', 'customer');
         if($month!="0")
             $query->where(DB::raw('DATE_FORMAT(STR_TO_DATE(birthday, "%Y-%m-%d"), "%m")'), $month);
-        $query->addSelect(['contacts.contact_id', 'contacts.name', 'contacts.email', 'contacts.created_at', 'total_rp', 'cg.name as customer_group', 'm.name as membership', 'city', 'state', 'country', 'landmark', 'mobile', 'contacts.id', 'is_default',
+        $query->addSelect(['contacts.contact_id', 'contacts.name', 'contacts.email', 'contacts.created_at', 'contacts.remarks', 'total_rp', 'cg.name as customer_group', 'm.name as membership', 'city', 'state', 'country', 'landmark', 'mobile', 'contacts.id', 'is_default',
             DB::raw( 'DATE_FORMAT(STR_TO_DATE(birthday, "%Y-%m-%d"), "%d/%m") as birthday'),
             DB::raw("SUM(IF(t.type = 'sell'  AND t.status = 'final', final_total, 0)) as total_invoice"),
             DB::raw("SUM(IF(t.type = 'sell' AND t.status = 'final', (SELECT SUM(IF(is_return = 1,-1*amount,amount)) FROM transaction_payments WHERE transaction_payments.transaction_id=t.id), 0)) as invoice_received"),
@@ -414,6 +414,24 @@ class ContactController extends Controller
         }
         $business_id = request()->session()->get('user.business_id');
         $mobile_list = $request->get('mobile');
+
+        $data = Contact::where('banned_by_user', '!=', null)->get(['mobile']);
+        foreach ($data as $item){
+            if(!empty($item->mobile)){
+                foreach (json_decode($item->mobile) as $old_mobile) {
+                    foreach ($mobile_list as $new_mobile) {
+                        if ($old_mobile == $new_mobile) {
+                            $msg = ' has been banned in the system!';
+                            $output = ['success' => false,
+                                'msg' => $request->get('mobile') . $msg . ' Please use another contact!'
+                            ];
+                            return $output;
+                        }
+                    }
+                }
+            }
+        }
+
         $data = Contact::where('business_id', $business_id)->get(['mobile', 'blacked_by_user']);
         foreach ($data as $item){
             if(!empty($item->mobile)){
@@ -434,32 +452,32 @@ class ContactController extends Controller
             }
         }
 
-        $data = Contact::where('banned_by_user', '!=', null)->get(['mobile']);
-        foreach ($data as $item){
-            if(!empty($item->mobile)){
-                foreach (json_decode($item->mobile) as $old_mobile) {
-                    foreach ($mobile_list as $new_mobile) {
-                        if ($old_mobile == $new_mobile) {
-                            $msg = ' has been banned in the system!';
-                            $output = ['success' => false,
-                                'msg' => $request->get('mobile') . $msg . ' Please use another contact!'
-                            ];
-                            return $output;
-                        }
-                    }
-                }
-            }
+        if(Contact::where('name', $request->get('name'))->count() > 0 && Contact::where('name', $request->get('name'))->get()[0]->banned_by_user){
+            $msg = ' has been banned in the system!';
+            $output = ['success' => false,
+                'msg' => $request->get('name').$msg.' Please use another IC Name!'
+            ];
         }
-        if(Contact::where('email', $request->get('email'))->where('business_id', $business_id)->count() && !empty($request->get('email')) > 0){
-            if(Contact::where('email', $request->get('email'))->where('business_id', $business_id)->get()[0]->blacked_by_user)
+        else if(Contact::where('name', $request->get('name'))->where('business_id', $business_id)->count() && !empty($request->get('name'))){
+            if(Contact::where('name', $request->get('name'))->where('business_id', $business_id)->get()[0]->blacked_by_user)
                 $msg = ' has been blacklisted in the system!';
             else
                 $msg = ' already exist in the system!';
             $output = ['success' => false,
+                'msg' => $request->get('name').$msg.' Please use another IC Name!'
+            ];
+        }
+        else if(Contact::where('email', $request->get('email'))->count() > 0 && Contact::where('email', $request->get('email'))->get()[0]->banned_by_user){
+            $msg = ' has been banned in the system!';
+            $output = ['success' => false,
                 'msg' => $request->get('email').$msg.' Please use another email!'
             ];
-        } else if(Contact::where('email', $request->get('email'))->count() > 0 && Contact::where('email', $request->get('email'))->get()[0]->banned_by_user){
-            $msg = ' has been banned in the system!';
+        }
+        else if(Contact::where('email', $request->get('email'))->where('business_id', $business_id)->count() && !empty($request->get('email'))){
+            if(Contact::where('email', $request->get('email'))->where('business_id', $business_id)->get()[0]->blacked_by_user)
+                $msg = ' has been blacklisted in the system!';
+            else
+                $msg = ' already exist in the system!';
             $output = ['success' => false,
                 'msg' => $request->get('email').$msg.' Please use another email!'
             ];
@@ -812,17 +830,32 @@ class ContactController extends Controller
             }
         }
 
-        if(Contact::where('email', $request->get('email'))->where('business_id', $business_id)->where('id', '!=', $id)->count() && !empty($request->get('email')) > 0){
-            if(Contact::where('email', $request->get('email'))->where('business_id', $business_id)->where('id', '!=', $id)->get()[0]->blacked_by_user)
+        if(Contact::where('name', $request->get('name'))->where('id', '!=', $id)->count() > 0 && Contact::where('name', $request->get('name'))->get()[0]->banned_by_user){
+            $msg = ' has been banned in the system!';
+            $output = ['success' => false,
+                'msg' => $request->get('name').$msg.' Please use another IC Name!'
+            ];
+        }
+        else if(Contact::where('name', $request->get('name'))->where('business_id', $business_id)->where('id', '!=', $id)->count() && !empty($request->get('name'))){
+            if(Contact::where('name', $request->get('name'))->where('business_id', $business_id)->where('id', '!=', $id)->get()[0]->blacked_by_user)
                 $msg = ' has been blacklisted in the system!';
             else
                 $msg = ' already exist in the system!';
             $output = ['success' => false,
-                'msg' => $request->get('email').$msg.' Please use another email!'
+                'msg' => $request->get('name').$msg.' Please use another IC Name!'
             ];
         }
         else if(Contact::where('email', $request->get('email'))->where('id', '!=', $id)->count() > 0 && Contact::where('email', $request->get('email'))->where('id', '!=', $id)->get()[0]->banned_by_user){
             $msg = ' has been banned in the system!';
+            $output = ['success' => false,
+                'msg' => $request->get('email').$msg.' Please use another email!'
+            ];
+        }
+        else if(Contact::where('email', $request->get('email'))->where('business_id', $business_id)->where('id', '!=', $id)->count() && !empty($request->get('email')) > 0){
+            if(Contact::where('email', $request->get('email'))->where('business_id', $business_id)->where('id', '!=', $id)->get()[0]->blacked_by_user)
+                $msg = ' has been blacklisted in the system!';
+            else
+                $msg = ' already exist in the system!';
             $output = ['success' => false,
                 'msg' => $request->get('email').$msg.' Please use another email!'
             ];

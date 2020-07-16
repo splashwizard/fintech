@@ -33,7 +33,7 @@
               <span class="input-group-addon">
                   <i class="fa fa-id-badge"></i>
               </span>
-                  {!! Form::text('contact_id', $contact->contact_id, ['class' => 'form-control','placeholder' => __('contact.contact_id'), 'required']); !!}
+                  {!! Form::text('contact_id', $contact->contact_id, ['class' => 'form-control','placeholder' => __('contact.contact_id'), 'disabled']); !!}
               </div>
           </div>
         </div>

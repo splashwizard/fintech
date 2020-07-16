@@ -68,6 +68,11 @@ class AttendanceController extends Controller
                 $end =  request()->end_date;
                 $attendance->whereDate('clock_in_time', '>=', $start)
                             ->whereDate('clock_in_time', '<=', $end);
+            }  else {
+                $start = date('Y-m-d', strtotime('today'));
+                $end = date('Y-m-d', strtotime('today'));
+                $attendance->whereDate('clock_in_time', '>=', $start)
+                    ->whereDate('clock_in_time', '<=', $end);
             }
 
             if (!$is_admin) {
