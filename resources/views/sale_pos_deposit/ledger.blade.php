@@ -377,7 +377,7 @@
             }
 		}
 		function onClickApprove(e) {
-			var formElem = $(this).closest('form');
+				var formElem = $(this).closest('form');
 			var data = formElem.serialize();
 
 			$.ajax({
