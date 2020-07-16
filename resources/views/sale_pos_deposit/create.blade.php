@@ -110,6 +110,13 @@
 						@endif
 					</div>
 					<div class="row">
+						<div class="form-group col-sm-12">
+							{!! Form::label('bank_in_time', 'Bank-in Time:') !!}
+							<input type="time" name="bank_in_time" id="bank_in_time" value="@php echo date("H:i", strtotime('now')); @endphp">
+							<input type="hidden" name="bank_changed" id="bank_changed" value="0">
+						</div>
+					</div>
+					<div class="row">
 						<div class="@if(!empty($commission_agent)) col-sm-4 @else col-sm-6 @endif">
 							<div class="form-group" style="width: 100% !important">
 								<div class="input-group">
@@ -129,18 +136,11 @@
 							</div>
 						</div>
 						<div class="@if(!empty($commission_agent)) col-sm-8 @else col-sm-6 @endif">
-							<div style="float:left">
-								<select class="form-control" id="bonus">
-									@foreach($bonuses as $bonus)
-										<option data-variation_id="{{$bonus->id}}" data-name="{{$bonus->name}}" data-amount="{{$bonus->selling_price}}">{{$bonus->name.' - '.$bonus->variation }}</option>
-									@endforeach
-								</select>
-							</div>
-							<div style="float: right">
-								{!! Form::label('bank_in_time', 'Bank-in Time:') !!}
-								<input type="time" name="bank_in_time" id="bank_in_time" value="@php echo date("H:i", strtotime('now')); @endphp">
-								<input type="hidden" name="bank_changed" id="bank_changed" value="0">
-							</div>
+							<select class="form-control" id="bonus">
+								@foreach($bonuses as $bonus)
+									<option data-variation_id="{{$bonus->id}}" data-name="{{$bonus->name}}" data-amount="{{$bonus->selling_price}}">{{$bonus->name.' - '.$bonus->variation }}</option>
+								@endforeach
+							</select>
 						</div>
 						<input type="hidden" name="bonus_variation_id" id="bonus_variation_id" value="-1">
 						<input type="hidden" name="customer_id" id="contact_id" value="1">

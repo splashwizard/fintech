@@ -96,7 +96,7 @@
 				<td>@if($data['basic_bonus'] != '') <span class="display_currency text-green">{{$data['basic_bonus']}}</span> @endif</td>
 				<td>@if($data['service_credit'] != '') <span class="display_currency">{{$data['service_credit']}}</span> @endif</td>
 				<td>@if($data['service_debit'] != '') <span class="display_currency">{{$data['service_debit']}}</span> @endif</td>
-				<td>{{@format_datetime($data['date'])}}</td>
+				<td>{{$data['date']}}</td>
 				<td>{{ $data['user'] }}</td>
 				<td> @if( !$is_admin_or_super || $is_admin_or_super && $data['is_edit_request'])<i class="fa fa-pencil pos-edit-icon" style="color: rgb(255, 181, 185)" data-href="{{route('essentials_request.createWithTransaction', $data['transaction_id'])}}" data-container="#add_request_modal"></i> @endif
 				</td>

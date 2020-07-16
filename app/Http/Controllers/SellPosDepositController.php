@@ -2665,7 +2665,7 @@ class SellPosDepositController extends Controller
                     $game_id = $game_data[0]->game_id;
                 }
                 $ledger[] = [
-                    'date' => $payment->transaction_date,
+                    'date' => date_format(strtotime($payment->transaction_date), "Y-m-d H:i:s"),
                     'ref_no' => $payment->payment_ref_no,
                     'type' => $this->transactionTypes['payment'],
                     'location' => $payment->location_name,
