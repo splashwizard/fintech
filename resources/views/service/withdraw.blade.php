@@ -335,7 +335,21 @@
                 },
                 success: function(result) {
                     if(result.exceeded) {
-                        if(result.is_admin_or_super){
+                        if(!result.is_admin_or_super && $('#withdraw_mode').val() === 'b') {
+                            swal({
+                                title: LANG.sure,
+                                text: LANG.withdraw_fourth_warning_cashier.replace("xxxx", $('#withdraw_to').children('option:selected').html()),
+                                icon: 'warning',
+                                buttons: ["Cancel", "Submit"],
+                                dangerMode: true,
+                            }).then(willProceed => {
+                                if(willProceed){
+                                    $('#is_request').val(1);
+                                    $('#withdraw_form').submit();
+                                }
+                            });
+                        }
+                        else {
                             swal({
                                 title: LANG.sure,
                                 text: LANG.withdraw_fourth_warning.replace("xxxx", $('#withdraw_to').children('option:selected').html()),
@@ -344,20 +358,6 @@
                                 dangerMode: true,
                             }).then(willProceed => {
                                 if(willProceed){
-                                    $('#withdraw_form').submit();
-                                }
-                            });
-                        } else {
-                            swal({
-                                title: LANG.sure,
-                                text: LANG.withdraw_fourth_warning_cashier.replace("xxxx", $('#withdraw_to').children('option:selected').html()),
-                                icon: 'warning',
-                                buttons: true,
-                                confirmButtonText: 'Submit',
-                                dangerMode: true,
-                            }).then(willProceed => {
-                                if(willProceed){
-                                    $('#is_request').val(1);
                                     $('#withdraw_form').submit();
                                 }
                             });

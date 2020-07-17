@@ -556,6 +556,11 @@ class TransactionUtil extends Util
                     //Generate reference number
                     $payment_ref_no = $this->generateReferenceNumber($prefix_type, $ref_count, $business_id);
 
+                    $game_id = null;
+                    if(!empty($payment['account_id']) && Account::find($payment['account_id'])->is_service){
+                        $game_id = GameId::where('contact_id', $transaction->contact_id)->where('service_id', $payment['account_id'])->get()->first()->cur_game_id;
+                    }
+
                     $payment_data = [
                         'amount' => $payment_amount,
                         'method' => $payment['method'],
@@ -574,7 +579,8 @@ class TransactionUtil extends Util
                         'created_by' => empty($user_id) ? auth()->user()->id : $user_id,
                         'payment_for' => $transaction->contact_id,
                         'payment_ref_no' => $payment_ref_no,
-                        'account_id' => !empty($payment['account_id']) ? $payment['account_id'] : null
+                        'account_id' => !empty($payment['account_id']) ? $payment['account_id'] : null,
+                        'game_id' => $game_id
                     ];
                     if ($payment['method'] == 'custom_pay_1') {
                         $payment_data['transaction_no'] = $payment['transaction_no_1'];

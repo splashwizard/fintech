@@ -442,55 +442,59 @@ $(document).ready(function() {
         });
     });
 
+
+    function updateLineTotal(){
+
+    }
     //If change in unit price update price including tax and line total
-    $('table#pos_table tbody').on('change', 'input.pos_unit_price', function() {
-        var unit_price = __read_number($(this));
-        var tr = $(this).parents('tr');
-
-        //calculate discounted unit price
-        var discounted_unit_price = calculate_discounted_unit_price(tr);
-
-        var tax_rate = tr
-            .find('select.tax_id')
-            .find(':selected')
-            .data('rate');
-        __write_number(tr.find('input.pos_quantity'), 1);
-        var quantity = __read_number(tr.find('input.pos_quantity'));
-
-        var unit_price_inc_tax = __add_percent(discounted_unit_price, tax_rate);
-        var line_total = quantity *  unit_price_inc_tax;
-
-        __write_number(tr.find('input.pos_unit_price_inc_tax'), unit_price_inc_tax);
-        // __write_number(tr.find('input.pos_line_total'), line_total, false, 2);
-        tr.find('input.pos_line_total').val(line_total);
-        tr.find('span.pos_line_total_text').text(__currency_trans_from_en(line_total, true));
-        pos_each_row(tr);
-        const first_service_row = $('table#pos_table tbody tr.service_row').first();
-        const first_service_total = $('#total_earned').html() - line_total;
-        first_service_row.find('input.pos_line_total').val(first_service_total);
-        first_service_row.find('span.pos_line_total_text').text(__currency_trans_from_en(first_service_total, true));
-        pos_total_row();
-        round_row_to_iraqi_dinnar(tr);
-        let data = new FormData(pos_form_obj[0]);
-        data.delete('_method');
-        $.ajax({
-            method:'POST',
-            url: '/sells/pos_deposit/get_payment_rows',
-            data: data,
-            dataType: 'html',
-            contentType: false, // NEEDED, DON'T OMIT THIS (requires jQuery 1.6+)
-            processData: false,
-            success: function(result) {
-                if(result){
-                    $('#payment_rows_div').html(result);
-                    $('.game_id_but').click(function (e) {
-                        e.preventDefault();
-                        copyTextToClipboard($(this).text());
-                    });
-                }
-            }
-        });
-    });
+    // $('table#pos_table tbody').on('change', 'input.pos_unit_price', function() {
+    //     var unit_price = __read_number($(this));
+    //     var tr = $(this).parents('tr');
+    //
+    //     //calculate discounted unit price
+    //     var discounted_unit_price = calculate_discounted_unit_price(tr);
+    //
+    //     var tax_rate = tr
+    //         .find('select.tax_id')
+    //         .find(':selected')
+    //         .data('rate');
+    //     __write_number(tr.find('input.pos_quantity'), 1);
+    //     var quantity = __read_number(tr.find('input.pos_quantity'));
+    //
+    //     var unit_price_inc_tax = __add_percent(discounted_unit_price, tax_rate);
+    //     var line_total = quantity *  unit_price_inc_tax;
+    //
+    //     __write_number(tr.find('input.pos_unit_price_inc_tax'), unit_price_inc_tax);
+    //     // __write_number(tr.find('input.pos_line_total'), line_total, false, 2);
+    //     tr.find('input.pos_line_total').val(line_total);
+    //     tr.find('span.pos_line_total_text').text(__currency_trans_from_en(line_total, true));
+    //     pos_each_row(tr);
+    //     const first_service_row = $('table#pos_table tbody tr.service_row:eq(1)');
+    //     const first_service_total = $('#total_earned').html() - line_total;
+    //     first_service_row.find('input.pos_line_total').val(first_service_total);
+    //     first_service_row.find('span.pos_line_total_text').text(__currency_trans_from_en(first_service_total, true));
+    //     pos_total_row();
+    //     round_row_to_iraqi_dinnar(tr);
+    //     let data = new FormData(pos_form_obj[0]);
+    //     data.delete('_method');
+    //     $.ajax({
+    //         method:'POST',
+    //         url: '/sells/pos_deposit/get_payment_rows',
+    //         data: data,
+    //         dataType: 'html',
+    //         contentType: false, // NEEDED, DON'T OMIT THIS (requires jQuery 1.6+)
+    //         processData: false,
+    //         success: function(result) {
+    //             if(result){
+    //                 $('#payment_rows_div').html(result);
+    //                 $('.game_id_but').click(function (e) {
+    //                     e.preventDefault();
+    //                     copyTextToClipboard($(this).text());
+    //                 });
+    //             }
+    //         }
+    //     });
+    // });
 
     //If change in tax rate then update unit price according to it.
     $('table#pos_table tbody').on('change', 'select.tax_id', function() {
@@ -990,7 +994,7 @@ $(document).ready(function() {
 
 
 
-    $(document).on('blur', '.game_input', function () {
+    $(document).on('keyup', '.game_input', function () {
         const service_id = $(this).parents('tr').find('.account_id').val();
         const game_id = $(this).val();
         if(!game_id)
@@ -1177,12 +1181,58 @@ $(document).ready(function() {
 
     $(document).on('click', '#confirm_btn',function () {
         var edit_product_price = $(this).parents('.row_edit_product_price_model').find('.input_number');
-        if(edit_product_price.val() > 1000) {
+        if(edit_product_price.val() > 5000000000) {
             if(!edit_product_price.next().is('.error')){
-                edit_product_price.parent('div').append('<label class="error">Error. Maximum deposit amount is 1000.</label>');
+                edit_product_price.parent('div').append('<label class="error">Error. Maximum deposit amount is 5000000000.</label>');
             }
             return;
         }
+
+        var tr = $(this).parents('tr');
+
+        //calculate discounted unit price
+        var discounted_unit_price = calculate_discounted_unit_price(tr);
+
+        var tax_rate = tr
+            .find('select.tax_id')
+            .find(':selected')
+            .data('rate');
+        __write_number(tr.find('input.pos_quantity'), 1);
+        var quantity = __read_number(tr.find('input.pos_quantity'));
+
+        var unit_price_inc_tax = __add_percent(discounted_unit_price, tax_rate);
+        var line_total = quantity *  unit_price_inc_tax;
+
+        __write_number(tr.find('input.pos_unit_price_inc_tax'), unit_price_inc_tax);
+        // __write_number(tr.find('input.pos_line_total'), line_total, false, 2);
+        tr.find('input.pos_line_total').val(line_total);
+        tr.find('span.pos_line_total_text').text(__currency_trans_from_en(line_total, true));
+        pos_each_row(tr);
+        const first_service_row = $('table#pos_table tbody tr.service_row').first();
+        const first_service_total = $('#total_earned').html() - line_total;
+        first_service_row.find('input.pos_line_total').val(first_service_total);
+        first_service_row.find('span.pos_line_total_text').text(__currency_trans_from_en(first_service_total, true));
+        pos_total_row();
+        round_row_to_iraqi_dinnar(tr);
+        let data = new FormData(pos_form_obj[0]);
+        data.delete('_method');
+        $.ajax({
+            method:'POST',
+            url: '/sells/pos_deposit/get_payment_rows',
+            data: data,
+            dataType: 'html',
+            contentType: false, // NEEDED, DON'T OMIT THIS (requires jQuery 1.6+)
+            processData: false,
+            success: function(result) {
+                if(result){
+                    $('#payment_rows_div').html(result);
+                    $('.game_id_but').click(function (e) {
+                        e.preventDefault();
+                        copyTextToClipboard($(this).text());
+                    });
+                }
+            }
+        });
         $(this).parents('.row_edit_product_price_model').modal('hide');
     });
     $(document).on('keyup', '.row_edit_product_price_model.in .input_number', function (e) {
@@ -2205,7 +2255,7 @@ function pos_total_row() {
         } else {
             special_bonus = Math.floor(selected.data('amount'));
         }
-    } else if(no_bonus === 0) {
+    } else if(no_bonus === 0 && $('#customer_id').select2('data')[0].text !== "Unclaimed Trans") {
         basic_bonus = Math.floor(basic_bonus_rate * credit / 100);
     }
     // debit = credit + basic_bonus + special_bonus;
