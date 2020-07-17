@@ -2649,7 +2649,7 @@ class SellPosDepositController extends Controller
         $query2->orderBy('invoice_no', 'DESC');
         $query2->orderBy('transaction_payments.method', 'ASC');
 
-        $payments = $query2->select('transaction_payments.*', 't.id as transaction_id', 't.bank_in_time as bank_in_time', 't.transaction_date as transaction_date', 'bl.name as location_name', 't.type as transaction_type', 't.ref_no', 't.invoice_no'
+        $payments = $query2->select('transaction_payments.*', 't.id as transaction_id', 't.sub_type as sub_type', 't.document as document', 't.bank_in_time as bank_in_time', 't.transaction_date as transaction_date', 'bl.name as location_name', 't.type as transaction_type', 't.ref_no', 't.invoice_no'
             , 'transaction_payments.game_id as game_id', 'transaction_payments.game_id as tp_game_id', 'c.id as contact_primary_key', 'c.contact_id as contact_id', 'c.is_default as is_default', 'a.id as account_id', 'a.name as account_name', 't.created_by as created_by')->get();
 //        $total_deposit = $query2->where('t.type', 'sell')->where('transaction_payments.method', '!=', 'service_transfer')->where('transaction_payments.method','!=', 'bonus')->sum('transaction_payments.amount');
         $paymentTypes = $this->transactionUtil->payment_types();
@@ -2664,19 +2664,13 @@ class SellPosDepositController extends Controller
                 if(count($game_data) >= 1){
                     $game_id = $game_data[0]->game_id;
                 }
-                $ledger[] = [
-                    'date' => date_format(strtotime($payment->transaction_date), "Y-m-d H:i:s"),
+                $item = [
+                    'date' => date("Y-m-d H:i:s", strtotime($payment->transaction_date) ),
                     'ref_no' => $payment->payment_ref_no,
                     'type' => $this->transactionTypes['payment'],
                     'location' => $payment->location_name,
                     'contact_id' => $payment->contact_id,
                     'payment_method' => !empty($paymentTypes[$payment->method]) ? $paymentTypes[$payment->method] : '',
-                    'debit' => 0,
-                    'credit' => 0,
-                    'free_credit' => 0,
-                    'basic_bonus' => 0,
-                    'service_debit' => $payment->card_type == 'debit' ? $payment->amount : 0,
-                    'service_credit' => $payment->card_type == 'credit' ? $payment->amount : 0,
                     'others' => '<small>' . $ref_no . '</small>',
                     'bank_in_time' => $payment->bank_in_time,
                     'user' => $user['first_name'] . ' ' . $user['last_name'],
@@ -2686,6 +2680,16 @@ class SellPosDepositController extends Controller
                     'is_default' => 0,
                     'is_edit_request' => 0
                 ];
+                if($payment->card_type == 'debit')
+                    $item['service_debit'] = $payment->amount;
+                else if($payment->card_type == 'credit')
+                    $item['service_credit'] = $payment->amount;
+                $document = $payment->document;
+                if($document && isFileImage($document)) {
+                    $document_path = 'uploads/service_documents/' . $document;
+                    $item['document_path'] = $document_path;
+                }
+                $ledger[] = $item;
             }
         } else {
             $ledger_by_payment = [];
@@ -2718,13 +2722,19 @@ class SellPosDepositController extends Controller
                             'user' => $user['first_name'].' '.$user['last_name'],
                             'is_default' => $payment->is_default,
                             'account_name' => $payment->account_name,
-                            'transaction_id' => $payment->transaction_id,
+                            'transaction_id' => $payment->transaction_id
                         ];
+                        if($payment->transaction_type == 'sell_return') {
+                            $document = $payment->document;
+                            if($document && isFileImage($document)) {
+                                if ($payment->sub_type == null)
+                                    $document_path = 'uploads/account_documents/' . $document;
+                                else
+                                    $document_path = 'uploads/service_documents/' . $document;
+                                $payment_item['document_path'] = $document_path;
+                            }
+                        }
                     }
-//                    if($set_bank_id){
-//                        $payment_item['bank_id'] = $bank_id;
-//                        $set_bank_id = false;
-//                    }
                 }
                 if($payment->card_type == 'credit'){
                     if($payment->method == 'bank_transfer')
@@ -2754,7 +2764,7 @@ class SellPosDepositController extends Controller
 
 
             foreach ($ledger_by_payment as $item){
-                if( ( $selected_bank == 'free_credit' && $item['free_credit'] != 0) || (isset($item['bank_id']) && $item['bank_id'] == $selected_bank)){
+                if( ( $selected_bank == 'free_credit' && isset($item['free_credit'])) || (isset($item['bank_id']) && $item['bank_id'] == $selected_bank)){
 //                    $item['transaction_id'] = $transaction_id;
                     if(EssentialsRequest::where('transaction_id', $item['transaction_id'])->where('status', 'pending')->count() > 0)
                         $item['is_edit_request'] = 1;

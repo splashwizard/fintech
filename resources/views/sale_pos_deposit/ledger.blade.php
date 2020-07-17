@@ -78,7 +78,7 @@
 						echo '<td style="display: none"></td>';
 					} @endphp
 				@endif
-				<td>{{@format_datetime($data['date'])}}</td>
+				<td>{{$data['date']}}</td>
 				<td>{{ $data['user'] }}</td>
 				<td></td>
 			@else
@@ -98,7 +98,13 @@
 				<td>@if(isset($data['service_debit'])) <span class="display_currency">{{$data['service_debit']}}</span> @endif</td>
 				<td>{!! isset($data['contact_id']) ? $data['date'] : null !!}</td>
 				<td>{!! isset($data['user']) ? $data['user'] : null !!}</td>
-				<td> @if( !$is_admin_or_super || $is_admin_or_super && $data['is_edit_request'])<i class="fa fa-pencil pos-edit-icon" style="color: rgb(255, 181, 185)" data-href="{{route('essentials_request.createWithTransaction', $data['transaction_id'])}}" data-container="#add_request_modal"></i> @endif
+				<td>
+					@if( !$is_admin_or_super || $is_admin_or_super && $data['is_edit_request'])
+						<i class="fa fa-pencil pos-edit-icon" style="color: rgb(255, 181, 185)" data-href="{{route('essentials_request.createWithTransaction', $data['transaction_id'])}}" data-container="#add_request_modal"></i>
+					@endif
+					@if( isset($data['document_path']))
+						<a href="#" data-href="{{asset($data['document_path'])}}" class="view_uploaded_document"><i class="fa fa-picture-o" aria-hidden="true"></i> </a>
+					@endif
 				</td>
 			@endif
 		</tr>

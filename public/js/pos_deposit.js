@@ -1206,33 +1206,40 @@ $(document).ready(function() {
         __write_number(tr.find('input.pos_unit_price_inc_tax'), unit_price_inc_tax);
         // __write_number(tr.find('input.pos_line_total'), line_total, false, 2);
         tr.find('input.pos_line_total').val(line_total);
-        tr.find('span.pos_line_total_text').text(__currency_trans_from_en(line_total, true));
+        tr.find('span.pos_line_total_text').text(__currency_trans_from_en(line_total, false));
         pos_each_row(tr);
-        const first_service_row = $('table#pos_table tbody tr.service_row').first();
-        const first_service_total = $('#total_earned').html() - line_total;
-        first_service_row.find('input.pos_line_total').val(first_service_total);
-        first_service_row.find('span.pos_line_total_text').text(__currency_trans_from_en(first_service_total, true));
-        pos_total_row();
-        round_row_to_iraqi_dinnar(tr);
-        let data = new FormData(pos_form_obj[0]);
-        data.delete('_method');
-        $.ajax({
-            method:'POST',
-            url: '/sells/pos_deposit/get_payment_rows',
-            data: data,
-            dataType: 'html',
-            contentType: false, // NEEDED, DON'T OMIT THIS (requires jQuery 1.6+)
-            processData: false,
-            success: function(result) {
-                if(result){
-                    $('#payment_rows_div').html(result);
-                    $('.game_id_but').click(function (e) {
-                        e.preventDefault();
-                        copyTextToClipboard($(this).text());
-                    });
-                }
+        var service_sum_except_first = 0;
+        $('table#pos_table tbody tr.service_row').each(function () {
+            if($(this).find('span[data-toggle="modal"]').hasClass('text-link')){
+                console.log($(this).find('input.pos_line_total').val());
+                service_sum_except_first += parseInt($(this).find('input.pos_line_total').val());
             }
         });
+        const first_service_row = $('table#pos_table tbody tr.service_row').first();
+        const first_service_total = $('#total_earned').html() - service_sum_except_first;
+        first_service_row.find('input.pos_line_total').val(first_service_total);
+        first_service_row.find('span.pos_line_total_text').text(__currency_trans_from_en(first_service_total, false));
+        pos_total_row();
+        round_row_to_iraqi_dinnar(tr);
+        // let data = new FormData(pos_form_obj[0]);
+        // data.delete('_method');
+        // $.ajax({
+        //     method:'POST',
+        //     url: '/sells/pos_deposit/get_payment_rows',
+        //     data: data,
+        //     dataType: 'html',
+        //     contentType: false, // NEEDED, DON'T OMIT THIS (requires jQuery 1.6+)
+        //     processData: false,
+        //     success: function(result) {
+        //         if(result){
+        //             $('#payment_rows_div').html(result);
+        //             $('.game_id_but').click(function (e) {
+        //                 e.preventDefault();
+        //                 copyTextToClipboard($(this).text());
+        //             });
+        //         }
+        //     }
+        // });
         $(this).parents('.row_edit_product_price_model').modal('hide');
     });
     $(document).on('keyup', '.row_edit_product_price_model.in .input_number', function (e) {
@@ -2151,7 +2158,7 @@ function pos_product_row(variation_id, product_type = 0, name = 'Bonus',  percen
                             $('table#pos_table tbody')
                                 .append(result.html_content)
                                 .find('input.pos_quantity');
-                        if(is_product_any){
+                        if(!is_first_service){
                             $('table#pos_table tbody .product_row:last .row_edit_product_price_model').modal('show');
                         }
                         //increment row count
