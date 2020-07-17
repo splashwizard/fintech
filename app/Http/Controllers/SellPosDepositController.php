@@ -2068,7 +2068,7 @@ class SellPosDepositController extends Controller
             $data[] = ['key' => 'basic_bonus', 'amount' => number_format((float)TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'basic_bonus')->where('card_type','credit')->get()->first()->amount, 2, '.', '')];
         }
         if(TransactionPayment::where('transaction_id', $transaction_id)->where('method', '!=', 'service_transfer')->where('card_type','debit')->count() > 0){
-            $data[] = ['key' => 'debit', 'amount' => number_format((float)TransactionPayment::where('transaction_id', $transaction_id)->where('method', '!=', 'bank_transfer')->where('card_type','debit')->get()->first()->amount, 2, '.', '')];
+            $data[] = ['key' => 'debit', 'amount' => number_format((float)TransactionPayment::where('transaction_id', $transaction_id)->where('method', '!=', 'service_transfer')->where('card_type','debit')->get()->first()->amount, 2, '.', '')];
         }
 //        if(TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'service_transfer')->where('card_type','credit')->count() > 0){
 //            $data[] = 'service_credit';
@@ -2552,8 +2552,10 @@ class SellPosDepositController extends Controller
     public function getRemarks(){
         try{
             $customer = Contact::find(request()->get('customer_id'));
-            $remarks = isset($customer->remarks) ? $customer->remarks : null;
-            $output = ['success' => 1, 'remarks' => $remarks];
+            $remarks1 = isset($customer->remarks1) ? $customer->remarks1 : null;
+            $remarks2 = isset($customer->remarks2) ? $customer->remarks2 : null;
+            $remarks3 = isset($customer->remarks3) ? $customer->remarks3 : null;
+            $output = ['success' => 1, 'remarks1' => $remarks1, 'remarks2' => $remarks2, 'remarks3' => $remarks3];
         } catch (\Exception $e) {
             \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
 

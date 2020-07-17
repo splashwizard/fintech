@@ -211,10 +211,25 @@
           </div>
           <div class="clearfix"></div>
       </div>
-      <div class="col-md-12">
-          <div class="form-group">
-              {!! Form::label('remarks', __( 'contact.remarks' )) !!}
-              {!! Form::textarea('remarks', null, ['class' => 'form-control', 'placeholder' => __( 'remarks.remarks' ), 'rows' => 4]); !!}
+{{--      <div class="col-md-12">--}}
+{{--          <div class="form-group">--}}
+{{--              {!! Form::label('remarks', __( 'contact.remarks' )) !!}--}}
+{{--              {!! Form::textarea('remarks', null, ['class' => 'form-control', 'placeholder' => __( 'remarks.remarks' ), 'rows' => 4]); !!}--}}
+{{--          </div>--}}
+{{--      </div>--}}
+
+      <div class="form-group" style="padding-left: 15px; padding-right: 15px;">
+          {!! Form::label('remarks1', __( 'contact.remarks' )) !!}
+          <div class="row">
+              <div class="col-md-4">
+                  {!! Form::textarea('remarks1', null, ['class' => 'form-control', 'placeholder' => __( 'contact.remarks' ), 'rows' => 2]); !!}
+              </div>
+              <div class="col-md-4">
+                  {!! Form::textarea('remarks2', null, ['class' => 'form-control', 'placeholder' => __( 'contact.remarks' ), 'rows' => 2]); !!}
+              </div>
+              <div class="col-md-4">
+                  {!! Form::textarea('remarks3', null, ['class' => 'form-control', 'placeholder' => __( 'contact.remarks' ), 'rows' => 2]); !!}
+              </div>
           </div>
       </div>
 

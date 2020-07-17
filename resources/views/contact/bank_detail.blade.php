@@ -11,6 +11,6 @@
     {!! Form::select("bank_details[{$account_index}][bank_brand_id]", $bank_brands, null, ['class' => 'form-control']); !!}
 </div>
 <div class="form-group col-md-3">
-    <button type="submit" class="btn btn-primary btn-plus"><i class="fa fa-plus"></i></button>
+    <button type="submit" class="btn btn-primary btn-add_bank_detail"><i class="fa fa-plus"></i></button>
 </div>
 <div class="clearfix"></div>

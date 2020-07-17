@@ -548,7 +548,7 @@ class ContactController extends Controller
                         }
 
                         $input = $request->only(['supplier_business_name', 'name', 'tax_number', 'pay_term_number', 'pay_term_type', 'landline',
-                            'alternate_number', 'city', 'state', 'country', 'landmark', 'customer_group_id', 'membership_id', 'contact_id', 'birthday', 'email', 'remarks', 'country_code_id']);
+                            'alternate_number', 'city', 'state', 'country', 'landmark', 'customer_group_id', 'membership_id', 'contact_id', 'birthday', 'email', 'remarks1', 'remarks2', 'remarks3', 'country_code_id']);
                         $input['type'] = 'customer';
                         $input['business_id'] = $business_id;
                         $input['created_by'] = $request->session()->get('user.id');
@@ -921,7 +921,7 @@ class ContactController extends Controller
                 } else {
 //                    try {
                         $input = $request->only(['type', 'supplier_business_name', 'name', 'tax_number', 'pay_term_number', 'pay_term_type', 'landline', 'alternate_number',
-                            'city', 'state', 'country', 'landmark', 'customer_group_id', 'membership_id', 'contact_id', 'birthday', 'email', 'remarks', 'country_code_id']);
+                            'city', 'state', 'country', 'landmark', 'customer_group_id', 'membership_id', 'contact_id', 'birthday', 'email', 'remarks1', 'remarks2', 'remarks3', 'country_code_id']);
 
                         $input['credit_limit'] = $request->input('credit_limit') != '' ? $this->commonUtil->num_uf($request->input('credit_limit')) : null;
 

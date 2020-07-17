@@ -118,32 +118,32 @@
     </div>
     <div class="modal fade add_blacklist_modal" tabindex="-1" role="dialog"
          aria-labelledby="gridSystemModalLabel">
-{{--        <div class="modal-dialog modal-lg" role="document">--}}
-{{--            <div class="modal-content">--}}
-{{--                {!! Form::open(['url' => '', 'method' => 'PUT', 'id' => 'contact_edit_blacklist_form']) !!}--}}
-{{--                <div class="modal-header">--}}
-{{--                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>--}}
-{{--                    <h4 class="modal-title">@lang('contact.blacklist_customer')</h4>--}}
-{{--                </div>--}}
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                {!! Form::open(['url' => '', 'method' => 'PUT', 'id' => 'contact_edit_blacklist_form']) !!}
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">@lang('contact.blacklist_customer')</h4>
+                </div>
 
-{{--                <div class="modal-body">--}}
+                <div class="modal-body">
 
-{{--                    <div class="row">--}}
-{{--                        <div class="col-md-12">--}}
-{{--                            <div class="form-group">--}}
-{{--                                {!! Form::label('remark', __('contact.remark') . ':*') !!}--}}
-{{--                                {!! Form::text('remark', null, ['class' => 'form-control','placeholder' => __('contact.remark'), 'id' => 'remark', 'required']); !!}--}}
-{{--                            </div>--}}
-{{--                        </div>--}}
-{{--                    </div>--}}
-{{--                </div>--}}
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                {!! Form::label('remark', __('contact.remark') . ':*') !!}
+                                {!! Form::text('remark', null, ['class' => 'form-control','placeholder' => __('contact.remark'), 'id' => 'remark', 'required']); !!}
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-{{--                <div class="modal-footer">--}}
-{{--                    <button type="button" class="btn btn-primary" id="add_blacklist_item">@lang( 'messages.update' )</button>--}}
-{{--                    <button type="button" class="btn btn-default" data-dismiss="modal">@lang( 'messages.close' )</button>--}}
-{{--                </div>--}}
-{{--            </div><!-- /.modal-content -->--}}
-{{--        </div><!-- /.modal-dialog -->--}}
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="add_blacklist_item">@lang( 'messages.update' )</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">@lang( 'messages.close' )</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
     </div>
     <div class="modal fade edit_blacklist_modal" tabindex="-1" role="dialog"
          aria-labelledby="gridSystemModalLabel">
@@ -321,7 +321,7 @@
                     submitHandler: function(form) {
                         e.preventDefault();
                         if($("button[type=submit][clicked=true]").attr('id') === 'btn-add_blacklist'){
-                            $('.add_blacklist_modal').modal();
+                            $('.add_blacklist_modal').modal('show');
                         } else {
                             var data = $(form).serialize();
                             // $(form)

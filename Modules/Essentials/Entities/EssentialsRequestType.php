@@ -14,6 +14,8 @@ class EssentialsRequestType extends Model
         $leave_types = EssentialsRequestType::where('business_id', $business_id);
         if($pos_type != 'pos')
             $leave_types->where('id', 2);
+        else
+            $leave_types->where('id', '!=', 3);
         $leave_types = $leave_types->pluck('request_type', 'id');
 
         return $leave_types;

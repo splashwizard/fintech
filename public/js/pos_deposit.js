@@ -100,9 +100,9 @@ $(document).ready(function() {
         initialize_printer();
     }
 
-    $('#remarks').click(function (e) {
+    $('#remarks1, #remarks2, #remarks3').click(function (e) {
         e.preventDefault();
-       copyTextToClipboard($(this).html());
+        copyTextToClipboard($(this).html());
     });
 
     $('select#select_location_id').change(function() {
@@ -2751,7 +2751,9 @@ function updateRemarks(){
         dataType: 'json',
         success: function(result) {
             if(result.success){
-                $('#remarks').html(result.remarks);
+                $('#remarks1').html(result.remarks1);
+                $('#remarks2').html(result.remarks2);
+                $('#remarks3').html(result.remarks3);
             }
         }
     });

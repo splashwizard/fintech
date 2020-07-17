@@ -201,32 +201,47 @@
           <div class="clearfix"></div>
           @else
               @foreach($bank_details as $account_index => $bank_detail)
-                  <div class="form-group col-md-3">
-                      {!! Form::label('account_holder_name', __( 'lang_v1.account_holder_name') . ':') !!}
-                      {!! Form::text("bank_details[{$account_index}][account_holder_name]", $bank_detail['account_holder_name'] , ['class' => 'form-control', 'required', 'placeholder' => __( 'lang_v1.account_holder_name') ]); !!}
+                  <div class="account_detail_item">
+                      <div class="form-group col-md-3">
+                          {!! Form::label('account_holder_name', __( 'lang_v1.account_holder_name') . ':') !!}
+                          {!! Form::text("bank_details[{$account_index}][account_holder_name]", $bank_detail['account_holder_name'] , ['class' => 'form-control', 'required', 'placeholder' => __( 'lang_v1.account_holder_name') ]); !!}
+                      </div>
+                      <div class="form-group col-md-3">
+                          {!! Form::label('account_number', __( 'lang_v1.account_number') . ':') !!}
+                          {!! Form::text("bank_details[{$account_index}][account_number]", $bank_detail['account_number'], ['class' => 'form-control', 'required', 'placeholder' => __( 'lang_v1.account_number') ]); !!}
+                      </div>
+                      <div class="form-group col-md-3">
+                          {!! Form::label('bank_name', __( 'lang_v1.bank_name') . ':') !!}
+                          {!! Form::select("bank_details[{$account_index}][bank_brand_id]", $bank_brands, $bank_detail['bank_brand_id'], ['class' => 'form-control', 'required']); !!}
+                      </div>
+                      <div class="form-group col-md-3">
+                          <button class="btn btn-primary btn-add_bank_detail"><i class="fa fa-plus"></i></button>
+                      </div>
+                      <div class="clearfix"></div>
                   </div>
-                  <div class="form-group col-md-3">
-                      {!! Form::label('account_number', __( 'lang_v1.account_number') . ':') !!}
-                      {!! Form::text("bank_details[{$account_index}][account_number]", $bank_detail['account_number'], ['class' => 'form-control', 'required', 'placeholder' => __( 'lang_v1.account_number') ]); !!}
-                  </div>
-                  <div class="form-group col-md-3">
-                      {!! Form::label('bank_name', __( 'lang_v1.bank_name') . ':') !!}
-                      {!! Form::select("bank_details[{$account_index}][bank_brand_id]", $bank_brands, $bank_detail['bank_brand_id'], ['class' => 'form-control', 'required']); !!}
-                  </div>
-                  <div class="form-group col-md-3">
-                      <button type="submit" class="btn btn-primary btn-add_bank_detail"><i class="fa fa-plus"></i></button>
-                  </div>
-                  <div class="clearfix"></div>
-
               @endforeach
           @endif
       </div>
-          <div class="col-md-12">
-              <div class="form-group">
-                  {!! Form::label('remarks', __( 'contact.remarks' )) !!}
-                  {!! Form::textarea('remarks', $contact->remarks, ['class' => 'form-control', 'placeholder' => __( 'contact.remarks' ), 'rows' => 4]); !!}
+{{--          <div class="col-md-12">--}}
+{{--              <div class="form-group">--}}
+{{--                  {!! Form::label('remarks', __( 'contact.remarks' )) !!}--}}
+{{--                  {!! Form::textarea('remarks', $contact->remarks, ['class' => 'form-control', 'placeholder' => __( 'contact.remarks' ), 'rows' => 4]); !!}--}}
+{{--              </div>--}}
+{{--          </div>--}}
+      <div class="form-group" style="padding-left: 15px; padding-right: 15px;">
+          {!! Form::label('remarks1', __( 'contact.remarks' )) !!}
+          <div class="row">
+              <div class="col-md-4">
+                  {!! Form::textarea('remarks1', $contact->remarks1, ['class' => 'form-control', 'placeholder' => __( 'contact.remarks' ), 'rows' => 2]); !!}
+              </div>
+              <div class="col-md-4">
+                  {!! Form::textarea('remarks2', $contact->remarks2, ['class' => 'form-control', 'placeholder' => __( 'contact.remarks' ), 'rows' => 2]); !!}
+              </div>
+              <div class="col-md-4">
+                  {!! Form::textarea('remarks3', $contact->remarks3, ['class' => 'form-control', 'placeholder' => __( 'contact.remarks' ), 'rows' => 2]); !!}
               </div>
           </div>
+      </div>
     </div>
     </div>
 
