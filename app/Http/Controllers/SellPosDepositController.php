@@ -2704,7 +2704,7 @@ class SellPosDepositController extends Controller
                     }
                     if(!empty($payment_item['service_debit']) && $payment->card_type == 'debit' && $payment->method == 'service_transfer'){
                         $payment_item = [
-                            'bank_id' => $payment_item['bank_id'],
+                            'bank_id' => isset($payment_item['bank_id']) ? $payment_item['bank_id'] : -1,
                             'transaction_id' => $payment_item['transaction_id'],
                             'date' => $payment_item['date'],
                         ];

@@ -326,49 +326,54 @@
                 toastr.error('Amount cannot be 0');
                 return;
             }
-            $.ajax({
-                method: 'post',
-                url: '/service/checkWithdraw',
-                dataType: 'json',
-                data: {
-                    customer_id: $('#withdraw_to').val()
-                },
-                success: function(result) {
-                    if(result.exceeded) {
-                        if(!result.is_admin_or_super && $('#withdraw_mode').val() === 'b') {
-                            swal({
-                                title: LANG.sure,
-                                text: LANG.withdraw_fourth_warning_cashier.replace("xxxx", $('#withdraw_to').children('option:selected').html()),
-                                icon: 'warning',
-                                buttons: ["Cancel", "Submit"],
-                                dangerMode: true,
-                            }).then(willProceed => {
-                                if(willProceed){
-                                    $('#is_request').val(1);
-                                    $('#withdraw_form').submit();
-                                }
-                            });
+            if($('#withdraw_mode').val() === 'b'){
+                $.ajax({
+                    method: 'post',
+                    url: '/service/checkWithdraw',
+                    dataType: 'json',
+                    data: {
+                        customer_id: $('#withdraw_to').val()
+                    },
+                    success: function(result) {
+                        if(result.exceeded) {
+                            if(!result.is_admin_or_super) {
+                                swal({
+                                    title: LANG.sure,
+                                    text: LANG.withdraw_fourth_warning_cashier.replace("xxxx", $('#withdraw_to').children('option:selected').html()),
+                                    icon: 'warning',
+                                    buttons: ["Cancel", "Submit"],
+                                    dangerMode: true,
+                                }).then(willProceed => {
+                                    if(willProceed){
+                                        $('#is_request').val(1);
+                                        $('#withdraw_form').submit();
+                                    }
+                                });
+                            }
+                            else {
+                                swal({
+                                    title: LANG.sure,
+                                    text: LANG.withdraw_fourth_warning.replace("xxxx", $('#withdraw_to').children('option:selected').html()),
+                                    icon: 'warning',
+                                    buttons: true,
+                                    dangerMode: true,
+                                }).then(willProceed => {
+                                    if(willProceed){
+                                        $('#withdraw_form').submit();
+                                    }
+                                });
+                            }
                         }
-                        else {
-                            swal({
-                                title: LANG.sure,
-                                text: LANG.withdraw_fourth_warning.replace("xxxx", $('#withdraw_to').children('option:selected').html()),
-                                icon: 'warning',
-                                buttons: true,
-                                dangerMode: true,
-                            }).then(willProceed => {
-                                if(willProceed){
-                                    $('#withdraw_form').submit();
-                                }
-                            });
-                        }
+                        else
+                            $('#withdraw_form').submit();
+                        $('#pos-cancel').trigger('click');
+                        // $('#btn-game_id').html(result.game_id);
                     }
-                    else
-                        $('#withdraw_form').submit();
-                    $('#pos-cancel').trigger('click');
-                    // $('#btn-game_id').html(result.game_id);
-                }
-            });
+                });
+            } else {
+                $('#withdraw_form').submit();
+                $('#pos-cancel').trigger('click');
+            }
         })
     });
 </script>

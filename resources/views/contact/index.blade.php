@@ -120,7 +120,7 @@
          aria-labelledby="gridSystemModalLabel">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
-                {!! Form::open(['url' => '', 'method' => 'PUT', 'id' => 'contact_edit_blacklist_form']) !!}
+                {!! Form::open(['url' => '', 'method' => 'PUT', 'id' => '']) !!}
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     <h4 class="modal-title">@lang('contact.blacklist_customer')</h4>
@@ -383,8 +383,8 @@
         $('.edit_blacklist_modal').on('shown.bs.modal', function(e) {
             $('form#contact_edit_blacklist_form')
                 .submit(function(e) {
-                    // console.log('editing form');
-                    // e.preventDefault();
+                    console.log('editing form');
+                    e.preventDefault();
                 })
                 .validate({
                     submitHandler: function(form) {
@@ -395,7 +395,7 @@
                             .attr('disabled', true);
                         $.ajax({
                             method: 'POST',
-                            url: $(form).attr('action'),
+                            url: $('form#contact_edit_blacklist_form').attr('action'),
                             dataType: 'json',
                             data: data,
                             success: function(result) {

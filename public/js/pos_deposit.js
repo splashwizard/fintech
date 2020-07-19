@@ -1181,9 +1181,39 @@ $(document).ready(function() {
 
     $(document).on('click', '#confirm_btn',function () {
         var edit_product_price = $(this).parents('.row_edit_product_price_model').find('.input_number');
+        var trElem = $(this).closest('tr');
+        if(trElem.hasClass('service_row')){
+            var minGameCredit = 1, maxGameCredit = parseInt($('#total_earned').html()) - 1;
+            if(edit_product_price.val() > maxGameCredit) {
+                if(!edit_product_price.next().is('.error')){
+                    edit_product_price.parent('div').append('<label class="error">Error. Maximum Game Credit amount is ' + maxGameCredit + '.</label>');
+                }
+                else if(edit_product_price.next().is('.error') && edit_product_price.next().css("display") === 'none'){
+                    edit_product_price.next().html('Error. Maximum Game Credit amount is ' + maxGameCredit);
+                    edit_product_price.next().css("display", 'block');
+                }
+                return;
+            }
+            console.log('here');
+            if(parseInt(edit_product_price.val()) < minGameCredit) {
+                console.log(edit_product_price.val());
+                if(!edit_product_price.next().is('.error')){
+                    edit_product_price.parent('div').append('<label class="error">Error. Minimum Game Credit amount is ' + minGameCredit + '.</label>');
+                }
+                else if(edit_product_price.next().is('.error') && edit_product_price.next().css("display") === 'none'){
+                    edit_product_price.next().html('Error. Minimum Game Credit amount is ' + minGameCredit);
+                    edit_product_price.next().css("display", 'block');
+                }
+                return;
+            }
+        }
         if(edit_product_price.val() > 5000000000) {
             if(!edit_product_price.next().is('.error')){
                 edit_product_price.parent('div').append('<label class="error">Error. Maximum deposit amount is 5000000000.</label>');
+            }
+            else if(edit_product_price.next().is('.error') && edit_product_price.next().css("display") === 'none'){
+                edit_product_price.next().html('Error. Minimum Game Credit amount is ' + minGameCredit);
+                edit_product_price.next().css("display", 'block');
             }
             return;
         }
@@ -2158,7 +2188,7 @@ function pos_product_row(variation_id, product_type = 0, name = 'Bonus',  percen
                             $('table#pos_table tbody')
                                 .append(result.html_content)
                                 .find('input.pos_quantity');
-                        if(!is_first_service){
+                        if(!is_first_service || is_product_any){
                             $('table#pos_table tbody .product_row:last .row_edit_product_price_model').modal('show');
                         }
                         //increment row count
@@ -2262,7 +2292,7 @@ function pos_total_row() {
         } else {
             special_bonus = Math.floor(selected.data('amount'));
         }
-    } else if(no_bonus === 0 && $('#customer_id').select2('data')[0].text !== "Unclaimed Trans") {
+    } else if(no_bonus === 0 &&  $('#customer_id').data('select2') && $('#customer_id').select2('data')[0].text !== "Unclaimed Trans") {
         basic_bonus = Math.floor(basic_bonus_rate * credit / 100);
     }
     // debit = credit + basic_bonus + special_bonus;
