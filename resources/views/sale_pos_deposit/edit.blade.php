@@ -213,7 +213,9 @@
 										'row_count' => $loop->index + 1, 
 										'tax_dropdown' => $taxes, 
 										'sub_units' => !empty($sell_line->unit_details) ? $sell_line->unit_details : [],
-										'action' => 'edit'
+										'action' => 'edit',
+										'is_service' => $sell_line->is_service,
+										'is_first_service' => false
 									])
 								@endforeach
 							</tbody>
