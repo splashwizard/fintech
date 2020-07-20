@@ -52,6 +52,10 @@
 			@include('sale_pos.partials.row_edit_product_price_modal')
 		</div>
 
+		<div class="modal fade row_add_second_client_modal" id="row_add_second_client_modal_{{$row_count}}" tabindex="-1" role="dialog">
+			@include('sale_pos_deposit.partials.row_add_second_client_modal')
+		</div>
+
 		<!-- Description modal start -->
 		<div class="modal fade row_description_modal" id="row_description_modal_{{$row_count}}" tabindex="-1" role="dialog">
 		  <div class="modal-dialog" role="document">
@@ -277,6 +281,7 @@
 		<span name="products[{{$row_count}}][amount]" class="display_currency pos_line_total_text @if(!empty($pos_settings['is_pos_subtotal_editable'])) hide @endif" data-currency_symbol="true">@if(empty($amount)){{@num_format($product->quantity_ordered*$unit_price_inc_tax )}}@else{{@num_format($amount)}}@endif</span>
 	</td>
 	<td class="text-center">
+		<i class="fa fa-user cursor-pointer" @if(!$is_first_service) data-toggle="modal" data-target="#row_add_second_client_modal_{{$row_count}}" aria-hidden="true" @endif style="margin-right: 20px; visibility: {{$is_first_service ? 'hidden' : 'visible'}}"></i>
 		<i class="fa fa-close text-danger pos_remove_row cursor-pointer" aria-hidden="true"></i>
 	</td>
 </tr>

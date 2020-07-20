@@ -211,7 +211,7 @@
 									<th class="text-center col-md-2">
 										@lang('sale.subtotal')
 									</th>
-									<th class="text-center"><i class="fa fa-close" aria-hidden="true"></i></th>
+									<th class="text-center"><i class="fa fa-user cursor-pointer" style="margin-right: 20px; visibility: hidden"></i><i class="fa fa-close" aria-hidden="true"></i></th>
 								</tr>
 							</thead>
 							<tbody></tbody>

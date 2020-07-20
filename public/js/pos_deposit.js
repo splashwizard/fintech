@@ -239,6 +239,8 @@ $(document).ready(function() {
             return markup;
         },
     });
+
+
     if(edit_page){
         $('#customer_id').select2("open");
     }
@@ -1179,6 +1181,15 @@ $(document).ready(function() {
             .select();
     });
 
+    $(document).on('click', '#confirm_second_client_btn',function () {
+        // var edit_product_price = $(this).parents('.row_edit_product_price_model').find('.input_number');
+        // if(!edit_product_price.next().is('.error')){
+        //     edit_product_price.parent('div').append('<label class="error">Error. Maximum Game Credit amount is ' + maxGameCredit + '.</label>');
+        //     return;
+        // }
+        // edit_product_price.next().remove();
+        $(this).parents('.row_add_second_client_modal').modal('hide');
+    });
     $(document).on('click', '#confirm_btn',function () {
         var edit_product_price = $(this).parents('.row_edit_product_price_model').find('.input_number');
         var trElem = $(this).closest('tr');
@@ -2191,6 +2202,66 @@ function pos_product_row(variation_id, product_type = 0, name = 'Bonus',  percen
                         if(!is_first_service || is_product_any){
                             $('table#pos_table tbody .product_row:last .row_edit_product_price_model').modal('show');
                         }
+                        if(product_type === 1 && !is_first_service){
+                            $('table#pos_table tbody .product_row:last .second_contact_select').select2({
+                                ajax: {
+                                    url: '/contacts/customers',
+                                    dataType: 'json',
+                                    delay: 250,
+                                    data: function(params) {
+                                        return {
+                                            q: params.term, // search term
+                                            page: params.page,
+                                        };
+                                    },
+                                    processResults: function(data) {
+                                        return {
+                                            results: data,
+                                        };
+                                    },
+                                },
+                                templateResult: function (data) {
+                                    var template = data.text;
+                                    if (typeof(data.game_text) != "undefined") {
+                                        template += "<br><i class='fa fa-gift text-success'></i> " + data.game_text;
+                                    }
+                                    // var template = data.contact_id;
+
+                                    return template;
+                                },
+                                minimumInputLength: 1,
+                                language: {
+                                    noResults: function() {
+                                        var name = $('table#pos_table tbody .product_row:last .second_contact_select')
+                                            .data('select2')
+                                            .dropdown.$search.val();
+                                        return (
+                                            '<button type="button" data-name="' +
+                                            name +
+                                            '" class="btn btn-link add_new_customer"><i class="fa fa-plus-circle fa-lg" aria-hidden="true"></i>&nbsp; ' +
+                                            __translate('add_name_as_new_customer', { name: name }) +
+                                            '</button>'
+                                        );
+                                    },
+                                },
+                                dropdownParent: $("table#pos_table tbody .product_row:last .row_add_second_client_modal"),
+                                escapeMarkup: function(markup) {
+                                    return markup;
+                                },
+                            });
+                            var default_customer_id = $('#default_customer_id').val();
+                            var default_customer_name = $('#default_customer_name').val();
+                            var exists = $('table#pos_table tbody .product_row:last .second_contact_select option[value=' + default_customer_id + ']').length;
+                            if (exists == 0) {
+                                $('table#pos_table tbody .product_row:last .second_contact_select').append(
+                                    $('<option>', { value: default_customer_id, text: default_customer_name })
+                                );
+                            }
+                            $('table#pos_table tbody .product_row:last .second_contact_select')
+                                .val(default_customer_id)
+                                .trigger('change');
+                        }
+
                         //increment row count
                         $('input#product_row_count').val(parseInt(product_row) + 1);
                         var this_row = $('table#pos_table tbody')

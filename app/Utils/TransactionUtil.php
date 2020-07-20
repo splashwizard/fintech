@@ -577,7 +577,7 @@ class TransactionUtil extends Util
                         'note' => $payment['note'],
                         'paid_on' => !empty($payment['paid_on']) ? $payment['paid_on'] : \Carbon::now()->toDateTimeString(),
                         'created_by' => empty($user_id) ? auth()->user()->id : $user_id,
-                        'payment_for' => $transaction->contact_id,
+                        'payment_for' => isset($payment['payment_for']) ? $payment['payment_for'] : $transaction->contact_id,
                         'payment_ref_no' => $payment_ref_no,
                         'account_id' => !empty($payment['account_id']) ? $payment['account_id'] : null,
                         'game_id' => $game_id
