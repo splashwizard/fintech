@@ -65,7 +65,7 @@
 	</thead>
 	<tbody>
 	@foreach($ledger as $data)
-		<tr class="@if(isset($data['is_default']) && $data['is_default'] == 1) unclaimed @endif" data-transaction_id = "{{ isset($data['transaction_id']) ? $data['transaction_id'] : 0}}">
+		<tr class="@if(isset($data['is_default']) && $data['is_default'] == 1) unclaimed @endif" data-transaction_id = "{{ isset($data['transaction_id']) ? $data['transaction_id'] : 0}}" data-transaction_payment_id = "{{ isset($data['transaction_payment_id']) ? $data['transaction_payment_id'] : 0}}">
 			@if(!isset($data['transaction_id']))
 				@if($selected_bank == 'free_credit')
 					<td colspan="12" style="text-align: center; background-color: lightgrey"> -------------------------------- SHIFT CLOSED -------------------------------- </td>
@@ -99,9 +99,7 @@
 				<td>{!! isset($data['contact_id']) ? $data['date'] : null !!}</td>
 				<td>{!! isset($data['user']) ? $data['user'] : null !!}</td>
 				<td>
-					@if( !$is_admin_or_super || $is_admin_or_super && $data['is_edit_request'])
-						<i class="fa fa-pencil pos-edit-icon" style="color: rgb(255, 181, 185)" data-href="{{route('essentials_request.createWithTransaction', $data['transaction_id'])}}" data-container="#add_request_modal"></i>
-					@endif
+					<i class="fa fa-pencil pos-edit-icon" style="color: rgb(255, 181, 185)" data-href="{{route('essentials_request.createWithTransaction', $data['transaction_id'])}}" data-container="#add_request_modal"></i>
 					@if( isset($data['document_path']))
 						<a href="#" data-href="{{asset($data['document_path'])}}" class="view_uploaded_document"><i class="fa fa-picture-o" aria-hidden="true"></i> </a>
 					@endif
@@ -146,11 +144,13 @@
 		$('.pos-edit-icon').click(function (e) {
 			if(!( $(this).closest('tr').next() && $(this).closest('tr').next().hasClass('pos-edit-row'))){
 				const transaction_id = $(this).closest('tr').data('transaction_id');
+				const transaction_payment_id = $(this).closest('tr').data('transaction_payment_id');
 				var curRow = $(this).closest('tr');
 
 				$.ajax({
 					method: 'GET',
 					url: '/sells/pos_deposit/get_update_pos_row/' + transaction_id,
+					data: {transaction_payment_id: transaction_payment_id},
 					// dataType: 'json',
 					success: function(result) {
 						curRow.after(result);
@@ -203,41 +203,42 @@
 						var request_data = null;
 						bindEvents(editRow);
 						enableInputs(editRow);
-						if(is_admin_or_super){
-							$.ajax({
-								method: 'GET',
-								url: '/hrm/request/request_data/' + transaction_id,
-								// dataType: 'json',
-								success: function(result) {
-									if (result.exist) {
-										request_data = result.request_data;
-										if(result.request_type_id == 2){ // delete request
-											editRow.find('select[name="contact_id"]').prop('required', false);
-											editRow.find('select[name="service_id"]').prop('required', false);
-											editRow.find('select[name="essentials_request_type_id"]').val(result.request_type_id);
-											editRow.find('textarea[name="reason"]').val(result.reason);
-											editRow.find('.pos_data').hide();
-										} else {
-											editRow.find('input[name="credit"]').val(request_data.credit);
-											editRow.find('input[name="debit"]').val(request_data.debit);
-											editRow.find('input[name="basic_bonus"]').val(request_data.basic_bonus);
-											editRow.find('input[name="free_credit"]').val(request_data.free_credit);
-											editRow.find('input[name="service_credit"]').val(request_data.service_credit);
-											editRow.find('input[name="service_debit"]').val(request_data.service_debit);
-											editRow.find('input[name="bank_in_time"]').val(request_data.bank_in_time);
-											editRow.find('.contact_select').val(request_data.contact_id).trigger('change');
-											editRow.find('.service_select').val(request_data.service_id);
-											editRow.find('textarea[name="reason"]').val(result.reason);
-											editRow.find('select[name="essentials_request_type_id"]').val(result.request_type_id);
-											editRow.find('select[name="game_id"]').val(request_data.game_id);
-											editRow.find('select[name="bank_account_id"]').val(request_data.bank_account_id);
-											selected_bank_id = request_data.bank_account_id;
-										}
-										updateGameIds(editRow);
-									}
-								},
-							});
-						}
+						// fill cashier data for admin
+						// if(is_admin_or_super){
+						// 	$.ajax({
+						// 		method: 'GET',
+						// 		url: '/hrm/request/request_data/' + transaction_id,
+						// 		// dataType: 'json',
+						// 		success: function(result) {
+						// 			if (result.exist) {
+						// 				request_data = result.request_data;
+						// 				if(result.request_type_id == 2){ // delete request
+						// 					editRow.find('select[name="contact_id"]').prop('required', false);
+						// 					editRow.find('select[name="service_id"]').prop('required', false);
+						// 					editRow.find('select[name="essentials_request_type_id"]').val(result.request_type_id);
+						// 					editRow.find('textarea[name="reason"]').val(result.reason);
+						// 					editRow.find('.pos_data').hide();
+						// 				} else {
+						// 					editRow.find('input[name="credit"]').val(request_data.credit);
+						// 					editRow.find('input[name="debit"]').val(request_data.debit);
+						// 					editRow.find('input[name="basic_bonus"]').val(request_data.basic_bonus);
+						// 					editRow.find('input[name="free_credit"]').val(request_data.free_credit);
+						// 					editRow.find('input[name="service_credit"]').val(request_data.service_credit);
+						// 					editRow.find('input[name="service_debit"]').val(request_data.service_debit);
+						// 					editRow.find('input[name="bank_in_time"]').val(request_data.bank_in_time);
+						// 					editRow.find('.contact_select').val(request_data.contact_id).trigger('change');
+						// 					editRow.find('.service_select').val(request_data.service_id);
+						// 					editRow.find('textarea[name="reason"]').val(result.reason);
+						// 					editRow.find('select[name="essentials_request_type_id"]').val(result.request_type_id);
+						// 					editRow.find('select[name="game_id"]').val(request_data.game_id);
+						// 					editRow.find('select[name="bank_account_id"]').val(request_data.bank_account_id);
+						// 					selected_bank_id = request_data.bank_account_id;
+						// 				}
+						// 				updateGameIds(editRow);
+						// 			}
+						// 		},
+						// 	});
+						// }
 					},
 				});
 			}
@@ -251,23 +252,25 @@
 		function enableInputs(editRow) {
 			var element = editRow;
 			const transaction_id = element.prev().data('transaction_id');
-
-			$.ajax({
-				method: 'GET',
-				url: '/sells/pos_deposit/get_enable_pos_data/' + transaction_id,
-				success: function(result) {
-					const data = result.data;
-					for(var i = 0; i < data.length; i ++){
-						element.find('input[name="' + data[i].key +'"]').prop('disabled', false);
-						if(!is_admin_or_super)
-							element.find('input[name="' + data[i].key +'"]').val(data[i].amount);
+			const pos_type = element.find('input[name="pos_type"]').val();
+			if(pos_type === 'deposit' || pos_type === 'withdraw'){
+				$.ajax({
+					method: 'GET',
+					url: '/sells/pos_deposit/get_enable_pos_data/' + transaction_id,
+					success: function(result) {
+						const data = result.data;
+						for(var i = 0; i < data.length; i ++){
+							element.find('input[name="' + data[i].key +'"]').prop('disabled', false);
+							// if(!is_admin_or_super)
+							// 	element.find('input[name="' + data[i].key +'"]').val(data[i].amount);
+						}
+						// if(data[0].key == 'credit'){
+						// 	var service_debit = getNum(element.find('input[name="credit"]').val()) + getNum(element.find('input[name="basic_bonus"]').val()) + getNum(element.find('input[name="free_credit"]').val());
+						// 	element.find('input[name="service_debit"]').val(service_debit.toFixed(2));
+						// }
 					}
-					if(data[0].key == 'credit'){
-						var service_debit = getNum(element.find('input[name="credit"]').val()) + getNum(element.find('input[name="basic_bonus"]').val()) + getNum(element.find('input[name="free_credit"]').val());
-						element.find('input[name="service_debit"]').val(service_debit.toFixed(2));
-					}
-				}
-			});
+				});
+			}
 		}
 		function bindEvents(element) {
 			element.find('input[name="credit"]').unbind('keyup');
@@ -280,8 +283,8 @@
 			element.find('input[name="debit"]').bind('keyup', updatePosDebitData);
 			element.find('.btn-submit-pos').unbind('click');
 			element.find('form').submit(onSubmitPosForm);
-			element.find('.btn-approve').unbind('click');
-			element.find('.btn-approve').bind('click', onClickApprove);
+			// element.find('.btn-approve').unbind('click');
+			// element.find('.btn-approve').bind('click', onClickApprove);
 			element.find('.btn-reject').unbind('click');
 			element.find('.btn-reject').bind('click', onClickReject);
 			element.find('.btn-close-edit-row').unbind('click');
@@ -357,70 +360,69 @@
             var formElem = $(this).closest('form');
             if(formElem.validate()) {
                 e.preventDefault();
-                if(formElem.find('select[name="contact_id"]').val() || formElem.find('select[name="service_id"]').val()){
-                	if(!formElem.find('select[name="game_id"]').val()){
-                		toastr.error("Customer " + formElem.find('select[name="contact_id"] option:selected').html() + " doesn't have a Game ID with " + formElem.find('select[name="service_id"] option:selected').html() + ". Please create at the customer page.");
-                		return;
+				$(this).attr('disabled', true);
+				var data = formElem.serialize();
+                if(is_admin_or_super){
+					if(formElem.find('select[name="contact_id"]').val() || formElem.find('select[name="service_id"]').val()){
+						if(!formElem.find('select[name="game_id"]').val()){
+							toastr.error("Customer " + formElem.find('select[name="contact_id"] option:selected').html() + " doesn't have a Game ID with " + formElem.find('select[name="service_id"] option:selected').html() + ". Please create at the customer page.");
+							return;
+						}
 					}
+					$.ajax({
+						method: 'POST',
+						url: '/hrm/request/approve-request',
+						dataType: 'json',
+						data: data,
+						success: function(result) {
+							if (result.success == true) {
+								toastr.success(result.msg);
+								formElem.closest('.pos-edit-row').remove();
+								$('#bank-tabs .nav-item.active a').trigger('click');
+							} else {
+								toastr.error(result.msg);
+							}
+						},
+					});
 				}
-                $(this).attr('disabled', true);
-                var data = formElem.serialize();
-
-                $.ajax({
-                    method: formElem.attr('method'),
-                    url: formElem.attr('action'),
-                    dataType: 'json',
-                    data: data,
-                    success: function(result) {
-                        if (result.success == true) {
-                            toastr.success(result.msg);
-                            formElem.closest('.pos-edit-row').remove();
-                        } else {
-                            toastr.error(result.msg);
-                        }
-                    },
-                });
+                else {
+					$.ajax({
+						method: formElem.attr('method'),
+						url: formElem.attr('action'),
+						dataType: 'json',
+						data: data,
+						success: function (result) {
+							if (result.success == true) {
+								toastr.success(result.msg);
+								formElem.closest('.pos-edit-row').remove();
+							} else {
+								toastr.error(result.msg);
+							}
+						},
+					});
+				}
             }
 		}
-		function onClickApprove(e) {
-				var formElem = $(this).closest('form');
-			var data = formElem.serialize();
-
-			$.ajax({
-				method: 'POST',
-				url: '/hrm/request/approve-request',
-				dataType: 'json',
-				data: data,
-				success: function(result) {
-					if (result.success == true) {
-						toastr.success(result.msg);
-						formElem.closest('.pos-edit-row').remove();
-						$('#bank-tabs .nav-item a[data-bank_id="' + selected_bank_id + '"]').trigger('click');
-					} else {
-						toastr.error(result.msg);
-					}
-				},
-			});
-		}
 		function onClickReject(e) {
-			var formElem = $(this).parents('form');
-			var data = formElem.serialize();
-			console.log(data);
-
-			$.ajax({
-				method: 'POST',
-				url: '/hrm/request/reject-request',
-				dataType: 'json',
-				data: data,
-				success: function(result) {
-					if (result.success == true) {
-						toastr.success(result.msg);
-						formElem.closest('.pos-edit-row').remove();
-					} else {
-						toastr.error(result.msg);
-					}
-				},
-			});
+			$(this).closest('.pos-edit-row').remove();
+			// var formElem = $(this).parents('form');
+			// var data = formElem.serialize();
+			// console.log(data);
+			//
+			// $.ajax({
+			// 	method: 'POST',
+			// 	url: '/hrm/request/reject-request',
+			// 	dataType: 'json',
+			// 	data: data,
+			// 	success: function(result) {
+			// 		if (result.success == true) {
+			// 			toastr.success(result.msg);
+			// 			formElem.closest('.pos-edit-row').remove();
+			// 		} else {
+			// 			toastr.error(result.msg);
+			// 		}
+			// 	},
+			// });
 		}
 	})
 </script>

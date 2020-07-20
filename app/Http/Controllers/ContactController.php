@@ -186,7 +186,8 @@ class ContactController extends Controller
             ->where('contacts.type', 'customer');
         if($month!="0")
             $query->where(DB::raw('DATE_FORMAT(STR_TO_DATE(birthday, "%Y-%m-%d"), "%m")'), $month);
-        $query->addSelect(['contacts.contact_id', 'contacts.name', 'contacts.email', 'contacts.created_at', 'contacts.remarks', 'total_rp', 'cg.name as customer_group', 'm.name as membership', 'city', 'state', 'country', 'landmark', 'mobile', 'contacts.id', 'is_default',
+        $query->addSelect(['contacts.contact_id', 'contacts.name', 'contacts.email', 'contacts.created_at', 'contacts.remarks1', 'contacts.remarks2', 'contacts.remarks3',
+            'total_rp', 'cg.name as customer_group', 'm.name as membership', 'city', 'state', 'country', 'landmark', 'mobile', 'contacts.id', 'is_default',
             DB::raw( 'DATE_FORMAT(STR_TO_DATE(birthday, "%Y-%m-%d"), "%d/%m") as birthday'),
             DB::raw("SUM(IF(t.type = 'sell'  AND t.status = 'final', final_total, 0)) as total_invoice"),
             DB::raw("SUM(IF(t.type = 'sell' AND t.status = 'final', (SELECT SUM(IF(is_return = 1,-1*amount,amount)) FROM transaction_payments WHERE transaction_payments.transaction_id=t.id), 0)) as invoice_received"),
@@ -1068,6 +1069,8 @@ class ContactController extends Controller
                 $contact->remark = request()->get('remark');
                 $contact->blacked_by_user = request()->session()->get('user.first_name').' '.request()->session()->get('user.last_name');
                 $contact->save();
+
+                ActivityLogger::activity("Blacklisted ". Contact::find($id)->contact_id);
 
                 $output = ['success' => true,
                     'msg' => __("contact.updated_success")

@@ -72,6 +72,8 @@
 {{--                                <th>@lang('user.rp_name')</th>--}}
                                 <th>@lang('business.address')</th>
                                 <th></th>
+                                <th></th>
+                                <th></th>
                                 <th>@lang('lang_v1.added_on')</th>
                                 <th>@lang('messages.action')</th>
                             @elseif( $type == 'blacklisted_customer')
@@ -104,7 +106,7 @@
                             @if( $type == 'blacklisted_customer')
                                 <td colspan="6"></td>
                             @else
-                                <td colspan="5"></td>
+                                <td colspan="7"></td>
                             @endif
                         </tr>
                     </tfoot>
@@ -200,14 +202,25 @@
         } else {
             columns.push.apply(columns,[
                 {data: 'landmark', width: "10%"},
-                {data: 'remarks', visible: false, width: "0%"},
+                {data: 'remarks1', visible: false, width: "0%"},
+                {data: 'remarks2', visible: false, width: "0%"},
+                {data: 'remarks3', visible: false, width: "0%"},
                 {data: 'created_at', width: "10%"},
                 {data: 'action', width: "10%"}
             ]);
         }
 
         function format(remarks) {
-            return '<div><b>Remark:</b> ' + remarks + '</div>';
+            var html = '<div class="row">';
+            for(var i = 0; i < 3; i ++){
+                var remarkTmp = '<div class="col-md-4">';
+                if(remarks[i])
+                    remarkTmp += '<b>Remark' + (i + 1) +':</b> ' + remarks[i];
+                remarkTmp += '</div>';
+                html += remarkTmp;
+            }
+            html += '</div>';
+            return html;
         }
         var contact_table = $('#contact_table').DataTable({
             processing: true,
@@ -228,8 +241,8 @@
                 __currency_convert_recursively($('#contact_table'));
             },
             "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
-                if(aData.remarks)
-                    contact_table.row( nRow ).child(format(aData.remarks)).show();
+                if(aData.remarks1 || aData.remarks2 || aData.remarks3)
+                    contact_table.row( nRow ).child(format([aData.remarks1, aData.remarks2, aData.remarks3])).show();
                 if ( aData.banned_by_user )
                 {
                     $('td', nRow).css('color', 'Red');
