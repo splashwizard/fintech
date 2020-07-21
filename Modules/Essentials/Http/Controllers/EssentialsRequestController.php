@@ -284,7 +284,7 @@ class EssentialsRequestController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        try {
+//        try {
             $input = $request->only(['essentials_request_type_id', 'start_date', 'end_date']);
             
             $input['business_id'] = $business_id;
@@ -303,17 +303,20 @@ class EssentialsRequestController extends Controller
                     $input['reason'] .= '<b>Ticket#:</b> '.$transaction->invoice_no.'<br/>';
                     $input['reason'] .= '<b>Bank:</b> '.Account::find($request->get('origin_bank_account_id'))->name.'<br/><br/>';
                     foreach ($request_keys as $request_key){
-                        if(!empty($request->get($request_key))){
+                        if($request->has($request_key)){
                             $request_data[$request_key] = $request->get($request_key);
                         }
                     }
-                    if(!empty($request_data['credit'])){
-                        $input['reason'] .= '<b>Credit:</b> '.$request_data['credit'].'<br/>';
-                        if(isset($request_data['free_credit'])){
+//                    print_r($request_data);exit;
+                    if(array_key_exists('credit', $request_data)){
+                        if(!empty($request_data['credit'])){
+                            $input['reason'] .= '<b>Credit:</b> '.$request_data['credit'].'<br/>';
+                        }
+                        if(!empty($request_data['free_credit'])){
                             $input['reason'] .= '<b>Free Credit:</b> '.$request_data['free_credit'].'<br/>';
                             $request_data['service_debit'] = $request_data['credit'] + $request_data['free_credit'];
                         }
-                        else if(isset($request_data['basic_bonus'])){
+                        if(!empty($request_data['basic_bonus'])){
                             $input['reason'] .= '<b>Basic Bonus:</b> '.$request_data['basic_bonus'].'<br/>';
                             $request_data['service_debit'] = $request_data['credit'] + $request_data['basic_bonus'];
                         }
@@ -323,6 +326,7 @@ class EssentialsRequestController extends Controller
                     else
                         $request_data['service_credit'] = $request_data['debit'];
                     $request_data['game_id'] = $request->get('game_id');
+//                    print_r($request_data);exit;
                     $input['request_data'] = serialize($request_data);
 
                     $input['reason'] .= '<b>Reason:</b> '.$request->get('reason');
@@ -372,13 +376,13 @@ class EssentialsRequestController extends Controller
             $output = ['success' => true,
                             'msg' => __("lang_v1.added_success")
                         ];
-        } catch (\Exception $e) {
-            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-            
-            $output = ['success' => false,
-                            'msg' => __("messages.something_went_wrong")
-                        ];
-        }
+//        } catch (\Exception $e) {
+//            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+//
+//            $output = ['success' => false,
+//                            'msg' => __("messages.something_went_wrong")
+//                        ];
+//        }
 
         return $output;
     }

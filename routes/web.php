@@ -156,6 +156,7 @@ Route::middleware(['IsInstalled', 'auth', 'SetSessionData', 'language', 'timezon
     Route::post('/sells/pos_deposit/get_basic_bonus_rate', 'SellPosDepositController@getBasicBonusRate');
 
     Route::post('/sells/pos_deposit/update_game_id', 'SellPosDepositController@updateGameID');
+    Route::post('/sells/pos_deposit/get_game_id', 'SellPosDepositController@getGameID');
     Route::post('/sells/pos_deposit/check_shift_closed', 'SellPosDepositController@checkShiftClosed');
     Route::post('/sells/pos_deposit/get_no_bonus', 'SellPosDepositController@getNoBonus');
 

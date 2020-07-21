@@ -1182,12 +1182,17 @@ $(document).ready(function() {
     });
 
     $(document).on('click', '#confirm_second_client_btn',function () {
-        // var edit_product_price = $(this).parents('.row_edit_product_price_model').find('.input_number');
-        // if(!edit_product_price.next().is('.error')){
-        //     edit_product_price.parent('div').append('<label class="error">Error. Maximum Game Credit amount is ' + maxGameCredit + '.</label>');
-        //     return;
-        // }
-        // edit_product_price.next().remove();
+        var game_id_input = $(this).parents('.row_add_second_client_modal').find('.second_game_id');
+        if(game_id_input.val() === 'UNDEFINED'){
+            if(!game_id_input.next().is('.error')){
+                const errMsg = '<label class="error">' + $(this).parents('.row_add_second_client_modal').find('.second_contact_select').select2('data')[0].text +" doesn't have a Game ID.</label>";
+                game_id_input.parent('div').append(errMsg);
+            }
+            return;
+        }
+        $(this).parents('tr').find('.game_id_but').html(game_id_input.val());
+        game_id_input.next().remove();
+        $(this).parents('.row_add_second_client_modal').find('.payment_for').val($(this).parents('.row_add_second_client_modal').find('.second_contact_select').val());
         $(this).parents('.row_add_second_client_modal').modal('hide');
     });
     $(document).on('click', '#confirm_btn',function () {
@@ -1303,6 +1308,12 @@ $(document).ready(function() {
             var key = e.which;
             if (key == 13) { //This is an ENTER
                 $('#withdraw_form>.modal-footer>.btn-primary').trigger('click');
+            }
+        }
+        else if($('.row_add_second_client_modal.in').length > 0) {
+            var key = e.which;
+            if (key == 13) { //This is an ENTER
+                $('.row_add_second_client_modal.in .modal-footer button').trigger('click');
             }
         }
         else{
@@ -2260,6 +2271,19 @@ function pos_product_row(variation_id, product_type = 0, name = 'Bonus',  percen
                             $('table#pos_table tbody .product_row:last .second_contact_select')
                                 .val(default_customer_id)
                                 .trigger('change');
+
+                            $('table#pos_table tbody .product_row:last .second_contact_select').on('select2:select', function(e) {
+                                var thisElem = $(this);
+                                $.ajax({
+                                    method: 'POST',
+                                    url: '/sells/pos_deposit/get_game_id',
+                                    data: { contact_id: $(this).val(), service_id: $(this).closest('tr').find('.account_id').val()},
+                                    success: function(result) {
+                                        thisElem.closest('.row_add_second_client_modal').find('.second_game_id').val(result.game_id);
+                                    },
+                                });
+                            });
+
                         }
 
                         //increment row count

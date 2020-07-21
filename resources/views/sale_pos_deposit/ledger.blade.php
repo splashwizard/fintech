@@ -273,14 +273,14 @@
 			}
 		}
 		function bindEvents(element) {
-			element.find('input[name="credit"]').unbind('keyup');
-			element.find('input[name="credit"]').bind('keyup', updatePosCreditData);
-			element.find('input[name="free_credit"]').unbind('keyup');
-			element.find('input[name="free_credit"]').bind('keyup', updatePosCreditData);
-			element.find('input[name="basic_bonus"]').unbind('keyup');
-			element.find('input[name="basic_bonus"]').bind('keyup', updatePosCreditData);
-			element.find('input[name="debit"]').unbind('keyup');
-			element.find('input[name="debit"]').bind('keyup', updatePosDebitData);
+			// element.find('input[name="credit"]').unbind('keyup');
+			// element.find('input[name="credit"]').bind('keyup', updatePosCreditData);
+			// element.find('input[name="free_credit"]').unbind('keyup');
+			// element.find('input[name="free_credit"]').bind('keyup', updatePosCreditData);
+			// element.find('input[name="basic_bonus"]').unbind('keyup');
+			// element.find('input[name="basic_bonus"]').bind('keyup', updatePosCreditData);
+			// element.find('input[name="debit"]').unbind('keyup');
+			// element.find('input[name="debit"]').bind('keyup', updatePosDebitData);
 			element.find('.btn-submit-pos').unbind('click');
 			element.find('form').submit(onSubmitPosForm);
 			// element.find('.btn-approve').unbind('click');

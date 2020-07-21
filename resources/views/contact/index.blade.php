@@ -172,10 +172,10 @@
         // }
         if (contact_table_type === 'blacklisted_customer'){
             columns = [{data: 'contact_id', width: "10%"},
-                {data: 'name', width: "10%"},
+                {data: 'name', name: 'contacts.name', width: "10%"},
                 {data: 'mobile', width: "10%"},
                 {data: 'email', width: "10%"},
-                {data: 'customer_group', width: "10%"},
+                {data: 'customer_group', name: 'cg.name', width: "10%"},
                 {data: 'due', width: "10%"},
                 {data: 'return_due', width: "10%"}];
         } else {

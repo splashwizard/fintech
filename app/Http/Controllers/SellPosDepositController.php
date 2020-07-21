@@ -573,7 +573,7 @@ class SellPosDepositController extends Controller
                     $new_payment_item = [];
 
                     foreach ($products as $key => $product) {
-                        if(empty($product['payment_for']) || Contact::find($product['payment_for'])->is_default == 1)
+                        if(empty($product['payment_for']))
                             $products[$key]['payment_for'] = $contact_id;
                     }
                     foreach ($products as $product) {
@@ -2626,6 +2626,18 @@ class SellPosDepositController extends Controller
         return 1;
     }
 
+    public function getGameID(){
+        $contact_id = request()->get('contact_id');
+        $service_id = request()->get('service_id');
+        $game_id = null;
+        if(GameId::where('contact_id', $contact_id)->where('service_id', $service_id)->count()){
+            $game_id = GameId::where('contact_id', $contact_id)->where('service_id', $service_id)->get()->first()->cur_game_id;
+        }
+        if($game_id == null)
+            $game_id = "UNDEFINED";
+        return ['game_id' => $game_id];
+    }
+
     public function getRemarks(){
         try{
             $customer = Contact::find(request()->get('customer_id'));
@@ -2786,7 +2798,8 @@ class SellPosDepositController extends Controller
                             'bank_id' => isset($payment_item['bank_id']) ? $payment_item['bank_id'] : -1,
                             'transaction_id' => $payment_item['transaction_id'],
                             'date' => $payment_item['date'],
-                            'contact_id' => $payment->contact_id
+                            'contact_id' => $payment->contact_id,
+                            'account_name' => $payment_item['account_name']
                         ];
                     }
                     else {

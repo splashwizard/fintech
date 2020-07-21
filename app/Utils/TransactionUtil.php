@@ -558,7 +558,7 @@ class TransactionUtil extends Util
 
                     $game_id = null;
                     if(!empty($payment['account_id']) && Account::find($payment['account_id'])->is_service){
-                        $game_id = GameId::where('contact_id', $transaction->contact_id)->where('service_id', $payment['account_id'])->get()->first()->cur_game_id;
+                        $game_id = GameId::where('contact_id', $payment['payment_for'])->where('service_id', $payment['account_id'])->get()->first()->cur_game_id;
                     }
 
                     $payment_data = [

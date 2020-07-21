@@ -983,9 +983,9 @@ class ContactController extends Controller
                                             'cur_game_id' => $game_id['cur_game_id'],
                                             'old_game_id' => $game_id['old_game_id']
                                         ]);
-                                        if(!$game_id['cur_game_id'])
+                                        if(!empty($game_id['cur_game_id']))
                                             $activity .= chr(10) . chr(13) . $game_name . ': >>>' . $game_id['cur_game_id'];
-                                        if(!$game_id['old_game_id'])
+                                        if(!empty($game_id['old_game_id']))
                                             $activity .= chr(10) . chr(13) . 'Old - '.$game_name . ': >>>' . $game_id['old_game_id'];
                                     }
                                 } else {

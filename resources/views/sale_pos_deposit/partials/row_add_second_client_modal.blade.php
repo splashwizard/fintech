@@ -7,7 +7,9 @@
 		<div class="modal-body">
 			<div class="row">
 				<div class="form-group col-xs-12">
-					{!! Form::select("products[{$row_count}][payment_for]", [], null, ['class' => 'form-control mousetrap second_contact_select', 'placeholder' => 'Enter Customer name / phone', 'required', 'style' => 'width: 100%;']); !!}
+					{!! Form::select("products[{$row_count}][payment_for1]", [], null, ['class' => 'form-control mousetrap second_contact_select', 'placeholder' => 'Enter Customer name / phone', 'required', 'style' => 'width: 100%;']); !!}
+					{!! Form::hidden("products[{$row_count}][payment_for]", 0, ['class' => 'payment_for']); !!}
+					{!! Form::hidden("products[{$row_count}][game_id]", 'UNDEFINED', ['class' => 'second_game_id']); !!}
 				</div>
 			</div>
 		</div>
