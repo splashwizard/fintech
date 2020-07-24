@@ -155,54 +155,58 @@
 					success: function(result) {
 						curRow.after(result);
 						var editRow = curRow.next();
-						editRow.find('.contact_select').select2({
-							ajax: {
-								url: '/contacts/customersWithId',
-								dataType: 'json',
-								delay: 250,
-								data: function(params) {
-									return {
-										q: params.term, // search term
-										page: params.page,
-									};
+						if(is_admin_or_super){
+							editRow.find('.contact_select').select2({
+								ajax: {
+									url: '/contacts/customersWithId',
+									dataType: 'json',
+									delay: 250,
+									data: function(params) {
+										return {
+											q: params.term, // search term
+											page: params.page,
+										};
+									},
+									processResults: function(data) {
+										return {
+											results: data,
+										};
+									},
 								},
-								processResults: function(data) {
-									return {
-										results: data,
-									};
-								},
-							},
-							templateResult: function (data) {
-								var template = data.text;
-								if (typeof(data.game_text) != "undefined") {
-									template += "<br><i class='fa fa-gift text-success'></i> " + data.game_text;
-								}
-								// var template = data.contact_id;
+								templateResult: function (data) {
+									var template = data.text;
+									if (typeof(data.game_text) != "undefined") {
+										template += "<br><i class='fa fa-gift text-success'></i> " + data.game_text;
+									}
+									// var template = data.contact_id;
 
-								return template;
-							},
-							minimumInputLength: 1,
-							language: {
-								noResults: function() {
-									var name = $('#customer_id')
-											.data('select2')
-											.dropdown.$search.val();
-									return (
-											'<button type="button" data-name="' +
-											name +
-											'" class="btn btn-link add_new_customer"><i class="fa fa-plus-circle fa-lg" aria-hidden="true"></i>&nbsp; ' +
-											__translate('add_name_as_new_customer', { name: name }) +
-											'</button>'
-									);
+									return template;
 								},
-							},
-							escapeMarkup: function(markup) {
-								return markup;
-							},
-						});
-						var request_data = null;
-						bindEvents(editRow);
-						enableInputs(editRow);
+								minimumInputLength: 1,
+								language: {
+									noResults: function() {
+										var name = $('#customer_id')
+												.data('select2')
+												.dropdown.$search.val();
+										return (
+												'<button type="button" data-name="' +
+												name +
+												'" class="btn btn-link add_new_customer"><i class="fa fa-plus-circle fa-lg" aria-hidden="true"></i>&nbsp; ' +
+												__translate('add_name_as_new_customer', { name: name }) +
+												'</button>'
+										);
+									},
+								},
+								escapeMarkup: function(markup) {
+									return markup;
+								},
+							});
+							var request_data = null;
+							bindEvents(editRow);
+							enableInputs(editRow);
+						} else {
+							bindEvents(editRow);
+						}
 						// fill cashier data for admin
 						// if(is_admin_or_super){
 						// 	$.ajax({
@@ -281,21 +285,22 @@
 			// element.find('input[name="basic_bonus"]').bind('keyup', updatePosCreditData);
 			// element.find('input[name="debit"]').unbind('keyup');
 			// element.find('input[name="debit"]').bind('keyup', updatePosDebitData);
+			if(is_admin_or_super){
+				element.find('.btn-reject').unbind('click');
+				element.find('.btn-reject').bind('click', onClickReject);
+				element.find('select[name="essentials_request_type_id"]').bind('change',onChangeRequestType);
+				element.find('select[name="contact_id"]').change(function (){
+					updateGameIds(element);
+				});
+				element.find('select[name="service_id"]').change(function (){
+					updateGameIds(element);
+				});
+			} else {
+				element.find('.btn-close-edit-row').unbind('click');
+				element.find('.btn-close-edit-row').bind('click', onCloseEditRow);
+			}
 			element.find('.btn-submit-pos').unbind('click');
 			element.find('form').submit(onSubmitPosForm);
-			// element.find('.btn-approve').unbind('click');
-			// element.find('.btn-approve').bind('click', onClickApprove);
-			element.find('.btn-reject').unbind('click');
-			element.find('.btn-reject').bind('click', onClickReject);
-			element.find('.btn-close-edit-row').unbind('click');
-			element.find('.btn-close-edit-row').bind('click', onCloseEditRow);
-			element.find('select[name="essentials_request_type_id"]').bind('change',onChangeRequestType);
-			element.find('select[name="contact_id"]').change(function (){
-				updateGameIds(element);
-			});
-			element.find('select[name="service_id"]').change(function (){
-				updateGameIds(element);
-			});
 		}
 		function updateGameIds(element) {
 			$.ajax({

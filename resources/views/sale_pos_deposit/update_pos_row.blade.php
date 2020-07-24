@@ -9,7 +9,7 @@
 				@if($pos_type == 'deposit' || $pos_type == 'withdraw')
 					<input name="origin_bank_account_id" type="hidden" value="{{$selected_bank_id}}">
 				@endif
-				@if($pos_type != 'unclaimed')
+				@if($pos_type != 'unclaimed' && (auth()->user()->hasRole('Admin#' . auth()->user()->business_id) || auth()->user()->hasRole('Superadmin') || auth()->user()->hasRole('Admin')))
 				<tr class="pos_data">
 					<td style="width: 8%"></td>
 					<td style="width: 10%"><input type="time" name="bank_in_time" ></td>
@@ -33,7 +33,7 @@
 					<td colspan="14">
 						<div class="row" style="padding: 3px 6px 3px 6px">
 							<div class="col-md-6">
-								@if($pos_type == 'deposit' || $pos_type == 'withdraw')
+								@if( ($pos_type == 'deposit' || $pos_type == 'withdraw' ) && (auth()->user()->hasRole('Admin#' . auth()->user()->business_id) || auth()->user()->hasRole('Superadmin') || auth()->user()->hasRole('Admin')))
 									<div>
 										{!! Form::label('bank_account_id', __( 'product.account' ) .":*") !!}
 										{!! Form::select('bank_account_id', $bank_accounts, $selected_bank_id, ['class' => 'form-control', 'required' ]); !!}

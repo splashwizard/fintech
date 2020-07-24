@@ -49,5 +49,6 @@ return [
     'customer' => 'Customer',
     'blacklist_by' => 'Blacklist by',
     'banned_by' => 'Banned by',
-    'remarks' => 'remarks'
+    'remarks' => 'remarks',
+    'reason' => 'reason'
 ];

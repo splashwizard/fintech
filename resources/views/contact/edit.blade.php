@@ -85,7 +85,7 @@
                   <span class="input-group-addon">
                       <i class="fa fa-mobile"></i>
                   </span>
-                  {!! Form::text('mobile[]', empty($contact->mobile) ? null : json_decode($contact->mobile)[0], ['class' => 'form-control', 'required', 'placeholder' => __('contact.mobile')]); !!}
+                  {!! Form::number('mobile[]', empty($contact->mobile) ? null : json_decode($contact->mobile)[0], ['class' => 'form-control', 'required', 'placeholder' => __('contact.mobile')]); !!}
                   <span style="display: table-cell; vertical-align: middle">
                       <span class="btn btn-primary" style="margin-left: 10px" id="btn-add_mobile"><i class="fa fa-plus"></i></span>
                   </span>

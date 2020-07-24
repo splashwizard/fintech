@@ -2558,6 +2558,8 @@ function reset_pos_form(){
     updateRemarks();
     $('#bonus').prop('disabled', false);
     no_bonus = 0;
+    bonus_variation_id = -1;
+    $('#bonus_variation_id').val(bonus_variation_id);
 
 	// $('tr.product_row').remove();
     $('tr.product_row').remove();

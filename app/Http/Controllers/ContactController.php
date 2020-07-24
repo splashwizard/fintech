@@ -281,7 +281,8 @@ class ContactController extends Controller
             ->where('contacts.business_id', $business_id)
             ->where('contacts.blacked_by_user', '!=', null)
             ->onlyCustomers()
-            ->addSelect(['contacts.contact_id', 'contacts.name', 'contacts.email', 'contacts.created_at', 'total_rp', 'cg.name as customer_group', 'city', 'state', 'country', 'landmark', 'mobile', 'contacts.id', 'is_default', 'contacts.blacked_by_user', 'contacts.remark', 'contacts.banned_by_user',
+            ->addSelect(['contacts.contact_id', 'contacts.name', 'contacts.email', 'contacts.created_at', 'total_rp', 'cg.name as customer_group', 'city', 'state', 'country', 'landmark', 'mobile',
+                'contacts.id', 'is_default', 'contacts.blacked_by_user', 'contacts.remark', 'contacts.remarks1', 'contacts.remarks2', 'contacts.remarks3', 'contacts.banned_by_user',
                 DB::raw("SUM(IF(t.type = 'sell' AND t.status = 'final', final_total, 0)) as total_invoice"),
 //                        DB::raw("1000 as total_invoice"),
                 DB::raw("SUM(IF(t.type = 'sell' AND t.status = 'final', (SELECT SUM(IF(is_return = 1,-1*amount,amount)) FROM transaction_payments WHERE transaction_payments.transaction_id=t.id), 0)) as invoice_received"),
@@ -962,10 +963,10 @@ class ContactController extends Controller
                             $contact->bank_details = json_encode($new_bank_details);
                             $contact->mobile = json_encode($request->get('mobile'));
                             $type = $request->get('customer_type');
-                            if ($type == 'blacklisted_customer') {
-                                $contact->remark = $request->get('remark');
-                                $contact->blacked_by_user = $request->session()->get('user.first_name') . ' ' . $request->session()->get('user.last_name');
-                            }
+//                            if ($type == 'blacklisted_customer') {
+//                                $contact->remark = $request->get('remark');
+//                                $contact->blacked_by_user = $request->session()->get('user.first_name') . ' ' . $request->session()->get('user.last_name');
+//                            }
 
                             $contact->save();
                             $admins = $this->moduleUtil->get_admins($business_id);

@@ -85,9 +85,12 @@
                                 <th>@lang('lang_v1.total_sell_return_due')</th>
 {{--                                <th>@lang('user.rp_name')</th>--}}
                                 <th>@lang('business.address')</th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
                                 <th>@lang('lang_v1.added_on')</th>
                                 <th>@lang('contact.blacklist_by')</th>
-                                <th>@lang('contact.remarks')</th>
+                                <th>@lang('contact.reason')</th>
                                 <th>@lang('contact.banned_by')</th>
                                 <th>@lang('messages.action')</th>
                             @endif
@@ -193,6 +196,9 @@
         if (contact_table_type === 'blacklisted_customer'){
             columns.push.apply(columns, [
                 {data: 'landmark', width: "10%"},
+                {data: 'remarks1', visible: false, width: "0%"},
+                {data: 'remarks2', visible: false, width: "0%"},
+                {data: 'remarks3', visible: false, width: "0%"},
                 {data: 'created_at', width: "10%"},
                 {data: 'blacked_by_user', width: "10%"},
                 {data: 'remark', width: "10%"},

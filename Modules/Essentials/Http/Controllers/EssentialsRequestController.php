@@ -296,40 +296,37 @@ class EssentialsRequestController extends Controller
                 $input['transaction_id'] = $transaction_id;
                 $transaction = Transaction::find($transaction_id);
                 if($input['essentials_request_type_id'] == 1){
-                    $request_data = [];
-                    $request_keys = ['bank_in_time', 'credit', 'debit', 'free_credit', 'basic_bonus', 'service_credit', 'service_debit', 'contact_id', 'service_id', 'game_id', 'bank_account_id'];
-//                    $request_keys = ['bank_in_time', 'credit', 'debit', 'free_credit', 'basic_bonus', 'contact_id', 'service_id'];
-                    $input['reason'] = 'Change Detail:<br/>';
-                    $input['reason'] .= '<b>Ticket#:</b> '.$transaction->invoice_no.'<br/>';
-                    $input['reason'] .= '<b>Bank:</b> '.Account::find($request->get('origin_bank_account_id'))->name.'<br/><br/>';
-                    foreach ($request_keys as $request_key){
-                        if($request->has($request_key)){
-                            $request_data[$request_key] = $request->get($request_key);
-                        }
-                    }
-//                    print_r($request_data);exit;
-                    if(array_key_exists('credit', $request_data)){
-                        if(!empty($request_data['credit'])){
-                            $input['reason'] .= '<b>Credit:</b> '.$request_data['credit'].'<br/>';
-                        }
-                        if(!empty($request_data['free_credit'])){
-                            $input['reason'] .= '<b>Free Credit:</b> '.$request_data['free_credit'].'<br/>';
-                            $request_data['service_debit'] = $request_data['credit'] + $request_data['free_credit'];
-                        }
-                        if(!empty($request_data['basic_bonus'])){
-                            $input['reason'] .= '<b>Basic Bonus:</b> '.$request_data['basic_bonus'].'<br/>';
-                            $request_data['service_debit'] = $request_data['credit'] + $request_data['basic_bonus'];
-                        }
-                        else
-                            $request_data['service_debit'] = $request_data['credit'];
-                    }
-                    else
-                        $request_data['service_credit'] = $request_data['debit'];
-                    $request_data['game_id'] = $request->get('game_id');
-//                    print_r($request_data);exit;
-                    $input['request_data'] = serialize($request_data);
+//                    $request_data = [];
+//                    $request_keys = ['bank_in_time', 'credit', 'debit', 'free_credit', 'basic_bonus', 'service_credit', 'service_debit', 'contact_id', 'service_id', 'game_id', 'bank_account_id'];
+//                    $input['reason'] = 'Change Detail:<br/>';
+//                    $input['reason'] .= '<b>Ticket#:</b> '.$transaction->invoice_no.'<br/>';
+//                    $input['reason'] .= '<b>Bank:</b> '.Account::find($request->get('origin_bank_account_id'))->name.'<br/><br/>';
+//                    foreach ($request_keys as $request_key){
+//                        if($request->has($request_key)){
+//                            $request_data[$request_key] = $request->get($request_key);
+//                        }
+//                    }
+//                    if(array_key_exists('credit', $request_data)){
+//                        if(!empty($request_data['credit'])){
+//                            $input['reason'] .= '<b>Credit:</b> '.$request_data['credit'].'<br/>';
+//                        }
+//                        if(!empty($request_data['free_credit'])){
+//                            $input['reason'] .= '<b>Free Credit:</b> '.$request_data['free_credit'].'<br/>';
+//                            $request_data['service_debit'] = $request_data['credit'] + $request_data['free_credit'];
+//                        }
+//                        if(!empty($request_data['basic_bonus'])){
+//                            $input['reason'] .= '<b>Basic Bonus:</b> '.$request_data['basic_bonus'].'<br/>';
+//                            $request_data['service_debit'] = $request_data['credit'] + $request_data['basic_bonus'];
+//                        }
+//                        else
+//                            $request_data['service_debit'] = $request_data['credit'];
+//                    }
+//                    else
+//                        $request_data['service_credit'] = $request_data['debit'];
+//                    $request_data['game_id'] = $request->get('game_id');
+//                    $input['request_data'] = serialize($request_data);
 
-                    $input['reason'] .= '<b>Reason:</b> '.$request->get('reason');
+                    $input['reason'] = '<b>Reason:</b> '.$request->get('reason');
                 }
                 else if($input['essentials_request_type_id'] == 4){ // GTransfer
                     $input['reason'] = 'Change Detail:<br/>';
