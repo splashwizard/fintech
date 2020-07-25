@@ -100,7 +100,7 @@
                           <span class="input-group-addon">
                               <i class="fa fa-mobile"></i>
                           </span>
-                          {!! Form::text('mobile[]', $item, ['class' => 'form-control', 'required', 'placeholder' => __('contact.mobile')]); !!}
+                          {!! Form::number('mobile[]', $item, ['class' => 'form-control', 'required', 'placeholder' => __('contact.mobile')]); !!}
                           <span style="display: table-cell; vertical-align: middle">
                             <span class="btn btn-danger btn-remove_mobile" style="margin-left: 10px"><i class="fa fa-minus"></i></span>
                           </span>

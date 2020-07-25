@@ -4,108 +4,65 @@
 	    <th>@lang('business.keyboard_shortcut')</th>
 	</tr>
 
-	@if($pos_settings['disable_express_checkout'] == 0)
-		<tr>
-		    <td>@lang('sale.express_finalize'):</td>
-		    <td>
-			    @if(!empty($shortcuts["pos"]["express_checkout"]))
-			    	{{ $shortcuts["pos"]["express_checkout"] }}
-			    @endif
-		    </td>
-		</tr>
-	@endif
-
-	@if($pos_settings['disable_pay_checkout'] == 0)
-		<tr>
-		    <td>@lang('sale.finalize'):</td>
-		    <td>
-		    	@if(!empty($shortcuts["pos"]["pay_n_ckeckout"]))
-			    	{{ $shortcuts["pos"]["pay_n_ckeckout"] }}
-			    @endif
-		    </td>
-		</tr>
-	@endif
-
-	@if($pos_settings['disable_draft'] == 0)
-		<tr>
-		    <td>@lang('sale.draft'):</td>
-		    <td>
-		    	@if(!empty($shortcuts["pos"]["draft"]))
-			    	{{ $shortcuts["pos"]["draft"] }}
-			    @endif
-		    </td>
-		</tr>
-	@endif
-
 	<tr>
-	    <td>@lang('messages.cancel'):</td>
-	    <td>
-	    	@if(!empty($shortcuts["pos"]["cancel"]))
-		    	{{ $shortcuts["pos"]["cancel"] }}
-		    @endif
-	    </td>
-	</tr>
-
-	@if($pos_settings['disable_discount'] == 0)
-		<tr>
-		    <td>@lang('sale.edit_discount'):</td>
-		    <td>
-		    	@if(!empty($shortcuts["pos"]["edit_discount"]))
-			    	{{ $shortcuts["pos"]["edit_discount"] }}
-			    @endif
-		    </td>
-		</tr>
-	@endif
-
-	@if($pos_settings['disable_order_tax'] == 0)
-		<tr>
-		    <td>@lang('sale.edit_order_tax'):</td>
-		    <td>
-		    	@if(!empty($shortcuts["pos"]["edit_order_tax"]))
-			    	{{ $shortcuts["pos"]["edit_order_tax"] }}
-			    @endif
-		    </td>
-		</tr>
-	@endif
-
-	@if($pos_settings['disable_pay_checkout'] == 0)
-		<tr>
-		    <td>@lang('sale.add_payment_row'):</td>
-		    <td>
-		    	@if(!empty($shortcuts["pos"]["add_payment_row"]))
-			    	{{ $shortcuts["pos"]["add_payment_row"] }}
-			    @endif
-		    </td>
-		</tr>
-	@endif
-
-	@if($pos_settings['disable_pay_checkout'] == 0)
-		<tr>
-		    <td>@lang('sale.finalize_payment'):</td>
-		    <td>
-		    	@if(!empty($shortcuts["pos"]["finalize_payment"]))
-			    	{{ $shortcuts["pos"]["finalize_payment"] }}
-			    @endif
-		    </td>
-		</tr>
-	@endif
-	
-	<tr>
-	    <td>@lang('lang_v1.recent_product_quantity'):</td>
-	    <td>
-	    	@if(!empty($shortcuts["pos"]["recent_product_quantity"]))
-		    	{{ $shortcuts["pos"]["recent_product_quantity"] }}
-		    @endif
-	    </td>
+		<td>@lang('sale.shortcut_select_bank')</td>
+		<td>
+			Shift + (1,2,3,4,
+			Q,W,E,R,
+			A,S,D,F)
+		</td>
 	</tr>
 
 	<tr>
-	    <td>@lang('lang_v1.add_new_product'):</td>
-	    <td>
-	    	@if(!empty($shortcuts["pos"]["add_new_product"]))
-		    	{{ $shortcuts["pos"]["add_new_product"] }}
-		    @endif
-	    </td>
+		<td>@lang('sale.shortcut_insert_bank')</td>
+		<td>
+			(1,2,3,4,5,6,7,8)
+		</td>
 	</tr>
-	
+
+	<tr>
+		<td>@lang('sale.shortcut_insert_game')</td>
+		<td>
+			Shift + (U,I,O,P,J,K,L,;)
+		</td>
+	</tr>
+
+	<tr>
+		<td>@lang('sale.shortcut_bank_in_time')</td>
+		<td>
+			F2
+		</td>
+	</tr>
+
+	<tr>
+		<td>@lang('sale.shortcut_contact')</td>
+		<td>
+			F3
+		</td>
+	</tr>
+
+	<tr>
+		<td>@lang('sale.shortcut_bonus')</td>
+		<td>F4</td>
+	</tr>
+
+	<tr>
+		<td>@lang('sale.shortcut_refresh')</td>
+		<td>F5</td>
+	</tr>
+
+	<tr>
+		<td>@lang('sale.shortcut_refresh_pos_ledger')</td>
+		<td>F9</td>
+	</tr>
+
+	<tr>
+		<td>@lang('sale.shortcut_cancel')</td>
+		<td>Shift + c</td>
+	</tr>
+
+	<tr>
+		<td>@lang('sale.shortcut_proceed_and_deposit')</td>
+		<td>Enter</td>
+	</tr>
 </table>

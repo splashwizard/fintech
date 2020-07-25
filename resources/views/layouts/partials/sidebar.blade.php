@@ -168,11 +168,13 @@
                                 <a href="{{action('ProductController@index')}}"><i
                                             class="fa fa-list"></i> 6.1 @lang('lang_v1.list_products')</a></li>
                         @endcan
+                        @if($is_superadmin)
                         @can('product.create')
                             <li class="{{ $request->segment(1) == 'products' && $request->segment(2) == 'create' ? 'active' : '' }}">
                                 <a href="{{action('ProductController@create')}}"><i
                                             class="fa fa-plus-circle"></i> 6.2 @lang('product.add_product')</a></li>
                         @endcan
+                        @endif
 
                         @if((auth()->user()->can('product.view')&&$is_superadmin))
                             <li class="{{ $request->segment(1) == 'labels' && $request->segment(2) == 'show' ? 'active' : '' }}">

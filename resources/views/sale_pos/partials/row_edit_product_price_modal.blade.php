@@ -44,7 +44,7 @@
 			</div>
 		</div>
 		<div class="modal-footer">
-			<button type="button" class="btn btn-default" id="confirm_btn">@lang('messages.confirm')</button>
+			<button type="button" class="btn btn-default confirm_btn">@lang('messages.confirm')</button>
 		</div>
 	</div>
 </div>

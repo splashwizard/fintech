@@ -5,6 +5,7 @@
 			<tbody>
 				<input name="transaction_id" type="hidden" value="{{$transaction_id}}">
 				<input name="transaction_payment_id" type="hidden" value="{{$transaction_payment_id}}">
+				<input name="is_first_service" type="hidden" value="{{$is_first_service}}">
 				<input name="pos_type" type="hidden" value="{{$pos_type}}">
 				@if($pos_type == 'deposit' || $pos_type == 'withdraw')
 					<input name="origin_bank_account_id" type="hidden" value="{{$selected_bank_id}}">

@@ -2039,6 +2039,7 @@ class SellPosDepositController extends Controller
 
     public function getUpdatePosRow($transaction_id) {
         $transaction_payment_id = request()->get('transaction_payment_id');
+        $is_first_service = request()->get('is_first_service');
         $business_id = request()->session()->get('user.business_id');
         $service_accounts = Account::where('business_id', $business_id)
             ->where('is_service', 1)
@@ -2094,10 +2095,10 @@ class SellPosDepositController extends Controller
             $sql->where('is_safe', 0);
             $bank_accounts = $sql->pluck('name', 'id');
             $selected_bank_id = TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'bank_transfer')->get()->first()->account_id;
-            $html = view('sale_pos_deposit.update_pos_row')->with(compact('transaction_id', 'transaction_payment_id', 'bank_accounts', 'selected_bank_id', 'request_types', 'service_accounts', 'pos_type',
+            $html = view('sale_pos_deposit.update_pos_row')->with(compact('transaction_id', 'transaction_payment_id', 'is_first_service', 'bank_accounts', 'selected_bank_id', 'request_types', 'service_accounts', 'pos_type',
                 'disabled_data', 'default_request_type', 'to_users'))->render();
         } else {
-            $html = view('sale_pos_deposit.update_pos_row')->with(compact('transaction_id', 'transaction_payment_id', 'request_types', 'service_accounts', 'pos_type',
+            $html = view('sale_pos_deposit.update_pos_row')->with(compact('transaction_id', 'transaction_payment_id', 'is_first_service', 'request_types', 'service_accounts', 'pos_type',
                 'disabled_data', 'default_request_type', 'to_users'))->render();
         }
 
@@ -2800,7 +2801,8 @@ class SellPosDepositController extends Controller
                             'transaction_id' => $payment_item['transaction_id'],
                             'date' => $payment_item['date'],
                             'contact_id' => $payment->contact_id,
-                            'account_name' => $payment_item['account_name']
+                            'account_name' => $payment_item['account_name'],
+                            'is_first_service' => 0
                         ];
                     }
                     else {
@@ -2848,6 +2850,9 @@ class SellPosDepositController extends Controller
                     else{
                         $payment_item['service_debit'] = $payment->amount;
                         $payment_item['transaction_payment_id'] = $payment->tp_id;
+                        if(!isset($payment_item['is_first_service'])){
+                            $payment_item['is_first_service'] = 1;
+                        }
                     }
                 }
                 if(($payment->transaction_type == 'sell' || $payment->transaction_type == 'sell_return' ) && $payment->method == 'service_transfer'){

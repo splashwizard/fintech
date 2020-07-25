@@ -16,6 +16,7 @@
 <section class="content">
 @php
   $form_class = empty($duplicate_product) ? 'create' : '';
+  $is_superadmin = auth()->user()->hasRole('Superadmin');
 @endphp
 {!! Form::open(['url' => action('ProductController@store'), 'method' => 'post', 
     'id' => 'product_add_form','class' => 'product_form ' . $form_class, 'files' => true ]) !!}
@@ -28,7 +29,7 @@
               'placeholder' => __('product.product_name')]); !!}
           </div>
         </div>
-
+        @if($is_superadmin)
         <div class="col-sm-4">
           <div class="form-group">
             {!! Form::label('sku', __('product.sku') . ':') !!} @show_tooltip(__('tooltip.sku'))
@@ -42,6 +43,7 @@
               {!! Form::select('barcode_type', $barcode_types, !empty($duplicate_product->barcode_type) ? $duplicate_product->barcode_type : $barcode_default, ['class' => 'form-control select2', 'required']); !!}
           </div>
         </div>
+        @endif
 
       <div class="clearfix"></div>
         <div class="col-sm-4">
@@ -102,7 +104,8 @@
 
         
         <div class="clearfix"></div>
-        
+
+        @if($is_superadmin)
         <div class="col-sm-4">
           <div class="form-group">
           <br>
@@ -132,9 +135,11 @@
             <small><p class="help-block">@lang('purchase.max_file_size', ['size' => (config('constants.document_size_limit') / 1000000)]) <br> @lang('lang_v1.aspect_ratio_should_be_1_1')</p></small>
           </div>
         </div>
-        </div>
+        @endif
+      </div>
     @endcomponent
 
+    @if($is_superadmin)
     @component('components.widget', ['class' => 'box-primary'])
         <div class="row">
         @if(session('business.enable_product_expiry'))
@@ -251,10 +256,11 @@
         @include('layouts.partials.module_form_part')
       </div>
     @endcomponent
-
+    @endif
     @component('components.widget', ['class' => 'box-primary'])
         <div class="row">
 
+        @if($is_superadmin)
         <div class="col-sm-4 @if(!session('business.enable_price_tax')) hide @endif">
           <div class="form-group">
             {!! Form::label('tax', __('product.applicable_tax') . ':') !!}
@@ -279,6 +285,7 @@
             'required', 'data-action' => !empty($duplicate_product) ? 'duplicate' : 'add', 'data-product_id' => !empty($duplicate_product) ? $duplicate_product->id : '0']); !!}
           </div>
         </div>
+        @endif
 
         <div class="form-group col-sm-12" id="product_form_part">
           @include('product.partials.single_product_form_part', ['profit_percent' => $default_profit_percent])
@@ -299,10 +306,11 @@
         @if($selling_price_group_count)
           <button type="submit" value="submit_n_add_selling_prices" class="btn btn-warning submit_product_form">@lang('lang_v1.save_n_add_selling_price_group_prices')</button>
         @endif
+        @if($is_superadmin)
+            <button id="opening_stock_button" @if(!empty($duplicate_product) && $duplicate_product->enable_stock == 0) disabled @endif type="submit" value="submit_n_add_opening_stock" class="btn bg-purple submit_product_form">@lang('lang_v1.save_n_add_opening_stock')</button>
 
-        <button id="opening_stock_button" @if(!empty($duplicate_product) && $duplicate_product->enable_stock == 0) disabled @endif type="submit" value="submit_n_add_opening_stock" class="btn bg-purple submit_product_form">@lang('lang_v1.save_n_add_opening_stock')</button>
-
-        <button type="submit" value="save_n_add_another" class="btn bg-maroon submit_product_form">@lang('lang_v1.save_n_add_another')</button>
+            <button type="submit" value="save_n_add_another" class="btn bg-maroon submit_product_form">@lang('lang_v1.save_n_add_another')</button>
+        @endif
 
         <button type="submit" value="submit" class="btn btn-primary submit_product_form">@lang('messages.save')</button>
       </div>

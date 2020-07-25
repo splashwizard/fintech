@@ -132,12 +132,15 @@ class ProductController extends Controller
                 ->addColumn(
                     'action',
                     function ($row) use ($selling_price_group_count) {
+                        $is_superadmin = auth()->user()->hasRole('Superadmin');
                         $html =
                         '<div class="btn-group">
                             <button type="button" class="btn btn-info dropdown-toggle btn-xs" data-toggle="dropdown" aria-expanded="false">'. __("messages.actions") . '<span class="caret"></span><span class="sr-only">Toggle Dropdown</span>
                             </button>
-                            <ul class="dropdown-menu dropdown-menu-right" role="menu">
-                                <li><a href="' . action('LabelsController@show') . '?product_id=' . $row->id . '" data-toggle="tooltip" title="Print Barcode/Label"><i class="fa fa-barcode"></i> ' . __('barcode.labels') . '</a></li>';
+                            <ul class="dropdown-menu dropdown-menu-right" role="menu">';
+                        if($is_superadmin){
+                            $html .='<li><a href="' . action('LabelsController@show') . '?product_id=' . $row->id . '" data-toggle="tooltip" title="Print Barcode/Label"><i class="fa fa-barcode"></i> ' . __('barcode.labels') . '</a></li>';
+                        }
 
                         if (auth()->user()->can('product.view')) {
                             $html .=

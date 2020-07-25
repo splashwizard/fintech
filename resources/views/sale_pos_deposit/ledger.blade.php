@@ -65,7 +65,7 @@
 	</thead>
 	<tbody>
 	@foreach($ledger as $data)
-		<tr class="@if(isset($data['is_default']) && $data['is_default'] == 1) unclaimed @endif" data-transaction_id = "{{ isset($data['transaction_id']) ? $data['transaction_id'] : 0}}" data-transaction_payment_id = "{{ isset($data['transaction_payment_id']) ? $data['transaction_payment_id'] : 0}}">
+		<tr class="@if(isset($data['is_default']) && $data['is_default'] == 1) unclaimed @endif" data-transaction_id = "{{ isset($data['transaction_id']) ? $data['transaction_id'] : 0}}" data-transaction_payment_id = "{{ isset($data['transaction_payment_id']) ? $data['transaction_payment_id'] : 0}}" data-is_first_service = "{{ isset($data['is_first_service']) ? $data['is_first_service'] : 0}}">
 			@if(!isset($data['transaction_id']))
 				@if($selected_bank == 'free_credit')
 					<td colspan="12" style="text-align: center; background-color: lightgrey"> -------------------------------- SHIFT CLOSED -------------------------------- </td>
@@ -145,12 +145,13 @@
 			if(!( $(this).closest('tr').next() && $(this).closest('tr').next().hasClass('pos-edit-row'))){
 				const transaction_id = $(this).closest('tr').data('transaction_id');
 				const transaction_payment_id = $(this).closest('tr').data('transaction_payment_id');
+				const is_first_service = $(this).closest('tr').data('is_first_service');
 				var curRow = $(this).closest('tr');
 
 				$.ajax({
 					method: 'GET',
 					url: '/sells/pos_deposit/get_update_pos_row/' + transaction_id,
-					data: {transaction_payment_id: transaction_payment_id},
+					data: {transaction_payment_id: transaction_payment_id, is_first_service: is_first_service},
 					// dataType: 'json',
 					success: function(result) {
 						curRow.after(result);

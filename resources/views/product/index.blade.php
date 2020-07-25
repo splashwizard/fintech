@@ -19,12 +19,14 @@
 <div class="row">
     <div class="col-md-12">
     @component('components.filters', ['title' => __('report.filters')])
+        @if(auth()->user()->hasRole('Superadmin'))
         <div class="col-md-3">
             <div class="form-group">
                 {!! Form::label('type', __('product.product_type') . ':') !!}
                 {!! Form::select('type', ['single' => 'Single', 'variable' => 'Variable'], null, ['class' => 'form-control select2', 'style' => 'width:100%', 'id' => 'product_list_filter_type', 'placeholder' => __('lang_v1.all')]); !!}
             </div>
         </div>
+        @endif
         <div class="col-md-3">
             <div class="form-group">
                 {!! Form::label('category_id', __('product.category') . ':') !!}
@@ -38,6 +40,7 @@
                 {!! Form::select('unit_id', $units, null, ['class' => 'form-control select2', 'style' => 'width:100%', 'id' => 'product_list_filter_unit_id', 'placeholder' => __('lang_v1.all')]); !!}
             </div>
         </div>
+        @if(auth()->user()->hasRole('Superadmin'))
         <div class="col-md-3">
             <div class="form-group">
                 {!! Form::label('tax_id', __('product.tax') . ':') !!}
@@ -50,6 +53,7 @@
                 {!! Form::select('brand_id', $brands, null, ['class' => 'form-control select2', 'style' => 'width:100%', 'id' => 'product_list_filter_brand_id', 'placeholder' => __('lang_v1.all')]); !!}
             </div>
         </div>
+        @endif
         <div class="col-md-3 hide" id="location_filter">
             <div class="form-group">
                 {!! Form::label('location_id',  __('purchase.business_location') . ':') !!}
@@ -76,11 +80,13 @@
 
                 <div class="tab-content">
                     <div class="tab-pane active" id="product_list_tab">
-                        @can('product.create')
-                            <a class="btn btn-primary pull-right" href="{{action('ProductController@create')}}">
-                                        <i class="fa fa-plus"></i> @lang('messages.add')</a>
-                            <br><br>
-                        @endcan
+                        @if(auth()->user()->hasRole('Superadmin'))
+                            @can('product.create')
+                                <a class="btn btn-primary pull-right" href="{{action('ProductController@create')}}">
+                                            <i class="fa fa-plus"></i> @lang('messages.add')</a>
+                                <br><br>
+                            @endcan
+                        @endif
                         @include('product.partials.product_list')
                     </div>
 
@@ -116,6 +122,8 @@
     <script src="{{ asset('js/opening_stock.js?v=' . $asset_v) }}"></script>
     <script type="text/javascript">
         $(document).ready( function(){
+            var is_admin_or_super = "<?php echo auth()->user()->hasRole('Superadmin');?>";
+
             product_table = $('#product_table').DataTable({
                 processing: true,
                 serverSide: true,
@@ -130,13 +138,13 @@
                     }
                 },
                 columnDefs: [ {
-                    "targets": [0, 1, 11],
+                    "targets": is_admin_or_super ? [0, 1, 10] : [0, 1, 5],
                     "orderable": false,
                     "searchable": false
                 } ],
                 "orderMulti": false,
                 aaSorting: [2, 'asc'],
-                columns: [
+                columns: is_admin_or_super ? [
                         { data: 'mass_delete'  },
                         { data: 'image', name: 'products.image'  },
                         { data: 'product', name: 'products.name'  },
@@ -149,6 +157,13 @@
                         { data: 'brand', name: 'brands.name'},
                         { data: 'tax', name: 'tax_rates.name', searchable: false},
                         { data: 'sku', name: 'products.sku'},
+                        { data: 'action', name: 'action'}
+                    ] : [
+                        { data: 'mass_delete'  },
+                        { data: 'image', name: 'products.image'  },
+                        { data: 'product', name: 'products.name'  },
+                        { data: 'current_stock', searchable: false},
+                        { data: 'priority', name: 'priority'},
                         { data: 'action', name: 'action'}
                     ],
                     createdRow: function( row, data, dataIndex ) {

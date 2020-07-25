@@ -1195,7 +1195,7 @@ $(document).ready(function() {
         $(this).parents('.row_add_second_client_modal').find('.payment_for').val($(this).parents('.row_add_second_client_modal').find('.second_contact_select').val());
         $(this).parents('.row_add_second_client_modal').modal('hide');
     });
-    $(document).on('click', '#confirm_btn',function () {
+    $(document).on('click', '.confirm_btn',function () {
         var edit_product_price = $(this).parents('.row_edit_product_price_model').find('.input_number');
         var trElem = $(this).closest('tr');
         if(trElem.hasClass('service_row')){
@@ -1210,7 +1210,6 @@ $(document).ready(function() {
                 }
                 return;
             }
-            console.log('here');
             if(parseInt(edit_product_price.val()) < minGameCredit) {
                 console.log(edit_product_price.val());
                 if(!edit_product_price.next().is('.error')){
@@ -1287,6 +1286,8 @@ $(document).ready(function() {
         //     }
         // });
         $(this).parents('.row_edit_product_price_model').modal('hide');
+        if(trElem.hasClass('service_row'))
+            trElem.find('.game_input').focus();
     });
     $(document).on('keyup', '.row_edit_product_price_model.in .input_number', function (e) {
         if($(this).val() <= 1000) {
@@ -2210,6 +2211,9 @@ function pos_product_row(variation_id, product_type = 0, name = 'Bonus',  percen
                             $('table#pos_table tbody')
                                 .append(result.html_content)
                                 .find('input.pos_quantity');
+                        if(product_type === 1){ // service
+                            $('table#pos_table tbody .product_row:last').find('.game_input').focus();
+                        }
                         if(!is_first_service || is_product_any){
                             $('table#pos_table tbody .product_row:last .row_edit_product_price_model').modal('show');
                         }

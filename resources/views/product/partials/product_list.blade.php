@@ -5,39 +5,45 @@
                 <th><input type="checkbox" id="select-all-row"></th>
                 <th>&nbsp;</th>
                 <th>@lang('sale.product')</th>
-                <th>@lang('lang_v1.selling_price')</th>
+                @if(auth()->user()->hasRole('Superadmin'))
+                    <th>@lang('lang_v1.selling_price')</th>
+                @endif
                 <th>@lang('report.current_stock')</th>
-                <th>@lang('product.product_type')</th>
-                <th>@lang('product.category')</th>
+                @if(auth()->user()->hasRole('Superadmin'))
+                    <th>@lang('product.product_type')</th>
+                    <th>@lang('product.category')</th>
+                @endif
                 <th>@lang('product.priority')</th>
-                <th>@lang('product.brand')</th>
-                <th>@lang('product.tax')</th>
-                <th>@lang('product.sku')</th>
+                @if(auth()->user()->hasRole('Superadmin'))
+                    <th>@lang('product.brand')</th>
+                    <th>@lang('product.tax')</th>
+                    <th>@lang('product.sku')</th>
+                @endif
                 <th>@lang('messages.action')</th>
             </tr>
         </thead>
         <tfoot>
             <tr>
-                <td colspan="11">
-                <div style="display: flex; width: 100%;">
-                    @can('product.delete')
-                        {!! Form::open(['url' => action('ProductController@massDestroy'), 'method' => 'post', 'id' => 'mass_delete_form' ]) !!}
-                        {!! Form::hidden('selected_rows', null, ['id' => 'selected_rows']); !!}
-                        {!! Form::submit(__('lang_v1.delete_selected'), array('class' => 'btn btn-xs btn-danger', 'id' => 'delete-selected')) !!}
-                        {!! Form::close() !!}
-                    @endcan
-                    @can('product.update')
-                    &nbsp;
-                        {!! Form::open(['url' => action('ProductController@bulkEdit'), 'method' => 'post', 'id' => 'bulk_edit_form' ]) !!}
-                        {!! Form::hidden('selected_products', null, ['id' => 'selected_products_for_edit']); !!}
-                        <button type="submit" class="btn btn-xs btn-primary" id="edit-selected"> <i class="fa fa-edit"></i>{{__('lang_v1.bulk_edit')}}</button>
-                        {!! Form::close() !!}
-                    @endcan
-                    &nbsp;
-                    {!! Form::open(['url' => action('ProductController@massDeactivate'), 'method' => 'post', 'id' => 'mass_deactivate_form' ]) !!}
-                    {!! Form::hidden('selected_products', null, ['id' => 'selected_products']); !!}
-                    {!! Form::submit(__('lang_v1.deactivate_selected'), array('class' => 'btn btn-xs btn-warning', 'id' => 'deactivate-selected')) !!}
-                    {!! Form::close() !!} @show_tooltip(__('lang_v1.deactive_product_tooltip'))
+                <td colspan="{{auth()->user()->hasRole('Superadmin') ? 11 : 6}}">
+                    <div style="display: flex; width: 100%;">
+                        @can('product.delete')
+                            {!! Form::open(['url' => action('ProductController@massDestroy'), 'method' => 'post', 'id' => 'mass_delete_form' ]) !!}
+                            {!! Form::hidden('selected_rows', null, ['id' => 'selected_rows']); !!}
+                            {!! Form::submit(__('lang_v1.delete_selected'), array('class' => 'btn btn-xs btn-danger', 'id' => 'delete-selected')) !!}
+                            {!! Form::close() !!}
+                        @endcan
+                        @can('product.update')
+                        &nbsp;
+                            {!! Form::open(['url' => action('ProductController@bulkEdit'), 'method' => 'post', 'id' => 'bulk_edit_form' ]) !!}
+                            {!! Form::hidden('selected_products', null, ['id' => 'selected_products_for_edit']); !!}
+                            <button type="submit" class="btn btn-xs btn-primary" id="edit-selected"> <i class="fa fa-edit"></i>{{__('lang_v1.bulk_edit')}}</button>
+                            {!! Form::close() !!}
+                        @endcan
+                        &nbsp;
+                        {!! Form::open(['url' => action('ProductController@massDeactivate'), 'method' => 'post', 'id' => 'mass_deactivate_form' ]) !!}
+                        {!! Form::hidden('selected_products', null, ['id' => 'selected_products']); !!}
+                        {!! Form::submit(__('lang_v1.deactivate_selected'), array('class' => 'btn btn-xs btn-warning', 'id' => 'deactivate-selected')) !!}
+                        {!! Form::close() !!} @show_tooltip(__('lang_v1.deactive_product_tooltip'))
                     </div>
                 </td>
             </tr>

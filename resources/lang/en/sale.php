@@ -74,5 +74,15 @@ return [
     'edit_sale' => 'Edit Sale',
     'shipping' => 'Shipping',
     'shipping_details' => 'Shipping Details',
-    'shipping_charges' => 'Shipping Charges'
+    'shipping_charges' => 'Shipping Charges',
+    'shortcut_select_bank' => 'Select a bank',
+    'shortcut_insert_bank' => 'Insert a bank deposit transaction',
+    'shortcut_insert_game' => 'Insert a Game transaction',
+    'shortcut_bank_in_time' => 'Go to Bank-in Time',
+    'shortcut_contact' => 'Go to Contact ID',
+    'shortcut_bonus' => 'Go to Bonus Insert',
+    'shortcut_refresh' => 'Refresh whole page',
+    'shortcut_refresh_pos_ledger' => 'Refresh POS Ledger only',
+    'shortcut_cancel' => 'Cancel all items',
+    'shortcut_proceed_and_deposit' =>'Proceed and Deposit'
 ];

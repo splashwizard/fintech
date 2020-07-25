@@ -298,8 +298,8 @@ class EssentialsRequestController extends Controller
                 if($input['essentials_request_type_id'] == 1){
 //                    $request_data = [];
 //                    $request_keys = ['bank_in_time', 'credit', 'debit', 'free_credit', 'basic_bonus', 'service_credit', 'service_debit', 'contact_id', 'service_id', 'game_id', 'bank_account_id'];
-//                    $input['reason'] = 'Change Detail:<br/>';
-//                    $input['reason'] .= '<b>Ticket#:</b> '.$transaction->invoice_no.'<br/>';
+                    $input['reason'] = 'Change Detail:<br/>';
+                    $input['reason'] .= '<b>Ticket#:</b> '.$transaction->invoice_no.'<br/>';
 //                    $input['reason'] .= '<b>Bank:</b> '.Account::find($request->get('origin_bank_account_id'))->name.'<br/><br/>';
 //                    foreach ($request_keys as $request_key){
 //                        if($request->has($request_key)){
@@ -326,23 +326,23 @@ class EssentialsRequestController extends Controller
 //                    $request_data['game_id'] = $request->get('game_id');
 //                    $input['request_data'] = serialize($request_data);
 
-                    $input['reason'] = '<b>Reason:</b> '.$request->get('reason');
+                    $input['reason'] .= '<b>Reason:</b> '.$request->get('reason');
                 }
                 else if($input['essentials_request_type_id'] == 4){ // GTransfer
                     $input['reason'] = 'Change Detail:<br/>';
-                    $input['reason'] .= '<b>Ticket#:</b> '.$transaction->invoice_no.'<br/><br/>';
-                    $service_credit = $request->get('service_credit');
-                    if(!empty($service_credit))
-                        $input['reason'] .= '<b>Service Credit:</b> '.$service_credit.'<br/>';
+                    $input['reason'] .= '<b>Ticket#:</b> '.$transaction->invoice_no.'<br/>';
+//                    $service_credit = $request->get('service_credit');
+//                    if(!empty($service_credit))
+//                        $input['reason'] .= '<b>Service Credit:</b> '.$service_credit.'<br/>';
                     $input['reason'] .= '<b>Reason:</b> '.$request->get('reason');
                 }
                 else if($input['essentials_request_type_id'] == 5){ // GTransfer
                     $input['reason'] = 'Change Detail:<br/>';
-                    $input['reason'] .= '<b>Ticket#:</b> '.$transaction->invoice_no.'<br/><br/>';
-                    $service_credit = $request->get('service_credit');
-                    if(!empty($service_credit))
-                        $input['reason'] .= '<b>Service Credit:</b> '.$service_credit.'<br/>';
-                    $input['reason'] .= '<b>Reason:</b> '.$request->get('reason');
+                    $input['reason'] = '<b>Ticket#:</b> '.$transaction->invoice_no.'<br/>';
+//                    $service_credit = $request->get('service_credit');
+//                    if(!empty($service_credit))
+//                        $input['reason'] .= '<b>Service Credit:</b> '.$service_credit.'<br/>';
+                    $input['reason'] = '<b>Reason:</b> '.$request->get('reason');
                 }
             } else{
                 $input['reason'] = $request->get('reason');
@@ -397,16 +397,25 @@ class EssentialsRequestController extends Controller
                 }
 
                 $transaction_payment_id = $request->get('transaction_payment_id');
+                $is_first_service = $request->get('is_first_service');
                 if(!empty($request->get('contact_id'))){
                     $contact_id = $request->get('contact_id');
-                    if(empty($transaction_payment_id))
-                        Transaction::find($transaction_id)->update(['contact_id' => $contact_id]);
                     if(!empty($request->get('service_id'))){
                         $game_id_index = $request->get('game_id');
                         $service_id = $request->get('service_id');
                         $game_id = GameId::where('contact_id', $contact_id)->where('service_id', $service_id)->get()->first()[$game_id_index];
-                        TransactionPayment::find($transaction_payment_id)->update(['game_id' => $game_id, 'payment_for' => $contact_id ,'account_id' => $service_id]);
-                        AccountTransaction::where('transaction_payment_id', $transaction_payment_id)->update(['account_id' => $service_id]);
+
+                        if(!empty($transaction_payment_id)){
+                            TransactionPayment::find($transaction_payment_id)->update(['game_id' => $game_id, 'payment_for' => $contact_id ,'account_id' => $service_id]);
+                            if($is_first_service){
+                                TransactionPayment::where('transaction_id', $transaction_id)->where('method', '!=', 'service_transfer')->update(['payment_for' => $contact_id]);
+                                Transaction::find($transaction_id)->update(['contact_id' => $contact_id]);
+                            }
+                            AccountTransaction::where('transaction_payment_id', $transaction_payment_id)->update(['account_id' => $service_id]);
+                        } else {
+                            TransactionPayment::where('transaction_id', $transaction_id)->update(['payment_for' => $contact_id]);
+                            AccountTransaction::where('transaction_id', $transaction_id)->where('type', 'credit')->update(['account_id' => $service_id]);
+                        }
                     }
                 }
                 if(Transaction::find($transaction_id)->type == 'sell') {
