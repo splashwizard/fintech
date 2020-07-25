@@ -37,7 +37,7 @@
 	<tr>
 		<td>@lang('sale.shortcut_contact')</td>
 		<td>
-			F3
+			F8
 		</td>
 	</tr>
 

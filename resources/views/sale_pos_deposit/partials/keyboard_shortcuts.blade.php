@@ -61,13 +61,13 @@
         });
 
         //insert customer
-        Mousetrap.bind('f4', function(e) {
+        Mousetrap.bind('f8', function(e) {
             e.preventDefault();
             $('#customer_id').select2("open");
         });
 
         //insert bonus
-        Mousetrap.bind('f8', function(e) {
+        Mousetrap.bind('f4', function(e) {
             e.preventDefault();
             $('#bonus').show().focus().click();
         });
