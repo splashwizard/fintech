@@ -30,13 +30,18 @@
 
         //insert bank item
         var insert_bank_shortcuts = ['1','2','3','4','5','6','7','8'];
-        var insert_bank_keycodes = ['Digit1', 'Digit2', 'Digit3', 'Digit4', 'Digit5', 'Digit6', 'Digit7', 'Digit8'];
+        var insert_bank_digit_keycodes = ['Digit1', 'Digit2', 'Digit3', 'Digit4', 'Digit5', 'Digit6', 'Digit7', 'Digit8'];
+        var insert_bank_numpad_keycodes = ['Numpad1', 'Numpad2', 'Numpad3', 'Numpad4', 'Numpad5', 'Numpad6', 'Numpad7', 'Numpad8'];
         for(i = 0; i < insert_bank_shortcuts.length; i ++){
             var input = $('input[name=email]');
             Mousetrap.bind(insert_bank_shortcuts[i], function(e) {
                 if (!$(e.target).hasClass('pos_unit_price')) {
                     e.preventDefault();
-                    var index = insert_bank_keycodes.indexOf(e.code);
+                    var index = -1;
+                    if(e.code.indexOf('Digit') !== -1)
+                        index = insert_bank_digit_keycodes.indexOf(e.code);
+                    else
+                        index = insert_bank_numpad_keycodes.indexOf(e.code);
                     $('#product_list_body .product_list:eq(' + index +') .product_box').trigger('click');
                 }
             });
