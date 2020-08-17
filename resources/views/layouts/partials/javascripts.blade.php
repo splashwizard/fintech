@@ -93,7 +93,12 @@
             $.fn.dataTable.ext.errMode = 'throw';
         @endif
     });
-    
+
+    toastr.options.timeOut = 0;
+    toastr.options.extendedTimeOut = 0;
+    toastr.options.closeButton = true;
+
+
     var financial_year = {
     	start: moment('{{ Session::get("financial_year.start") }}'),
     	end: moment('{{ Session::get("financial_year.end") }}'),

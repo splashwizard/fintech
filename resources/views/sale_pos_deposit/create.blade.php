@@ -164,13 +164,13 @@
 								{!! Form::label('remarks1', __( 'contact.remarks' )) !!}
 								<div class="row">
 									<div class="col-md-4">
-										<button class="btn btn-block btn-warning" id="remarks1" style="min-height: 52px; text-align: left"></button>
+										<textarea class="form-control" style="border-color: #985f0d;" placeholder="remarks" rows="2" name="remarks1" cols="50" id="remarks1"></textarea>
 									</div>
 									<div class="col-md-4">
-										<button class="btn btn-block btn-warning" id="remarks2" style="min-height: 52px; text-align: left"></button>
+										<textarea class="form-control" style="border-color: #985f0d;" placeholder="remarks" rows="2" name="remarks1" cols="50" id="remarks2"></textarea>
 									</div>
 									<div class="col-md-4">
-										<button class="btn btn-block btn-warning" id="remarks3" style="min-height: 52px; text-align: left"></button>
+										<textarea class="form-control" style="border-color: #985f0d;" placeholder="remarks" rows="2" name="remarks1" cols="50" id="remarks3"></textarea>
 									</div>
 								</div>
 {{--								{!! Form::textarea('remarks', '', ['class' => 'form-control', 'placeholder' => __( 'contact.remarks' ), 'rows' => 2, 'id' => 'remarks']); !!}--}}

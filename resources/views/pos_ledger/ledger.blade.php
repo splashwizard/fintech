@@ -30,6 +30,7 @@
         <th>Games</th>
         <th>Games ID</th>
         <th>@lang('account.free_credit')</th>
+        <th>@lang('account.basic_bonus')</th>
         <th>@lang('account.kiosk_in')</th>
         <th>@lang('account.kiosk_out')</th>
         {{--			<th>@lang('lang_v1.payment_method')</th>--}}
@@ -40,25 +41,26 @@
     <tbody>
     @foreach($ledger as $data)
         <tr>
-            <td>{!! $data['others'] !!}</td>
-            <td>{!! $data['bank_in_time'] !!}</td>
-            <td>{!! $data['contact_id'] !!}</td>
-            <td>@if($data['credit'] != '') <span class="display_currency">{{$data['credit']}}</span> @endif</td>
-            <td>@if($data['debit'] != '') <span class="display_currency">{{$data['debit']}}</span> @endif</td>
+            <td>{!! isset($data['others']) ? $data['others'] : null !!}</td>
+            <td>{!! isset($data['bank_in_time']) ? $data['bank_in_time'] : null !!}</td>
+            <td>{!! isset($data['contact_id']) ? $data['contact_id'] : null !!}</td>
+            <td>@if(isset($data['credit'])) <span class="display_currency">{{$data['credit']}}</span> @endif</td>
+            <td>@if(isset($data['debit'])) <span class="display_currency">{{$data['debit']}}</span> @endif</td>
             <td>@if(isset($data['service_name'])){!! $data['service_name'] !!}@endif</td>
             <td>{!! isset($data['game_id']) ? $data['game_id'] : null !!}</td>
-            <td>@if($data['free_credit'] != '') <span class="display_currency text-red">{{$data['free_credit']}}</span> @endif</td>
-            <td>@if($data['service_credit'] != '') <span class="display_currency">{{$data['service_credit']}}</span> @endif</td>
-            <td>@if($data['service_debit'] != '') <span class="display_currency">{{$data['service_debit']}}</span> @endif</td>
-            {{--				<td>{{$data['payment_method']}}</td>--}}
-            <td>{{@format_datetime($data['date'])}}</td>
-            <td>{{ $data['user'] }}</td>
+            <td>@if(isset($data['free_credit'])) <span class="display_currency text-red">{{$data['free_credit']}}</span> @endif</td>
+            <td>@if(isset($data['basic_bonus'])) <span class="display_currency text-green">{{$data['basic_bonus']}}</span> @endif</td>
+            <td>@if(isset($data['service_credit'])) <span class="display_currency">{{$data['service_credit']}}</span> @endif</td>
+            <td>@if(isset($data['service_debit'])) <span class="display_currency">{{$data['service_debit']}}</span> @endif</td>
+            <td>{!! isset($data['contact_id']) ? $data['date'] : null !!}</td>
+            <td>{!! isset($data['user']) ? $data['user'] : null !!}</td>
         </tr>
     @endforeach
     </tbody>
     <tfoot>
     <tr>
         <th colspan="2"></th>
+        <th></th>
         <th></th>
         <th></th>
         <th></th>
