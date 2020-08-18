@@ -4250,7 +4250,8 @@ S2.define('select2/dropdown/attachBody',[
     };
 
     container.top = offset.top;
-    container.bottom = offset.top + container.height;
+    // container.bottom = offset.top + container.height;
+      container.bottom = offset.top + container.height + $($(this)[0].$dropdownParent[0]).scrollTop();
 
     var dropdown = {
       height: this.$dropdown.outerHeight(false)
@@ -4295,7 +4296,8 @@ S2.define('select2/dropdown/attachBody',[
 
     if (newDirection == 'above' ||
       (isCurrentlyAbove && newDirection !== 'below')) {
-      css.top = container.top - parentOffset.top - dropdown.height;
+      // css.top = container.top - parentOffset.top - dropdown.height;
+        css.top = container.top - parentOffset.top - dropdown.height + $($(this)[0].$dropdownParent[0]).scrollTop();
     }
 
     if (newDirection != null) {

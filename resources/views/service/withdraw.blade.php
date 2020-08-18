@@ -165,13 +165,14 @@
                 data: {user_id: $('#withdraw_to').val()},
                 success: function(result) {
                     $('#bank_account_detail').html(result.bank_account_detail);
-                    $('.account_detail').click(function (e) {
-                        e.preventDefault();
-                        copyTextToClipboard($(this).text());
-                    });
+                    getWithdrawLedger();
                 }
             });
         }
+        $(document).on('click', '.account_detail', function(e) {
+            e.preventDefault();
+            copyTextToClipboard($(this).text());
+        });
 
         function getWithdrawLedger(){
             $.ajax({
@@ -179,6 +180,7 @@
                 url: '/sells/pos_deposit/past_withdraw_ledger/' + $('#withdraw_to').val(),
                 success: function(result) {
                     $('#past_withdraw_ledger').html(result.html);
+                    getGameId();
                 }
             });
         }
@@ -309,12 +311,12 @@
             },
         });
 
-        getBankDetail();
-        getGameId();
+        // getBankDetail();
+        // getGameId();
         $('#withdraw_to').on("change", function(e) {
             getBankDetail();
-            getWithdrawLedger();
-            getGameId();
+            // getWithdrawLedger();
+            // getGameId();
         });
         $('#btn-withdraw_submit').click(function (e) {
             e.preventDefault();

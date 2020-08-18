@@ -17,7 +17,7 @@
 <!-- iCheck -->
 <script src="{{ asset('AdminLTE/plugins/iCheck/icheck.min.js?v=' . $asset_v) }}"></script>
 <!-- Select2 -->
-<script src="{{ asset('AdminLTE/plugins/select2/select2.full.min.js?v=' . $asset_v) }}"></script>
+<script src="{{ asset('AdminLTE/plugins/select2/select2.full.js?v=' . $asset_v) }}"></script>
 <!-- Add language file for select2 -->
 @if(file_exists(public_path('AdminLTE/plugins/select2/lang/' . session()->get('user.language', config('app.locale')) . '.js')))
     <script src="{{ asset('AdminLTE/plugins/select2/lang/' . session()->get('user.language', config('app.locale') ) . '.js?v=' . $asset_v) }}"></script>
