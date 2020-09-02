@@ -975,7 +975,7 @@ class SellPosDepositController extends Controller
                                 ->where('business_id', $business_id)
                                 ->select(['name', DB::raw("SUM( IF(AT.type='credit', amount, -1*amount) ) as balance")])
                                 ->groupBy('accounts.id')->get()->first();
-                            $msg .= "<br/>".$account->name.' = <span class="text-red">'.$account->balance.'</span>';
+                            $msg .= "<br/>".$account->name.' = '.number_format( $account->balance, 2, '.', '');
                         }
                     }
                 }
@@ -1811,7 +1811,7 @@ class SellPosDepositController extends Controller
                                 ->where('business_id', $business_id)
                                 ->select(['name', DB::raw("SUM( IF(AT.type='credit', amount, -1*amount) ) as balance")])
                                 ->groupBy('accounts.id')->get()->first();
-                            $msg .= "<br/>".$account->name.' = <span class="text-red">'.$account->balance.'</span>';
+                            $msg .= "<br/>".$account->name.' = '.number_format( $account->balance, 2, '.', '');
                         }
 
                         if (!$is_direct_sale && !$transaction->is_suspend) {
