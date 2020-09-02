@@ -121,6 +121,15 @@ class LoginController extends Controller
                     );
             }
         }
+        if($user->is_first_login == 1){
+            $user->is_first_login = 0;
+            $user->save();
+            return redirect('/user/profile')->with(
+                'status',
+                ['success' => 1, 'msg' => "Please change your default password to a new password."]
+            );
+        }
+
         $date = new \DateTime('now');
         $user->last_online = $date->format('Y-m-d H:i:s');
         $user->is_logged = true;

@@ -345,7 +345,7 @@ class Util
     */
     public function is_admin($user, $business_id)
     {
-        return $user->hasRole('Admin#' . $business_id) ? true : false;
+        return $user->hasRole('Admin#' . $business_id) || $user->hasRole('Admin') || $user->hasRole('Superadmin') ? true : false;
     }
 
     /**
