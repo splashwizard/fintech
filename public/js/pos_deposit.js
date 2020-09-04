@@ -60,6 +60,24 @@ function copyTextToClipboard(text) {
 
     document.body.removeChild(textArea);
 }
+
+function copyTextToClipboardModal(text) {
+
+
+    $('.contact_modal').find('.modal-body').append('<textarea id="copy_clipboard">'+ text+'</textarea>');
+    $('#copy_clipboard').focus();
+    $('#copy_clipboard').select();
+
+    try {
+        var successful = document.execCommand('copy');
+        var msg = successful ? 'successful' : 'unsuccessful';
+        console.log('Copying text command was ' + msg);
+    } catch (err) {
+        console.log('Oops, unable to copy');
+    }
+
+    $('#copy_clipboard').remove();
+}
 var pos_form_obj;
 $(document).ready(function() {
     if(!edit_page)
@@ -1413,6 +1431,7 @@ $(document).ready(function() {
                                 .trigger('change');
                             selectCustomer();
                             $('div.contact_modal').modal('hide');
+                            copyTextToClipboardModal(result.data.contact_id);
                             toastr.success(result.msg);
                         } else {
                             toastr.error(result.msg);

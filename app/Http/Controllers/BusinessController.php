@@ -105,7 +105,7 @@ class BusinessController extends Controller
      */
     public function getRegister()
     {
-        if(!auth()->user()->hasRole('Superadmin'))
+        if(!auth()->user()->hasRole('Superadmin') && !auth()->user()->hasRole('Admin'))
             return redirect('/');
 
         $currencies = $this->businessUtil->allCurrencies();
