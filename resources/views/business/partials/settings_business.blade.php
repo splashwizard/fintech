@@ -125,5 +125,16 @@
                 </div>
             </div>
         </div>
+        <div class="col-sm-4">
+            <div class="form-group">
+                {!! Form::label('bonus_decimal', "Bonus Decimal" . ':*') !!}
+                <div class="input-group">
+                    <span class="input-group-addon">
+                        <i class="fa fa-clock-o"></i>
+                    </span>
+                    {!! Form::select('bonus_decimal', ['y' => 'Yes', 'n' => 'No'], $business->bonus_decimal, ['class' => 'form-control select2', 'required']); !!}
+                </div>
+            </div>
+        </div>
     </div>
 </div>

@@ -92,8 +92,8 @@
 				<td>@if(isset($data['debit'])) <span class="display_currency">{{$data['debit']}}</span> @endif</td>
 				<td>@if(isset($data['service_name'])){!! $data['service_name'] !!}@endif</td>
 				<td>{!! isset($data['game_id']) ? $data['game_id'] : null !!}</td>
-				<td>@if(isset($data['free_credit'])) <span class="display_currency text-red">{{$data['free_credit']}}</span> @endif</td>
-				<td>@if(isset($data['basic_bonus'])) <span class="display_currency text-green">{{$data['basic_bonus']}}</span> @endif</td>
+				<td>@if(isset($data['free_credit'])) <span class="display_currency text-red">{{ $bonus_decimal == 'y' ? $data['free_credit'] : floor($data['free_credit']) }}</span> @endif</td>
+				<td>@if(isset($data['basic_bonus'])) <span class="display_currency text-green">{{ $bonus_decimal == 'y' ? $data['basic_bonus'] : floor($data['basic_bonus']) }}</span> @endif</td>
 				<td>@if(isset($data['service_credit'])) <span class="display_currency">{{$data['service_credit']}}</span> @endif</td>
 				<td>@if(isset($data['service_debit'])) <span class="display_currency">{{$data['service_debit']}}</span> @endif</td>
 				<td>{!! isset($data['contact_id']) ? $data['date'] : null !!}</td>

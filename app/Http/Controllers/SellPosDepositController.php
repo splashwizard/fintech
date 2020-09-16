@@ -2928,8 +2928,10 @@ class SellPosDepositController extends Controller
             });
         }
 
+        $business_details = $this->businessUtil->getDetails($business_id);
+        $bonus_decimal = $business_details->bonus_decimal;
         return view('sale_pos_deposit.ledger')
-            ->with(compact('ledger', 'bank_list', 'selected_bank'));
+            ->with(compact('ledger', 'bank_list', 'selected_bank', 'bonus_decimal'));
     }
 
 

@@ -2406,9 +2406,9 @@ function pos_total_row() {
     const selected = $('#bonus option:selected');
     if(bonus_variation_id !== -1){
         if(selected.data('name') === 'Bonus') {
-            special_bonus = Math.floor(selected.data('amount') * credit / 100);
+            special_bonus = bonus_decimal === 'y' ? selected.data('amount') * credit / 100 : Math.floor(selected.data('amount') * credit / 100);
         } else {
-            special_bonus = Math.floor(selected.data('amount'));
+            special_bonus = bonus_decimal === 'y' ? selected.data('amount') : Math.floor(selected.data('amount'));
         }
     } else if(no_bonus === 0 &&  $('#customer_id').data('select2') && $('#customer_id').select2('data')[0].text !== "Unclaimed Trans") {
         basic_bonus = Math.floor(basic_bonus_rate * credit / 100);

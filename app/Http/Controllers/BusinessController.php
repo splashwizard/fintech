@@ -373,7 +373,7 @@ class BusinessController extends Controller
             if(auth()->user()->hasRole('Superadmin')){
                 $business_details = $request->only(['name', 'start_date', 'currency_id', 'tax_label_1', 'tax_number_1', 'tax_label_2', 'tax_number_2', 'basic_bonus', 'default_profit_percent', 'default_sales_tax', 'default_sales_discount', 'sell_price_tax', 'sku_prefix', 'time_zone', 'fy_start_month', 'accounting_method', 'transaction_edit_days', 'sales_cmsn_agnt', 'item_addition_method', 'currency_symbol_placement', 'on_product_expiry',
                     'stop_selling_before', 'default_unit', 'expiry_type', 'date_format',
-                    'time_format', 'ref_no_prefixes', 'theme_color', 'email_settings',
+                    'time_format', 'ref_no_prefixes', 'theme_color', 'bonus_decimal', 'email_settings',
                     'sms_settings', 'rp_name', 'amount_for_unit_rp',
                     'min_order_total_for_rp', 'max_rp_per_order',
                     'redeem_amount_per_unit_rp', 'min_order_total_for_redeem',
@@ -382,7 +382,7 @@ class BusinessController extends Controller
             } else {
                 $business_details = $request->only(['name', 'start_date', 'currency_id', 'default_profit_percent', 'sell_price_tax', 'sku_prefix', 'time_zone', 'fy_start_month', 'accounting_method', 'transaction_edit_days', 'currency_symbol_placement', 'on_product_expiry',
                     'stop_selling_before', 'default_unit', 'expiry_type', 'date_format',
-                    'time_format', 'theme_color']);
+                    'time_format', 'theme_color', 'bonus_decimal']);
             }
 
             if (!empty($request->input('enable_rp')) &&  $request->input('enable_rp') == 1) {
