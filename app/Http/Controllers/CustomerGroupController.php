@@ -180,7 +180,7 @@ class CustomerGroupController extends Controller
 
         if (request()->ajax()) {
             try {
-                $business_id = request()->user()->business_id;
+                $business_id = request()->session()->get('user.business_id');
 
                 $cg = CustomerGroup::where('business_id', $business_id)->findOrFail($id);
                 $cg->delete();

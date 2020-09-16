@@ -2,18 +2,28 @@
 
 namespace App\Utils;
 
+use App\Account;
+use App\BankBrand;
 use App\Barcode;
 
 use App\Business;
 use App\BusinessLocation;
 use App\Contact;
 use App\Currency;
+use App\CustomerGroup;
+use App\DisplayGroup;
 use App\InvoiceLayout;
 use App\InvoiceScheme;
+use App\Media;
 use App\NotificationTemplate;
 use App\Printer;
+use App\Product;
+use App\ProductVariation;
 use App\Unit;
 use App\User;
+use App\Variation;
+use App\VariationTemplate;
+use App\VariationValueTemplate;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 
@@ -119,15 +129,194 @@ class BusinessUtil extends Util
         //             ]);
         
         //Add Default Unit for new business
-        $unit = [
-                    'business_id' => $business_id,
-                    'actual_name' => 'Pieces',
-                    'short_name' => 'Pc(s)',
-                    'allow_decimal' => 0,
-                    'created_by' => $user_id
-                ];
-        Unit::create($unit);
+//        $unit = [
+//                    'business_id' => $business_id,
+//                    'actual_name' => 'Pieces',
+//                    'short_name' => 'Pc(s)',
+//                    'allow_decimal' => 0,
+//                    'created_by' => $user_id
+//                ];
+//        Unit::create($unit);
 
+        $unit = [
+            'business_id' => $business_id,
+            'actual_name' => 'BankDeposits',
+            'short_name' => 'BTrans',
+            'allow_decimal' => 0,
+            'created_by' => $user_id
+        ];
+        $btrans_unit = Unit::create($unit);
+
+        $unit = [
+            'business_id' => $business_id,
+            'actual_name' => 'GameTransactions',
+            'short_name' => 'GTrans',
+            'allow_decimal' => 0,
+            'created_by' => $user_id
+        ];
+        $gtrans_unit = Unit::create($unit);
+
+        $unit = [
+            'business_id' => $business_id,
+            'actual_name' => 'SpecialBonus',
+            'short_name' => 'Bonus',
+            'allow_decimal' => 0,
+            'created_by' => $user_id
+        ];
+        $special_bonus_unit = Unit::create($unit);
+
+        // Add Default Display Groups
+        $display_group = [
+            'business_id' => $business_id,
+            'name' => 'Malaysia Group',
+            'created_by' => $user_id
+        ];
+        DisplayGroup::create($display_group);
+
+        // Create Bonus, Bank, kiosk Account
+        $account = [
+            'business_id' => $business_id,
+            'name' => 'Bonus Account',
+            'currency_id' => 75,
+            'account_number' => '',
+            'created_by' => $user_id,
+            'account_type' => 'saving_current'
+        ];
+        $bonus_account = Account::create($account);
+
+        $account = [
+            'business_id' => $business_id,
+            'name' => 'OCBC',
+            'currency_id' => 75,
+            'account_number' => '11111',
+            'created_by' => $user_id,
+            'account_type' => 'saving_current'
+        ];
+        $first_bank_account = Account::create($account);
+
+        $account = [
+            'business_id' => $business_id,
+            'name' => '3Win8',
+            'currency_id' => 75,
+            'account_number' => '3Win8',
+            'is_service' => 1,
+            'created_by' => $user_id,
+            'account_type' => 'saving_current'
+        ];
+        $first_kiosk_account = Account::create($account);
+
+        // Add default variation
+        $input = [
+            'name' => 'RM20,30,50,100',
+            'business_id' => $business_id
+        ];
+        $rm_variation = VariationTemplate::create($input);
+
+        //craete variation values
+        $values = ['RM20', 'RM30', 'RM50', 'RM100'];
+        $data = [];
+        foreach ($values as $value) {
+            $data[] = [ 'name' => $value];
+        }
+        $rm_variation_value_templates = $rm_variation->values()->createMany($data);
+
+        $input = [
+            'name' => 'Percentage20,30,50,100',
+            'business_id' => $business_id
+        ];
+        $percent_variation = VariationTemplate::create($input);
+
+        //craete variation values
+        $values = ['20%', '30%', '50%', '100%'];
+        $data = [];
+        foreach ($values as $value) {
+            $data[] = [ 'name' => $value];
+        }
+        $percent_variation_value_templates = $percent_variation->values()->createMany($data);
+        // create bonus product
+        $product_details = [
+            'name' => 'Bonus' ,'brand_id' => null,'unit_id' => $special_bonus_unit->id ,'account_id' => $bonus_account->id ,'category_id' => 66 ,'tax' => null,
+            'type' => 'variable' ,'barcode_type' => 'C128' ,'sku' => '','alert_quantity' => 0 ,'tax_type' => 'exclusive' ,'weight' => '',
+            'product_description' => '','business_id' => $business_id ,'created_by' => $user_id ,'enable_stock' => 0 ,'not_for_selling' => 0
+        ];
+        $bonus_product = Product::create($product_details);
+        $bonus_input_variations = [[
+                'variation_template_id' => $percent_variation->id,
+                'variations' => [
+                    ['sub_sku' => '', 'variation_value_id' => $percent_variation_value_templates[0]->id, 'value' => '20%', 'default_purchase_price' => 20, 'dpp_inc_tax' => 20.00, 'profit_percent' => 0, 'default_sell_price' => 20.00, 'sell_price_inc_tax' => 20.00],
+                    ['sub_sku' => '', 'variation_value_id' => $percent_variation_value_templates[1]->id, 'value' => '30%', 'default_purchase_price' => 30, 'dpp_inc_tax' => 30.00, 'profit_percent' => 0, 'default_sell_price' => 30.00, 'sell_price_inc_tax' => 30.00],
+                    ['sub_sku' => '', 'variation_value_id' => $percent_variation_value_templates[2]->id, 'value' => '50%', 'default_purchase_price' => 50, 'dpp_inc_tax' => 50.00, 'profit_percent' => 0, 'default_sell_price' => 50.00, 'sell_price_inc_tax' => 50.00],
+                    ['sub_sku' => '', 'variation_value_id' => $percent_variation_value_templates[3]->id, 'value' => '100%', 'default_purchase_price' => 100, 'dpp_inc_tax' => 100.00, 'profit_percent' => 0, 'default_sell_price' => 100.00, 'sell_price_inc_tax' => 100.00]
+                ]
+        ]];
+        $this->createVariableProductVariations($bonus_product->id, $bonus_input_variations);
+
+        // create bank product
+        $product_details = [
+            'name' => 'OCBC' ,'brand_id' => null,'unit_id' => $btrans_unit->id ,'account_id' => $first_bank_account->id ,'category_id' => 66 ,'tax' => null,
+            'type' => 'variable' ,'barcode_type' => 'C128' ,'sku' => '','alert_quantity' => 0 ,'tax_type' => 'exclusive' ,'weight' => '',
+            'product_description' => '','business_id' => $business_id ,'created_by' => $user_id ,'enable_stock' => 0 ,'not_for_selling' => 0
+        ];
+        $bank_product = Product::create($product_details);
+        $bank_input_variations = [[
+            'variation_template_id' => $rm_variation->id,
+            'variations' => [
+                ['sub_sku' => '', 'variation_value_id' => $rm_variation_value_templates[0]->id, 'value' => '20%', 'default_purchase_price' => 20, 'dpp_inc_tax' => 20.00, 'profit_percent' => 0, 'default_sell_price' => 20.00, 'sell_price_inc_tax' => 20.00],
+                ['sub_sku' => '', 'variation_value_id' => $rm_variation_value_templates[1]->id, 'value' => '30%', 'default_purchase_price' => 30, 'dpp_inc_tax' => 30.00, 'profit_percent' => 0, 'default_sell_price' => 30.00, 'sell_price_inc_tax' => 30.00],
+                ['sub_sku' => '', 'variation_value_id' => $rm_variation_value_templates[2]->id, 'value' => '50%', 'default_purchase_price' => 50, 'dpp_inc_tax' => 50.00, 'profit_percent' => 0, 'default_sell_price' => 50.00, 'sell_price_inc_tax' => 50.00],
+                ['sub_sku' => '', 'variation_value_id' => $rm_variation_value_templates[3]->id, 'value' => '100%', 'default_purchase_price' => 100, 'dpp_inc_tax' => 100.00, 'profit_percent' => 0, 'default_sell_price' => 100.00, 'sell_price_inc_tax' => 100.00]
+            ]
+        ]];
+        $this->createVariableProductVariations($bank_product->id, $bank_input_variations);
+
+        // create kiosk product
+        $product_details = [
+            'name' => '3Win8' ,'brand_id' => null,'unit_id' => $gtrans_unit->id ,'account_id' => $first_kiosk_account->id ,'category_id' => 67 ,'tax' => null,
+            'type' => 'single' ,'barcode_type' => 'C128' ,'sku' => '','alert_quantity' => 0 ,'tax_type' => 'exclusive' ,'weight' => '',
+            'product_description' => '','business_id' => $business_id ,'created_by' => $user_id ,'enable_stock' => 0 ,'not_for_selling' => 0
+        ];
+        $kiosk_product = Product::create($product_details);
+
+        $sku_prefix = Business::where('id', $business_id)->value('sku_prefix');
+        $sku = $sku_prefix . str_pad($kiosk_product->id, 4, '0', STR_PAD_LEFT);
+        $kiosk_product->sku = $sku;
+        $kiosk_product->save();
+        $this->createSingleProductVariation($kiosk_product->id, $kiosk_product->sku, 10, 10, 0, 10, 10);
+
+        // Create default Customer group
+        CustomerGroup::create([
+            'business_id' => $business_id,
+            'created_by' => $user_id,
+            'name' => 'Catcher',
+            'amount' => 0
+        ]);
+
+        CustomerGroup::create([
+            'business_id' => $business_id,
+            'created_by' => $user_id,
+            'name' => 'FB',
+            'amount' => 0
+        ]);
+
+        CustomerGroup::create([
+            'business_id' => $business_id,
+            'created_by' => $user_id,
+            'name' => 'Friend',
+            'amount' => 0
+        ]);
+
+        CustomerGroup::create([
+            'business_id' => $business_id,
+            'created_by' => $user_id,
+            'name' => 'Google',
+            'amount' => 0
+        ]);
+
+        BankBrand::create([
+            'business_id' => $business_id,
+            'created_by' => $user_id,
+            'name' => 'Public Bank'
+        ]);
         //Create default notification templates
         $notification_templates = NotificationTemplate::defaultNotificationTemplates($business_id);
         foreach ($notification_templates as $notification_template) {
@@ -137,6 +326,176 @@ class BusinessUtil extends Util
         return true;
     }
 
+
+
+
+    /**
+     * Create variable type product variation
+     *
+     * @param (int or object) $product
+     * @param $input_variations
+     *
+     * @return boolean
+     */
+    public function createVariableProductVariations($product, $input_variations, $business_id = null)
+    {
+        if (!is_object($product)) {
+            $product = Product::find($product);
+        }
+
+        //create product variations
+        foreach ($input_variations as $key => $value) {
+            $images = [];
+            $variation_template_name = !empty($value['name']) ? $value['name'] : null;
+            $variation_template_id = !empty($value['variation_template_id']) ? $value['variation_template_id'] : null;
+
+            if (empty($variation_template_id)) {
+                if ($variation_template_name != 'DUMMY') {
+                    $variation_template = VariationTemplate::where('business_id', $business_id)
+                        ->whereRaw('LOWER(name)="' . strtolower($variation_template_name) . '"')
+                        ->with(['values'])
+                        ->first();
+                    if (empty($variation_template)) {
+                        $variation_template = VariationTemplate::create([
+                            'name' => $variation_template_name,
+                            'business_id' => $business_id
+                        ]);
+                    }
+                    $variation_template_id = $variation_template->id;
+                }
+            } else {
+                $variation_template = VariationTemplate::with(['values'])->find($value['variation_template_id']);
+                $variation_template_id = $variation_template->id;
+                $variation_template_name = $variation_template->name;
+            }
+
+            $product_variation_data = [
+                'name' => $variation_template_name,
+                'product_id' => $product->id,
+                'is_dummy' => 0,
+                'variation_template_id' => $variation_template_id
+            ];
+            $product_variation = ProductVariation::create($product_variation_data);
+
+            //create variations
+            if (!empty($value['variations'])) {
+                $variation_data = [];
+
+                $c = Variation::withTrashed()
+                        ->where('product_id', $product->id)
+                        ->count() + 1;
+
+                foreach ($value['variations'] as $k => $v) {
+                    $sub_sku = empty($v['sub_sku'])? $this->generateSubSku($product->sku, $c, $product->barcode_type) :$v['sub_sku'];
+                    $variation_value_id = !empty($v['variation_value_id']) ? $v['variation_value_id'] : null;
+                    $variation_value_name = !empty($v['value']) ? $v['value'] : null;
+
+                    if (!empty($variation_value_id)) {
+                        $variation_value = $variation_template->values->filter(function ($item) use ($variation_value_id) {
+                            return $item->id == $variation_value_id;
+                        })->first();
+                        $variation_value_name = $variation_value->name;
+                    } else {
+                        if (!empty($variation_template)) {
+                            $variation_value =  VariationValueTemplate::where('variation_template_id', $variation_template->id)
+                                ->whereRaw('LOWER(name)="' . $variation_value_name . '"')
+                                ->first();
+                            if (empty($variation_value)) {
+                                $variation_value =  VariationValueTemplate::create([
+                                    'name' => $variation_value_name,
+                                    'variation_template_id' => $variation_template->id
+                                ]);
+                            }
+                            $variation_value_id = $variation_value->id;
+                            $variation_value_name = $variation_value->name;
+                        } else {
+                            $variation_value_id = null;
+                            $variation_value_name = $variation_value_name;
+                        }
+                    }
+
+                    $variation_data[] = [
+                        'name' => $variation_value_name,
+                        'variation_value_id' => $variation_value_id,
+                        'product_id' => $product->id,
+                        'sub_sku' => $sub_sku,
+                        'default_purchase_price' => $this->num_uf($v['default_purchase_price']),
+                        'dpp_inc_tax' => $this->num_uf($v['dpp_inc_tax']),
+                        'profit_percent' => $this->num_uf($v['profit_percent']),
+                        'default_sell_price' => $this->num_uf($v['default_sell_price']),
+                        'sell_price_inc_tax' => $this->num_uf($v['sell_price_inc_tax'])
+                    ];
+                    $c++;
+                    $images[] = 'variation_images_' . $key . '_' . $k;
+                }
+                $variations = $product_variation->variations()->createMany($variation_data);
+
+                $i = 0;
+                foreach ($variations as $variation) {
+                    Media::uploadMedia($product->business_id, $variation, request(), $images[$i]);
+                    $i++;
+                }
+            }
+        }
+    }
+
+    public function generateSubSku($sku, $c, $barcode_type)
+    {
+        $sub_sku = $sku . $c;
+
+        if (in_array($barcode_type, ['C128', 'C39'])) {
+            $sub_sku = $sku . '-' . $c;
+        }
+
+        return $sub_sku;
+    }
+
+
+    /**
+     * Create single type product variation
+     *
+     * @param $product
+     * @param $sku
+     * @param $purchase_price
+     * @param $dpp_inc_tax (default purchase pric including tax)
+     * @param $profit_percent
+     * @param $selling_price
+     * @param $selling_price_inc_tax
+     * @param array $combo_variations = []
+     *
+     * @return boolean
+     */
+    public function createSingleProductVariation($product, $sku, $purchase_price, $dpp_inc_tax, $profit_percent, $selling_price, $selling_price_inc_tax, $combo_variations = [])
+    {
+        if (!is_object($product)) {
+            $product = Product::find($product);
+        }
+
+        //create product variations
+        $product_variation_data = [
+            'name' => 'DUMMY',
+            'is_dummy' => 1
+        ];
+        $product_variation = $product->product_variations()->create($product_variation_data);
+
+        //create variations
+        $variation_data = [
+            'name' => 'DUMMY',
+            'product_id' => $product->id,
+            'sub_sku' => $sku,
+            'default_purchase_price' => $this->num_uf($purchase_price),
+            'dpp_inc_tax' => $this->num_uf($dpp_inc_tax),
+            'profit_percent' => $this->num_uf($profit_percent),
+            'default_sell_price' => $this->num_uf($selling_price),
+            'sell_price_inc_tax' => $this->num_uf($selling_price_inc_tax),
+            'combo_variations' => $combo_variations
+        ];
+        $variation = $product_variation->variations()->create($variation_data);
+
+//        Media::uploadMedia($product->business_id, $variation, request(), 'variation_images');
+
+        return true;
+    }
     /**
      * Gives a list of all currencies
      *
@@ -191,7 +550,7 @@ class BusinessUtil extends Util
     {
         $business_details['sell_price_tax'] = 'includes';
 
-        $business_details['default_profit_percent'] = 25;
+        $business_details['default_profit_percent'] = 0;
 
         //Add POS shortcuts
         $business_details['keyboard_shortcuts'] = '{"pos":{"express_checkout":"shift+e","pay_n_ckeckout":"shift+p","draft":"shift+d","cancel":"shift+c","edit_discount":"shift+i","edit_order_tax":"shift+t","add_payment_row":"shift+r","finalize_payment":"shift+f","recent_product_quantity":"f2","add_new_product":"f4"}}';

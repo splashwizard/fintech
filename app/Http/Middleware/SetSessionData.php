@@ -81,11 +81,19 @@ class SetSessionData
             if($user->hasRole('Superadmin')){
                 $business_list = Business::get()->pluck('name','id');
                 $request->session()->put('business_list', $business_list);
-            } else if($user->hasRole('Admin')) {
+            } else if($user->hasRole('Admin') || $user->hasRole('Admin#' . $user->business_id)) {
                 $data = AdminHasBusiness::where('user_id', $user->id)->get();
                 $business_ids = [];
-                foreach ($data as $row){
-                    $business_ids[] = $row->business_id;
+                if($user->hasRole('Admin#' . $user->business_id)){
+                    $business_ids[] = $user->business_id;
+                    foreach ($data as $row){
+                        if($user->business_id != $row->business_id)
+                            $business_ids[] = $row->business_id;
+                    }
+                } else {
+                    foreach ($data as $row){
+                        $business_ids[] = $row->business_id;
+                    }
                 }
                 $business_list = Business::whereIn('id', $business_ids)->get()->pluck('name','id');
                 $request->session()->put('business_list', $business_list);

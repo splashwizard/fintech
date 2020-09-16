@@ -361,7 +361,6 @@ class ProductController extends Controller
 
             //upload document
             $product_details['image'] = $this->productUtil->uploadFile($request, 'image', config('constants.product_img_path'));
-
             DB::beginTransaction();
 
             $product = Product::create($product_details);
