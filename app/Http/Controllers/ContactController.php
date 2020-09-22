@@ -662,9 +662,26 @@ class ContactController extends Controller
             ->select('accounts.name', 'game_ids.cur_game_id')
             ->get();
 //        print_r($game_data);exit;
+        $transaction_total = TransactionPayment::join(
+            'transactions as t',
+            'transaction_payments.transaction_id',
+            '=',
+            't.id'
+        )
+            ->leftJoin('business_locations as bl', 't.location_id', '=', 'bl.id')
+            ->where('t.contact_id', $id)
+            ->where('t.business_id', $business_id)
+            ->where('t.status', '!=', 'draft')
+            ->select(
+                DB::raw("SUM(IF(card_type = 'debit' && method != 'service_transfer', amount, 0)) as debit"),
+                DB::raw("SUM(IF(card_type = 'credit' && method= 'bank_transfer', amount, 0)) as credit"),
+                DB::raw("SUM(IF(card_type = 'credit' &&  ( method= 'basic_bonus' || method= 'free_credit'), amount, 0)) as bonus"),
+                DB::raw("SUM(IF(card_type = 'debit' && method = 'service_transfer', amount, 0)) as service_debit"),
+                DB::raw("SUM(IF(card_type = 'credit' && method = 'service_transfer', amount, 0)) as service_credit")
+                )->first();
 
         return view('contact.show')
-             ->with(compact('contact', 'game_data', 'reward_enabled'));
+             ->with(compact('contact', 'game_data', 'reward_enabled', 'transaction_total'));
     }
 
     /**
@@ -1727,7 +1744,7 @@ class ContactController extends Controller
         $paymentTypes = $this->transactionUtil->payment_types();
         foreach ($payments as $payment) {
             $ref_no = in_array($payment->transaction_type, ['sell', 'sell_return']) ?  $payment->invoice_no :  $payment->ref_no;
-            $ledger[] = [
+            $new_item = [
                 'date' => $payment->paid_on,
                 'ref_no' => $payment->payment_ref_no,
                 'type' => $this->transactionTypes['payment'],
@@ -1742,6 +1759,11 @@ class ContactController extends Controller
                 'service_credit' => ($payment->card_type == 'credit' && $payment->method == 'service_transfer' ) ? $payment->amount : '',
                 'others' => $payment->note . '<small>' . __('account.payment_for') . ': ' . $ref_no . '</small>'
             ];
+            if($payment->method =='bank_transfer')
+                $new_item['payment_method'] = Account::find($payment->account_id)->name;
+            else if ($payment->method =='service_transfer')
+                $new_item['payment_method'] = '<span style="color: red">'.Account::find($payment->account_id)->name.'</span>';
+            $ledger[]= $new_item;
         }
 //        print_r($ledger);exit;
 

@@ -21,8 +21,8 @@ return [
     'credit' => 'Credit',
     'bonus' => 'Bonus',
     'debit' => 'Debit',
-    'service_credit' => 'Service Credit',
-    'service_debit' => 'Service Debit',
+    'service_credit' => 'Kiosk Credit',
+    'service_debit' => 'Kiosk Debit',
     'kiosk_in' => 'Kiosk In',
     'kiosk_out' => 'Kiosk Out',
     'free_credit' => 'Free Credit',
@@ -72,4 +72,6 @@ return [
     'link_account' => 'Link Account',
     'account_linked_success' => 'Account linked successfully',
     'view_details' => 'View Details',
+    'ref_detail' => 'Ref Detail',
+    'ticket' => 'Ticket #'
 ];

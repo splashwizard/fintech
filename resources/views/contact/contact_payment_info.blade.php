@@ -16,20 +16,25 @@
     </p>
 @endif
 @if( $contact->type == 'customer' || $contact->type == 'both')
-    <strong>@lang('contact.total_bank_deposit')</strong>
+    <strong>@lang('contact.bank_debit')</strong>
     <p class="text-muted">
-    <span class="display_currency" data-currency_symbol="true">
-    {{ $contact->total_invoice }}</span>
+        <span class="display_currency" data-currency_symbol="true">{{ $transaction_total->debit }}</span>
     </p>
-    <strong>@lang('contact.total_sale_paid')</strong>
+    <strong>@lang('contact.bank_credit')</strong>
     <p class="text-muted">
-    <span class="display_currency" data-currency_symbol="true">
-    {{ $contact->invoice_received }}</span>
+        <span class="display_currency" data-currency_symbol="true">{{ $transaction_total->credit }}</span>
     </p>
-    <strong>@lang('contact.total_service_deposit')</strong>
+    <strong>@lang('contact.bonus')</strong>
     <p class="text-muted">
-    <span class="display_currency" data-currency_symbol="true">
-    {{ $contact->total_invoice - $contact->invoice_received }}</span>
+        <span class="display_currency" data-currency_symbol="true">{{ $transaction_total->bonus }}</span>
+    </p>
+    <strong>@lang('contact.game_debit')</strong>
+    <p class="text-muted">
+        <span class="display_currency" data-currency_symbol="true">{{ $transaction_total->service_debit }}</span>
+    </p>
+    <strong>@lang('contact.game_credit')</strong>
+    <p class="text-muted">
+        <span class="display_currency" data-currency_symbol="true">{{ $transaction_total->service_credit }}</span>
     </p>
 @endif
 @if(!empty($contact->opening_balance) && $contact->opening_balance != '0.00')

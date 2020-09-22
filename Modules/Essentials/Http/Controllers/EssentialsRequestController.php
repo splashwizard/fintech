@@ -395,6 +395,7 @@ class EssentialsRequestController extends Controller
                     $bank_in_time = $request->get('bank_in_time');
                     Transaction::find($transaction_id)->update(['bank_in_time' => $bank_in_time]);
                 }
+                $activity = 'Ticket ID: ' . Transaction::find($transaction_id)->invoice_no;
 
                 $transaction_payment_id = $request->get('transaction_payment_id');
                 $is_first_service = $request->get('is_first_service');
@@ -405,16 +406,40 @@ class EssentialsRequestController extends Controller
                         $service_id = $request->get('service_id');
                         $game_id = GameId::where('contact_id', $contact_id)->where('service_id', $service_id)->get()->first()[$game_id_index];
 
-                        if(!empty($transaction_payment_id)){
-                            TransactionPayment::find($transaction_payment_id)->update(['game_id' => $game_id, 'payment_for' => $contact_id ,'account_id' => $service_id]);
-                            if($is_first_service){
-                                TransactionPayment::where('transaction_id', $transaction_id)->where('method', '!=', 'service_transfer')->update(['payment_for' => $contact_id]);
-                                Transaction::find($transaction_id)->update(['contact_id' => $contact_id]);
+                        if(Transaction::find($transaction_id)->type == 'sell') {
+                            if (!empty($transaction_payment_id)) {
+                                $transaction_payment_row = TransactionPayment::find($transaction_payment_id);
+                                TransactionPayment::find($transaction_payment_id)->update(['game_id' => $game_id, 'payment_for' => $contact_id, 'account_id' => $service_id]);
+                                if ($is_first_service) {
+                                    TransactionPayment::where('transaction_id', $transaction_id)->where('method', '!=', 'service_transfer')->update(['payment_for' => $contact_id]);
+                                    Transaction::find($transaction_id)->update(['contact_id' => $contact_id]);
+                                }
+                                AccountTransaction::where('transaction_payment_id', $transaction_payment_id)->update(['account_id' => $service_id]);
+                                if($transaction_payment_row->payment_for != $contact_id)
+                                    $activity .= chr(10) . chr(13) . 'Contact Id: '. Contact::find($transaction_payment_row->payment_for)->contact_id . ' >>> ' . Contact::find($contact_id)->contact_id;
+                                if($transaction_payment_row->account_id != $service_id)
+                                    $activity .= chr(10) . chr(13) . 'Game: '. Account::find($transaction_payment_row->account_id)->name . ' >>> ' . Account::find($service_id)->name;
+                                if($transaction_payment_row->game_id != $game_id)
+                                    $activity .= chr(10) . chr(13) . 'Game Id: '. $transaction_payment_row->game_id . ' >>> ' . $game_id;
+                            } else {
+                                $old_contact = Contact::find(TransactionPayment::where('transaction_id', $transaction_id)->get()->first()->payment_for)->contact_id;
+                                $old_game = Account::find(AccountTransaction::where('transaction_id', $transaction_id)->where('type', 'credit')->get()->first()->account_id)->name;
+                                TransactionPayment::where('transaction_id', $transaction_id)->update(['payment_for' => $contact_id]);
+                                AccountTransaction::where('transaction_id', $transaction_id)->where('type', 'credit')->update(['account_id' => $service_id]);
+                                $activity .= chr(10) . chr(13) . 'Contact Id: '. $old_contact . ' >>> ' . Contact::find($contact_id)->contact_id;
+                                $activity .= chr(10) . chr(13) . 'Game: '. $old_game . ' >>> ' . Account::find($service_id)->name;
                             }
-                            AccountTransaction::where('transaction_payment_id', $transaction_payment_id)->update(['account_id' => $service_id]);
-                        } else {
-                            TransactionPayment::where('transaction_id', $transaction_id)->update(['payment_for' => $contact_id]);
-                            AccountTransaction::where('transaction_id', $transaction_id)->where('type', 'credit')->update(['account_id' => $service_id]);
+                        }
+                        else if(Transaction::find($transaction_id)->type == 'sell_return') {
+                            $transaction_payment_row = TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'service_transfer')->get()->first();
+                            TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'service_transfer')->update(['game_id' => $game_id, 'payment_for' => $contact_id, 'account_id' => $service_id]);
+                            Transaction::find($transaction_id)->update(['contact_id' => $contact_id]);
+                            if($transaction_payment_row->payment_for != $contact_id)
+                                $activity .= chr(10) . chr(13) . 'Contact Id: '. Contact::find($transaction_payment_row->payment_for)->contact_id . ' >>> ' . Contact::find($contact_id)->contact_id;
+                            if($transaction_payment_row->account_id != $service_id)
+                                $activity .= chr(10) . chr(13) . 'Game: '. Account::find($transaction_payment_row->account_id)->name . ' >>> ' . Account::find($service_id)->name;
+                            if($transaction_payment_row->game_id != $game_id)
+                                $activity .= chr(10) . chr(13) . 'Game Id: '. $transaction_payment_row->game_id . ' >>> ' . $game_id;
                         }
                     }
                 }
@@ -452,17 +477,25 @@ class EssentialsRequestController extends Controller
 //                    }
 //                    $request_data['service_debit'] = $credit + $request_data['basic_bonus'] + $request_data['special_bonus'];
 
-                    if(TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'bank_transfer')->where('card_type','credit')->count() > 0 && !empty($credit)){
-                        TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'bank_transfer')->where('card_type','credit')->update(['amount' => $credit, 'account_id' => $request->get('bank_account_id')]);
-                        AccountTransaction::where('transaction_id', $transaction_id)->where('account_id', '!=', $bonus_account_id)->update(['amount' => $credit, 'account_id' => $request->get('bank_account_id')]);
+                    if(TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'bank_transfer')->where('card_type','credit')->count() > 0){
+                        $update_data = !empty($credit) ? ['amount' => $credit, 'account_id' => $request->get('bank_account_id')] : ['account_id' => $request->get('bank_account_id')];
+                        $old_credit = TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'bank_transfer')->where('card_type','credit')->get()->first()->amount;
+                        TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'bank_transfer')->where('card_type','credit')->update($update_data);
+                        AccountTransaction::where('transaction_id', $transaction_id)->where('account_id', '!=', $bonus_account_id)->update($update_data);
+                        if(!empty($credit))
+                            $activity .= chr(10) . chr(13) . 'Credit: '. $old_credit . ' >>> ' . $credit;
                     }
                     if(TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'free_credit')->where('card_type','credit')->count() > 0 && !empty($free_credit)){
+                        $old_free_credit = TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'free_credit')->where('card_type','credit')->get()->first()->amount;
                         TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'free_credit')->where('card_type','credit')->update(['amount' => $free_credit]);
                         AccountTransaction::where('transaction_id', $transaction_id)->where('account_id', $bonus_account_id)->update(['amount' => $free_credit]);
+                        $activity .= chr(10) . chr(13) . 'Credit: '. $old_free_credit . ' >>> ' . $free_credit;
                     }
                     if(TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'basic_bonus')->where('card_type','credit')->count() > 0 && !empty($basic_bonus)){
+                        $old_basic_bonus = TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'basic_bonus')->where('card_type','credit')->get()->first()->amount;
                         TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'basic_bonus')->where('card_type','credit')->update(['amount' => $basic_bonus]);
                         AccountTransaction::where('transaction_id', $transaction_id)->where('account_id', $bonus_account_id)->update(['amount' => $basic_bonus]);
+                        $activity .= chr(10) . chr(13) . 'Credit: '. $old_basic_bonus . ' >>> ' . $basic_bonus;
                     }
 
                     if(!empty($service_debit)){
@@ -472,8 +505,14 @@ class EssentialsRequestController extends Controller
                         }
                     }
                 }
-                else if(!empty($request->get('debit'))) {
-                    $debit = $request->get('debit');
+//                else if(!empty($request->get('debit'))) {
+                else if(Transaction::find($transaction_id)->type == 'sell_return') {
+                    if(!empty($request->get('debit'))){
+                        $debit = $request->get('debit');
+                        $activity .= chr(10) . chr(13) . 'Debit: '. TransactionPayment::where('transaction_id', $transaction_id)->where('method', '!=', 'service_transfer')->where('card_type','debit')->get()->first()['amount'] . ' >>> ' . $debit;
+                    }
+                    else
+                        $debit = TransactionPayment::where('transaction_id', $transaction_id)->where('method', '!=', 'service_transfer')->where('card_type','debit')->get()->first()['amount'];
                     if(TransactionPayment::where('transaction_id', $transaction_id)->where('method', '!=', 'service_transfer')->where('card_type','debit')->count() > 0){
                         TransactionPayment::where('transaction_id', $transaction_id)->where('method', '!=', 'service_transfer')->where('card_type','debit')->update(['amount' => $debit, 'account_id' => $request->get('bank_account_id')]);
                         AccountTransaction::where('transaction_id', $transaction_id)->where('account_id', '!=', $bonus_account_id)->update(['amount' => $debit, 'account_id' => $request->get('bank_account_id')]);
@@ -486,6 +525,7 @@ class EssentialsRequestController extends Controller
                         }
                     }
                 }
+                ActivityLogger::activity($activity);
 //                $request_row = EssentialsRequest::where('transaction_id', $transaction_id)->get()->first();
 //                $request_row->update(['status' => 'approved']);
 //                ActivityLogger::activity("Approved change request, reference no ".$request_row['ref_no']);

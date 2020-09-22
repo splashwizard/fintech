@@ -12,8 +12,8 @@
 			<th>@lang('account.bonus')</th>
 			<th>@lang('account.service_debit')</th>
 			<th>@lang('account.service_credit')</th>
-			<th>@lang('lang_v1.payment_method')</th>
-			<th>@lang('report.others')</th>
+			<th>@lang('account.ref_detail')</th>
+			<th>@lang('account.ticket')</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -30,7 +30,7 @@
 				<td>@if($data['bonus'] != '') <span class="display_currency" data-currency_symbol="true">{{$data['bonus']}}</span> @endif</td>
 				<td>@if($data['service_debit'] != '') <span class="display_currency" data-currency_symbol="true">{{$data['service_debit']}}</span> @endif</td>
 				<td>@if($data['service_credit'] != '') <span class="display_currency" data-currency_symbol="true">{{$data['service_credit']}}</span> @endif</td>
-				<td>{{$data['payment_method']}}</td>
+				<td>{!! $data['payment_method'] !!}</td>
 				<td>{!! $data['others'] !!}</td>
 			</tr>
 		@endforeach
