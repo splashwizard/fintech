@@ -1275,7 +1275,7 @@ $(document).ready(function() {
         $('table#pos_table tbody tr.service_row').each(function () {
             if($(this).find('span[data-toggle="modal"]').hasClass('text-link')){
                 console.log($(this).find('input.pos_line_total').val());
-                service_sum_except_first += parseInt($(this).find('input.pos_line_total').val());
+                service_sum_except_first += $(this).find('input.pos_line_total').val();
             }
         });
         const first_service_row = $('table#pos_table tbody tr.service_row').first();
@@ -2418,7 +2418,7 @@ function pos_total_row() {
     $('#basic_bonus').html(basic_bonus);
     $('#special_bonus').html(special_bonus);
     $('#total_redeemed').html(debit);
-    $('#total_earned').html(credit + basic_bonus + special_bonus);
+    $('#total_earned').html(parseFloat(credit) + parseFloat(basic_bonus) + parseFloat(special_bonus));
     //
     // //Go through the modifier prices.
     // $('input.modifiers_price').each(function() {
