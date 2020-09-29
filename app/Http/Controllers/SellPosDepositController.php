@@ -2460,8 +2460,10 @@ class SellPosDepositController extends Controller
                 ->orderBy('products.name', 'asc')
                 ->paginate(40);
 
+            $business_details = $this->businessUtil->getDetails($business_id);
+            $bonus_decimal = $business_details->bonus_decimal;
             return view('sale_pos_deposit.partials.bank_product_list')
-                ->with(compact('products'));
+                ->with(compact('products', 'bonus_decimal'));
         }
     }
 
