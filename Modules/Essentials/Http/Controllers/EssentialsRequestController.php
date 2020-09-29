@@ -400,6 +400,7 @@ class EssentialsRequestController extends Controller
                 $transaction_payment_id = $request->get('transaction_payment_id');
                 $is_first_service = $request->get('is_first_service');
                 if(!empty($request->get('contact_id'))){
+
                     $contact_id = $request->get('contact_id');
                     if(!empty($request->get('service_id'))){
                         $game_id_index = $request->get('game_id');
@@ -481,7 +482,7 @@ class EssentialsRequestController extends Controller
                         $update_data = !empty($credit) ? ['amount' => $credit, 'account_id' => $request->get('bank_account_id')] : ['account_id' => $request->get('bank_account_id')];
                         $old_credit = TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'bank_transfer')->where('card_type','credit')->get()->first()->amount;
                         TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'bank_transfer')->where('card_type','credit')->update($update_data);
-                        AccountTransaction::where('transaction_id', $transaction_id)->where('account_id', '!=', $bonus_account_id)->update($update_data);
+                        AccountTransaction::where('transaction_id', $transaction_id)->where('type', 'credit')->where('account_id', '!=', $bonus_account_id)->update($update_data);
                         if(!empty($credit))
                             $activity .= chr(10) . chr(13) . 'Credit: '. $old_credit . ' >>> ' . $credit;
                     }

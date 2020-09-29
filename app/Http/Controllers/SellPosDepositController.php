@@ -1673,8 +1673,9 @@ class SellPosDepositController extends Controller
                             if($data->name == 'Banking'){
                                 $card_type = 'credit';
                                 $method = 'bank_transfer';
+                                $payment_id = TransactionPayment::where('transaction_id', $transaction->id)->where('method', 'bank_transfer')->where('account_id', $payment['account_id'])->get()->first()->id;
                                 $payments[] = ['account_id' => $payment['account_id'], 'method' => $method, 'amount' => $payment['amount'], 'note' => '', 'card_transaction_number' => '', 'card_number' => '', 'card_type' => $card_type, 'card_holder_name' => '', 'card_month' => '', 'card_year' => '', 'card_security' => '', 'cheque_number' => '', 'bank_account_number' => '',
-                                    'is_return' => 0, 'transaction_no' => '', 'category_name' => $data->name, 'payment_for' => $payment['payment_for']];
+                                    'is_return' => 0, 'transaction_no' => '', 'category_name' => $data->name, 'payment_for' => $payment['payment_for'], 'payment_id' => $payment_id];
                             }
                         }
                         if(!empty($basic_bonus) || !empty($special_bonus)){
