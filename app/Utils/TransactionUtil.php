@@ -527,7 +527,7 @@ class TransactionUtil extends Util
     public function createOrUpdatePaymentLines($transaction, $payments, $business_id = null, $user_id = null, $uf_data = true)
     {
         $payments_formatted = [];
-        $edit_ids = [0];
+        $edit_ids = [];
         $account_transactions = [];
         
         if (!is_object($transaction)) {
@@ -544,6 +544,7 @@ class TransactionUtil extends Util
             if (!empty($payment['payment_id'])) {
                 $edit_ids[] = $payment['payment_id'];
                 $this->editPaymentLine($payment, $transaction, $uf_data);
+                $c++;
             } else {
                 $payment_amount = $uf_data ? $this->num_uf($payment['amount']) : $payment['amount'];
                 //If amount is 0 then skip.
@@ -622,6 +623,7 @@ class TransactionUtil extends Util
         if (!empty($payments_formatted)) {
             $transaction->payment_lines()->saveMany($payments_formatted);
 
+//            return $account_transactions;
             foreach ($transaction->payment_lines as $key => $value) {
                 if (!empty($account_transactions[$key])) {
                     event(new TransactionPaymentAdded($value, $account_transactions[$key]));
@@ -700,7 +702,7 @@ class TransactionUtil extends Util
         
         
         // $payment['amount'] = $uf_data ? $this->num_uf($payment['amount']) : $payment['amount'];
-        $payment['amount'] = $payment['amount'] + 1;
+//        $payment['amount'] = $payment['amount'] + 1;
 
         $tp = TransactionPayment::where('id', $payment_id)
                             ->first();

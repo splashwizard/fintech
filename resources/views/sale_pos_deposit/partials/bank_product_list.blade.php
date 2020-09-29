@@ -5,7 +5,7 @@
 				<small>{{$product->name}}
 				</small>
 			</div>
-			<span class="text-red text-center">({{ $bonus_decimal ? number_format($product->balance, 2) : round($product->balance)}})</span>
+			<span class="text-red text-center">({{ $bonus_decimal == 'y' ? number_format($product->balance, 2) : round($product->balance)}})</span>
 		</div>
 	</div>
 @empty
