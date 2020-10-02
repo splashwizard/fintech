@@ -141,6 +141,19 @@ class DataController extends Controller
                 'read_at' => $notification->read_at,
                 'created_at' => $notification->created_at->diffForHumans()
             ];
+        } elseif ($notification->type ==
+            'Modules\Essentials\Notifications\CancelTransactionNotification') {
+            $data = $notification->data;
+
+            $msg = __('essentials::lang.cancel_transaction_notification', ['username' => $data['username'], 'invoice_no' => $data['invoice_no']]);
+
+            $notification_data = [
+                'msg' => $msg,
+                'icon_class' => 'fa fa-user-times text-success',
+                'link' => '/activity',
+                'read_at' => $notification->read_at,
+                'created_at' => $notification->created_at->diffForHumans()
+            ];
         }
 
         return $notification_data;

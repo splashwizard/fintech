@@ -15,7 +15,7 @@
 						- {{$product->variation}}
 					@endif
 						@if($product->category_id === 67)
-						<span class="text-red">({{ $bonus_decimal == 'y' ? number_format($product->balance, 2) : $product->balance}})</span>
+						<span class="text-red">({{ $bonus_decimal == 'y' ? number_format($product->balance, 2) : round($product->balance)}})</span>
 							@endif
 					</small>
 				</div>

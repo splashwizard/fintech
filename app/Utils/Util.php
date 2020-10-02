@@ -10,6 +10,7 @@ use App\TransactionSellLine;
 use App\Unit;
 use App\User;
 use App\VariationLocationDetails;
+use App\AdminHasBusiness;
 
 use DB;
 
@@ -753,7 +754,22 @@ class Util
     {
         $admins = User::role('Admin#' . $business_id)->get();
 
-        return $admins;
+        $business = AdminHasBusiness::where('business_id', $business_id)->get();
+        $user_arr = [];
+        foreach ($business as $row){
+            $user_arr[] = $row->user_id;
+        }
+        $senior_admins = User::whereIn('id', $user_arr)->get();
+
+        $all_admins = [];
+        foreach ($admins as $item){
+            $all_admins[] = $item;
+        }
+        foreach ($senior_admins as $item){
+            $all_admins[] = $item;
+        }
+
+        return $all_admins;
     }
 
     /**

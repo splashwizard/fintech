@@ -113,8 +113,8 @@ class MassOverviewController extends Controller
             $datatable = Datatables::of($query)->addColumn(
                 'action',
                 function ($row) {
-                    $username = request()->session()->get('user.username');
-                    if(auth()->user()->hasRole('Superadmin') || ($username == 'Steven Admin' || $username == 'David' || $username == 'Anson'))
+                    $username = auth()->user()->username;
+                    if(auth()->user()->hasRole('Superadmin') || ($username == 'Steven Admin' || $username == 'Chris' || $username == 'Shun'))
                         $html = '<a href="'.action("MassOverviewController@edit", [$row->id]).'" class="btn btn-info btn-xs">Edit</a>';
                     else
                         $html = '<a href="'.action("MassOverviewController@show", [$row->id]).'" class="btn btn-info btn-xs">View</a>';
@@ -181,8 +181,8 @@ class MassOverviewController extends Controller
                 $new_row = [];
                 $new_row['serial'] = $business_id;
                 $new_row['name'] = $business_name;
-                $username = request()->session()->get('user.username');
-                if(auth()->user()->hasRole('Superadmin') || ($username == 'Steven Admin' || $username == 'David' || $username == 'Anson'))
+                $username = auth()->user()->username;
+                if(auth()->user()->hasRole('Superadmin') || ($username == 'Steven Admin' || $username == 'Shun' || $username == 'Chris'))
                     $new_row['action'] = '<a href="'.action("MassOverviewController@edit", [$business_id]).'" class="btn btn-info btn-xs">Edit</a>';
                 else
                     $new_row['action'] = '<a href="'.action("MassOverviewController@show", [$business_id]).'" class="btn btn-info btn-xs">View</a>';
@@ -357,8 +357,8 @@ class MassOverviewController extends Controller
      */
     public function edit($id)
     {
-        $username = request()->session()->get('user.username');
-        if(auth()->user()->hasRole('Superadmin') || ($username == 'Steven Admin' || $username == 'David' || $username == 'Anson')){
+        $username = auth()->user()->username;
+        if(auth()->user()->hasRole('Superadmin') || ($username == 'Steven Admin' || $username == 'Chris' || $username == 'Shun')){
             $business = Business::findOrFail($id);
 
             $currency = $business->currency;
@@ -472,7 +472,7 @@ class MassOverviewController extends Controller
             foreach ($business as $row){
                 $user_arr[] = $row->user_id;
             }
-            $username = request()->session()->get('user.username');
+            $username = auth()->user()->username;
 
             $users = User::whereIn('id', $user_arr);
             if($username == 'Steven Admin')
