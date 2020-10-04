@@ -218,7 +218,7 @@ class SellPosDepositController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create($transaction_id=0)
     {
         if (!auth()->user()->can('sell.create')) {
             abort(403, 'Unauthorized action.');
@@ -329,6 +329,11 @@ class SellPosDepositController extends Controller
         $bonuses = $this->getBonuses($business_id);
         $country_codes = CountryCode::forDropdown(false);
 
+        $selected_bank = 0;
+        if($transaction_id != 0){
+            $selected_bank = TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'bank_transfer')->first()->account_id;
+        }
+
 
         // $bonus_types = [];
         // $values = [10, 30, 50, 100];
@@ -374,8 +379,15 @@ class SellPosDepositController extends Controller
                 'price_groups',
                 'services',
                 'bonuses',
-                'country_codes'
+                'country_codes',
+                'selected_bank',
+                'transaction_id'
             ));
+    }
+
+    public function createSelectedTransaction($transaction_id)
+    {
+        return $this->create($transaction_id);
     }
 
     private function isShiftClosed($business_id){
@@ -2018,6 +2030,8 @@ class SellPosDepositController extends Controller
                 $waiters = $this->productUtil->serviceStaffDropdown($business_id, $location_id);
             }
 
+            $output['no_bonus'] = $product->no_bonus;
+
             if (request()->get('type') == 'sell-return') {
                 $output['html_content'] =  view('sell_return.partials.product_row')
                             ->with(compact('product', 'row_count', 'tax_dropdown', 'enabled_modules', 'sub_units'))
@@ -2558,6 +2572,7 @@ class SellPosDepositController extends Controller
                 'variations.id',
                 'p.account_id',
                 'p.category_id',
+                'p.no_bonus',
                 'variations.name as variation',
                 'VLD.qty_available',
                 'variations.default_sell_price as selling_price',

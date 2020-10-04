@@ -1,4 +1,4 @@
-var selected_bank = localStorage.getItem('selected_bank') ? localStorage.getItem('selected_bank') : 0;
+// var selected_bank = localStorage.getItem('selected_bank') ? localStorage.getItem('selected_bank') : 0;
 var bonus_variation_id = -1;
 var selected_bank_suggestion_id = 0;
 var no_bonus = 0;
@@ -81,7 +81,8 @@ function copyTextToClipboardModal(text) {
 var pos_form_obj;
 $(document).ready(function() {
     if(!edit_page)
-        get_contact_ledger();
+        get_contact_ledger(true);
+
     // console.log($('#contact_ledger_div').offset());
     // var scrollX = parseInt($('#contact_ledger_div').offset().left);
     // var scrollY = parseInt($('#contact_ledger_div').offset().top);
@@ -1565,6 +1566,12 @@ $(document).ready(function() {
             if($(this).parent().parent().attr('id') === 'product_list_body2')
                 product_type = 1; // service
             let is_product_any = $(this).hasClass('product_any') ? 1 : 0;
+            if($(this).data('no_bonus')){
+                bonus_variation_id = -1;
+                $('#bonus')
+                    .val(-1)
+                    .trigger('change');
+            }
             pos_product_row($(this).data('variation_id'), product_type, '', 0, is_product_any);
 
             pos_total_row();
@@ -1844,7 +1851,7 @@ $(document).ready(function() {
 
 });
 
-function get_contact_ledger() {
+function get_contact_ledger(is_first_load = false) {
 
     var start_date = '';
     var end_date = '';
@@ -1910,6 +1917,8 @@ function get_contact_ledger() {
                 toastr.success(localStorage.getItem("pos_updated_msg"));
                 localStorage.setItem("updated", "false");
             }
+            if(is_first_load)
+                $(`#ledger_table tr[data-transaction_id=${transaction_id}]`).find('.pos-edit-icon').trigger('click');
             $('.nav-link').click(function (e) {
                 selected_bank = $(this).data('bank_id');
                 get_contact_ledger();

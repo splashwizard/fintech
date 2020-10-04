@@ -1,7 +1,7 @@
 @if(!empty($products))
 	@foreach($products as $product)
 		<div class="col-md-3 col-xs-4 product_list no-print">
-			<div class="product_box bg-gray" data-toggle="tooltip" data-placement="bottom" data-account_id="{{$product->account_id}}" data-variation_id="{{$product->id}}" title="{{$product->name}} @if($product->type == 'variable')- {{$product->variation}} @endif {{ '(' . $product->sub_sku . ')'}}">
+			<div class="product_box bg-gray" data-toggle="tooltip" data-placement="bottom" data-account_id="{{$product->account_id}}" data-variation_id="{{$product->id}}" data-no_bonus="{{$product->no_bonus}}" title="{{$product->name}} @if($product->type == 'variable')- {{$product->variation}} @endif {{ '(' . $product->sub_sku . ')'}}">
 	{{--		<div class="image-container">--}}
 	{{--			@if(count($product->media) > 0)--}}
 	{{--				<img src="{{$product->media->first()->display_url}}" alt="Product Image">--}}
@@ -27,7 +27,7 @@
 	@endforeach
 	@if($products[0]->category_id === 66)
 		<div class="col-md-3 col-xs-4 product_list no-print">
-			<div class="product_box bg-gray product_any" data-toggle="tooltip" data-placement="bottom" data-account_id="{{$products[0]->account_id}}" data-variation_id="{{$products[0]->id}}" title="{{$products[0]->name}} @if($products[0]->type == 'variable')- {{$products[0]->variation}} @endif {{ '(' . $products[0]->sub_sku . ')'}}">
+			<div class="product_box bg-gray product_any" data-toggle="tooltip" data-placement="bottom" data-account_id="{{$products[0]->account_id}}" data-variation_id="{{$products[0]->id}}" data-no_bonus="{{$product->no_bonus}}" title="{{$products[0]->name}} @if($products[0]->type == 'variable')- {{$products[0]->variation}} @endif {{ '(' . $products[0]->sub_sku . ')'}}">
 				<div class="text text-muted text-uppercase ft-16">
 					<small>{{$products[0]->name}} - ANY
 					</small>

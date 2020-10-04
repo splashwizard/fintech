@@ -138,7 +138,7 @@
 						<div class="@if(!empty($commission_agent)) col-sm-8 @else col-sm-6 @endif">
 							<select class="form-control" id="bonus">
 								@foreach($bonuses as $bonus)
-									<option data-variation_id="{{$bonus->id}}" data-name="{{$bonus->name}}" data-amount="{{$bonus->selling_price}}">{{$bonus->name.' - '.$bonus->variation }}</option>
+									<option data-variation_id="{{$bonus->id}}" data-name="{{$bonus->name}}" data-amount="{{$bonus->selling_price}}" value="{{$bonus->id}}">{{$bonus->name.' - '.$bonus->variation }}</option>
 								@endforeach
 							</select>
 						</div>
@@ -279,6 +279,11 @@
 		const edit_page = 0;
 		const bonus_decimal = '{{$business_details->bonus_decimal}}';
 		const is_shift_enabled = parseInt('{{auth()->user()->hasRole('Admin#' . auth()->user()->business_id) || auth()->user()->hasRole('Admin') || auth()->user()->hasRole('Superadmin') ? 0 : 1}}');
+		var selected_bank = parseInt('{{$selected_bank}}');
+		var transaction_id = parseInt('{{$transaction_id}}');
+		console.log('selected_bank', selected_bank);
+		if(selected_bank === 0)
+			selected_bank = localStorage.getItem('selected_bank') ? localStorage.getItem('selected_bank') : 0;
 	</script>
 	<script src="{{ asset('js/pos_deposit.js?v=' . $asset_v) }}"></script>
 	<script src="{{ asset('js/printer.js?v=' . $asset_v) }}"></script>

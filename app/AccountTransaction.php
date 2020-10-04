@@ -67,6 +67,7 @@ class AccountTransaction extends Model
             'transaction_payment_id' => !empty($data['transaction_payment_id']) ? $data['transaction_payment_id'] : null,
             'note' => !empty($data['note']) ? $data['note'] : null,
             'transfer_transaction_id' => !empty($data['transfer_transaction_id']) ? $data['transfer_transaction_id'] : null,
+            'shift_closed_at' => !empty($data['shift_closed_at']) ? $data['shift_closed_at'] : null
         ];
 
         $account_transaction = AccountTransaction::create($transaction_data);

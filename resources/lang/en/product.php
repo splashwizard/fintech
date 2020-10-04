@@ -29,6 +29,7 @@ return [
     'priority' => 'Priority',
     'auto_generate' => 'Auto generate',
     'manage_stock' => 'Manage Stock?',
+    'no_bonus' => 'Product_NoBonus',
     'enable_stock_help' => 'Enable stock management at product level',
     'barcode_type' => 'Barcode Type',
     'applicable_tax' => 'Applicable Tax',

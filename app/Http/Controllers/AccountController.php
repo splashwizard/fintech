@@ -237,7 +237,9 @@ class AccountController extends Controller
                             ->with(['transaction', 'transaction.contact', 'transfer_transaction'])
                             ->select(['type', 'amount', 'operation_date',
                                 'sub_type', 'transfer_transaction_id',
-                                DB::raw('(SELECT SUM(IF(AT.type="credit", AT.amount, -1 * AT.amount)) from account_transactions as AT WHERE AT.operation_date <= account_transactions.operation_date AND AT.account_id  =account_transactions.account_id AND AT.deleted_at IS NULL) as balance'),
+                                DB::raw('(SELECT SUM(IF(AT.type="credit", AT.amount, -1 * AT.amount)) from account_transactions as AT 
+                                WHERE AT.operation_date <= account_transactions.operation_date AND (IF(account_transactions.shift_closed_at IS NOT NULL, account_transactions.shift_closed_at < AT.operation_date, 1)) 
+                                AND AT.account_id  =account_transactions.account_id AND AT.deleted_at IS NULL) as balance'),
                                 'transaction_id',
                                 'account_transactions.id',
                                 'account_transactions.note AS note'
@@ -258,22 +260,39 @@ class AccountController extends Controller
 
             return DataTables::of($accounts)
                             ->addColumn('debit', function ($row) {
-                                if ($row->type == 'debit') {
-                                    return '<span class="display_currency">' . $row->amount . '</span>';
+                                if ($row->type == 'debit' && $row->sub_type != 'close_shift') {
+                                    $html = '<span class="display_currency">' . $row->amount . '</span>';
+                                    if( isset($row->transaction) && $row->transaction->payment_status == 'cancelled')
+                                        $html = '<strike>'.$html.'</strike>';
+                                    return $html;
                                 }
                                 return '';
                             })
                             ->addColumn('credit', function ($row) {
                                 if ($row->type == 'credit') {
-                                    return '<span class="display_currency">' . $row->amount . '</span>';
+                                    $html = '<span class="display_currency">' . $row->amount . '</span>';
+
+                                    if( isset($row->transaction) && $row->transaction->payment_status == 'cancelled')
+                                        $html = '<strike>'.$html.'</strike>';
+                                    return $html;
                                 }
                                 return '';
                             })
                             ->editColumn('balance', function ($row) {
-                                return '<span class="display_currency">' . $row->balance . '</span>';
+                                if($row->sub_type == 'close_shift')
+                                    $html = '<span class="display_currency">0</span>';
+                                else
+                                    $html = '<span class="display_currency">' . $row->balance . '</span>';
+                                if( isset($row->transaction) && $row->transaction->payment_status == 'cancelled')
+                                    $html = '<strike>'.$html.'</strike>';
+                                return $html;
                             })
                             ->editColumn('operation_date', function ($row) {
-                                return $this->commonUtil->format_date($row->operation_date, true);
+                                $html = $this->commonUtil->format_date($row->operation_date, true);
+
+                                if( isset($row->transaction) && $row->transaction->payment_status == 'cancelled')
+                                    $html = '<strike>'.$html.'</strike>';
+                                return $html;
                             })
                             ->editColumn('sub_type', function ($row) {
                                 $details = '';
@@ -295,6 +314,12 @@ class AccountController extends Controller
                                         $note = AccountTransaction::find($row->id)['note'];
                                         $details = $note;
                                     }
+                                    else if($row->sub_type == 'close_shift'){
+                                        $note = User::find(AccountTransaction::find($row->id)->created_by)->getUserFullNameAttribute();
+                                        $details.= $note;
+                                    }
+                                    if( isset($row->transaction) && $row->transaction->payment_status == 'cancelled')
+                                        $details = '<strike>'.$details.'</strike>';
                                 } else {
                                     if (!empty($row->transaction->type)) {
                                         if ($row->transaction->type == 'purchase') {
@@ -317,6 +342,8 @@ class AccountController extends Controller
                                             } else $details = '';
                                         }
                                     }
+                                    if( isset($row->transaction) && $row->transaction->payment_status == 'cancelled')
+                                        $details = '<strike>'.$details.'</strike>';
                                 }
 
                                 return $details;
@@ -330,7 +357,7 @@ class AccountController extends Controller
                             })
                             ->removeColumn('id')
                             ->removeColumn('is_closed')
-                            ->rawColumns(['credit', 'debit', 'balance', 'sub_type', 'action'])
+                            ->rawColumns(['credit', 'debit', 'balance', 'sub_type', 'action', 'operation_date'])
                             ->make(true);
         }
         $account = Account::where('business_id', $business_id)
@@ -378,7 +405,7 @@ class AccountController extends Controller
 
         if (request()->ajax()) {
             try {
-                $input = $request->only(['name', 'account_number', 'note', 'is_safe', 'service_charge', 'display_group_id', 'currency_id']);
+                $input = $request->only(['name', 'account_number', 'note', 'is_safe', 'is_daily_zero', 'service_charge', 'display_group_id', 'currency_id']);
 
                 if(empty($input['display_group_id']))
                     $input['display_group_id'] = 0;
@@ -388,6 +415,7 @@ class AccountController extends Controller
                 $account->name = $input['name'];
                 $account->account_number = $input['account_number'];
                 $account->is_safe = isset($input['is_safe']) ? 1 : 0;
+                $account->is_daily_zero = isset($input['is_daily_zero']) ? 1 : 0;
                 $account->note = $input['note'];
                 $account->service_charge = $input['service_charge'];
                 $account->display_group_id = $input['display_group_id'];

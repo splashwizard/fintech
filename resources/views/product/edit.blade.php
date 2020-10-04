@@ -117,6 +117,15 @@
               </div>
             </div>
 
+            <div class="col-sm-4">
+                <div class="form-group">
+                    <br>
+                    <label>
+                        {!! Form::checkbox('no_bonus', 1, $product->no_bonus, ['class' => 'input-icheck', 'id' => 'no_bonus']); !!} <strong>@lang('product.no_bonus')</strong>
+                    </label>
+                </div>
+            </div>
+
             <div class="clearfix"></div>
             
             <div class="col-sm-4">

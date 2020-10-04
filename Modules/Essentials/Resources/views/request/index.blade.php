@@ -64,7 +64,7 @@
                                 <th>@lang( 'lang_v1.date' )</th>
                                 <th>@lang( 'essentials::lang.reason' )</th>
                                 <th>@lang( 'sale.status' )</th>
-                                <th>@lang( 'messages.action' )</th>
+                                <th style="width: 180px;">@lang( 'messages.action' )</th>
                             </tr>
                         </thead>
                     </table>

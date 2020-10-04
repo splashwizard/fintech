@@ -449,6 +449,7 @@ class ProductUtil extends Util
             'p.account_id',
             'p.brand_id',
             'p.category_id',
+            'p.no_bonus',
             'p.tax as tax_id',
             'p.enable_stock',
             'p.enable_sr_no',

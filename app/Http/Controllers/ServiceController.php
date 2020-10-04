@@ -248,25 +248,40 @@ class ServiceController extends Controller
             if (!empty($start_date) && !empty($end_date)) {
                 $accounts->whereBetween(DB::raw('date(operation_date)'), [$start_date, $end_date]);
             }
-
             return DataTables::of($accounts)
                             ->addColumn('debit', function ($row) {
                                 if ($row->type == 'debit') {
-                                    return '<span class="display_currency" data-currency_symbol="true">' . $row->amount . '</span>';
+                                    $html = '<span class="display_currency" data-currency_symbol="true">' . $row->amount . '</span>';
+
+                                    if( isset($row->transaction) && $row->transaction->payment_status == 'cancelled')
+                                        $html = '<strike>'.$html.'</strike>';
+                                    return $html;
                                 }
                                 return '';
                             })
                             ->addColumn('credit', function ($row) {
                                 if ($row->type == 'credit') {
-                                    return '<span class="display_currency" data-currency_symbol="true">' . $row->amount . '</span>';
+                                    $html = '<span class="display_currency" data-currency_symbol="true">' . $row->amount . '</span>';
+
+                                    if( isset($row->transaction) && $row->transaction->payment_status == 'cancelled')
+                                        $html = '<strike>'.$html.'</strike>';
+                                    return $html;
                                 }
                                 return '';
                             })
                             ->editColumn('balance', function ($row) {
-                                return '<span class="display_currency" data-currency_symbol="true">' . $row->balance . '</span>';
+                                $html = '<span class="display_currency" data-currency_symbol="true">' . $row->balance . '</span>';
+
+                                if( isset($row->transaction) && $row->transaction->payment_status == 'cancelled')
+                                    $html = '<strike>'.$html.'</strike>';
+                                return $html;
                             })
                             ->editColumn('operation_date', function ($row) {
-                                return $this->commonUtil->format_date($row->operation_date, true);
+                                $html = $this->commonUtil->format_date($row->operation_date, true);
+
+                                if( isset($row->transaction) && $row->transaction->payment_status == 'cancelled')
+                                    $html = '<strike>'.$html.'</strike>';
+                                return $html;
                             })
                             ->editColumn('sub_type', function ($row) {
                                 $details = '';
@@ -290,7 +305,8 @@ class ServiceController extends Controller
                                         }
                                     }
                                 }
-
+                                if( isset($row->transaction) && $row->transaction->payment_status == 'cancelled')
+                                    $details = '<strike>'.$details.'</strike>';
                                 return $details;
                             })
                             ->editColumn('action', function ($row) {
@@ -302,7 +318,7 @@ class ServiceController extends Controller
                             })
                             ->removeColumn('id')
                             ->removeColumn('is_closed')
-                            ->rawColumns(['credit', 'debit', 'balance', 'sub_type', 'action'])
+                            ->rawColumns(['credit', 'debit', 'balance', 'sub_type', 'action', 'operation_date'])
                             ->make(true);
         }
         $account = Account::where('business_id', $business_id)
@@ -873,7 +889,8 @@ class ServiceController extends Controller
                             'transfer_account_id' => $account_id,
                             'transfer_transaction_id' => $transaction->id,
                             'operation_date' => $now->format('Y-m-d H:i:s'),
-                            'transaction_id' => $transaction->id
+                            'transaction_id' => $transaction->id,
+                            'shift_closed_at' => Account::find($bank_account_id)->shift_closed_at
                         ];
 
                         $credit = AccountTransaction::createAccountTransaction($credit_data);

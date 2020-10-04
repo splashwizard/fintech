@@ -1,12 +1,11 @@
 @inject('request', 'Illuminate\Http\Request')
-
-@if( ($request->segment(1) == 'pos' || $request->segment(1) == 'pos_deposit') && ($request->segment(2) == 'create' || $request->segment(3) == 'edit'))
+@if( ($request->segment(1) == 'pos' || $request->segment(1) == 'pos_deposit') && ($request->segment(2) == 'create' || $request->segment(2) == 'create_selected_transaction' || $request->segment(3) == 'edit'))
     @php
-        $pos_layout = true;
-        if($request->segment(2) == 'create')
-            $pos_action = 'create';
-        else
-            $pos_action = 'edit';
+            $pos_layout = true;
+            if($request->segment(2) == 'create' || $request->segment(2) == 'create_selected_transaction')
+                $pos_action = 'create';
+            else
+                $pos_action = 'edit';
     @endphp
 @else
     @php

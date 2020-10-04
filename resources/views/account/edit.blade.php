@@ -19,10 +19,16 @@
                 {!! Form::text('account_number', $account->account_number, ['class' => 'form-control', 'required','placeholder' => __( 'account.account_number' ) ]); !!}
             </div>
             <div class="row">
-                <div class="col-sm-6">
+                <div class="col-sm-3">
                     <div class="form-group">
                         {!! Form::checkbox('is_safe', 1, $account->is_safe,
                                 [ 'class' => 'input-icheck']); !!} {{ __( 'account.is_safe' ) }}
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        {!! Form::checkbox('is_daily_zero', 1, $account->is_daily_zero,
+                                [ 'class' => 'input-icheck']); !!} {{ __( 'account.is_daily_zero' ) }}
                     </div>
                 </div>
                 <div class="col-sm-6">

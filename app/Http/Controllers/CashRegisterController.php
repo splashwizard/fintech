@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Account;
+use App\AccountTransaction;
 use App\CashRegister;
 use App\Utils\CashRegisterUtil;
 
@@ -167,6 +169,21 @@ class CashRegisterController extends Controller
             $user_id = $request->session()->get('user.id');
             $input['closed_at'] = \Carbon::now()->format('Y-m-d H:i:s');
             $input['status'] = 'close';
+
+            $business_id = session()->get('user.business_id');
+            $daily_zero_accounts = Account::where('is_daily_zero', 1)->where('business_id', $business_id)->get();
+            $date = new \DateTime('now');
+            foreach ($daily_zero_accounts as $account){
+                AccountTransaction::create([
+                    'account_id' => $account->id,
+                    'type' => 'debit',
+                    'sub_type' => 'close_shift',
+                    'amount' => 0,
+                    'operation_date' => $date->format('Y-m-d H:i:s'),
+                    'created_by' => session()->get('user.id'),
+                ]);
+                Account::find($account->id)->update(['shift_closed_at' => $date->format('Y-m-d H:i:s')]);
+            }
 
             CashRegister::where('user_id', $user_id)
                                 ->where('status', 'open')

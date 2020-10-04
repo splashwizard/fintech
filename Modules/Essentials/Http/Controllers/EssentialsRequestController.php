@@ -91,6 +91,7 @@ class EssentialsRequestController extends Controller
                             'rt.request_type',
                             'start_date',
                             'end_date',
+                            'transaction_id',
                             'ref_no',
                             'essentials_requests.status',
                             'essentials_requests.business_id',
@@ -132,8 +133,9 @@ class EssentialsRequestController extends Controller
                     'action',
                     function ($row) use ($is_admin) {
                         $html = '';
+                        $html .= '<a class="btn btn-xs btn-primary" href="' . action('SellPosDepositController@createSelectedTransaction', [$row->transaction_id]) . '"><i class="fa fa-trash"></i> Go </a>';
                         if ($is_admin) {
-                            $html .= '<button class="btn btn-xs btn-danger delete-leave" data-href="' . action('\Modules\Essentials\Http\Controllers\EssentialsRequestController@destroy', [$row->id]) . '"><i class="fa fa-trash"></i> ' . __("messages.delete") . '</button>';
+                            $html .= '&nbsp;<button class="btn btn-xs btn-danger delete-leave" data-href="' . action('\Modules\Essentials\Http\Controllers\EssentialsRequestController@destroy', [$row->id]) . '"><i class="fa fa-trash"></i> ' . __("messages.delete") . '</button>';
                         }
 
                         $html .= '&nbsp;<button class="btn btn-xs btn-info btn-modal" data-container=".view_modal"  data-href="' . action('\Modules\Essentials\Http\Controllers\EssentialsRequestController@activity', [$row->id]) . '"><i class="fa fa-edit"></i> ' . __("essentials::lang.activity") . '</button>';
@@ -514,16 +516,14 @@ class EssentialsRequestController extends Controller
                     }
                     else
                         $debit = TransactionPayment::where('transaction_id', $transaction_id)->where('method', '!=', 'service_transfer')->where('card_type','debit')->get()->first()['amount'];
-                    if(TransactionPayment::where('transaction_id', $transaction_id)->where('method', '!=', 'service_transfer')->where('card_type','debit')->count() > 0){
-                        TransactionPayment::where('transaction_id', $transaction_id)->where('method', '!=', 'service_transfer')->where('card_type','debit')->update(['amount' => $debit, 'account_id' => $request->get('bank_account_id')]);
-                        AccountTransaction::where('transaction_id', $transaction_id)->where('account_id', '!=', $bonus_account_id)->update(['amount' => $debit, 'account_id' => $request->get('bank_account_id')]);
+                    if(TransactionPayment::where('transaction_id', $transaction_id)->where('method', '=', 'bank_transfer')->where('card_type','debit')->count() > 0){
+                        TransactionPayment::where('transaction_id', $transaction_id)->where('method', '=', 'bank_transfer')->where('card_type','debit')->update(['amount' => $debit, 'account_id' => $request->get('bank_account_id')]);
+                        AccountTransaction::where('transaction_id', $transaction_id)->where('type', 'debit')->update(['amount' => $debit, 'account_id' => $request->get('bank_account_id')]);
                     }
                     if(TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'service_transfer')->where('card_type','credit')->count() > 0){
                         TransactionPayment::where('transaction_id', $transaction_id)->where('method', 'service_transfer')->where('card_type','credit')->update(['amount' => $debit]);
-                        if(!empty($request->get('service_id'))) {
-                            $service_id = $request->get('service_id');
-                            AccountTransaction::where('transaction_id', $transaction_id)->where('type', 'debit')->update(['amount' => $debit, 'account_id' => $service_id]);
-                        }
+                        $update_data = !empty($request->get('service_id')) ? ['amount' => $debit, 'account_id' => $request->get('service_id')] : ['amount' => $debit];
+                        AccountTransaction::where('transaction_id', $transaction_id)->where('type', 'credit')->update($update_data);
                     }
                 }
                 ActivityLogger::activity($activity);

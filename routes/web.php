@@ -159,6 +159,7 @@ Route::middleware(['IsInstalled', 'auth', 'SetSessionData', 'language', 'timezon
     Route::post('/sells/pos_deposit/get_game_id', 'SellPosDepositController@getGameID');
     Route::post('/sells/pos_deposit/check_shift_closed', 'SellPosDepositController@checkShiftClosed');
     Route::post('/sells/pos_deposit/get_no_bonus', 'SellPosDepositController@getNoBonus');
+    Route::get('/pos_deposit/create_selected_transaction/{transaction_id}', 'SellPosDepositController@createSelectedTransaction');
 
 
     Route::resource('pos_deposit', 'SellPosDepositController');

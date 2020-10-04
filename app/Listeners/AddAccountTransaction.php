@@ -2,6 +2,7 @@
 
 namespace App\Listeners;
 
+use App\Account;
 use App\Events\TransactionPaymentAdded;
 
 use Illuminate\Queue\InteractsWithQueue;
@@ -39,6 +40,7 @@ class AddAccountTransaction
 
         // //Create new account transaction
         if(!empty($event->formInput['account_id'])){
+
             $account_transaction_data = [
                 'amount' => $event->formInput['amount'],
                 'account_id' => $event->formInput['account_id'],
@@ -46,7 +48,8 @@ class AddAccountTransaction
                 'operation_date' => $event->transactionPayment->paid_on,
                 'created_by' => $event->transactionPayment->created_by,
                 'transaction_id' => $event->transactionPayment->transaction_id,
-                'transaction_payment_id' =>  $event->transactionPayment->id
+                'transaction_payment_id' =>  $event->transactionPayment->id,
+                'shift_closed_at' => Account::find($event->formInput['account_id'])->shift_closed_at
             ];
 
             AccountTransaction::createAccountTransaction($account_transaction_data);
