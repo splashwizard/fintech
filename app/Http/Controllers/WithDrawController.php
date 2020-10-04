@@ -283,7 +283,7 @@ class WithDrawController extends Controller
 //                        }
 
                         if (auth()->user()->can("direct_sell.delete") || auth()->user()->can("sell.delete")) {
-                            $html .= '<li><a href="' . action('SellPosController@destroy', [$row->id]) . '" class="delete-sale"><i class="fa fa-trash"></i> ' . __("messages.delete") . '</a></li>';
+                            $html .= '<li><a href="' . action('SellPosController@destroy', [$row->id]) . '" class="delete-sale"><i class="fa fa-trash"></i> ' . __("messages.cancel") . '</a></li>';
                         }
 
                         if (auth()->user()->can("sell.view") || auth()->user()->can("direct_sell.access")) {
@@ -324,6 +324,13 @@ class WithDrawController extends Controller
                 ->editColumn(
                     'amount',
                     '<span class="display_currency sell_amount" data-orig-value="{{$amount}}" data-highlight=true>{{($amount)}}</span>'
+                )
+                ->editColumn(
+                    'payment_status',
+                    '<a href="{{ action("TransactionPaymentController@show", [$id])}}" class="view_payment_modal payment-status-label no-print" data-orig-value="{{$payment_status}}" data-status-name="{{__(\'lang_v1.\' . $payment_status)}}"><span class="label @payment_status($payment_status)">{{__(\'lang_v1.\' . $payment_status)}}
+                        </span></a>
+                        <span class="print_section">{{__(\'lang_v1.\' . $payment_status)}}</span>
+                        '
                 )
                  ->editColumn('invoice_no', function ($row) {
                      $invoice_no = $row->invoice_no;

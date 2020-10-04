@@ -44,6 +44,7 @@
                             <th>@lang('messages.date')</th>
                             <th>@lang('sale.invoice_no')</th>
                             <th>@lang('sale.customer_name')</th>
+                            <th>@lang('sale.payment_status')</th>
                             <th>@lang('sale.total_amount')</th>
 {{--                            <th>@lang('sale.total_paid')</th>--}}
 {{--                            <th>@lang('purchase.payment_due')</th>--}}
@@ -133,6 +134,7 @@ $(document).ready( function(){
             { data: 'transaction_date', name: 'transaction_date'  },
             { data: 'invoice_no', name: 'invoice_no'},
             { data: 'name', name: 'contacts.name'},
+            { data: 'payment_status', name: 'payment_status'},
             { data: 'amount', name: 'amount'},
             // { data: 'total_paid', name: 'total_paid', "searchable": false},
             // { data: 'total_remaining', name: 'total_remaining'},
