@@ -1739,7 +1739,7 @@ class ContactController extends Controller
                     ->whereDate('paid_on', '<=', $end);
         }
 
-        $payments = $query2->select('transaction_payments.*', 'bl.name as location_name', 't.type as transaction_type', 't.ref_no', 't.invoice_no')->get();
+        $payments = $query2->select('transaction_payments.*', 'bl.name as location_name', 't.type as transaction_type', 't.ref_no', 't.invoice_no', 't.payment_status')->get();
 //        $total_deposit = $query2->where('t.type', 'sell')->where('transaction_payments.method', '!=', 'service_transfer')->where('transaction_payments.method','!=', 'bonus')->sum('transaction_payments.amount');
         $paymentTypes = $this->transactionUtil->payment_types();
         foreach ($payments as $payment) {
@@ -1757,7 +1757,8 @@ class ContactController extends Controller
                 'bonus' => ($payment->card_type == 'credit' && ($payment->method == 'basic_bonus' || $payment->method == 'free_credit') ) ? $payment->amount : '',
                 'service_debit' => ($payment->card_type == 'debit' && $payment->method == 'service_transfer') ? $payment->amount : '',
                 'service_credit' => ($payment->card_type == 'credit' && $payment->method == 'service_transfer' ) ? $payment->amount : '',
-                'others' => $payment->note . '<small>' . __('account.payment_for') . ': ' . $ref_no . '</small>'
+                'others' => $payment->note . '<small>' . __('account.payment_for') . ': ' . $ref_no . '</small>',
+                'payment_status' => $payment->payment_status
             ];
             if($payment->method =='bank_transfer')
                 $new_item['payment_method'] = Account::find($payment->account_id)->name;

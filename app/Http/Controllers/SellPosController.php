@@ -1180,6 +1180,8 @@ class SellPosController extends Controller
                     //If status is draft direct delete transaction
                     $transaction->payment_status = 'cancelled';
                     $transaction->save();
+                    $date = new \DateTime('now');
+                    AccountTransaction::where('transaction_id', $id)->update(['cancelled_at' => $date->format('Y-m-d H:i:s')]);
 //                    ActivityLogger::activity("Cancelled transaction, ticket # ".$transaction->invoice_no);
                     ActivityLogger::activity(auth()->user()->getUserFullNameAttribute()." has cancel invoice no. ".$transaction->invoice_no);
                     $admins = $this->moduleUtil->get_admins($business_id);

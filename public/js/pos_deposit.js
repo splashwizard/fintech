@@ -2420,7 +2420,7 @@ function pos_total_row() {
             special_bonus = bonus_decimal === 'y' ? selected.data('amount') : Math.floor(selected.data('amount'));
         }
     } else if(no_bonus === 0 &&  $('#customer_id').data('select2') && $('#customer_id').select2('data')[0].text !== "Unclaimed Trans") {
-        basic_bonus = Math.floor(basic_bonus_rate * credit / 100);
+        // basic_bonus = Math.floor(basic_bonus_rate * credit / 100);
     }
     // debit = credit + basic_bonus + special_bonus;
     $('#credit').html(credit);
