@@ -184,7 +184,7 @@
             url: '{{action("AccountController@getAccountBalance", [$account->id])}}',
             dataType: "json",
             success: function(data){
-                $('span#account_balance').text(__currency_trans_from_en(data.balance, true));
+                $('span#account_balance').text(__currency_trans_from_en(data, true));
             }
         });
     }

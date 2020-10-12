@@ -66,10 +66,18 @@ class ServiceController extends Controller
                 $join->on('AT.account_id', '=', 'accounts.id');
                 $join->whereNull('AT.deleted_at');
             })
-                                ->where('is_service', 1)
-                                ->where('business_id', $business_id)
-                                ->select(['name', 'account_number', 'accounts.note', 'accounts.id',
-                                    'is_closed', DB::raw("SUM( IF(AT.type='credit', amount, -1*amount) ) as balance")])
+                ->leftjoin( 'transactions as T',
+                    'AT.transaction_id',
+                    '=',
+                    'T.id')
+                                ->where('accounts.is_service', 1)
+                                ->where('accounts.business_id', $business_id)
+                                ->where(function ($q) {
+                                    $q->where('T.payment_status', '!=', 'cancelled');
+                                    $q->orWhere('T.payment_status', '=', null);
+                                })
+                                ->select(['accounts.name', 'accounts.account_number', 'accounts.note', 'accounts.id',
+                                    'accounts.is_closed', DB::raw("SUM( IF(AT.type='credit', amount, -1*amount) ) as balance")])
                                 ->groupBy('accounts.id');
 
             $account_type = request()->input('account_type');
@@ -985,9 +993,17 @@ class ServiceController extends Controller
             '=',
             'accounts.id'
         )
+            ->leftjoin( 'transactions as T',
+                'transaction_id',
+                '=',
+                'T.id')
             ->whereNull('AT.deleted_at')
             ->where('accounts.business_id', $business_id)
             ->where('accounts.id', $id)
+            ->where(function ($q) {
+                $q->where('T.payment_status', '!=', 'cancelled');
+                $q->orWhere('T.payment_status', '=', null);
+            })
             ->select('accounts.*', DB::raw("SUM( IF(AT.type='credit', amount, -1 * amount) ) as balance"))
             ->first();
 

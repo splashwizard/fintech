@@ -957,19 +957,41 @@ class AccountController extends Controller
         }
 
         $business_id = session()->get('user.business_id');
-        $account = Account::leftjoin(
-            'account_transactions as AT',
-            'AT.account_id',
+//        $account = Account::leftjoin(
+//            'account_transactions as AT',
+//            'AT.account_id',
+//            '=',
+//            'accounts.id'
+//        )
+//            ->whereNull('AT.deleted_at')
+//            ->where('accounts.business_id', $business_id)
+//            ->where('accounts.id', $id)
+//            ->select('accounts.*', DB::raw("SUM( IF(AT.type='credit', amount, -1 * amount) ) as balance"))
+//            ->first();
+        $shift_closed_at = Account::find($id)->shift_closed_at;
+        $query = AccountTransaction::join(
+            'accounts as A',
+            'account_transactions.account_id',
             '=',
-            'accounts.id'
+            'A.id'
         )
-            ->whereNull('AT.deleted_at')
-            ->where('accounts.business_id', $business_id)
-            ->where('accounts.id', $id)
-            ->select('accounts.*', DB::raw("SUM( IF(AT.type='credit', amount, -1 * amount) ) as balance"))
+            ->leftjoin( 'transactions as T',
+                'transaction_id',
+                '=',
+                'T.id')
+            ->where('A.business_id', $business_id)
+            ->where('A.id', $id);
+        if($shift_closed_at != null)
+            $query = $query->whereDate('account_transactions.operation_date', '>=', $shift_closed_at);
+        $total_row = $query->whereNull('account_transactions.deleted_at')
+            ->where(function ($q) {
+                $q->where('T.payment_status', '!=', 'cancelled');
+                $q->orWhere('T.payment_status', '=', null);
+            })
+            ->select(DB::raw("SUM( IF(account_transactions.type='credit', account_transactions.amount, -1 * account_transactions.amount) ) as balance"))
             ->first();
-
-        return $account;
+        return $total_row->balance;
+//        return $total_row->balance - $cancelled_row->balance;
     }
 
     /**

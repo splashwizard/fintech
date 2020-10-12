@@ -623,7 +623,8 @@ class SellPosDepositController extends Controller
                             $special_bonus = $bonus_amount;
                         }
                     } else if($no_bonus == 0 && Contact::find($contact_id)->name != 'Unclaimed Trans') {
-                        $basic_bonus = floor($total_credit * $bonus_rate / 100);
+//                        $basic_bonus = floor($total_credit * $bonus_rate / 100);
+                        $basic_bonus = 0;
                     }
                     foreach ($payment_data as $payment){
                         $data = Category::where('id', $payment['category_id'])->get()->first();
@@ -793,7 +794,8 @@ class SellPosDepositController extends Controller
                                 $special_bonus = $bonus_amount;
                             }
                         } else if($no_bonus == 0 && Contact::find($contact_id)->name != 'Unclaimed Trans')  {
-                            $basic_bonus = $product['amount'] * $bonus_rate / 100;
+//                            $basic_bonus = $product['amount'] * $bonus_rate / 100;
+                            $basic_bonus = 0;
                         }
                         $payments = [];
                         $payments[] = ['account_id' => $product['account_id'], 'method' => 'bank_transfer', 'amount' => $product['amount'], 'note' => '', 'card_transaction_number' => '', 'card_number' => '', 'card_type' => 'credit', 'card_holder_name' => '', 'card_month' => '', 'card_year' => '', 'card_security' => '', 'cheque_number' => '', 'bank_account_number' => '',
@@ -1678,7 +1680,8 @@ class SellPosDepositController extends Controller
                                 $special_bonus = $bonus_amount;
                             }
                         } else if($no_bonus == 0 && Contact::find($contact_id)->name != 'Unclaimed Trans') {
-                            $basic_bonus = floor($total_credit * $bonus_rate / 100);
+//                            $basic_bonus = floor($total_credit * $bonus_rate / 100);
+                            $basic_bonus = 0;
                         }
                         foreach ($payment_data as $payment){
                             $data = Category::where('id', $payment['category_id'])->get()->first();
@@ -2442,6 +2445,10 @@ class SellPosDepositController extends Controller
                     $join->on('AT.account_id', '=', 'accounts.id');
                     $join->whereNull('AT.deleted_at');
                 })
+                ->leftjoin( 'transactions as T',
+                    'AT.transaction_id',
+                    '=',
+                    'T.id')
                 ->groupBy('accounts.id')
                 ->where('products.business_id', $business_id)
                 ->where('products.type', '!=', 'modifier')
@@ -2467,9 +2474,13 @@ class SellPosDepositController extends Controller
                 });
             }
 
+            $products = $products->where(function ($q) {
+                $q->where('T.payment_status', '!=', 'cancelled');
+                $q->orWhere('T.payment_status', '=', null);
+            });
 
             $products = $products->select(
-                DB::raw("SUM( IF(AT.type='credit', AT.amount, -1*AT.amount) ) as balance"),
+                DB::raw("SUM( IF( accounts.shift_closed_at IS NULL OR AT.operation_date >= accounts.shift_closed_at,  IF( AT.type='credit', AT.amount, -1*AT.amount), 0) ) as balance"),
                 'products.id',
                 'products.name'
             )
