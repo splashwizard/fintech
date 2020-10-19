@@ -64,12 +64,22 @@ class AccountController extends Controller
                 $join->on('AT.account_id', '=', 'accounts.id');
                 $join->whereNull('AT.deleted_at');
             })
+                ->leftjoin( 'transactions as T',
+                    'AT.transaction_id',
+                    '=',
+                    'T.id')
                 ->leftjoin('currencies', 'currencies.id', 'accounts.currency_id')
-                                ->where('is_service', 0)
-                                ->where('name', '!=', 'Bonus Account')
-                                ->where('business_id', $business_id)
-                                ->select(['name', 'account_number', 'accounts.note', 'accounts.id', 'currencies.code as currency',
-                                    'is_closed', DB::raw("SUM( IF(AT.type='credit', amount, -1*amount) ) as balance")])
+                                ->where('accounts.is_service', 0)
+                                ->where('accounts.name', '!=', 'Bonus Account')
+                                ->where('accounts.business_id', $business_id)
+                                ->where(function ($q) {
+                                    $q->where('T.payment_status', '!=', 'cancelled');
+                                    $q->orWhere('T.payment_status', '=', null);
+                                })
+                                ->select(['accounts.name', 'accounts.account_number', 'accounts.note', 'accounts.id', 'currencies.code as currency',
+                                    'accounts.is_closed',
+                                    \Illuminate\Support\Facades\DB::raw("SUM( IF( accounts.shift_closed_at IS NULL OR AT.operation_date >= accounts.shift_closed_at,  IF( AT.type='credit', AT.amount, -1*AT.amount), 0) ) as balance"),
+                                    ])
                                 ->groupBy('accounts.id');
 
             $account_type = request()->input('account_type');
@@ -982,7 +992,7 @@ class AccountController extends Controller
             ->where('A.business_id', $business_id)
             ->where('A.id', $id);
         if($shift_closed_at != null)
-            $query = $query->whereDate('account_transactions.operation_date', '>=', $shift_closed_at);
+            $query = $query->where('account_transactions.operation_date', '>=', $shift_closed_at);
         $total_row = $query->whereNull('account_transactions.deleted_at')
             ->where(function ($q) {
                 $q->where('T.payment_status', '!=', 'cancelled');
