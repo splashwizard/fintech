@@ -74,6 +74,9 @@
                     				<th>@lang('account.credit')</th>
                                     <th>@lang('account.debit')</th>
                     				<th>@lang( 'lang_v1.balance' )</th>
+                                    @if($account->is_special_kiosk)
+                                        <th>@lang( 'lang_v1.special_balance' )</th>
+                                    @endif
                                     <th>@lang( 'messages.action' )</th>
                     			</tr>
                     		</thead>
@@ -99,22 +102,26 @@
 <script>
     $(document).ready(function(){
         update_account_balance();
-        
+        is_special_kiosk = '{{$account->is_special_kiosk}}';
+        console.log('is_special_kiosk', is_special_kiosk);
         // Account Book
+        var columns = [
+            {data: 'operation_date', name: 'operation_date'},
+            {data: 'sub_type', name: 'sub_type'},
+            {data: 'credit', name: 'amount'},
+            {data: 'debit', name: 'amount'},
+            {data: 'balance', name: 'balance'}
+        ];
+        if(is_special_kiosk === '1')
+            columns.push({data: 'special_balance', name: 'special_balance'});
+        columns.push({data: 'action', name: 'action'});
         account_book = $('#account_book').DataTable({
                         processing: true,
                         serverSide: true,
-                        ajax: '{{action("AccountController@show",[$account->id])}}',
+                        ajax: '{{action("ServiceController@show",[$account->id])}}',
                         "ordering": false,
                         "searching": false,
-                        columns: [
-                            {data: 'operation_date', name: 'operation_date'},
-                            {data: 'sub_type', name: 'sub_type'},
-                            {data: 'credit', name: 'amount'},
-                            {data: 'debit', name: 'amount'},
-                            {data: 'balance', name: 'balance'},
-                            {data: 'action', name: 'action'}
-                        ],
+                        columns: columns,
                         "fnDrawCallback": function (oSettings) {
                             __currency_convert_recursively($('#account_book'));
                         }
@@ -142,11 +149,11 @@
                 end = $('input#transaction_date_range').data('daterangepicker').endDate.format('YYYY-MM-DD');
             }
             var transaction_type = $('select#transaction_type').val();
-            account_book.ajax.url( '{{action("AccountController@show",[$account->id])}}?start_date=' + start + '&end_date=' + end + '&type=' + transaction_type ).load();
+            account_book.ajax.url( '{{action("ServiceController@show",[$account->id])}}?start_date=' + start + '&end_date=' + end + '&type=' + transaction_type ).load();
         });
         $('#transaction_date_range').on('cancel.daterangepicker', function(ev, picker) {
             $('#transaction_date_range').val('');
-            account_book.ajax.url( '{{action("AccountController@show",[$account->id])}}?start_date=' + start + '&end_date=' + end + '&type=' + transaction_type ).load();
+            account_book.ajax.url( '{{action("ServiceController@show",[$account->id])}}?start_date=' + start + '&end_date=' + end + '&type=' + transaction_type ).load();
         });
 
     });

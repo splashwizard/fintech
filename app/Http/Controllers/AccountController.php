@@ -297,6 +297,15 @@ class AccountController extends Controller
                                     $html = '<strike>'.$html.'</strike>';
                                 return $html;
                             })
+                            ->addColumn('special_balance', function ($row) {
+                                if($row->sub_type == 'close_shift')
+                                    $html = '<span class="display_currency">0</span>';
+                                else
+                                    $html = '<span class="display_currency">' . $row->balance . '</span>';
+                                if( isset($row->transaction) && $row->transaction->payment_status == 'cancelled')
+                                    $html = '<strike>'.$html.'</strike>';
+                                return $html;
+                            })
                             ->editColumn('operation_date', function ($row) {
                                 $html = $this->commonUtil->format_date($row->operation_date, true);
 
@@ -367,7 +376,7 @@ class AccountController extends Controller
                             })
                             ->removeColumn('id')
                             ->removeColumn('is_closed')
-                            ->rawColumns(['credit', 'debit', 'balance', 'sub_type', 'action', 'operation_date'])
+                            ->rawColumns(['credit', 'debit', 'balance', 'special_balance', 'sub_type', 'action', 'operation_date'])
                             ->make(true);
         }
         $account = Account::where('business_id', $business_id)

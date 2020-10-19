@@ -7,6 +7,7 @@ return [
     'service_charge' => 'Service Charge',
     'is_safe' => 'Safe Account',
     'is_daily_zero' => 'Daily zero',
+    'is_special_kiosk' => 'Special Kiosk',
     'short_name' => 'Short Name',
     'add_account' => 'Add Account',
     'add_service' => 'Add Service',

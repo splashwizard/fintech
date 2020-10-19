@@ -235,99 +235,145 @@ class ServiceController extends Controller
                 '=',
                 'A.id'
             )
-                            ->where('A.business_id', $business_id)
-                            ->where('A.id', $id)
-                            ->with(['transaction', 'transaction.contact', 'transfer_transaction'])
-                            ->select(['type', 'amount', 'operation_date',
-                                'sub_type', 'transfer_transaction_id',
-                                DB::raw('(SELECT SUM(IF(AT.type="credit", AT.amount, -1 * AT.amount)) from account_transactions as AT WHERE AT.operation_date <= account_transactions.operation_date AND AT.account_id  =account_transactions.account_id AND AT.deleted_at IS NULL) as balance'),
-                                'transaction_id',
-                                'account_transactions.id'
-                                ])
-                             ->groupBy('account_transactions.id')
-                             ->orderBy('account_transactions.operation_date', 'desc');
+                ->where('A.business_id', $business_id)
+                ->where('A.id', $id)
+                ->with(['transaction', 'transaction.contact', 'transfer_transaction'])
+                ->select(['type', 'amount', 'operation_date',
+                    'sub_type', 'transfer_transaction_id',
+                    DB::raw('(SELECT SUM( IF(AT.type="credit", AT.amount, -1 * AT.amount) ) from account_transactions as AT 
+                                WHERE AT.operation_date <= account_transactions.operation_date AND (IF(account_transactions.shift_closed_at IS NOT NULL, account_transactions.shift_closed_at < AT.operation_date, 1)) 
+                                AND AT.account_id = account_transactions.account_id AND AT.cancelled_at IS NULL) as balance'),
+                    DB::raw('(SELECT SUM( IF(AT.type="credit", -1*AT.amount, AT.amount) ) from account_transactions as AT 
+                                WHERE AT.operation_date <= account_transactions.operation_date AND (IF(account_transactions.shift_closed_at IS NOT NULL, account_transactions.shift_closed_at < AT.operation_date, 1)) 
+                                AND AT.account_id = account_transactions.account_id AND AT.cancelled_at IS NULL AND AT.sub_type != "opening_balance") as special_balance'),
+                    'transaction_id',
+                    'account_transactions.id',
+                    'account_transactions.note AS note'
+                ])
+                ->groupBy('account_transactions.id')
+                ->orderBy('account_transactions.operation_date', 'desc');
             if (!empty(request()->input('type'))) {
                 $accounts->where('type', request()->input('type'));
             }
 
             $start_date = request()->input('start_date');
+//            $start_date = "2020-06-11";
             $end_date = request()->input('end_date');
-            
+
             if (!empty($start_date) && !empty($end_date)) {
                 $accounts->whereBetween(DB::raw('date(operation_date)'), [$start_date, $end_date]);
             }
+
             return DataTables::of($accounts)
-                            ->addColumn('debit', function ($row) {
-                                if ($row->type == 'debit') {
-                                    $html = '<span class="display_currency" data-currency_symbol="true">' . $row->amount . '</span>';
+                ->addColumn('debit', function ($row) {
+                    if ($row->type == 'debit' && $row->sub_type != 'close_shift') {
+                        $html = '<span class="display_currency">' . $row->amount . '</span>';
+                        if( isset($row->transaction) && $row->transaction->payment_status == 'cancelled')
+                            $html = '<strike>'.$html.'</strike>';
+                        return $html;
+                    }
+                    return '';
+                })
+                ->addColumn('credit', function ($row) {
+                    if ($row->type == 'credit') {
+                        $html = '<span class="display_currency">' . $row->amount . '</span>';
 
-                                    if( isset($row->transaction) && $row->transaction->payment_status == 'cancelled')
-                                        $html = '<strike>'.$html.'</strike>';
-                                    return $html;
-                                }
-                                return '';
-                            })
-                            ->addColumn('credit', function ($row) {
-                                if ($row->type == 'credit') {
-                                    $html = '<span class="display_currency" data-currency_symbol="true">' . $row->amount . '</span>';
+                        if( isset($row->transaction) && $row->transaction->payment_status == 'cancelled')
+                            $html = '<strike>'.$html.'</strike>';
+                        return $html;
+                    }
+                    return '';
+                })
+                ->editColumn('balance', function ($row) {
+                    if($row->sub_type == 'close_shift')
+                        $html = '<span class="display_currency">0</span>';
+                    else
+                        $html = '<span class="display_currency">' . $row->balance . '</span>';
+                    if( isset($row->transaction) && $row->transaction->payment_status == 'cancelled')
+                        $html = '<strike>'.$html.'</strike>';
+                    return $html;
+                })
+                ->editColumn('special_balance', function ($row) {
+                    if($row->sub_type == 'close_shift')
+                        $html = '<span class="display_currency">0</span>';
+                    else
+                        $html = '<span class="display_currency">' . $row->special_balance . '</span>';
+                    if( isset($row->transaction) && $row->transaction->payment_status == 'cancelled')
+                        $html = '<strike>'.$html.'</strike>';
+                    return $html;
+                })
+                ->editColumn('operation_date', function ($row) {
+                    $html = $this->commonUtil->format_date($row->operation_date, true);
 
-                                    if( isset($row->transaction) && $row->transaction->payment_status == 'cancelled')
-                                        $html = '<strike>'.$html.'</strike>';
-                                    return $html;
-                                }
-                                return '';
-                            })
-                            ->editColumn('balance', function ($row) {
-                                $html = '<span class="display_currency" data-currency_symbol="true">' . $row->balance . '</span>';
+                    if( isset($row->transaction) && $row->transaction->payment_status == 'cancelled')
+                        $html = '<strike>'.$html.'</strike>';
+                    return $html;
+                })
+                ->editColumn('sub_type', function ($row) {
+                    $details = '';
+                    if (!empty($row->sub_type)) {
+                        $details = __('account.' . $row->sub_type);
+                        if ($row->sub_type == 'deposit') {
+                            $details .= ' - '.$row->note;
+                        }
+                        else if($row->sub_type == 'withdraw'){
+                            $details =
+                                '<b>' . __('contact.customer') . ':</b> (' . $row->transaction->contact->contact_id . ') '.$row->transaction->contact->name . '<br><b>'.
+                                __('sale.invoice_no') . ':</b> ' . $row->transaction->invoice_no;
+                        }
+                        else if($row->sub_type == 'currency_exchange'){
+                            $note = AccountTransaction::find($row->id)['note'];
+                            $details = 'Currency Exchange'. '<br>'.$note;
+                        }
+                        else if($row->sub_type == 'fund_transfer'){
+                            $note = AccountTransaction::find($row->id)['note'];
+                            $details = $note;
+                        }
+                        else if($row->sub_type == 'close_shift'){
+                            $note = User::find(AccountTransaction::find($row->id)->created_by)->getUserFullNameAttribute();
+                            $details.= $note;
+                        }
+                        if( isset($row->transaction) && $row->transaction->payment_status == 'cancelled')
+                            $details = '<strike>'.$details.'</strike>';
+                    } else {
+                        if (!empty($row->transaction->type)) {
+                            if ($row->transaction->type == 'purchase') {
+                                $details = '<b>' . __('purchase.supplier') . ':</b> ' . $row->transaction->contact->name . '<br><b>'.
+                                    __('purchase.ref_no') . ':</b> ' . $row->transaction->ref_no;
+                            } elseif ($row->transaction->type == 'sell') {
+                                $details = '<b>' . __('contact.customer') . ':</b> (' . $row->transaction->contact->contact_id . ') '.$row->transaction->contact->name . '<br><b>'.
+                                    __('sale.invoice_no') . ':</b> ' . $row->transaction->invoice_no;
+                            } elseif ($row->transaction->type == 'expense') {
+                                if(!empty($row->transaction->expense_for)){
+                                    $user = User::find($row->transaction->expense_for);
+                                    $details = '<b>' . __('sale.expense_for') . ':</b> ' . $user->first_name.' '.$user->last_name . '<br><b>'.
+                                        __('sale.reference_no') . ':</b> ' . $row->transaction->ref_no;
+                                } else $details = '';
+                            } elseif ($row->transaction->type == 'payroll') {
+                                if(!empty($row->transaction->expense_for)){
+                                    $user = User::find($row->transaction->expense_for);
+                                    $details = '<b>' . __('sale.payroll_for') . ':</b> ' . $user->first_name.' '.$user->last_name . '<br><b>'.
+                                        __('sale.reference_no') . ':</b> ' . $row->transaction->ref_no;
+                                } else $details = '';
+                            }
+                        }
+                        if( isset($row->transaction) && $row->transaction->payment_status == 'cancelled')
+                            $details = '<strike>'.$details.'</strike>';
+                    }
 
-                                if( isset($row->transaction) && $row->transaction->payment_status == 'cancelled')
-                                    $html = '<strike>'.$html.'</strike>';
-                                return $html;
-                            })
-                            ->editColumn('operation_date', function ($row) {
-                                $html = $this->commonUtil->format_date($row->operation_date, true);
-
-                                if( isset($row->transaction) && $row->transaction->payment_status == 'cancelled')
-                                    $html = '<strike>'.$html.'</strike>';
-                                return $html;
-                            })
-                            ->editColumn('sub_type', function ($row) {
-                                $details = '';
-                                if (!empty($row->sub_type)) {
-                                    $details = __('account.' . $row->sub_type);
-                                    if (in_array($row->sub_type, ['fund_transfer', 'deposit']) && !empty($row->transfer_transaction)) {
-                                        if ($row->type == 'credit') {
-                                            $details .= ' ( ' . __('account.from') .': ' . $row->transfer_transaction->account->name . ')';
-                                        } else {
-                                            $details .= ' ( ' . __('account.to') .': ' . $row->transfer_transaction->account->name . ')';
-                                        }
-                                    }
-                                } else {
-                                    if (!empty($row->transaction->type)) {
-                                        if ($row->transaction->type == 'purchase') {
-                                            $details = '<b>' . __('purchase.supplier') . ':</b> ' . $row->transaction->contact->name . '<br><b>'.
-                                            __('purchase.ref_no') . ':</b> ' . $row->transaction->ref_no;
-                                        } elseif ($row->transaction->type == 'sell') {
-                                            $details = '<b>' . __('contact.customer') . ':</b> ' . $row->transaction->contact->name . '<br><b>'.
-                                            __('sale.invoice_no') . ':</b> ' . $row->transaction->invoice_no;
-                                        }
-                                    }
-                                }
-                                if( isset($row->transaction) && $row->transaction->payment_status == 'cancelled')
-                                    $details = '<strike>'.$details.'</strike>';
-                                return $details;
-                            })
-                            ->editColumn('action', function ($row) {
-                                $action = '';
-                                if ($row->sub_type == 'fund_transfer' || $row->sub_type == 'deposit') {
-                                    $action = '<button type="button" class="btn btn-danger btn-xs delete_account_transaction" data-href="' . action('AccountController@destroyAccountTransaction', [$row->id]) . '"><i class="fa fa-trash"></i> ' . __('messages.delete') . '</button>';
-                                }
-                                return $action;
-                            })
-                            ->removeColumn('id')
-                            ->removeColumn('is_closed')
-                            ->rawColumns(['credit', 'debit', 'balance', 'sub_type', 'action', 'operation_date'])
-                            ->make(true);
+                    return $details;
+                })
+                ->editColumn('action', function ($row) {
+                    $action = '';
+                    if ($row->sub_type == 'fund_transfer' || $row->sub_type == 'deposit') {
+                        $action = '<button type="button" class="btn btn-danger btn-xs delete_account_transaction" data-href="' . action('AccountController@destroyAccountTransaction', [$row->id]) . '"><i class="fa fa-trash"></i> ' . __('messages.delete') . '</button>';
+                    }
+                    return $action;
+                })
+                ->removeColumn('id')
+                ->removeColumn('is_closed')
+                ->rawColumns(['credit', 'debit', 'balance', 'special_balance', 'sub_type', 'action', 'operation_date'])
+                ->make(true);
         }
         $account = Account::where('business_id', $business_id)
                             ->find($id);
@@ -371,7 +417,7 @@ class ServiceController extends Controller
 
         if (request()->ajax()) {
             try {
-                $input = $request->only(['name', 'account_number', 'note']);
+                $input = $request->only(['name', 'account_number', 'note', 'is_special_kiosk']);
 
                 $business_id = request()->session()->get('user.business_id');
                 $account = Account::where('business_id', $business_id)
@@ -379,6 +425,7 @@ class ServiceController extends Controller
                 $account->name = $input['name'];
                 $account->account_number = $input['account_number'];
                 $account->note = $input['note'];
+                $account->is_special_kiosk = isset($input['is_special_kiosk']) ? 1 : 0;
                 $account->save();
 
                 $output = ['success' => true,
