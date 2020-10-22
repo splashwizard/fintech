@@ -10,10 +10,16 @@
 
     <div class="modal-body">
             <div class="row">
-                <div class="col-sm-12">
+                <div class="col-sm-6">
                     <div class="form-group">
                         {!! Form::checkbox('is_special_kiosk', 1, $account->is_special_kiosk,
                                 [ 'class' => 'input-icheck']); !!} {{ __( 'account.is_special_kiosk' ) }}
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        {!! Form::checkbox('is_daily_zero', 1, $account->is_daily_zero,
+                                [ 'class' => 'input-icheck']); !!} {{ __( 'account.is_daily_zero' ) }}
                     </div>
                 </div>
             </div>

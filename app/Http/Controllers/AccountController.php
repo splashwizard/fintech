@@ -922,7 +922,8 @@ class AccountController extends Controller
                     'sub_type' => 'withdraw',
                     'operation_date' => $date->format('Y-m-d H:i:s'),
                     'created_by' => session()->get('user.id'),
-                    'transaction_id' => $transaction->id
+                    'transaction_id' => $transaction->id,
+                    'shift_closed_at' => Account::find($account_id)->shift_closed_at
                 ];
 
                 $debit = AccountTransaction::createAccountTransaction($debit_data);

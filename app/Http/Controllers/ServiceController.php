@@ -245,7 +245,7 @@ class ServiceController extends Controller
                                 AND AT.account_id = account_transactions.account_id AND AT.cancelled_at IS NULL) as balance'),
                     DB::raw('(SELECT SUM( IF(AT.type="credit", -1*AT.amount, AT.amount) ) from account_transactions as AT 
                                 WHERE AT.operation_date <= account_transactions.operation_date AND (IF(account_transactions.shift_closed_at IS NOT NULL, account_transactions.shift_closed_at < AT.operation_date, 1)) 
-                                AND AT.account_id = account_transactions.account_id AND AT.cancelled_at IS NULL AND AT.sub_type != "opening_balance") as special_balance'),
+                                AND AT.account_id = account_transactions.account_id AND AT.cancelled_at IS NULL AND ( AT.sub_type IS NULL OR AT.sub_type != "opening_balance") ) as special_balance'),
                     'transaction_id',
                     'account_transactions.id',
                     'account_transactions.note AS note'
@@ -417,7 +417,7 @@ class ServiceController extends Controller
 
         if (request()->ajax()) {
             try {
-                $input = $request->only(['name', 'account_number', 'note', 'is_special_kiosk']);
+                $input = $request->only(['name', 'account_number', 'note', 'is_special_kiosk', 'is_daily_zero']);
 
                 $business_id = request()->session()->get('user.business_id');
                 $account = Account::where('business_id', $business_id)
@@ -426,6 +426,7 @@ class ServiceController extends Controller
                 $account->account_number = $input['account_number'];
                 $account->note = $input['note'];
                 $account->is_special_kiosk = isset($input['is_special_kiosk']) ? 1 : 0;
+                $account->is_daily_zero = isset($input['is_daily_zero']) ? 1 : 0;
                 $account->save();
 
                 $output = ['success' => true,
@@ -880,7 +881,8 @@ class ServiceController extends Controller
                         'sub_type' => 'withdraw',
                         'operation_date' => $now->format('Y-m-d H:i:s'),
                         'created_by' => session()->get('user.id'),
-                        'transaction_id' => $transaction->id
+                        'transaction_id' => $transaction->id,
+                        'shift_closed_at' => Account::find($account_id)->shift_closed_at
                     ];
 
                     AccountTransaction::createAccountTransaction($credit_data);
