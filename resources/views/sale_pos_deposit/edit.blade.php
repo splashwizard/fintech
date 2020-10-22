@@ -136,11 +136,11 @@
 						<div class="@if(!empty($commission_agent)) col-sm-8 @else col-sm-6 @endif">
 							<select class="form-control" id="bonus">
 								@foreach($bonuses as $bonus)
-									<option data-variation_id="{{$bonus->id}}" data-name="{{$bonus->name}}" data-amount="{{$bonus->selling_price}}">{{$bonus->name.' - '.$bonus->variation }}</option>
+									<option data-variation_id="{{$bonus->id}}" data-name="{{$bonus->name}}" data-amount="{{$bonus->selling_price}}" value="{{$bonus->id}}" @if($transaction->bonus_variation_id == $bonus->id) selected @endif>{{$bonus->name.' - '.$bonus->variation }}</option>
 								@endforeach
 							</select>
 						</div>
-						<input type="hidden" name="bonus_variation_id" id="bonus_variation_id" value="-1">
+						<input type="hidden" name="bonus_variation_id" id="bonus_variation_id" value="{{$transaction->bonus_variation_id}}">
 						<input type="hidden" name="customer_id" id="contact_id" value="1">
 						<input type="hidden" name="pay_term_number" id="pay_term_number" value="{{$transaction->pay_term_number}}">
 						<input type="hidden" name="pay_term_type" id="pay_term_type" value="{{$transaction->pay_term_type}}">

@@ -1735,7 +1735,7 @@ $(document).ready(function() {
         if ($('input#location_id').val() == '') {
             toastr.warning(LANG.select_location);
         } else {
-            pos_product_row(e.variation.id);
+            // pos_product_row(e.variation.id);
         }
     });
 
