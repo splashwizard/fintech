@@ -357,6 +357,7 @@ Route::middleware(['IsInstalled', 'auth', 'SetSessionData', 'language', 'timezon
         Route::post('/withdraw', 'ServiceController@postWithdraw');
         Route::get('/close/{id}', 'ServiceController@close');
         Route::get('/fund-transfer/{id}', 'ServiceController@getFundTransfer');
+        Route::get('/get-account-balance/{id}', 'ServiceController@getAccountBalance');
     });
     
 

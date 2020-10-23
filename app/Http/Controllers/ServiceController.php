@@ -70,15 +70,20 @@ class ServiceController extends Controller
                     'AT.transaction_id',
                     '=',
                     'T.id')
-                                ->where('accounts.is_service', 1)
-                                ->where('accounts.business_id', $business_id)
-                                ->where(function ($q) {
-                                    $q->where('T.payment_status', '!=', 'cancelled');
-                                    $q->orWhere('T.payment_status', '=', null);
-                                })
-                                ->select(['accounts.name', 'accounts.account_number', 'accounts.note', 'accounts.id',
-                                    'accounts.is_closed', DB::raw("SUM( IF(AT.type='credit', amount, -1*amount) ) as balance")])
-                                ->groupBy('accounts.id');
+                ->leftjoin('currencies', 'currencies.id', 'accounts.currency_id')
+                ->where('accounts.is_service', 1)
+                ->where('accounts.name', '!=', 'Bonus Account')
+                ->where('accounts.business_id', $business_id)
+                ->where(function ($q) {
+                    $q->where('T.payment_status', '!=', 'cancelled');
+                    $q->orWhere('T.payment_status', '=', null);
+                })
+                ->select(['accounts.name', 'accounts.account_number', 'accounts.note', 'accounts.id', 'currencies.code as currency',
+                    'accounts.is_closed',
+                    \Illuminate\Support\Facades\DB::raw("SUM( IF( (accounts.shift_closed_at IS NULL OR AT.operation_date >= accounts.shift_closed_at) AND (!accounts.is_special_kiosk OR AT.sub_type IS NULL OR AT.sub_type != 'opening_balance'),  IF( AT.type='credit', AT.amount, -1*AT.amount), 0) )
+                     * (1 - accounts.is_special_kiosk * 2) as balance"),
+                ])
+                ->groupBy('accounts.id');
 
             $account_type = request()->input('account_type');
 
@@ -1034,29 +1039,37 @@ class ServiceController extends Controller
         if (!auth()->user()->can('account.access')) {
             abort(403, 'Unauthorized action.');
         }
-
+        $is_special_kiosk = Account::find($id)->is_special_kiosk;
         $business_id = session()->get('user.business_id');
-        $account = Account::leftjoin(
-            'account_transactions as AT',
-            'AT.account_id',
+        $shift_closed_at = Account::find($id)->shift_closed_at;
+        $query = AccountTransaction::join(
+            'accounts as A',
+            'account_transactions.account_id',
             '=',
-            'accounts.id'
+            'A.id'
         )
             ->leftjoin( 'transactions as T',
                 'transaction_id',
                 '=',
                 'T.id')
-            ->whereNull('AT.deleted_at')
-            ->where('accounts.business_id', $business_id)
-            ->where('accounts.id', $id)
+            ->where('A.business_id', $business_id)
+            ->where('A.id', $id);
+        if($shift_closed_at != null)
+            $query = $query->where('account_transactions.operation_date', '>=', $shift_closed_at);
+        $query = $query->whereNull('account_transactions.deleted_at')
             ->where(function ($q) {
                 $q->where('T.payment_status', '!=', 'cancelled');
                 $q->orWhere('T.payment_status', '=', null);
-            })
-            ->select('accounts.*', DB::raw("SUM( IF(AT.type='credit', amount, -1 * amount) ) as balance"))
-            ->first();
+            });
 
-        return $account;
+        if($is_special_kiosk)
+            $query = $query->where(function ($q) {
+                $q->where('account_transactions.sub_type', '!=', 'opening_balance');
+                $q->orWhere('account_transactions.sub_type', '=', null);
+            });
+        $total_row = $query->select(DB::raw("SUM( IF(account_transactions.type='credit', account_transactions.amount, -1 * account_transactions.amount) )*( 1 - is_special_kiosk * 2) as balance"))
+            ->first();
+        return $total_row->balance;
     }
 
     /**

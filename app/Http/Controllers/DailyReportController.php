@@ -84,7 +84,7 @@ class DailyReportController extends Controller
             ->where('name', '!=', 'Bonus Account')
             ->where('business_id', $business_id)
             ->select(['name', 'account_number', 'accounts.note', 'accounts.id as account_id',
-                'is_closed', DB::raw("SUM( IF(AT.type='credit', amount, -1*amount) ) as balance")
+                'is_closed', DB::raw("SUM( IF( accounts.shift_closed_at IS NULL OR AT.operation_date >= accounts.shift_closed_at,  IF( AT.type='credit', AT.amount, -1*AT.amount), 0) ) as balance")
                 , DB::raw("SUM( IF( AT.type='credit' AND (AT.sub_type IS NULL OR (AT.`sub_type` != 'fund_transfer' AND AT.`sub_type` != 'opening_balance')), AT.amount, 0) ) as total_deposit")
                 , DB::raw("SUM( IF( AT.type='debit' AND (AT.sub_type IS NULL OR (AT.`sub_type` != 'fund_transfer' AND AT.`sub_type` != 'opening_balance')), AT.amount, 0) ) as total_withdraw")
                 , DB::raw("SUM( IF(AT.type='credit' AND AT.sub_type='fund_transfer', amount, 0) ) as transfer_in")
@@ -224,11 +224,20 @@ class DailyReportController extends Controller
             $join->on('AT.account_id', '=', 'accounts.id');
             $join->whereNull('AT.deleted_at');
         })
+            ->leftjoin( 'transactions as T',
+                'AT.transaction_id',
+                '=',
+                'T.id')
             ->where('is_service', 1)
-            ->where('business_id', $business_id)
+            ->where('accounts.business_id', $business_id)
             ->where('accounts.name', '!=', 'Safe Kiosk Account')
+            ->where(function ($q) {
+                $q->where('T.payment_status', '!=', 'cancelled');
+                $q->orWhere('T.payment_status', '=', null);
+            })
             ->select(['name', 'account_number', 'accounts.note', 'accounts.id as account_id',
-                'is_closed', DB::raw("SUM( IF(AT.type='credit', amount, -1*amount) ) as balance")
+                'is_closed', DB::raw("SUM( IF( (accounts.shift_closed_at IS NULL OR AT.operation_date >= accounts.shift_closed_at) AND (!accounts.is_special_kiosk OR AT.sub_type IS NULL OR AT.sub_type != 'opening_balance'),  IF( AT.type='credit', AT.amount, -1*AT.amount), 0) )
+                     * (1 - accounts.is_special_kiosk * 2) as balance")
                 , DB::raw("SUM( IF(AT.type='credit', amount, 0) ) as total_deposit")
                 , DB::raw("SUM( IF(AT.type='debit', amount, 0) ) as total_withdraw")
                 , DB::raw("SUM( IF(AT.type='credit' AND AT.sub_type='fund_transfer', amount, 0) ) as transfer_in")

@@ -2537,6 +2537,10 @@ class SellPosDepositController extends Controller
                     $join->on('AT.account_id', '=', 'accounts.id');
                     $join->whereNull('AT.deleted_at');
                 })
+                ->leftjoin( 'transactions as T',
+                    'AT.transaction_id',
+                    '=',
+                    'T.id')
                 ->groupBy('accounts.id')
                 ->groupBy('variations.id')
                 ->where('p.business_id', $business_id)
@@ -2544,6 +2548,10 @@ class SellPosDepositController extends Controller
                 ->where('p.is_inactive', 0)
                 ->where('accounts.name', '!=', 'Bonus Account')
                 ->where('p.not_for_selling', 0)
+                ->where(function ($q) {
+                    $q->where('T.payment_status', '!=', 'cancelled');
+                    $q->orWhere('T.payment_status', '=', null);
+                })
                 ->orderBy('p.priority', 'ASC');
 
             //Include search
@@ -2574,8 +2582,10 @@ class SellPosDepositController extends Controller
             }
 
 
+
             $products = $products->select(
-                DB::raw("SUM( IF(AT.type='credit', AT.amount, -1*AT.amount) ) as balance"),
+                DB::raw("SUM( IF( accounts.shift_closed_at IS NULL OR AT.operation_date >= accounts.shift_closed_at AND (!accounts.is_special_kiosk OR AT.sub_type IS NULL OR AT.sub_type != 'opening_balance'),  IF( AT.type='credit', AT.amount, -1*AT.amount), 0) )
+                  * (1 - accounts.is_special_kiosk * 2) as balance"),
                 'p.id as product_id',
                 'p.name',
                 'p.type',

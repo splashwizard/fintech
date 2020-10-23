@@ -188,7 +188,7 @@
     function update_account_balance(argument) {
         $('span#account_balance').html('<i class="fa fa-refresh fa-spin"></i>');
         $.ajax({
-            url: '{{action("AccountController@getAccountBalance", [$account->id])}}',
+            url: '{{action("ServiceController@getAccountBalance", [$account->id])}}',
             dataType: "json",
             success: function(data){
                 $('span#account_balance').text(__currency_trans_from_en(data, true));

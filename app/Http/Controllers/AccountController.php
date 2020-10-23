@@ -1011,7 +1011,6 @@ class AccountController extends Controller
             ->select(DB::raw("SUM( IF(account_transactions.type='credit', account_transactions.amount, -1 * account_transactions.amount) ) as balance"))
             ->first();
         return $total_row->balance;
-//        return $total_row->balance - $cancelled_row->balance;
     }
 
     /**
