@@ -82,6 +82,7 @@ return [
     'edit_customer_notification' => ':employee edited a customer. Customer ID - <i>:contact_id</i>',
     'cancel_transaction_notification' => ':username  has cancel invoice no. <i>:invoice_no</i>',
     'request_status_change_notification' => ':admin :status your request. Reference No - <i>:ref_no</i>',
+    'new_chat_message_notification' => ':user sent message. <br> :short_msg',
     'essentials_settings' => 'Essentials Settings',
     'leave_ref_no_prefix' => 'Leave Reference No. prefix',
     'allow_users_for_attendance' => 'Allow users to enter their own attendance',

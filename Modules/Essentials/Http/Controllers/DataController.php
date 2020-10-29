@@ -154,6 +154,19 @@ class DataController extends Controller
                 'read_at' => $notification->read_at,
                 'created_at' => $notification->created_at->diffForHumans()
             ];
+        } elseif ($notification->type ==
+            'Modules\Essentials\Notifications\NewChatMessageNotification') {
+            $data = $notification->data;
+
+            $msg = __('essentials::lang.new_chat_message_notification', ['user' => $data['user'], 'short_msg' => $data['short_msg']]);
+
+            $notification_data = [
+                'msg' => $msg,
+                'icon_class' => 'fa fa-user-times text-success',
+                'link' => '/messages',
+                'read_at' => $notification->read_at,
+                'created_at' => $notification->created_at->diffForHumans()
+            ];
         }
 
         return $notification_data;
