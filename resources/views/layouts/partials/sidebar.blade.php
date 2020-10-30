@@ -388,6 +388,21 @@
                 </li>
             @endif
 
+            <li class="treeview {{  in_array( $request->segment(1), ['promotions']) ? 'active active-sub' : '' }}">
+                <a href="#"><i class="fa fa-minus-circle"></i> <span> 9 @lang('promotion.promotions')</span>
+                    <span class="pull-right-container">
+				  <i class="fa fa-angle-left pull-right"></i>
+				</span>
+                </a>
+                <ul class="treeview-menu">
+                    <li class="{{ $request->segment(1) == 'promotions' && empty($request->segment(2)) ? 'active' : '' }}">
+                        <a href="{{action('PromotionController@index')}}"><i class="fa fa-list"></i> 9.1 @lang('lang_v1.list_promotions')</a></li>
+                    <li class="{{ $request->segment(1) == 'promotions' && $request->segment(2) == 'create' ? 'active' : '' }}">
+                        <a href="{{action('PromotionController@create')}}"><i class="fa fa-plus-circle"></i> 9.2 @lang('messages.add') @lang('promotion.promotions')
+                        </a></li>
+                </ul>
+            </li>
+
             @can('account.access')
                 <li class="treeview {{ $request->segment(1) == 'account' ? 'active active-sub' : '' }}">
                     <a href="#"><i class="fa fa-money" aria-hidden="true"></i>

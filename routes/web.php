@@ -246,6 +246,10 @@ Route::middleware(['IsInstalled', 'auth', 'SetSessionData', 'language', 'timezon
     //Expenses...
     Route::resource('expenses', 'ExpenseController');
 
+    //Promotions...
+    Route::resource('promotions', 'PromotionController');
+    Route::get('/promotions/{key}/getTab', 'PromotionController@getTab');
+
     //Transaction payments...
     // Route::get('/payments/opening-balance/{contact_id}', 'TransactionPaymentController@getOpeningBalancePayments');
     Route::get('/payments/show-child-payments/{payment_id}', 'TransactionPaymentController@showChildPayments');

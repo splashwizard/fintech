@@ -29,6 +29,8 @@
         @include('layouts.partials.css')
 
         @yield('css')
+        <script src='https://cdn.tiny.cloud/1/2pn06cqm4it0x5a1rnsjhwysgeex4pg0qye8aac992cpgxwh/tinymce/5/tinymce.min.js' referrerpolicy="origin">
+        </script>
     </head>
 
     <body class="@if($pos_layout) hold-transition lockscreen @else hold-transition skin-@if(!empty(session('business.theme_color'))){{session('business.theme_color')}}@else{{'blue'}}@endif sidebar-mini @endif">

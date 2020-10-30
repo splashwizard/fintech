@@ -46,6 +46,7 @@ return [
     'barcode_label_error' => 'Unsupported SKU id for the selected barcode type',
     'list_products' => 'List Products',
     'list_expenses' => 'List Expenses',
+    'list_promotions' => 'List Promotions',
     'add_expiry' => 'Add item expiry',
     'add_manufacturing_auto_expiry' => 'Add manufacturing date & expiry period',
     'tooltip_enable_expiry' => 'Enable product expiry. <br/> <br/><b>Add item expiry</b>: To directly add item expiry only. <br/> <b>Add manufacturing date & expiry period</b>: To add manufacturing date & expiry period and calculate expiry date based on that.',
