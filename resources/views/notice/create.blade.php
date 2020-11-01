@@ -5,12 +5,12 @@
 
 <!-- Content Header (Page header) -->
 <section class="content-header">
-    <h1>@lang('promotion.add_promotion')</h1>
+    <h1>@lang('notice.add_notice')</h1>
 </section>
 
 <!-- Main content -->
 <section class="content">
-	{!! Form::open(['url' => action('PromotionController@store'), 'method' => 'post', 'id' => 'add_promotion_form', 'files' => true ]) !!}
+	{!! Form::open(['url' => action('NoticeController@store'), 'method' => 'post', 'id' => 'add_notice_form', 'files' => true ]) !!}
 	<div class="box box-solid">
 		<div class="box-body">
 			<div id="exTab2">
@@ -107,7 +107,7 @@
 								</div>
 							</div>
 
-							<button class="btn" style="background-color: #000000;color: white" id="add_promotion"> Add Promotion</button>
+							<button class="btn" style="background-color: #000000;color: white" id="add_notice"> Add notice</button>
 						</div>
 					</div>
 				</div>
@@ -176,7 +176,7 @@
 		// 		required: "Please upload desktop image"
 		// 	}
 		// });
-		$('#add_promotion_form').validate({
+		$('#add_notice_form').validate({
 			rules: {
 				desktop_imageUpload: {
 					required: true

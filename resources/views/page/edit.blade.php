@@ -1,50 +1,50 @@
 @extends('layouts.app')
-@section('title', __('promotion.edit_promotion'))
+@section('title', 'Edit Page')
 
 @section('content')
 
 <!-- Content Header (Page header) -->
 <section class="content-header">
-    <h1>@lang('promotion.edit_promotion')</h1>
+    <h1>Edit Page</h1>
 </section>
 
 <!-- Main content -->
 <section class="content">
-  {!! Form::open(['url' => action('PromotionController@update', [$id]), 'method' => 'PUT', 'id' => 'add_promotion_form', 'files' => true ]) !!}
+  {!! Form::open(['url' => action('PageController@update', [$id]), 'method' => 'PUT', 'id' => 'add_page_form', 'files' => true ]) !!}
   <div class="box box-solid">
     <div class="box-body">
       <button class="btn btn-success" id="new_tab">New Tab</button>
-      <input id="promotion_id" value="{{$id}}" hidden>
-      <input id="form_cnt" value="{{count($promotions)}}" hidden>
+      <input id="page_id" value="{{$id}}" hidden>
+      <input id="form_cnt" value="{{count($pages)}}" hidden>
       <div id="exTab2">
         <ul class="nav nav-tabs">
-          @foreach($promotions as $key => $promotion)
+          @foreach($pages as $key => $page)
             @if($key == 0)
               <li class="active">
-                <a href="#tab0" data-toggle="tab">(Default){{$promotion['lang']}}</a>
+                <a href="#tab0" data-toggle="tab">(Default){{$page['lang']}}</a>
               </li>
             @else
               <li>
-                <a href="#tab{{$key}}" data-toggle="tab">{{$promotion['lang']}}</a>
+                <a href="#tab{{$key}}" data-toggle="tab">{{$page['lang']}}</a>
               </li>
             @endif
           @endforeach
         </ul>
 
         <div class="tab-content">
-          @foreach($promotions as $key => $promotion)
+          @foreach($pages as $key => $page)
             @if($key == 0)
               <div class="tab-pane active" id="tab0">
-                @include('promotion.form', ['form_index' => 0, 'promotion' => $promotion, 'promotion_langs' => $promotion_langs])
+                @include('page.form', ['form_index' => 0, 'page' => $page, 'promotion_langs' => $promotion_langs])
               </div>
             @else
               <div class="tab-pane" id="tab{{$key}}">
-                @include('promotion.form', ['form_index' => $key, 'promotion' => $promotion, 'promotion_langs' => $promotion_langs])
+                @include('page.form', ['form_index' => $key, 'page' => $page, 'promotion_langs' => $promotion_langs])
               </div>
             @endif
           @endforeach
         </div>
-        <button class="btn" style="background-color: #000000;color: white" id="add_promotion"> Update Promotion</button>
+        <button class="btn" style="background-color: #000000;color: white" id="add_page"> Update page</button>
       </div>
 
     </div>
@@ -55,62 +55,7 @@
 @endsection
 @section('javascript')
   <script>
-    function readDesktopURL(input) {
-      if (input.files && input.files[0]) {
-        var reader = new FileReader();
-        reader.onload = function(e) {
-          $(input).next().find('.desktop_imagePreview').css('background-image', 'url('+e.target.result +')');
-          $(input).next().find('.desktop_imagePreview').hide();
-          $(input).next().find('.desktop_imagePreview').fadeIn(650);
-        };
-        reader.readAsDataURL(input.files[0]);
-      }
-    }
-    function readMobileURL(input) {
-      if (input.files && input.files[0]) {
-        var reader = new FileReader();
-        reader.onload = function(e) {
-          $(input).next().find('.mobile_imagePreview').css('background-image', 'url('+e.target.result +')');
-          $(input).next().find('.mobile_imagePreview').hide();
-          $(input).next().find('.mobile_imagePreview').fadeIn(650);
-        };
-        reader.readAsDataURL(input.files[0]);
-      }
-    }
-    $(document).on('click', '.btn_desktop_upload', function (e) {
-      e.preventDefault();
-      $(this).parent().parent().find('.desktop_imageUpload').trigger('click');
-    });
-    $(document).on('change', '.desktop_imageUpload', function (e) {
-      $(this).next().show();
-      readDesktopURL(this);
-    });
-    $(document).on('click', '.btn_desktop_remove', function (e) {
-      e.preventDefault();
-      $(this).closest('.box-body').find('.desktop_imagePreview').parent().hide();
-      $(this).closest('.box-body').find('.desktop_imageUpload').val('');
-    });
-
-    $(document).on('click', '.btn_mobile_upload', function (e) {
-      e.preventDefault();
-      $(this).parent().parent().find('.mobile_imageUpload').trigger('click');
-    });
-    $(document).on('change', '.mobile_imageUpload', function (e) {
-      $(this).next().show();
-      readMobileURL(this);
-    });
-    $(document).on('click', '.btn_mobile_remove', function (e) {
-      e.preventDefault();
-      $(this).closest('.box-body').find('.mobile_imagePreview').parent().hide();
-      $(this).closest('.box-body').find('.mobile_imageUpload').val('');
-    });
-    $('.start_time, .end_time').datetimepicker({format: 'YYYY-MM-DD hh:mm:ss'});
-    // $('#desktop_imageUpload').rules('add', {
-    // 	messages: {
-    // 		required: "Please upload desktop image"
-    // 	}
-    // });
-    $('#add_promotion_form').validate({
+    $('#add_page_form').validate({
       // rules: {
       //   desktop_imageUpload: {
       //     required: true
@@ -132,10 +77,10 @@
 
     $('#new_tab').click(function (e) {
       e.preventDefault();
-      var promotion_id = $('#promotion_id').val();
+      var page_id = $('#page_id').val();
       var form_cnt = $('#form_cnt').val();
       $.ajax({
-        url: "/promotions/" + promotion_id + "/getTab/" + form_cnt,
+        url: "/pages/" + page_id + "/getTab/" + form_cnt,
         dataType: 'json',
         success: function(result) {
           $('.nav-tabs').append('<li>\n' +
@@ -145,7 +90,6 @@
                   result.html +
                   '</div>');
           $('#form_cnt').val( parseInt(form_cnt) + 1);
-          $('.start_time, .end_time').datetimepicker({format: 'YYYY-MM-DD hh:mm:ss'});
           var useDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
           tinymce.init({

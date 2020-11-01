@@ -248,7 +248,20 @@ Route::middleware(['IsInstalled', 'auth', 'SetSessionData', 'language', 'timezon
 
     //Promotions...
     Route::resource('promotions', 'PromotionController');
-    Route::get('/promotions/{key}/getTab', 'PromotionController@getTab');
+    Route::get('/promotions/{promotion_id}/getTab/{form_index}', 'PromotionController@getTab');
+
+    //Notices...
+    Route::resource('notices', 'NoticeController');
+    Route::get('/notices/{notice_id}/getTab/{form_index}', 'NoticeController@getTab');
+    //Floating Message...
+    Route::get('/floating_message', 'FloatingMessageController@index');
+    Route::get('/floating_message/getTab/{form_index}', 'FloatingMessageController@getTab');
+    Route::post('/floating_message', 'FloatingMessageController@update');
+
+
+    //Pages...
+    Route::resource('pages', 'PageController');
+    Route::get('/pages/{page_id}/getTab/{form_index}', 'PageController@getTab');
 
     //Transaction payments...
     // Route::get('/payments/opening-balance/{contact_id}', 'TransactionPaymentController@getOpeningBalancePayments');

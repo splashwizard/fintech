@@ -6,6 +6,7 @@ use App\AccountTransaction;
 
 use App\BusinessLocation;
 use App\ExpenseCategory;
+use App\Notice;
 use App\Promotion;
 use App\PromotionLang;
 use App\Transaction;
@@ -13,7 +14,7 @@ use App\User;
 use App\Utils\ModuleUtil;
 
 
-use App\Utils\PromotionUtil;
+use App\Utils\NoticeUtil;
 use App\Utils\TransactionUtil;
 
 use DB;
@@ -22,22 +23,22 @@ use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 use \jeremykenedy\LaravelLogger\App\Http\Traits\ActivityLogger;
 
-class PromotionController extends Controller
+class NoticeController extends Controller
 {
     protected $moduleUtil;
     protected $transactionUtil;
-    protected $promotionUtil;
+    protected $noticeUtil;
     /**
     * Constructor
     *
     * @param TransactionUtil $transactionUtil
     * @return void
     */
-    public function __construct(TransactionUtil $transactionUtil, ModuleUtil $moduleUtil, PromotionUtil $promotionUtil)
+    public function __construct(TransactionUtil $transactionUtil, ModuleUtil $moduleUtil, NoticeUtil $noticeUtil)
     {
         $this->transactionUtil = $transactionUtil;
         $this->moduleUtil = $moduleUtil;
-        $this->promotionUtil = $promotionUtil;
+        $this->noticeUtil = $noticeUtil;
     }
 
     /**
@@ -50,18 +51,18 @@ class PromotionController extends Controller
         if (request()->ajax()) {
             $business_id = request()->session()->get('user.business_id');
 
-            $expenses = Promotion::select(
-                'promotions.*',
-                'promotion_id as no',
+            $expenses = Notice::select(
+                'notices.*',
+                'notice_id as no',
                 'updated_at as last_modified_on'
-            )->groupBy('promotion_id')
-            ->orderBy('promotion_id', 'ASC');
+            )->groupBy('notice_id')
+            ->orderBy('notice_id', 'ASC');
 
             
             return Datatables::of($expenses)
                 ->addColumn(
                     'action',
-                    '<a href="{{action(\'PromotionController@edit\', [$promotion_id])}}" type="button" class="btn btn-info dropdown-toggle btn-xs">
+                    '<a href="{{action(\'NoticeController@edit\', [$notice_id])}}" type="button" class="btn btn-info dropdown-toggle btn-xs">
                         Edit
                     </a>'
                 )
@@ -99,7 +100,7 @@ class PromotionController extends Controller
 
         $business_locations = BusinessLocation::forDropdown($business_id, true);
 
-        return view('promotion.index')
+        return view('notice.index')
             ->with(compact('categories', 'business_locations', 'users'));
     }
 
@@ -111,8 +112,8 @@ class PromotionController extends Controller
     public function create()
     {
         $promotion_langs = PromotionLang::forDropdown([], false);
-        
-        return view('promotion.create')
+
+        return view('notice.create')
             ->with(compact('promotion_langs'));
     }
 
@@ -131,19 +132,19 @@ class PromotionController extends Controller
                 $input['show'] = 'active';
             else
                 $input['show'] = 'inactive';
-            $input['promotion_id'] = $this->promotionUtil->generatePromotionID();
+            $input['notice_id'] = $this->noticeUtil->generateNoticeID();
             if ($request->hasFile('desktop_imageUpload')){
-                $input['desktop_image'] = '/uploads/promotion_images/'.time().'.'.$request->desktop_imageUpload->getClientOriginalName();
-                $request->desktop_imageUpload->move(public_path('/uploads/promotion_images'), $input['desktop_image']);
+                $input['desktop_image'] = '/uploads/notice_images/'.time().'.'.$request->desktop_imageUpload->getClientOriginalName();
+                $request->desktop_imageUpload->move(public_path('/uploads/notice_images'), $input['desktop_image']);
             }
             if ($request->hasFile('mobile_imageUpload')){
-                $input['mobile_image'] = '/uploads/promotion_images/'.time().'.'.$request->mobile_imageUpload->getClientOriginalName();
-                $request->mobile_imageUpload->move(public_path('/uploads/promotion_images'), $input['mobile_image']);
+                $input['mobile_image'] = '/uploads/notice_images/'.time().'.'.$request->mobile_imageUpload->getClientOriginalName();
+                $request->mobile_imageUpload->move(public_path('/uploads/notice_images'), $input['mobile_image']);
             }
 
-            Promotion::create($input);
+            Notice::create($input);
             $output = ['success' => 1,
-                            'msg' => __('promotion.promotion_add_success')
+                            'msg' => __('notice.notice_add_success')
                         ];
         } catch (\Exception $e) {
             \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
@@ -153,7 +154,7 @@ class PromotionController extends Controller
                         ];
         }
 
-        return redirect('promotions')->with('status', $output);
+        return redirect('notices')->with('status', $output);
     }
 
     /**
@@ -175,24 +176,24 @@ class PromotionController extends Controller
      */
     public function edit($id)
     {
-        $promotions = Promotion::join('promotion_langs', 'promotion_langs.id', 'lang_id')
-            ->where('promotions.promotion_id', $id)
+        $notices = Notice::join('promotion_langs', 'promotion_langs.id', 'lang_id')
+            ->where('notices.notice_id', $id)
             ->orderBy('lang_id', 'ASC')
-            ->select('promotions.*', 'promotion_langs.lang as lang')->get();
+            ->select('notices.*', 'promotion_langs.lang as lang')->get();
         $promotion_langs = PromotionLang::forDropdown([], false);
-        return view('promotion.edit')
-            ->with(compact('promotions', 'id', 'promotion_langs'));
+        return view('notice.edit')
+            ->with(compact('notices', 'id', 'promotion_langs'));
     }
 
-    public function getTab($promotion_id, $form_index)
+    public function getTab($notice_id, $form_index)
     {
         $selected_langs = [];
-        $data = Promotion::where('promotion_id', $promotion_id)->get();
+        $data = Notice::where('notice_id', $notice_id)->get();
         foreach ($data as $row){
             $selected_langs[] = $row->lang_id;
         }
         $promotion_langs = PromotionLang::forDropdown($selected_langs, false);
-        return ['html' => view('promotion.form')->with(['form_index' => $form_index, 'promotion' => null, 'promotion_langs' => $promotion_langs])->render() ];
+        return ['html' => view('notice.form')->with(['form_index' => $form_index, 'notice' => null, 'promotion_langs' => $promotion_langs])->render() ];
     }
 
     /**
@@ -207,27 +208,27 @@ class PromotionController extends Controller
 //        try {
             $forms = $request->get('form');
             foreach ($forms as $key => $form){
-                $promotion_cnt = Promotion::where('promotion_id', $id)->where('lang_id', $form['lang_id'])->count();
-                if($promotion_cnt == 0){
+                $notice_cnt = Notice::where('notice_id', $id)->where('lang_id', $form['lang_id'])->count();
+                if($notice_cnt == 0){
 //                    $input = $form->only(['lang_id', 'title', 'sub_title', 'content', 'start_time', 'end_time', 'sequence']);
                     $input = $form;
                     if(!empty($form['show']))
                         $input['show'] = 'active';
                     else
                         $input['show'] = 'inactive';
-                    $input['promotion_id'] = $id;
+                    $input['notice_id'] = $id;
                     $desktop_file_key = "form_".$key."_desktop_imageUpload";
                     if ($request->hasFile($desktop_file_key)){
-                        $input['desktop_image'] = '/uploads/promotion_images/'.time().'.'.$request->file($desktop_file_key)->getClientOriginalName();
-                        $request->file($desktop_file_key)->move(public_path('/uploads/promotion_images'), $input['desktop_image']);
+                        $input['desktop_image'] = '/uploads/notice_images/'.time().'.'.$request->file($desktop_file_key)->getClientOriginalName();
+                        $request->file($desktop_file_key)->move(public_path('/uploads/notice_images'), $input['desktop_image']);
                     }
                     $mobile_file_key = "form_".$key."_mobile_imageUpload";
                     if ($request->hasFile($mobile_file_key)){
-                        $input['mobile_image'] = '/uploads/promotion_images/'.time().'.'.$request->file($mobile_file_key)->getClientOriginalName();
-                        $request->file($mobile_file_key)->move(public_path('/uploads/promotion_images'), $input['mobile_image']);
+                        $input['mobile_image'] = '/uploads/notice_images/'.time().'.'.$request->file($mobile_file_key)->getClientOriginalName();
+                        $request->file($mobile_file_key)->move(public_path('/uploads/notice_images'), $input['mobile_image']);
                     }
 
-                    Promotion::create($input);
+                    Notice::create($input);
                 } else {
                     $input = $form;
                     if(!empty($form['show']))
@@ -236,21 +237,21 @@ class PromotionController extends Controller
                         $input['show'] = 'inactive';
                     $desktop_file_key = "form_".$key."_desktop_imageUpload";
                     if ($request->hasFile($desktop_file_key)){
-                        $input['desktop_image'] = '/uploads/promotion_images/'.time().'.'.$request->file($desktop_file_key)->getClientOriginalName();
-                        $request->file($desktop_file_key)->move(public_path('/uploads/promotion_images'), $input['desktop_image']);
+                        $input['desktop_image'] = '/uploads/notice_images/'.time().'.'.$request->file($desktop_file_key)->getClientOriginalName();
+                        $request->file($desktop_file_key)->move(public_path('/uploads/notice_images'), $input['desktop_image']);
                     }
                     $mobile_file_key = "form_".$key."_mobile_imageUpload";
                     if ($request->hasFile($mobile_file_key)){
-                        $input['mobile_image'] = '/uploads/promotion_images/'.time().'.'.$request->file($mobile_file_key)->getClientOriginalName();
-                        $request->file($mobile_file_key)->move(public_path('/uploads/promotion_images'), $input['mobile_image']);
+                        $input['mobile_image'] = '/uploads/notice_images/'.time().'.'.$request->file($mobile_file_key)->getClientOriginalName();
+                        $request->file($mobile_file_key)->move(public_path('/uploads/notice_images'), $input['mobile_image']);
                     }
 
-                    Promotion::where('promotion_id', $id)->where('lang_id', $form['lang_id'])->update($input);
+                    Notice::where('notice_id', $id)->where('lang_id', $form['lang_id'])->update($input);
                 }
             }
 
             $output = ['success' => 1,
-                            'msg' => __('promotion.promotion_update_success')
+                            'msg' => __('notice.notice_update_success')
                         ];
 //        } catch (\Exception $e) {
 //            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
@@ -260,7 +261,7 @@ class PromotionController extends Controller
 //                        ];
 //        }
 //
-        return redirect('promotions')->with('status', $output);
+        return redirect('notices')->with('status', $output);
     }
 
     /**

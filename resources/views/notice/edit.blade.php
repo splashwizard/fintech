@@ -1,50 +1,50 @@
 @extends('layouts.app')
-@section('title', __('promotion.edit_promotion'))
+@section('title', __('notice.edit_notice'))
 
 @section('content')
 
 <!-- Content Header (Page header) -->
 <section class="content-header">
-    <h1>@lang('promotion.edit_promotion')</h1>
+    <h1>@lang('notice.edit_notice')</h1>
 </section>
 
 <!-- Main content -->
 <section class="content">
-  {!! Form::open(['url' => action('PromotionController@update', [$id]), 'method' => 'PUT', 'id' => 'add_promotion_form', 'files' => true ]) !!}
+  {!! Form::open(['url' => action('NoticeController@update', [$id]), 'method' => 'PUT', 'id' => 'add_notice_form', 'files' => true ]) !!}
   <div class="box box-solid">
     <div class="box-body">
       <button class="btn btn-success" id="new_tab">New Tab</button>
       <input id="promotion_id" value="{{$id}}" hidden>
-      <input id="form_cnt" value="{{count($promotions)}}" hidden>
+      <input id="form_cnt" value="{{count($notices)}}" hidden>
       <div id="exTab2">
         <ul class="nav nav-tabs">
-          @foreach($promotions as $key => $promotion)
+          @foreach($notices as $key => $notice)
             @if($key == 0)
               <li class="active">
-                <a href="#tab0" data-toggle="tab">(Default){{$promotion['lang']}}</a>
+                <a href="#tab0" data-toggle="tab">(Default){{$notice['lang']}}</a>
               </li>
             @else
               <li>
-                <a href="#tab{{$key}}" data-toggle="tab">{{$promotion['lang']}}</a>
+                <a href="#tab{{$key}}" data-toggle="tab">{{$notice['lang']}}</a>
               </li>
             @endif
           @endforeach
         </ul>
 
         <div class="tab-content">
-          @foreach($promotions as $key => $promotion)
+          @foreach($notices as $key => $notice)
             @if($key == 0)
               <div class="tab-pane active" id="tab0">
-                @include('promotion.form', ['form_index' => 0, 'promotion' => $promotion, 'promotion_langs' => $promotion_langs])
+                @include('notice.form', ['form_index' => 0, 'notice' => $notice, 'promotion_langs' => $promotion_langs])
               </div>
             @else
               <div class="tab-pane" id="tab{{$key}}">
-                @include('promotion.form', ['form_index' => $key, 'promotion' => $promotion, 'promotion_langs' => $promotion_langs])
+                @include('notice.form', ['form_index' => $key, 'notice' => $notice, 'promotion_langs' => $promotion_langs])
               </div>
             @endif
           @endforeach
         </div>
-        <button class="btn" style="background-color: #000000;color: white" id="add_promotion"> Update Promotion</button>
+        <button class="btn" style="background-color: #000000;color: white" id="add_notice"> Update notice</button>
       </div>
 
     </div>
@@ -110,7 +110,7 @@
     // 		required: "Please upload desktop image"
     // 	}
     // });
-    $('#add_promotion_form').validate({
+    $('#add_notice_form').validate({
       // rules: {
       //   desktop_imageUpload: {
       //     required: true
@@ -135,7 +135,7 @@
       var promotion_id = $('#promotion_id').val();
       var form_cnt = $('#form_cnt').val();
       $.ajax({
-        url: "/promotions/" + promotion_id + "/getTab/" + form_cnt,
+        url: "/notices/" + promotion_id + "/getTab/" + form_cnt,
         dataType: 'json',
         success: function(result) {
           $('.nav-tabs').append('<li>\n' +

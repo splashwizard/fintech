@@ -1,9 +1,17 @@
 <div class="box-body">
 	<label class="label" for="lang_id">Language</label>
-	<select class="form-control" name="form[{{$form_index}}][lang_id]">
-		<option value="1" {{ !empty($promotion['lang_id']) && $promotion['lang_id'] == 1 ? 'selected' : null}}>English</option>
-		<option value="2" {{ !empty($promotion['lang_id']) && $promotion['lang_id'] == 2 ? 'selected' : null}}>Malaysian</option>
-	</select>
+{{--	<select class="form-control" name="form[{{$form_index}}][lang_id]">--}}
+{{--		<option value="1" {{ !empty($promotion['lang_id']) && $promotion['lang_id'] == 1 ? 'selected' : null}}>English</option>--}}
+{{--		<option value="2" {{ !empty($promotion['lang_id']) && $promotion['lang_id'] == 2 ? 'selected' : null}}>Malay</option>--}}
+{{--		<option value="2" {{ !empty($promotion['lang_id']) && $promotion['lang_id'] == 2 ? 'selected' : null}}>Chinese</option>--}}
+{{--		<option value="2" {{ !empty($promotion['lang_id']) && $promotion['lang_id'] == 2 ? 'selected' : null}}>Thai</option>--}}
+{{--		<option value="2" {{ !empty($promotion['lang_id']) && $promotion['lang_id'] == 2 ? 'selected' : null}}>Lao</option>--}}
+{{--		<option value="2" {{ !empty($promotion['lang_id']) && $promotion['lang_id'] == 2 ? 'selected' : null}}>Burmese</option>--}}
+{{--		<option value="2" {{ !empty($promotion['lang_id']) && $promotion['lang_id'] == 2 ? 'selected' : null}}>Vietnamese</option>--}}
+{{--		<option value="2" {{ !empty($promotion['lang_id']) && $promotion['lang_id'] == 2 ? 'selected' : null}}>Tagalog</option>--}}
+{{--		<option value="2" {{ !empty($promotion['lang_id']) && $promotion['lang_id'] == 2 ? 'selected' : null}}>Indonesian</option>--}}
+{{--	</select>--}}
+	<?php echo Form::select('form['.$form_index.'][lang_id]', $promotion_langs, !empty($promotion['lang_id']) ? $promotion['lang_id']: null, ['class' => 'form-control']);; ?>
 	<label style="display: block">Desktop Responsive Image</label>
 	@if(empty($promotion['desktop_image']))
 		<input type='file' class="hidden desktop_imageUpload" name="form_{{$form_index}}_desktop_imageUpload" accept="image/*"/>

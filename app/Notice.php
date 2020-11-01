@@ -4,7 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Promotion extends Model
+class Notice extends Model
 {
     /**
      * The attributes that aren't mass assignable.
@@ -12,4 +12,5 @@ class Promotion extends Model
      * @var array
      */
     protected $guarded = ['id'];
+
 }

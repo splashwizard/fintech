@@ -4,7 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Promotion extends Model
+class Page extends Model
 {
     /**
      * The attributes that aren't mass assignable.
