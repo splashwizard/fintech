@@ -79,7 +79,7 @@ class PosLedgerController extends Controller
             if($selected_bank == 'GTransfer')
                 $query2->where('t.sub_type', 'game_credit_transfer');
             else if($selected_bank == 'Deduction')
-                $query2->where('t.sub_type', 'game_credit_deduct');
+                $query2->whereIn('t.sub_type', ['game_credit_deduct', 'game_credit_addict']);
             $query2->where('transaction_date', '>=', $start)
                 ->where('transaction_date', '<=', $end);
             $query2->orderBy('transaction_date', 'DESC');

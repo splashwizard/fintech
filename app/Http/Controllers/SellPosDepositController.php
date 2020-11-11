@@ -596,6 +596,8 @@ class SellPosDepositController extends Controller
                         } else if($product['category_id'] == 67) {
                             $service_id_arr[] = $product['account_id'];
                         }
+                        if($product['no_bonus'] == 1)
+                            $no_bonus = 1;
                         $if_contact_account_same = false;
                         foreach ($payment_data as $key => $payment_item) {
                             if($payment_item['account_id'] == $product['account_id'] && $payment_item['payment_for'] == $product['payment_for']){
@@ -1650,6 +1652,8 @@ class SellPosDepositController extends Controller
                             } else if($product['category_id'] == 67) {
                                 $service_id_arr[] = $product['account_id'];
                             }
+                            if($product['no_bonus'] == 1)
+                                $no_bonus = 1;
                             $if_contact_account_same = false;
                             foreach ($payment_data as $key => $payment_item) {
                                 if($payment_item['account_id'] == $product['account_id'] && $payment_item['payment_for'] == $product['payment_for']){
@@ -2052,7 +2056,9 @@ class SellPosDepositController extends Controller
                     $edit_price = auth()->user()->can('edit_product_price_from_pos_screen');
                 }
                 $amount = 0;
-                if(request()->get('product_type') != 0){
+                if($product->no_bonus)
+                    $amount = request()->get('credit');
+                else if(request()->get('product_type') != 0){
                     $amount = request()->get('amount');
                 }
                 $cnt = GameId::where('service_id', $product->account_id)->where('contact_id', $customer_id)->count();
@@ -2812,7 +2818,7 @@ class SellPosDepositController extends Controller
         if($selected_bank == 'GTransfer')
             $query2->where('t.sub_type', 'game_credit_transfer');
         else if($selected_bank == 'Deduction')
-            $query2->where('t.sub_type', 'game_credit_deduct');
+            $query2->whereIn('t.sub_type', ['game_credit_deduct', 'game_credit_addict']);
         $query2->where('transaction_date', '>=', $start)
             ->where('transaction_date', '<=', $end);
         $query2->orderBy('transaction_date', 'DESC');

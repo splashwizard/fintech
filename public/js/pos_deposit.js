@@ -2180,7 +2180,7 @@ function pos_product_row(variation_id, product_type = 0, name = 'Bonus',  percen
             price_group = $('#price_group').val();
         }
 
-        let amount = 0;
+        let amount = 0, credit = $('#credit').html();
         if(product_type === 1){ // service
             if($('table#pos_table tbody tr.service_row').length ===  1){
                 amount = $('#total_earned').html() / 2;
@@ -2221,6 +2221,7 @@ function pos_product_row(variation_id, product_type = 0, name = 'Bonus',  percen
                     price_group: price_group,
                     product_type: product_type,
                     amount: amount,
+                    credit: credit,
                     is_first_service: is_first_service,
                     is_product_any: is_product_any
                 },
@@ -2240,6 +2241,8 @@ function pos_product_row(variation_id, product_type = 0, name = 'Bonus',  percen
                                 .append(result.html_content)
                                 .find('input.pos_quantity');
                         if(product_type === 1){ // service
+                            no_bonus = result.no_bonus;
+                            console.log('no_bonus', no_bonus);
                             $('table#pos_table tbody .product_row:last').find('.game_input').focus();
                         }
                         if(!is_first_service || is_product_any){
@@ -2421,6 +2424,9 @@ function pos_total_row() {
         }
     } else if(no_bonus === 0 &&  $('#customer_id').data('select2') && $('#customer_id').select2('data')[0].text !== "Unclaimed Trans") {
         basic_bonus = Math.floor(basic_bonus_rate * credit / 100);
+    }
+    if(no_bonus === 1){
+        basic_bonus = 0;
     }
     // debit = credit + basic_bonus + special_bonus;
     $('#credit').html(credit);
