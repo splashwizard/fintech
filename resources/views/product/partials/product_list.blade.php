@@ -1,19 +1,20 @@
 <div class="table-responsive">
-    <table class="table table-bordered table-striped ajax_view table-text-center" id="product_table">
+    <table class="table table-bordered table-striped ajax_view table-text-center" id="product_table_{{$key}}" data-unit_id="{{$key}}" style="width: 100%">
         <thead>
             <tr>
                 <th><input type="checkbox" id="select-all-row"></th>
-                <th>&nbsp;</th>
+{{--                <th>&nbsp;</th>--}}
                 <th>@lang('sale.product')</th>
                 @if(auth()->user()->hasRole('Superadmin'))
                     <th>@lang('lang_v1.selling_price')</th>
                 @endif
-                <th>@lang('report.current_stock')</th>
+{{--                <th>@lang('report.current_stock')</th>--}}
                 @if(auth()->user()->hasRole('Superadmin'))
                     <th>@lang('product.product_type')</th>
                     <th>@lang('product.category')</th>
                 @endif
                 <th>@lang('product.priority')</th>
+                <th>@lang('product.product_no_bonus')</th>
                 @if(auth()->user()->hasRole('Superadmin'))
                     <th>@lang('product.brand')</th>
                     <th>@lang('product.tax')</th>
@@ -24,7 +25,7 @@
         </thead>
         <tfoot>
             <tr>
-                <td colspan="{{auth()->user()->hasRole('Superadmin') ? 11 : 6}}">
+                <td colspan="{{auth()->user()->hasRole('Superadmin') ? 11 : 5}}">
                     <div style="display: flex; width: 100%;">
                         @can('product.delete')
                             {!! Form::open(['url' => action('ProductController@massDestroy'), 'method' => 'post', 'id' => 'mass_delete_form' ]) !!}

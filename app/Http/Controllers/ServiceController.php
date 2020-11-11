@@ -79,7 +79,7 @@ class ServiceController extends Controller
                     $q->orWhere('T.payment_status', '=', null);
                 })
                 ->select(['accounts.name', 'accounts.account_number', 'accounts.note', 'accounts.id', 'currencies.code as currency',
-                    'accounts.is_closed',
+                    'accounts.is_closed', 'accounts.is_daily_zero', 'accounts.is_special_kiosk',
                     \Illuminate\Support\Facades\DB::raw("SUM( IF( (accounts.shift_closed_at IS NULL OR AT.operation_date >= accounts.shift_closed_at) AND (!accounts.is_special_kiosk OR AT.sub_type IS NULL OR AT.sub_type != 'opening_balance'),  IF( AT.type='credit', AT.amount, -1*AT.amount), 0) )
                      * (1 - accounts.is_special_kiosk * 2) as balance"),
                 ])
@@ -125,9 +125,15 @@ class ServiceController extends Controller
                             ->editColumn('balance', function ($row) {
                                 return '<span class="display_currency" >' . $row->balance . '</span>';
                             })
+                            ->addColumn('is_daily_zero', function ($row) {
+                                return  '<input type="checkbox" class="service_daily_zero" data-id="'.$row->id.'" '. ($row->is_daily_zero ? 'checked' : null) .'>' ;
+                            })
+                            ->addColumn('is_special_kiosk', function ($row) {
+                                return  '<input type="checkbox" class="service_special_kiosk" data-id="'.$row->id.'"'. ($row->is_special_kiosk ? 'checked' : null) .'>' ;
+                            })
                             ->removeColumn('id')
                             ->removeColumn('is_closed')
-                            ->rawColumns(['action', 'balance', 'name'])
+                            ->rawColumns(['action', 'balance', 'name', 'is_daily_zero', 'is_special_kiosk'])
                             ->make(true);
         }
 
@@ -872,17 +878,22 @@ class ServiceController extends Controller
                         $sub_type = 'withdraw_to_customer';
                     else if($withdraw_mode == 'gt')
                         $sub_type = 'game_credit_transfer';
-                    else
+                    else if($withdraw_mode == 'gd')
                         $sub_type = 'game_credit_deduct';
+                    else
+                        $sub_type = 'game_credit_addict';
                     $transaction = $this->transactionUtil->createSellReturnTransaction($business_id, $input, $invoice_total, $user_id, $sub_type);
                     ActivityLogger::activity("Created transaction, ticket # ".$transaction->invoice_no);
-                    $this->transactionUtil->createWithDrawPaymentLine($transaction, $user_id, $account_id, 1, 'credit');
+                    if($withdraw_mode != 'ga')
+                        $this->transactionUtil->createWithDrawPaymentLine($transaction, $user_id, $account_id, 1, 'credit');
+                    else
+                        $this->transactionUtil->createWithDrawPaymentLine($transaction, $user_id, $account_id, 1, 'debit');
                     $this->transactionUtil->updateCustomerRewardPoints($contact_id, $amount, 0, 0);
 
                     $credit_data = [
                         'amount' => $amount,
                         'account_id' => $account_id,
-                        'type' => 'credit',
+                        'type' => $withdraw_mode != 'ga' ? 'credit' : 'debit',
                         'sub_type' => 'withdraw',
                         'operation_date' => $now->format('Y-m-d H:i:s'),
                         'created_by' => session()->get('user.id'),
@@ -1070,6 +1081,19 @@ class ServiceController extends Controller
         $total_row = $query->select(DB::raw("SUM( IF(account_transactions.type='credit', account_transactions.amount, -1 * account_transactions.amount) )*( 1 - is_special_kiosk * 2) as balance"))
             ->first();
         return $total_row->balance;
+    }
+
+    public function updateDailyZero(Request $request, $id){
+        $is_daily_zero = $request->get('is_daily_zero');
+        Account::find($id)->update(['is_daily_zero' => $is_daily_zero]);
+        return ['success' => true];
+    }
+
+
+    public function updateSpecialKiosk(Request $request, $id){
+        $is_special_kiosk = $request->get('is_special_kiosk');
+        Account::find($id)->update(['is_special_kiosk' => $is_special_kiosk]);
+        return ['success' => true];
     }
 
     /**

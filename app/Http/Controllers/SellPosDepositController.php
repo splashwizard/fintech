@@ -623,8 +623,8 @@ class SellPosDepositController extends Controller
                             $special_bonus = $bonus_amount;
                         }
                     } else if($no_bonus == 0 && Contact::find($contact_id)->name != 'Unclaimed Trans') {
-//                        $basic_bonus = floor($total_credit * $bonus_rate / 100);
-                        $basic_bonus = 0;
+                        $basic_bonus = floor($total_credit * $bonus_rate / 100);
+//                        $basic_bonus = 0;
                     }
                     foreach ($payment_data as $payment){
                         $data = Category::where('id', $payment['category_id'])->get()->first();
@@ -794,8 +794,8 @@ class SellPosDepositController extends Controller
                                 $special_bonus = $bonus_amount;
                             }
                         } else if($no_bonus == 0 && Contact::find($contact_id)->name != 'Unclaimed Trans')  {
-//                            $basic_bonus = $product['amount'] * $bonus_rate / 100;
-                            $basic_bonus = 0;
+                            $basic_bonus = $product['amount'] * $bonus_rate / 100;
+//                            $basic_bonus = 0;
                         }
                         $payments = [];
                         $payments[] = ['account_id' => $product['account_id'], 'method' => 'bank_transfer', 'amount' => $product['amount'], 'note' => '', 'card_transaction_number' => '', 'card_number' => '', 'card_type' => 'credit', 'card_holder_name' => '', 'card_month' => '', 'card_year' => '', 'card_security' => '', 'cheque_number' => '', 'bank_account_number' => '',
@@ -1680,8 +1680,8 @@ class SellPosDepositController extends Controller
                                 $special_bonus = $bonus_amount;
                             }
                         } else if($no_bonus == 0 && Contact::find($contact_id)->name != 'Unclaimed Trans') {
-//                            $basic_bonus = floor($total_credit * $bonus_rate / 100);
-                            $basic_bonus = 0;
+                            $basic_bonus = floor($total_credit * $bonus_rate / 100);
+//                            $basic_bonus = 0;
                         }
                         foreach ($payment_data as $payment){
                             $data = Category::where('id', $payment['category_id'])->get()->first();
@@ -2753,7 +2753,7 @@ class SellPosDepositController extends Controller
         $business_id = request()->session()->get('user.business_id');
         $contact_id = request()->input('contact_id');
         $selected_bank = request()->input('selected_bank');
-        $bank_list = Account::where('is_service', 0)->where('business_id', $business_id)->where('is_safe', 0)->where('name', '!=', 'Bonus Account')->where('name', '!=', 'HQ')->get();
+        $bank_list = Account::where('is_service', 0)->where('business_id', $business_id)->where('is_safe', 0)->where('is_closed', 0)->where('name', '!=', 'Bonus Account')->where('name', '!=', 'HQ')->get();
         if(empty($selected_bank))
             $selected_bank = $bank_list[0]->id;
         $transaction_types = explode(',', request()->input('transaction_types'));

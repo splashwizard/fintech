@@ -27,14 +27,21 @@
             <div class="form-group">
                 {!! Form::label('withdraw_mode', __( 'account.withdraw_mode' ) .":*") !!}
                 <div class="row" style="margin: 0">
-                    <div class="col-sm-4" style="padding-left: 5px; padding-right: 5px">
+                    <div class="col-sm-6" style="padding-left: 5px; padding-right: 5px">
                         <button class="form-control btn-withdraw_mode btn-info" style="padding: 10px" data-mode="b">Withdraw to customer</button>
                     </div>
-                    <div class="col-sm-4" style="padding-left: 5px; padding-right: 5px">
+                    <div class="col-sm-6" style="padding-left: 5px; padding-right: 5px">
                         <button class="form-control btn-withdraw_mode" data-mode="gt">Game Credit Transfer</button>
                     </div>
-                    <div class="col-sm-4" style="padding-left: 5px; padding-right: 5px">
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="row" style="margin: 0">
+                    <div class="col-sm-6" style="padding-left: 5px; padding-right: 5px">
                         <button class="form-control btn-withdraw_mode" data-mode="gd">Game Credit Deduction</button>
+                    </div>
+                    <div class="col-sm-6" style="padding-left: 5px; padding-right: 5px">
+                        <button class="form-control btn-withdraw_mode" data-mode="ga">Game Credit Addition</button>
                     </div>
                 </div>
             </div>
@@ -239,31 +246,31 @@
                 $('#bank_account_detail').hide();
                 // $('#receipt_image_div').hide();
             }
+            $('.btn-withdraw_mode').removeClass('btn-info');
             $(this).addClass('btn-info');
-            $(this).parent().siblings().find('button').removeClass('btn-info');
         });
 
-        $('#withdraw_mode').change(function () {
-            var withdraw_mode = $(this).val();
-            if (withdraw_mode === 'b') {
-                $('#bank_div').show();
-                $('#service_div').hide();
-                $('#service_div select').removeAttr('required');
-                $('#bank_account_detail').show();
-                // $('#receipt_image_div').show();
-            } else if (withdraw_mode === 'gt') {
-                $('#bank_div').hide();
-                $('#bank_div select').removeAttr('required');
-                $('#service_div').show();
-                $('#bank_account_detail').hide();
-                // $('#receipt_image_div').hide();
-            } else {
-                $('#bank_div').hide();
-                $('#service_div').hide();
-                $('#bank_account_detail').hide();
-                // $('#receipt_image_div').hide();
-            }
-        });
+        // $('#withdraw_mode').change(function () {
+        //     var withdraw_mode = $(this).val();
+        //     if (withdraw_mode === 'b') {
+        //         $('#bank_div').show();
+        //         $('#service_div').hide();
+        //         $('#service_div select').removeAttr('required');
+        //         $('#bank_account_detail').show();
+        //         // $('#receipt_image_div').show();
+        //     } else if (withdraw_mode === 'gt') {
+        //         $('#bank_div').hide();
+        //         $('#bank_div select').removeAttr('required');
+        //         $('#service_div').show();
+        //         $('#bank_account_detail').hide();
+        //         // $('#receipt_image_div').hide();
+        //     } else {
+        //         $('#bank_div').hide();
+        //         $('#service_div').hide();
+        //         $('#bank_account_detail').hide();
+        //         // $('#receipt_image_div').hide();
+        //     }
+        // });
         $('#withdraw_to').select2({
             dropdownParent: $(".view_modal"),
             ajax: {

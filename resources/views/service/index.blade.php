@@ -64,6 +64,8 @@
                                     <th>@lang( 'lang_v1.name' )</th>
                                     <th>@lang('account.short_name')</th>
                                     <th>@lang( 'brand.note' )</th>
+                                    <th>@lang('account.is_daily_zero')</th>
+                                    <th>@lang('account.is_special_kiosk')</th>
                                     <th>@lang('lang_v1.balance')</th>
                                     <th>@lang( 'messages.action' )</th>
                                 </tr>
@@ -190,6 +192,8 @@
                             {data: 'name', name: 'name'},
                             {data: 'account_number', name: 'account_number'},
                             {data: 'note', name: 'note'},
+                            {data: 'is_daily_zero', name: 'is_daily_zero'},
+                            {data: 'is_special_kiosk', name: 'is_special_kiosk'},
                             {data: 'balance', name: 'balance', searchable: false},
                             {data: 'action', name: 'action'}
                         ],
@@ -211,6 +215,8 @@
                             {data: 'name', name: 'name'},
                             {data: 'account_number', name: 'account_number'},
                             {data: 'note', name: 'note'},
+                            {data: 'is_daily_zero', name: 'is_daily_zero'},
+                            {data: 'is_special_kiosk', name: 'is_special_kiosk'},
                             {data: 'balance', name: 'balance', searchable: false},
                             {data: 'action', name: 'action'}
                         ],
@@ -286,6 +292,34 @@
                     toastr.error(result.msg);
                 }
             }
+        });
+    });
+
+    $(document).on('click', '.service_daily_zero', function (e) {
+        var is_daily_zero = $(this).prop('checked') ? 1 : 0;
+        var id = $(this).data('id');
+        $.ajax({
+            method: 'POST',
+            url: '/service/update_daily_zero/' + id,
+            data: {is_daily_zero: is_daily_zero},
+            dataType: 'json',
+            success: function(result) {
+
+            },
+        });
+    });
+
+    $(document).on('click', '.service_special_kiosk', function (e) {
+        var is_special_kiosk = $(this).prop('checked') ? 1 : 0;
+        var id = $(this).data('id');
+        $.ajax({
+            method: 'POST',
+            url: '/service/update_special_kiosk/' + id,
+            data: {is_special_kiosk: is_special_kiosk},
+            dataType: 'json',
+            success: function(result) {
+
+            },
         });
     });
 

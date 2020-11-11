@@ -98,6 +98,7 @@ class ProductController extends Controller
                     'products.enable_stock',
                     'products.is_inactive',
                     'products.not_for_selling',
+                    'products.no_bonus',
                     DB::raw('SUM(vld.qty_available) as current_stock'),
                     DB::raw('MAX(v.sell_price_inc_tax) as max_price'),
                     DB::raw('MIN(v.sell_price_inc_tax) as min_price')
@@ -200,6 +201,9 @@ class ProductController extends Controller
                 ->addColumn('mass_delete', function ($row) {
                     return  '<input type="checkbox" class="row-select" value="' . $row->id .'">' ;
                 })
+                ->addColumn('product_no_bonus', function ($row) {
+                    return  '<input type="checkbox" class="product_no_bonus" data-id="'.$row->id.'" '.($row->no_bonus ? 'checked' : null).'>' ;
+                })
                 ->editColumn('current_stock', '@if($enable_stock == 1) {{@number_format($current_stock)}} @else -- @endif {{$unit}}')
                 ->addColumn(
                     'price',
@@ -213,7 +217,7 @@ class ProductController extends Controller
                             return '';
                         }
                     }])
-                ->rawColumns(['action', 'image', 'mass_delete', 'product', 'price'])
+                ->rawColumns(['action', 'image', 'mass_delete', 'product', 'price', 'product_no_bonus'])
                 ->make(true);
         }
 
@@ -223,7 +227,7 @@ class ProductController extends Controller
 
         $brands = Brands::forDropdown($business_id);
 
-        $units = Unit::forDropdown($business_id);
+        $units = Unit::forDropdown($business_id, false, true, true);
 
         $tax_dropdown = TaxRate::forBusinessDropdown($business_id, false);
         $taxes = $tax_dropdown['tax_rates'];
@@ -1986,5 +1990,11 @@ class ProductController extends Controller
 
             return $html;
         }
+    }
+
+    public function updateNoBonus(Request $request, $id){
+        $no_bonus = $request->get('no_bonus');
+        Product::find($id)->update(['no_bonus' => $no_bonus]);
+        return ['success' => true];
     }
 }

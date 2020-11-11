@@ -16,7 +16,7 @@
 
 <!-- Main content -->
 <section class="content">
-<div class="row">
+<div class="row" style="display: none">
     <div class="col-md-12">
     @component('components.filters', ['title' => __('report.filters')])
         @if(auth()->user()->hasRole('Superadmin'))
@@ -69,9 +69,17 @@
            <!-- Custom Tabs -->
             <div class="nav-tabs-custom">
                 <ul class="nav nav-tabs">
-                    <li class="active">
-                        <a href="#product_list_tab" data-toggle="tab" aria-expanded="true"><i class="fa fa-cubes" aria-hidden="true"></i> @lang('lang_v1.all_products')</a>
-                    </li>
+                    @foreach($units as $key => $unit)
+                        @if($unit==$units->first())
+                            <li class="active">
+                                <a href="#product_list_tab_{{$key}}" class="tab-unit" data-unit="{{$key}}" data-toggle="tab" aria-expanded="true"><i class="fa fa-cubes" aria-hidden="true"></i> {{$unit}}</a>
+                            </li>
+                        @else
+                            <li>
+                                <a href="#product_list_tab_{{$key}}" class="tab-unit" data-unit="{{$key}}" data-toggle="tab" aria-expanded="true"><i class="fa fa-cubes" aria-hidden="true"></i> {{$unit}}</a>
+                            </li>
+                        @endif
+                    @endforeach
 
                     <li>
                         <a href="#product_stock_report" data-toggle="tab" aria-expanded="true"><i class="fa fa-hourglass-half" aria-hidden="true"></i> @lang('report.stock_report')</a>
@@ -79,16 +87,31 @@
                 </ul>
 
                 <div class="tab-content">
-                    <div class="tab-pane active" id="product_list_tab">
-                        @if(auth()->user()->hasRole('Superadmin'))
-                            @can('product.create')
-                                <a class="btn btn-primary pull-right" href="{{action('ProductController@create')}}">
+                    @foreach($units as $key => $unit)
+                        @if($unit==$units->first())
+                            <div class="tab-pane active" id="product_list_tab_{{$key}}">
+                                @if(auth()->user()->hasRole('Superadmin'))
+                                    @can('product.create')
+                                        <a class="btn btn-primary pull-right" href="{{action('ProductController@create')}}">
+                                                    <i class="fa fa-plus"></i> @lang('messages.add')</a>
+                                        <br><br>
+                                    @endcan
+                                @endif
+                                @include('product.partials.product_list', ['key' => $key])
+                            </div>
+                        @else
+                            <div class="tab-pane" id="product_list_tab_{{$key}}">
+                                @if(auth()->user()->hasRole('Superadmin'))
+                                    @can('product.create')
+                                        <a class="btn btn-primary pull-right" href="{{action('ProductController@create')}}">
                                             <i class="fa fa-plus"></i> @lang('messages.add')</a>
-                                <br><br>
-                            @endcan
+                                        <br><br>
+                                    @endcan
+                                @endif
+                                @include('product.partials.product_list', ['key' => $key])
+                            </div>
                         @endif
-                        @include('product.partials.product_list')
-                    </div>
+                    @endforeach
 
                     <div class="tab-pane" id="product_stock_report">
                         @include('report.partials.stock_report_table')
@@ -123,109 +146,143 @@
     <script type="text/javascript">
         $(document).ready( function(){
             var is_admin_or_super = "<?php echo auth()->user()->hasRole('Superadmin');?>";
+            var units = JSON.parse('<?php echo json_encode($units);?>');
+            for(var key in units) {
+                if(units.hasOwnProperty(key)) {
+                    console.log('key', key);
+                    var $table = $(`#product_table_${key}`);
+                    product_table = $table.DataTable({
+                        processing: true,
+                        serverSide: true,
+                        "ajax": {
+                            "url": "/products",
+                            "data": function (d, settings) {
+                                d.type = $('#product_list_filter_type').val();
+                                d.category_id = $('#product_list_filter_category_id').val();
+                                d.brand_id = $('#product_list_filter_brand_id').val();
+                                // d.unit_id = $('#product_list_filter_unit_id').val();
+                                d.unit_id = $table.data('unit_id');
+                                d.tax_id = $('#product_list_filter_tax_id').val();
+                            }
+                        },
+                        columnDefs: [{
+                            "targets": is_admin_or_super ? [0, 1, 10] : [0, 1, 3],
+                            "orderable": false,
+                            "searchable": false
+                        }],
+                        "orderMulti": false,
+                        aaSorting: [2, 'asc'],
+                        columns: is_admin_or_super ? [
+                            {data: 'mass_delete'},
+                            // {data: 'image', name: 'products.image'},
+                            {data: 'product', name: 'products.name'},
+                            {data: 'price', name: 'max_price', searchable: false},
+                            // {data: 'current_stock', searchable: false},
+                            {data: 'type', name: 'products.type'},
+                            {data: 'category', name: 'c1.name'},
+                            // { data: 'sub_category', name: 'c2.name'},
+                            {data: 'priority', name: 'priority'},
+                            {data: 'brand', name: 'brands.name'},
+                            {data: 'tax', name: 'tax_rates.name', searchable: false},
+                            {data: 'sku', name: 'products.sku'},
+                            {data: 'action', name: 'action'}
+                        ] : [
+                            {data: 'mass_delete'},
+                            // {data: 'image', name: 'products.image'},
+                            {data: 'product', name: 'products.name'},
+                            // {data: 'current_stock', searchable: false},
+                            {data: 'priority', name: 'priority'},
+                            {data: 'product_no_bonus', name: 'product_no_bonus'},
+                            {data: 'action', name: 'action'}
+                        ],
+                        createdRow: function (row, data, dataIndex) {
+                            if ($('input#is_rack_enabled').val() == 1) {
+                                var target_col = 0;
+                                @can('product.delete')
+                                    target_col = 1;
+                                @endcan
+                                $(row).find('td:eq(' + target_col + ') div').prepend('<i style="margin:auto;" class="fa fa-plus-circle text-success cursor-pointer no-print rack-details" title="' + LANG.details + '"></i>&nbsp;&nbsp;');
+                            }
+                            $(row).find('td:eq(0)').attr('class', 'selectable_td');
+                            $(row).find('td:eq(3)').attr('class', 'selectable_td');
+                        },
+                        fnDrawCallback: function (oSettings) {
+                            __currency_convert_recursively($(`#product_table_${key}`));
+                        },
+                    });
 
-            product_table = $('#product_table').DataTable({
-                processing: true,
-                serverSide: true,
-                "ajax": {
-                    "url": "/products",
-                    "data": function ( d ) {
-                        d.type = $('#product_list_filter_type').val();
-                        d.category_id = $('#product_list_filter_category_id').val();
-                        d.brand_id = $('#product_list_filter_brand_id').val();
-                        d.unit_id = $('#product_list_filter_unit_id').val();
-                        d.tax_id = $('#product_list_filter_tax_id').val();
-                    }
-                },
-                columnDefs: [ {
-                    "targets": is_admin_or_super ? [0, 1, 10] : [0, 1, 5],
-                    "orderable": false,
-                    "searchable": false
-                } ],
-                "orderMulti": false,
-                aaSorting: [2, 'asc'],
-                columns: is_admin_or_super ? [
-                        { data: 'mass_delete'  },
-                        { data: 'image', name: 'products.image'  },
-                        { data: 'product', name: 'products.name'  },
-                        { data: 'price', name: 'max_price', searchable: false},
-                        { data: 'current_stock', searchable: false},
-                        { data: 'type', name: 'products.type'},
-                        { data: 'category', name: 'c1.name'},
-                        // { data: 'sub_category', name: 'c2.name'},
-                        { data: 'priority', name: 'priority'},
-                        { data: 'brand', name: 'brands.name'},
-                        { data: 'tax', name: 'tax_rates.name', searchable: false},
-                        { data: 'sku', name: 'products.sku'},
-                        { data: 'action', name: 'action'}
-                    ] : [
-                        { data: 'mass_delete'  },
-                        { data: 'image', name: 'products.image'  },
-                        { data: 'product', name: 'products.name'  },
-                        { data: 'current_stock', searchable: false},
-                        { data: 'priority', name: 'priority'},
-                        { data: 'action', name: 'action'}
-                    ],
-                    createdRow: function( row, data, dataIndex ) {
-                        if($('input#is_rack_enabled').val() == 1){
-                            var target_col = 0;
-                            @can('product.delete')
-                                target_col = 1;
-                            @endcan
-                            $( row ).find('td:eq('+target_col+') div').prepend('<i style="margin:auto;" class="fa fa-plus-circle text-success cursor-pointer no-print rack-details" title="' + LANG.details + '"></i>&nbsp;&nbsp;');
+                    $('.tab-unit').click(function () {
+                        var unit_id = $(this).data('unit');
+                        $('#product_list_filter_unit_id').val(unit_id);
+                    });
+
+                    // Array to track the ids of the details displayed rows
+                    var detailRows = [];
+
+                    $(`#product_table_${key} tbody`).on('click', 'tr i.rack-details', function () {
+                        var i = $(this);
+                        var tr = $(this).closest('tr');
+                        var row = product_table.row(tr);
+                        var idx = $.inArray(tr.attr('id'), detailRows);
+
+                        if (row.child.isShown()) {
+                            i.addClass('fa-plus-circle text-success');
+                            i.removeClass('fa-minus-circle text-danger');
+
+                            row.child.hide();
+
+                            // Remove from the 'open' array
+                            detailRows.splice(idx, 1);
+                        } else {
+                            i.removeClass('fa-plus-circle text-success');
+                            i.addClass('fa-minus-circle text-danger');
+
+                            row.child(get_product_details(row.data())).show();
+
+                            // Add to the 'open' array
+                            if (idx === -1) {
+                                detailRows.push(tr.attr('id'));
+                            }
                         }
-                        $( row ).find('td:eq(0)').attr('class', 'selectable_td');
-                    },
-                    fnDrawCallback: function(oSettings) {
-                        __currency_convert_recursively($('#product_table'));
-                    },
-            });
-            // Array to track the ids of the details displayed rows
-            var detailRows = [];
+                    });
 
-            $('#product_table tbody').on( 'click', 'tr i.rack-details', function () {
-                var i = $(this);
-                var tr = $(this).closest('tr');
-                var row = product_table.row( tr );
-                var idx = $.inArray( tr.attr('id'), detailRows );
+                    $(`table#product_table_${key} tbody`).on('click', 'a.delete-product', function (e) {
+                        e.preventDefault();
+                        swal({
+                            title: LANG.sure,
+                            icon: "warning",
+                            buttons: true,
+                            dangerMode: true,
+                        }).then((willDelete) => {
+                            if (willDelete) {
+                                var href = $(this).attr('href');
+                                $.ajax({
+                                    method: "DELETE",
+                                    url: href,
+                                    dataType: "json",
+                                    success: function (result) {
+                                        if (result.success == true) {
+                                            toastr.success(result.msg);
+                                            product_table.ajax.reload();
+                                        } else {
+                                            toastr.error(result.msg);
+                                        }
+                                    }
+                                });
+                            }
+                        });
+                    });
 
-                if ( row.child.isShown() ) {
-                    i.addClass( 'fa-plus-circle text-success' );
-                    i.removeClass( 'fa-minus-circle text-danger' );
 
-                    row.child.hide();
-         
-                    // Remove from the 'open' array
-                    detailRows.splice( idx, 1 );
-                } else {
-                    i.removeClass( 'fa-plus-circle text-success' );
-                    i.addClass( 'fa-minus-circle text-danger' );
-
-                    row.child( get_product_details( row.data() ) ).show();
-         
-                    // Add to the 'open' array
-                    if ( idx === -1 ) {
-                        detailRows.push( tr.attr('id') );
-                    }
-                }
-            });
-
-            $('table#product_table tbody').on('click', 'a.delete-product', function(e){
-                e.preventDefault();
-                swal({
-                  title: LANG.sure,
-                  icon: "warning",
-                  buttons: true,
-                  dangerMode: true,
-                }).then((willDelete) => {
-                    if (willDelete) {
+                    $(`table#product_table_${key} tbody`).on('click', 'a.activate-product', function (e) {
+                        e.preventDefault();
                         var href = $(this).attr('href');
                         $.ajax({
-                            method: "DELETE",
+                            method: "get",
                             url: href,
                             dataType: "json",
-                            success: function(result){
-                                if(result.success == true){
+                            success: function (result) {
+                                if (result.success == true) {
                                     toastr.success(result.msg);
                                     product_table.ajax.reload();
                                 } else {
@@ -233,9 +290,9 @@
                                 }
                             }
                         });
-                    }
-                });
-            });
+                    });
+                }
+            }
 
             $(document).on('click', '#delete-selected', function(e){
                 e.preventDefault();
@@ -294,34 +351,16 @@
                 }    
             })
 
-            $('table#product_table tbody').on('click', 'a.activate-product', function(e){
-                e.preventDefault();
-                var href = $(this).attr('href');
-                $.ajax({
-                    method: "get",
-                    url: href,
-                    dataType: "json",
-                    success: function(result){
-                        if(result.success == true){
-                            toastr.success(result.msg);
-                            product_table.ajax.reload();
-                        } else {
-                            toastr.error(result.msg);
-                        }
-                    }
-                });
-            });
-
-            $(document).on('change', '#product_list_filter_type, #product_list_filter_category_id, #product_list_filter_brand_id, #product_list_filter_unit_id, #product_list_filter_tax_id, #location_id', 
-                function() {
-                    if ($("#product_list_tab").hasClass('active')) {
-                        product_table.ajax.reload();
-                    }
-
-                    if ($("#product_stock_report").hasClass('active')) {
-                        stock_report_table.ajax.reload();
-                    }
-            });
+            // $(document).on('change', '#product_list_filter_type, #product_list_filter_category_id, #product_list_filter_brand_id, #product_list_filter_unit_id, #product_list_filter_tax_id, #location_id',
+            //     function() {
+            //         if ($("#product_list_tab").hasClass('active')) {
+            //             product_table.ajax.reload();
+            //         }
+            //
+            //         if ($("#product_stock_report").hasClass('active')) {
+            //             stock_report_table.ajax.reload();
+            //         }
+            // });
         });
 
         $(document).on('shown.bs.modal', 'div.view_product_modal, div.view_modal', function(){
@@ -390,5 +429,19 @@
 
             return selected_rows; 
         }
+
+        $(document).on('click', '.product_no_bonus', function (e) {
+           var no_bonus = $(this).prop('checked') ? 1 : 0;
+           var id = $(this).data('id');
+            $.ajax({
+                method: 'POST',
+                url: '/products/update_no_bonus/' + id,
+                data: {no_bonus: no_bonus},
+                dataType: 'json',
+                success: function(result) {
+
+                },
+            });
+        });
     </script>
 @endsection

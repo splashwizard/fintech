@@ -110,6 +110,7 @@ Route::middleware(['IsInstalled', 'auth', 'SetSessionData', 'language', 'timezon
     Route::get('/products/quick_add', 'ProductController@quickAdd');
     Route::post('/products/save_quick_product', 'ProductController@saveQuickProduct');
     Route::get('/products/get-combo-product-entry-row', 'ProductController@getComboProductEntryRow');
+    Route::post('/products/update_no_bonus/{id}', 'ProductController@updateNoBonus');
     
     Route::resource('products', 'ProductController');
 
@@ -375,6 +376,8 @@ Route::middleware(['IsInstalled', 'auth', 'SetSessionData', 'language', 'timezon
         Route::get('/close/{id}', 'ServiceController@close');
         Route::get('/fund-transfer/{id}', 'ServiceController@getFundTransfer');
         Route::get('/get-account-balance/{id}', 'ServiceController@getAccountBalance');
+        Route::post('/update_daily_zero/{id}', 'ServiceController@updateDailyZero');
+        Route::post('/update_special_kiosk/{id}', 'ServiceController@updateSpecialKiosk');
     });
     
 

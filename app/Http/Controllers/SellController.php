@@ -94,6 +94,7 @@ class SellController extends Controller
                     'transactions.is_direct_sale',
                     'transactions.invoice_no',
                     'transactions.document',
+                    'contacts.contact_id',
                     'contacts.name',
                     'contacts.is_default',
 //                    'accounts.name',
@@ -279,7 +280,8 @@ class SellController extends Controller
 
 //                        if (auth()->user()->can("direct_sell.delete") || auth()->user()->can("sell.delete")) {
                         if(auth()->user()->hasRole('Superadmin') || auth()->user()->hasRole('Admin') || auth()->user()->hasRole('Admin#' . auth()->user()->business_id)){
-                            $html .= '<li><a href="' . action('SellPosController@destroy', [$row->id]) . '" class="delete-sale"><i class="fa fa-trash"></i> ' . __("messages.cancel") . '</a></li>';
+                            if($row->payment_status != 'cancelled')
+                                $html .= '<li><a href="' . action('SellPosController@destroy', [$row->id]) . '" class="delete-sale"><i class="fa fa-trash"></i> ' . __("messages.cancel") . '</a></li>';
                         }
 
                         if (auth()->user()->can("sell.view") || auth()->user()->can("direct_sell.access")) {

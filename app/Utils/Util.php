@@ -753,8 +753,9 @@ class Util
     public function get_admins($business_id)
     {
         $admins = User::role('Admin#' . $business_id)->get();
+        $admin_ids = User::role('Admin#' . $business_id)->pluck('users.id');
 
-        $business = AdminHasBusiness::where('business_id', $business_id)->get();
+        $business = AdminHasBusiness::where('business_id', $business_id)->whereNotIn('user_id', $admin_ids)->get();
         $user_arr = [];
         foreach ($business as $row){
             $user_arr[] = $row->user_id;

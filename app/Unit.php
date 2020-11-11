@@ -31,11 +31,14 @@ class Unit extends Model
      *
      * @return array
      */
-    public static function forDropdown($business_id, $show_none = false, $only_base = true)
+    public static function forDropdown($business_id, $show_none = false, $only_base = true, $hide_piece = false)
     {
         $query = Unit::where('business_id', $business_id);
         if ($only_base) {
             $query->whereNull('base_unit_id');
+        }
+        if($hide_piece) {
+            $query->where('actual_name', '!=', 'Pieces');
         }
 
         $units = $query->select(DB::raw('CONCAT(actual_name, " (", short_name, ")") as name'), 'id')->get();
