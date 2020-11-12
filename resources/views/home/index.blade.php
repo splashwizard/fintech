@@ -173,7 +173,7 @@
                         </span>
                     </div>
                     <div style="width: 50%;float: left">
-                        <span class="info-box-number">{{(!empty($total_bank->balance) ? $total_bank->balance : 0)}}
+                        <span class="info-box-number total_balance">{{(!empty($total_bank->balance) ? $total_bank->balance : 0)}}
                         </span>
                     </div>
                 </div>
@@ -184,7 +184,7 @@
                         </span>
                     </div>
                     <div style="width: 50%;float: left">
-                        <span class="info-box-number">{{(!empty($total_bank->total_deposit) ? $total_bank->total_deposit : 0)}}
+                        <span class="info-box-number total_balance">{{(!empty($total_bank->total_deposit) ? $total_bank->total_deposit : 0)}}
                         </span>
                     </div>
                 </div>
@@ -195,7 +195,7 @@
                         </span>
                     </div>
                     <div style="width: 50%;float: left">
-                        <span class="info-box-number">{{(!empty($total_bank->total_withdraw) ? $total_bank->total_withdraw : 0)}}
+                        <span class="info-box-number total_withdraw">{{(!empty($total_bank->total_withdraw) ? $total_bank->total_withdraw : 0)}}
                         </span>
                     </div>
                 </div>

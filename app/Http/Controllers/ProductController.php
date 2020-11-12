@@ -553,17 +553,17 @@ class ProductController extends Controller
             $product->account_id = $product_details['account_id'];
             $product->priority = $product_details['priority'];
             $product->category_id = $product_details['category_id'];
-            $product->tax = $product_details['tax'];
+//            $product->tax = $product_details['tax'];
             $product->barcode_type = $product_details['barcode_type'];
             $product->sku = $product_details['sku'];
-            $product->alert_quantity = $product_details['alert_quantity'];
-            $product->tax_type = $product_details['tax_type'];
-            $product->weight = $product_details['weight'];
-            $product->product_custom_field1 = $product_details['product_custom_field1'];
-            $product->product_custom_field2 = $product_details['product_custom_field2'];
-            $product->product_custom_field3 = $product_details['product_custom_field3'];
-            $product->product_custom_field4 = $product_details['product_custom_field4'];
-            $product->product_description = $product_details['product_description'];
+//            $product->alert_quantity = $product_details['alert_quantity'];
+//            $product->tax_type = $product_details['tax_type'];
+//            $product->weight = $product_details['weight'];
+//            $product->product_custom_field1 = $product_details['product_custom_field1'];
+//            $product->product_custom_field2 = $product_details['product_custom_field2'];
+//            $product->product_custom_field3 = $product_details['product_custom_field3'];
+//            $product->product_custom_field4 = $product_details['product_custom_field4'];
+//            $product->product_description = $product_details['product_description'];
             $product->sub_unit_ids = !empty($product_details['sub_unit_ids']) ? $product_details['sub_unit_ids'] : null;
 
             if (!empty($request->input('enable_stock')) &&  $request->input('enable_stock') == 1) {
@@ -678,7 +678,7 @@ class ProductController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-            
+
             $output = ['success' => 0,
                             'msg' => __("messages.something_went_wrong")
                         ];

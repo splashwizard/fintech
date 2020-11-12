@@ -215,7 +215,7 @@
                           {!! Form::select("bank_details[{$account_index}][bank_brand_id]", $bank_brands, $bank_detail['bank_brand_id'], ['class' => 'form-control', 'required']); !!}
                       </div>
                       <div class="form-group col-md-3">
-                          <button class="btn btn-primary btn-add_bank_detail"><i class="fa fa-plus"></i></button>
+                          <button class="btn {{ $account_index > 0 ? 'btn-danger btn-remove_bank_detail' : 'btn-primary btn-add_bank_detail' }}"><i class="fa {{ $account_index > 0 ? "fa-minus" : "fa-plus"}}"></i></button>
                       </div>
                       <div class="clearfix"></div>
                   </div>

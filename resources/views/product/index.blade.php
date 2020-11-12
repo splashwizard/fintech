@@ -97,7 +97,7 @@
                                         <br><br>
                                     @endcan
                                 @endif
-                                @include('product.partials.product_list', ['key' => $key])
+                                @include('product.partials.product_list', ['key' => $key, 'unit' => $unit])
                             </div>
                         @else
                             <div class="tab-pane" id="product_list_tab_{{$key}}">
@@ -108,7 +108,7 @@
                                         <br><br>
                                     @endcan
                                 @endif
-                                @include('product.partials.product_list', ['key' => $key])
+                                @include('product.partials.product_list', ['key' => $key, 'unit' => $unit])
                             </div>
                         @endif
                     @endforeach
@@ -186,7 +186,7 @@
                             {data: 'tax', name: 'tax_rates.name', searchable: false},
                             {data: 'sku', name: 'products.sku'},
                             {data: 'action', name: 'action'}
-                        ] : [
+                        ] : (units[key] === 'GameTransactions (GTrans)' ? [
                             {data: 'mass_delete'},
                             // {data: 'image', name: 'products.image'},
                             {data: 'product', name: 'products.name'},
@@ -194,7 +194,15 @@
                             {data: 'priority', name: 'priority'},
                             {data: 'product_no_bonus', name: 'product_no_bonus'},
                             {data: 'action', name: 'action'}
-                        ],
+                        ] : [
+                                {data: 'mass_delete'},
+                                // {data: 'image', name: 'products.image'},
+                                {data: 'product', name: 'products.name'},
+                                // {data: 'current_stock', searchable: false},
+                                {data: 'priority', name: 'priority'},
+                                {data: 'action', name: 'action'}
+                            ]
+                        ),
                         createdRow: function (row, data, dataIndex) {
                             if ($('input#is_rack_enabled').val() == 1) {
                                 var target_col = 0;

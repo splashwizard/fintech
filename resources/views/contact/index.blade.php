@@ -469,6 +469,13 @@
             });
         });
 
+        $(document).on('click', '.btn-remove_bank_detail', function(e) {
+            console.log('helllo');
+            e.preventDefault();
+            $(this).parents('.account_detail_item').remove();
+        });
+
+
         $(document).on('click', '.edit_contact_button', function(e) {
             e.preventDefault();
             $('div.contact_modal').load($(this).attr('href'), function() {

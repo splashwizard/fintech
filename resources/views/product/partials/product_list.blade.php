@@ -14,7 +14,9 @@
                     <th>@lang('product.category')</th>
                 @endif
                 <th>@lang('product.priority')</th>
-                <th>@lang('product.product_no_bonus')</th>
+                @if($unit == 'GameTransactions (GTrans)')
+                    <th>@lang('product.product_no_bonus')</th>
+                @endif
                 @if(auth()->user()->hasRole('Superadmin'))
                     <th>@lang('product.brand')</th>
                     <th>@lang('product.tax')</th>
@@ -25,7 +27,7 @@
         </thead>
         <tfoot>
             <tr>
-                <td colspan="{{auth()->user()->hasRole('Superadmin') ? 11 : 5}}">
+                <td colspan="{{auth()->user()->hasRole('Superadmin') ? 11 : ($unit == 'GameTransactions (GTrans)' ? 5 : 4)}}">
                     <div style="display: flex; width: 100%;">
                         @can('product.delete')
                             {!! Form::open(['url' => action('ProductController@massDestroy'), 'method' => 'post', 'id' => 'mass_delete_form' ]) !!}

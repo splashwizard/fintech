@@ -41,7 +41,7 @@ class AuthController extends Controller
                 'msg' => "The username doesn't exist"
             ];
         }
-        if(Hash::make($input['password']) == Contact::where('name', $input['name'])->first()->password){
+        if(Hash::check($input['password'], Contact::where('name', $input['name'])->first()->password)){
             $output = ['success' => true,
                 'msg' => "Login successfully"
             ];

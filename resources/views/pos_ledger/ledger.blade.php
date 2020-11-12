@@ -10,6 +10,9 @@
     <li class="nav-item {{'GTransfer' == $selected_bank ? 'active' : null}}" style="float: right">
         <a class="nav-link {{'GTransfer' == $selected_bank ? 'active' : null}}" id="tabs-GTransfer-tab" data-bank_id="GTransfer" data-toggle="pill" href="#tabs-GTransfer" role="tab" aria-controls="tabs-GTransfer" aria-selected="true">GTransfer</a>
     </li>
+        <li class="nav-item {{'free_credit' == $selected_bank ? 'active' : null}}" style="float: right">
+            <a class="nav-link {{'free_credit' == $selected_bank ? 'active' : null}}" id="tabs-free_credit-tab" data-bank_id="free_credit" data-toggle="pill" href="#tabs-free_credit" role="tab" aria-controls="tabs-free_credit" aria-selected="true">Free Credit</a>
+        </li>
 </ul>
 <div class="tab-content" id="bank-tabs-tabContent">
     @foreach($bank_list as $key => $bank)

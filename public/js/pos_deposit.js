@@ -1099,7 +1099,7 @@ $(document).ready(function() {
                                     if(!edit_page)
                                         $('#service_box').hide();
                                 }
-                                toastr.success(result.msg);
+                                var form_toastr = toastr.success(result.msg);
 
 
                                 $('#modal_success').modal('show');
@@ -1127,7 +1127,7 @@ $(document).ready(function() {
                                 get_recent_transactions('final', $('div#tab_final'));
                             }
                         } else {
-                            toastr.error(result.msg);
+                            var form_toastr = toastr.error(result.msg);
                         }
 
                         $('div.pos-processing').hide();
@@ -1155,7 +1155,7 @@ $(document).ready(function() {
         if ($('#reward_point_enabled').length) {
             var reward_validation = isValidatRewardPoint();
             if (!reward_validation['is_valid']) {
-                toastr.error(reward_validation['msg']);
+                var reward_toastr = toastr.error(reward_validation['msg']);
                 $('#rp_redeemed_modal').val(0);
                 $('#rp_redeemed_modal').change();
             }
@@ -1558,7 +1558,7 @@ $(document).ready(function() {
             return;
         //Check if location is not set then show error message.
         if ($('input#location_id').val() == '') {
-            toastr.warning(LANG.select_location);
+            var loc_toastr = toastr.warning(LANG.select_location);
         } else {
             variation_ids.push($(this).data('variation_id'));
             // $('#account_0').val($(this).data('account_id')).trigger('change');
@@ -1733,7 +1733,7 @@ $(document).ready(function() {
     $(document).on('quickProductAdded', function(e) {
         //Check if location is not set then show error message.
         if ($('input#location_id').val() == '') {
-            toastr.warning(LANG.select_location);
+            var loc_toastr = toastr.warning(LANG.select_location);
         } else {
             // pos_product_row(e.variation.id);
         }
