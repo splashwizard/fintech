@@ -2241,7 +2241,8 @@ function pos_product_row(variation_id, product_type = 0, name = 'Bonus',  percen
                                 .append(result.html_content)
                                 .find('input.pos_quantity');
                         if(product_type === 1){ // service
-                            no_bonus = result.no_bonus;
+                            if(result.no_bonus)
+                                no_bonus = 1;
                             console.log('no_bonus', no_bonus);
                             $('table#pos_table tbody .product_row:last').find('.game_input').focus();
                         }

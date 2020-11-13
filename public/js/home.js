@@ -19,46 +19,46 @@ $(document).ready(function() {
     $('#total_bank_transaction .info-box-number').each(function () {
         $(this).html(__currency_trans_from_en(parseFloat($(this).html()), false, false,  __currency_precision, true));
     });
-    //atock alert datatables
-    var stock_alert_table = $('#stock_alert_table').DataTable({
-        processing: true,
-        serverSide: true,
-        ordering: false,
-        searching: false,
-        dom: 'tirp',
-        buttons: [],
-        ajax: '/home/product-stock-alert',
-        fnDrawCallback: function(oSettings) {
-            __currency_convert_recursively($('#stock_alert_table'));
-        },
-    });
-    //payment dues datatables
-    var purchase_payment_dues_table = $('#purchase_payment_dues_table').DataTable({
-        processing: true,
-        serverSide: true,
-        ordering: false,
-        searching: false,
-        dom: 'tirp',
-        buttons: [],
-        ajax: '/home/purchase-payment-dues',
-        fnDrawCallback: function(oSettings) {
-            __currency_convert_recursively($('#purchase_payment_dues_table'));
-        },
-    });
-
-    //Sales dues datatables
-    var sales_payment_dues_table = $('#sales_payment_dues_table').DataTable({
-        processing: true,
-        serverSide: true,
-        ordering: false,
-        searching: false,
-        dom: 'tirp',
-        buttons: [],
-        ajax: '/home/sales-payment-dues',
-        fnDrawCallback: function(oSettings) {
-            __currency_convert_recursively($('#sales_payment_dues_table'));
-        },
-    });
+    // //atock alert datatables
+    // var stock_alert_table = $('#stock_alert_table').DataTable({
+    //     processing: true,
+    //     serverSide: true,
+    //     ordering: false,
+    //     searching: false,
+    //     dom: 'tirp',
+    //     buttons: [],
+    //     ajax: '/home/product-stock-alert',
+    //     fnDrawCallback: function(oSettings) {
+    //         __currency_convert_recursively($('#stock_alert_table'));
+    //     },
+    // });
+    // //payment dues datatables
+    // var purchase_payment_dues_table = $('#purchase_payment_dues_table').DataTable({
+    //     processing: true,
+    //     serverSide: true,
+    //     ordering: false,
+    //     searching: false,
+    //     dom: 'tirp',
+    //     buttons: [],
+    //     ajax: '/home/purchase-payment-dues',
+    //     fnDrawCallback: function(oSettings) {
+    //         __currency_convert_recursively($('#purchase_payment_dues_table'));
+    //     },
+    // });
+    //
+    // //Sales dues datatables
+    // var sales_payment_dues_table = $('#sales_payment_dues_table').DataTable({
+    //     processing: true,
+    //     serverSide: true,
+    //     ordering: false,
+    //     searching: false,
+    //     dom: 'tirp',
+    //     buttons: [],
+    //     ajax: '/home/sales-payment-dues',
+    //     fnDrawCallback: function(oSettings) {
+    //         __currency_convert_recursively($('#sales_payment_dues_table'));
+    //     },
+    // });
 
     //Stock expiry report table
     stock_expiry_alert_table = $('#stock_expiry_alert_table').DataTable({
