@@ -987,9 +987,18 @@ class SellPosDepositController extends Controller
                                 $join->on('AT.account_id', '=', 'accounts.id');
                                 $join->whereNull('AT.deleted_at');
                             })
+                                ->leftjoin( 'transactions as T',
+                                    'AT.transaction_id',
+                                    '=',
+                                    'T.id')
                                 ->where('accounts.id', $service_id)
-                                ->where('business_id', $business_id)
-                                ->select(['name', DB::raw("SUM( IF(AT.type='credit', amount, -1*amount) ) as balance")])
+                                ->where('accounts.business_id', $business_id)
+                                ->where(function ($q) {
+                                    $q->where('T.payment_status', '!=', 'cancelled');
+                                    $q->orWhere('T.payment_status', '=', null);
+                                })
+                                ->select(['name', \Illuminate\Support\Facades\DB::raw("SUM( IF( (accounts.shift_closed_at IS NULL OR AT.operation_date >= accounts.shift_closed_at) AND (!accounts.is_special_kiosk OR AT.sub_type IS NULL OR AT.sub_type != 'opening_balance'),  IF( AT.type='credit', AT.amount, -1*AT.amount), 0) )
+                     * (1 - accounts.is_special_kiosk * 2) as balance")])
                                 ->groupBy('accounts.id')->get()->first();
                             $msg .= "<br/>".$account->name.' = <span style="font-weight: 800;color: black;">'.number_format( $account->balance, 2, '.', '').'</span>';
                         }
