@@ -31,7 +31,7 @@ return [
     'role_deleted' => 'Role deleted successfully',
     'manage_users' => 'Manage users',
     'all_users' => 'All users',
-    'name' =>'IC Name',
+    'name' =>'Username',
     'email' =>'Email',
     'rp_name' => 'Wallet Point',
     'role' => 'Role',

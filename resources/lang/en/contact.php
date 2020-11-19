@@ -15,7 +15,7 @@ return [
     'name' => 'Name',
     'contact_id' => 'Contact ID',
     'remark' => 'Remark',
-    'contact' => 'Contact',
+    'contact' => 'Contact No.',
     'manage_your_contact' => 'Manage your :contacts',
     'all_your_contact' => 'All your :contacts',
     'add_contact' => 'Add a new contact',
