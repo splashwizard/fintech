@@ -126,106 +126,106 @@ class HomeController extends Controller
         }
 
         //Get sell for indivisual locations
-        $all_locations = BusinessLocation::forDropdown($business_id);
-        $location_sells = [];
-        $sells_by_location = $this->transactionUtil->getSellsLast30Days($business_id, true);
-        foreach ($all_locations as $loc_id => $loc_name) {
-            $values = [];
-            foreach ($dates as $date) {
-                $sell = $sells_by_location->first(function ($item) use ($loc_id, $date) {
-                    return $item->date == $date &&
-                        $item->location_id == $loc_id;
-                });
-                
-                if (!empty($sell)) {
-                    $values[] = $sell->total_sells;
-                } else {
-                    $values[] = 0;
-                }
-            }
-            $location_sells[$loc_id]['loc_label'] = $loc_name;
-            $location_sells[$loc_id]['values'] = $values;
-        }
-        $sells_chart_1 = Charts::multi('line', 'highcharts')
-                            ->title(' ')
-                            ->template('material')
-                            ->labels($labels)
-                            ->elementLabel(__('home.total_sells', ['currency' => $currency->code]));
+//        $all_locations = BusinessLocation::forDropdown($business_id);
+//        $location_sells = [];
+//        $sells_by_location = $this->transactionUtil->getSellsLast30Days($business_id, true);
+//        foreach ($all_locations as $loc_id => $loc_name) {
+//            $values = [];
+//            foreach ($dates as $date) {
+//                $sell = $sells_by_location->first(function ($item) use ($loc_id, $date) {
+//                    return $item->date == $date &&
+//                        $item->location_id == $loc_id;
+//                });
+//
+//                if (!empty($sell)) {
+//                    $values[] = $sell->total_sells;
+//                } else {
+//                    $values[] = 0;
+//                }
+//            }
+//            $location_sells[$loc_id]['loc_label'] = $loc_name;
+//            $location_sells[$loc_id]['values'] = $values;
+//        }
+//        $sells_chart_1 = Charts::multi('line', 'highcharts')
+//                            ->title(' ')
+//                            ->template('material')
+//                            ->labels($labels)
+//                            ->elementLabel(__('home.total_sells', ['currency' => $currency->code]));
+//
+//        if (!empty($location_sells)) {
+//            foreach ($location_sells as $location_sell) {
+//                $sells_chart_1->dataset($location_sell['loc_label'], $location_sell['values']);
+//            }
+//        }
+//
+//        if (count($all_locations) > 1) {
+//            $sells_chart_1->dataset(__('report.all_locations'), $all_sell_values);
+//        }
 
-        if (!empty($location_sells)) {
-            foreach ($location_sells as $location_sell) {
-                $sells_chart_1->dataset($location_sell['loc_label'], $location_sell['values']);
-            }
-        }
-
-        if (count($all_locations) > 1) {
-            $sells_chart_1->dataset(__('report.all_locations'), $all_sell_values);
-        }
-
-        //Chart for sells this financial year
-        $sells_this_fy = $this->transactionUtil->getSellsCurrentFy($business_id, $fy['start'], $fy['end']);
-
-        $labels = [];
-        $values = [];
-
-        $months = [];
-        $date = strtotime($fy['start']);
-        $last   = date('m-Y', strtotime($fy['end']));
-
-        $fy_months = [];
-        do {
-            $month_year = date('m-Y', $date);
-            $fy_months[] = $month_year;
-
-            $month_number = date('m', $date);
-
-            $labels[] = \Carbon::createFromFormat('m-Y', $month_year)
-                            ->format('M-Y');
-            $date = strtotime('+1 month', $date);
-
-            if (!empty($sells_this_fy[$month_year])) {
-                $values[] = $sells_this_fy[$month_year];
-            } else {
-                $values[] = 0;
-            }
-        } while ($month_year != $last);
-
-        $fy_sells_by_location = $this->transactionUtil->getSellsCurrentFy($business_id, $fy['start'], $fy['end'], true);
-        $fy_sells_by_location_data = [];
-
-        foreach ($all_locations as $loc_id => $loc_name) {
-            $values_data = [];
-            foreach ($fy_months as $month) {
-                $sell = $fy_sells_by_location->first(function ($item) use ($loc_id, $month) {
-                    return $item->yearmonth == $month &&
-                        $item->location_id == $loc_id;
-                });
-                
-                if (!empty($sell)) {
-                    $values_data[] = $sell->total_sells;
-                } else {
-                    $values_data[] = 0;
-                }
-            }
-            $fy_sells_by_location_data[$loc_id]['loc_label'] = $loc_name;
-            $fy_sells_by_location_data[$loc_id]['values'] = $values_data;
-        }
-        $sells_chart_2 = Charts::multi('line', 'highcharts')
-                            ->title(__(' '))
-                            ->labels($labels)
-                            ->template('material')
-                            ->elementLabel(__(
-                                'home.total_sells',
-                                ['currency' => $currency->code]
-                            ));
-        if (!empty($fy_sells_by_location_data)) {
-            foreach ($fy_sells_by_location_data as $location_sell) {
-                $sells_chart_2->dataset($location_sell['loc_label'], $location_sell['values']);
-            }
-        }
-        if (count($all_locations) > 1) {
-            $sells_chart_2->dataset(__('report.all_locations'), $values);
-        }
+//        //Chart for sells this financial year
+//        $sells_this_fy = $this->transactionUtil->getSellsCurrentFy($business_id, $fy['start'], $fy['end']);
+//
+//        $labels = [];
+//        $values = [];
+//
+//        $months = [];
+//        $date = strtotime($fy['start']);
+//        $last   = date('m-Y', strtotime($fy['end']));
+//
+//        $fy_months = [];
+//        do {
+//            $month_year = date('m-Y', $date);
+//            $fy_months[] = $month_year;
+//
+//            $month_number = date('m', $date);
+//
+//            $labels[] = \Carbon::createFromFormat('m-Y', $month_year)
+//                            ->format('M-Y');
+//            $date = strtotime('+1 month', $date);
+//
+//            if (!empty($sells_this_fy[$month_year])) {
+//                $values[] = $sells_this_fy[$month_year];
+//            } else {
+//                $values[] = 0;
+//            }
+//        } while ($month_year != $last);
+//
+//        $fy_sells_by_location = $this->transactionUtil->getSellsCurrentFy($business_id, $fy['start'], $fy['end'], true);
+//        $fy_sells_by_location_data = [];
+//
+//        foreach ($all_locations as $loc_id => $loc_name) {
+//            $values_data = [];
+//            foreach ($fy_months as $month) {
+//                $sell = $fy_sells_by_location->first(function ($item) use ($loc_id, $month) {
+//                    return $item->yearmonth == $month &&
+//                        $item->location_id == $loc_id;
+//                });
+//
+//                if (!empty($sell)) {
+//                    $values_data[] = $sell->total_sells;
+//                } else {
+//                    $values_data[] = 0;
+//                }
+//            }
+//            $fy_sells_by_location_data[$loc_id]['loc_label'] = $loc_name;
+//            $fy_sells_by_location_data[$loc_id]['values'] = $values_data;
+//        }
+//        $sells_chart_2 = Charts::multi('line', 'highcharts')
+//                            ->title(__(' '))
+//                            ->labels($labels)
+//                            ->template('material')
+//                            ->elementLabel(__(
+//                                'home.total_sells',
+//                                ['currency' => $currency->code]
+//                            ));
+//        if (!empty($fy_sells_by_location_data)) {
+//            foreach ($fy_sells_by_location_data as $location_sell) {
+//                $sells_chart_2->dataset($location_sell['loc_label'], $location_sell['values']);
+//            }
+//        }
+//        if (count($all_locations) > 1) {
+//            $sells_chart_2->dataset(__('report.all_locations'), $values);
+//        }
 
         //Get Dashboard widgets from module
         $module_widgets = $this->moduleUtil->getModuleData('dashboard_widget');
@@ -295,7 +295,8 @@ class HomeController extends Controller
         });
         $service_accounts = $service_accounts_sql->get();
 
-        return view('home.index', compact('date_filters', 'sells_chart_1', 'sells_chart_2', 'widgets', 'bank_accounts', 'service_accounts', 'total_bank'));
+//        return view('home.index', compact('date_filters', 'sells_chart_1', 'sells_chart_2', 'widgets', 'bank_accounts', 'service_accounts', 'total_bank'));
+        return view('home.index', compact('date_filters', 'widgets', 'bank_accounts', 'service_accounts', 'total_bank'));
     }
 
     /**

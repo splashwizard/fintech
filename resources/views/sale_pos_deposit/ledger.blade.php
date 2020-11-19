@@ -5,6 +5,7 @@
 	#ledger_table tbody tr.unclaimed:hover{
 		background-color: rgb(220,255,220);
 	}
+
 	#ledger_table tr.unclaimed{
 		color: dodgerblue;
 	}

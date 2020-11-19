@@ -20,11 +20,11 @@ return [
     'service_list' => 'Kiosk List',
     'opening_balance' => 'Opening Balance',
     'account_book' => 'Account Book',
-    'credit' => 'Credit',
+    'credit' => '(Credit)<br>Deposit',
     'bonus' => 'Bonus',
-    'debit' => 'Debit',
-    'service_credit' => 'Kiosk Credit',
-    'service_debit' => 'Kiosk Debit',
+    'debit' => '(Debit)<br>Withdraw',
+    'service_credit' => '(Kiosk Credit)<br> Game Out',
+    'service_debit' => '(Kiosk Debit)<br> Game In',
     'kiosk_in' => 'Kiosk In',
     'kiosk_out' => 'Kiosk Out',
     'free_credit' => 'Free Credit',
@@ -76,5 +76,6 @@ return [
     'account_linked_success' => 'Account linked successfully',
     'view_details' => 'View Details',
     'ref_detail' => 'Ref Detail',
-    'ticket' => 'Ticket #'
+    'ticket' => 'Item No.',
+    'pos' => 'POS No.'
 ];

@@ -2,7 +2,7 @@
 	<thead>
 		<tr>
 			<th>@lang('lang_v1.date')</th>
-			<th>@lang('purchase.ref_no')</th>
+			<th>@lang('account.pos')</th>
 {{--			<th>@lang('lang_v1.type')</th>--}}
 {{--			<th>@lang('sale.location')</th>--}}
 {{--			<th>@lang('sale.payment_status')</th>--}}

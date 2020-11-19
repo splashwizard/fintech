@@ -216,25 +216,25 @@
       @endforeach
     @endif
   	<!-- sales chart start -->
-  	<div class="row" style="display: none">
-  		<div class="col-sm-12">
-            @component('components.widget', ['class' => 'box-primary', 'title' => __('home.sells_last_30_days')])
-              {!! $sells_chart_1->html() !!}
-            @endcomponent
-  		</div>
-  	</div>
+{{--  	<div class="row" style="display: none">--}}
+{{--  		<div class="col-sm-12">--}}
+{{--            @component('components.widget', ['class' => 'box-primary', 'title' => __('home.sells_last_30_days')])--}}
+{{--              {!! $sells_chart_1->html() !!}--}}
+{{--            @endcomponent--}}
+{{--  		</div>--}}
+{{--  	</div>--}}
     @if(!empty($widgets['after_sales_last_30_days']))
       @foreach($widgets['after_sales_last_30_days'] as $widget)
         {!! $widget !!}
       @endforeach
     @endif
-  	<div class="row" style="display: none">
-  		<div class="col-sm-12">
-            @component('components.widget', ['class' => 'box-primary', 'title' => __('home.sells_current_fy')])
-              {!! $sells_chart_2->html() !!}
-            @endcomponent
-  		</div>
-  	</div>
+{{--  	<div class="row" style="display: none">--}}
+{{--  		<div class="col-sm-12">--}}
+{{--            @component('components.widget', ['class' => 'box-primary', 'title' => __('home.sells_current_fy')])--}}
+{{--              {!! $sells_chart_2->html() !!}--}}
+{{--            @endcomponent--}}
+{{--  		</div>--}}
+{{--  	</div>--}}
   	<!-- sales chart end -->
     @if(!empty($widgets['after_sales_current_fy']))
       @foreach($widgets['after_sales_current_fy'] as $widget)
@@ -346,7 +346,7 @@
 @section('javascript')
     <script src="{{ asset('AdminLTE/plugins/chartjs/Chart.js') }}"></script>
     <script src="{{ asset('js/home.js?v=' . $asset_v) }}"></script>
-    {!! Charts::assets(['highcharts']) !!}
+{{--    {!! Charts::assets(['highcharts']) !!}--}}
 {{--    {!! $sells_chart_1->script() !!}--}}
 {{--    {!! $sells_chart_2->script() !!}--}}
 @endif
