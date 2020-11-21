@@ -15,6 +15,8 @@ use Illuminate\Http\Request;
 use jeremykenedy\LaravelLogger\App\Http\Traits\ActivityLogger;
 use Illuminate\Support\Facades\Hash;
 use Modules\Essentials\Notifications\EditCustomerNotification;
+use Illuminate\Support\Str;
+
 
 
 class AuthController extends Controller
@@ -47,12 +49,17 @@ class AuthController extends Controller
         }
         if(Hash::check($input['password'], Contact::where('name', $input['name'])->first()->password)){
             $row = Contact::where('name', $input['name'])->first();
+
+            $token = Str::random(60);
+            $row->api_token = hash('sha256', $token);
+            $row->save();
             $output = ['success' => true,
                 'msg' => "Login successfully",
                 'data' => [
+                    'token' => $token,
                     'business_id' => $row->business_id,
                     'user_id' => $row->id,
-                    "username" => $row->username,
+                    "username" => $row->name,
                     "mobile" => json_decode($row->mobile),
                     "email" => $row->email,
                     "birthday" => $row->birthday,

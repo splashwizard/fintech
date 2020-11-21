@@ -20,4 +20,6 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 Route::post('/login', 'API\AuthController@login');
 Route::post('/signUp', 'API\AuthController@signUp');
-Route::post('/updateUser', 'API\AuthController@updateUser');
+Route::middleware('auth:api')->group(function(){
+    Route::post('/updateUser', 'API\AuthController@updateUser');
+});

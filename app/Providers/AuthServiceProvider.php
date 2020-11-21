@@ -2,8 +2,11 @@
 
 namespace App\Providers;
 
+use App\Contact;
+use Illuminate\Auth\TokenGuard;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Auth;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -37,6 +40,11 @@ class AuthServiceProvider extends ServiceProvider
                     return true;
                 }
             }
+        });
+        Auth::viaRequest("api-token", function ($request) {
+            if(empty($request->token))
+                return null;
+            return Contact::where('api_token', hash('sha256', $request->token))->first();
         });
     }
 }
