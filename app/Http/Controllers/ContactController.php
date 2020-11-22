@@ -178,7 +178,7 @@ class ContactController extends Controller
         $query = Contact::leftjoin('transactions AS t', 'contacts.id', '=', 't.contact_id')
             ->leftjoin('customer_groups AS cg', 'contacts.customer_group_id', '=', 'cg.id')
             ->leftjoin('memberships AS m', 'contacts.membership_id', '=', 'm.id')
-            ->join('transaction_payments as tp',
+            ->leftjoin('transaction_payments as tp',
                 'tp.transaction_id',
                 '=',
                 't.id')
@@ -194,10 +194,8 @@ class ContactController extends Controller
             'total_rp', 'cg.name as customer_group', 'm.name as membership', 'city', 'state', 'country', 'landmark', 'mobile', 'contacts.id', 'is_default',
             DB::raw( 'DATE_FORMAT(STR_TO_DATE(birthday, "%Y-%m-%d"), "%d/%m") as birthday'),
             DB::raw("SUM(IF(card_type = 'credit' && method= 'bank_transfer', tp.amount, 0)) as total_invoice"),
-            DB::raw("SUM(IF(t.type = 'sell' AND t.status = 'final', (SELECT SUM(IF(is_return = 1,-1*amount,amount)) FROM transaction_payments WHERE transaction_payments.transaction_id=t.id), 0)) as invoice_received"),
 //                        DB::raw("SUM(IF( t.type = 'sell_return' AND (SELECT transaction_payments.method FROM transaction_payments WHERE transaction_payments.transaction_id=t.id) = 'bank_transfer', final_total, 0)) as total_sell_return"),
             DB::raw("SUM(IF(card_type = 'debit' && method != 'service_transfer', tp.amount, 0)) as total_sell_return"),
-            DB::raw("SUM(IF(t.type = 'sell_return', (SELECT SUM(amount) FROM transaction_payments WHERE transaction_payments.transaction_id=t.id), 0)) as sell_return_paid"),
             DB::raw("SUM(IF(t.type = 'opening_balance', final_total, 0)) as opening_balance"),
             DB::raw("SUM(IF(t.type = 'opening_balance', (SELECT SUM(IF(is_return = 1,-1*amount,amount)) FROM transaction_payments WHERE transaction_payments.transaction_id=t.id), 0)) as opening_balance_paid")
             ])
@@ -211,12 +209,10 @@ class ContactController extends Controller
             ->addColumn(
                 'due',
                 '<span class="display_currency contact_due" data-orig-value="{{$total_invoice}}" data-highlight=true>{{($total_invoice)}}</span>'
-//                '<span class="display_currency contact_due" data-orig-value="{{$total_invoice - $invoice_received}}" data-currency_symbol=true data-highlight=true>{{($total_invoice - $invoice_received)}}</span>'
             )
             ->addColumn(
                 'return_due',
                 '<span class="display_currency return_due" data-orig-value="{{$total_sell_return}}" data-highlight=false>{{$total_sell_return}}</span>'
-//                '<span class="display_currency return_due" data-orig-value="{{$total_sell_return - $sell_return_paid}}" data-currency_symbol=true data-highlight=false>{{$total_sell_return - $sell_return_paid }}</span>'
             )
             ->addColumn(
                 'action',
@@ -248,15 +244,13 @@ class ContactController extends Controller
             ->removeColumn('total_invoice')
             ->removeColumn('opening_balance')
             ->removeColumn('opening_balance_paid')
-            ->removeColumn('invoice_received')
             ->removeColumn('state')
             ->removeColumn('country')
             ->removeColumn('city')
             ->removeColumn('type')
             ->removeColumn('id')
             ->removeColumn('is_default')
-            ->removeColumn('total_sell_return')
-            ->removeColumn('sell_return_paid');
+            ->removeColumn('total_sell_return');
         $reward_enabled = (request()->session()->get('business.enable_rp') == 1) ? true : false;
         $raw = ['due', 'return_due', 'action'];
 //        if (!$reward_enabled) {

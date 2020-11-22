@@ -177,14 +177,14 @@ $(document).ready(function() {
                             dangerMode: true,
                         }).then(willProceed => {
                             if(willProceed){
-                                window.location.href = "/sells";
+                                window.location.href = "/deposit";
                             }
                         });
                     } else
-                        window.location.href = "/sells";
+                        window.location.href = "/deposit";
                 }
             });
-        } else window.location.href = "/sells";
+        } else window.location.href = "/deposit";
     }
 
     $('.btn-back').click(function (e) {

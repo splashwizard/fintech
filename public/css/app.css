@@ -681,3 +681,24 @@ table.table-text-center td, table.table-text-center th{
     background-repeat: no-repeat;
     background-position: center;
 }
+
+.load-new-trans{
+    padding: 15px;
+    position: relative;
+    color: #fff;
+}
+
+.load-new-trans:hover{
+    background: rgb(198,67,51);
+    color: #fff;
+}
+
+.load-new-trans span{
+    position: absolute;
+    top: 9px;
+    right: 7px;
+    text-align: center;
+    font-size: 9px;
+    padding: 2px 3px;
+    line-height: .9;
+}

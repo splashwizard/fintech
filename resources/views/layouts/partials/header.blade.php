@@ -34,6 +34,10 @@
   <!-- Navbar Right Menu -->
     <div class="navbar-custom-menu">
 
+      <a href="{{action('NewTransactionController@index')}}"  class="pull-left load-new-trans">
+        <i class="fa fa-book"></i>
+        <span class="label label-warning new_trans_count">6</span>
+      </a>
       @if(Module::has('Essentials'))
         @includeIf('essentials::layouts.partials.header_part')
       @endif
