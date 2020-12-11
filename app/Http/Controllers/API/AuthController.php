@@ -77,7 +77,7 @@ class AuthController extends Controller
     public function signUp(Request $request) {
         $business_id = 21;
 
-        $required_fields = ['name', 'email', 'password' , 'birthday', 'mobile', 'country_code_id'];
+        $required_fields = ['name', 'password' , 'mobile'];
         $input = $request->only($required_fields);
 
         foreach ($required_fields as $key) {

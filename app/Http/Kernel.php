@@ -63,7 +63,8 @@ class Kernel extends HttpKernel
         'SetSessionData' => \App\Http\Middleware\SetSessionData::class,
         'IsInstalled' => \App\Http\Middleware\IsInstalled::class,
         'bootstrap' => \App\Http\Middleware\Callbacks::class,
-        'EcomApi' => \App\Http\Middleware\EcomApi::class
+        'EcomApi' => \App\Http\Middleware\EcomApi::class,
+        'cors' => \App\Http\Middleware\Cors::class,
     ];
     /**
      * The priority-sorted list of middleware.
