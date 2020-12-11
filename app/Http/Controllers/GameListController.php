@@ -7,6 +7,7 @@ use App\AccountTransaction;
 use App\BusinessLocation;
 use App\ExpenseCategory;
 use App\Promotion;
+use App\PromotionCollection;
 use App\PromotionLang;
 use App\Transaction;
 use App\User;
@@ -22,7 +23,7 @@ use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 use \jeremykenedy\LaravelLogger\App\Http\Traits\ActivityLogger;
 
-class PromotionController extends Controller
+class GameListController extends Controller
 {
     protected $moduleUtil;
     protected $transactionUtil;
@@ -54,15 +55,15 @@ class PromotionController extends Controller
                 'promotions.*',
                 'promotion_id as no',
                 'updated_at as last_modified_on'
-            )
-                ->where('type', 'promo')->groupBy('promotion_id')
+            )->where('type', 'jewellery')
+                ->groupBy('promotion_id')
             ->orderBy('promotion_id', 'ASC');
 
             
             return Datatables::of($expenses)
                 ->addColumn(
                     'action',
-                    '<a href="{{action(\'PromotionController@edit\', [$promotion_id])}}" type="button" class="btn btn-info dropdown-toggle btn-xs">
+                    '<a href="{{action(\'GameListController@edit\', [$promotion_id])}}" type="button" class="btn btn-info dropdown-toggle btn-xs">
                         Edit
                     </a>'
                 )
@@ -100,7 +101,7 @@ class PromotionController extends Controller
 
         $business_locations = BusinessLocation::forDropdown($business_id, true);
 
-        return view('promotion.index')
+        return view('game_list.index')
             ->with(compact('categories', 'business_locations', 'users'));
     }
 
@@ -112,9 +113,10 @@ class PromotionController extends Controller
     public function create()
     {
         $promotion_langs = PromotionLang::forDropdown([], false);
+        $promotion_collections = PromotionCollection::forDropdown( false);
         
-        return view('promotion.create')
-            ->with(compact('promotion_langs'));
+        return view('game_list.create')
+            ->with(compact('promotion_langs', 'promotion_collections'));
     }
 
     /**
@@ -132,7 +134,7 @@ class PromotionController extends Controller
                 $input['show'] = 'active';
             else
                 $input['show'] = 'inactive';
-            $input['type'] = 'promo';
+            $input['type'] = 'jewellery';
             $input['promotion_id'] = $this->promotionUtil->generatePromotionID();
             if ($request->hasFile('desktop_imageUpload')){
                 $input['desktop_image'] = '/uploads/promotion_images/'.time().'.'.$request->desktop_imageUpload->getClientOriginalName();
@@ -155,7 +157,7 @@ class PromotionController extends Controller
                         ];
         }
 
-        return redirect('promotions')->with('status', $output);
+        return redirect('game_list')->with('status', $output);
     }
 
     /**
@@ -182,8 +184,9 @@ class PromotionController extends Controller
             ->orderBy('lang_id', 'ASC')
             ->select('promotions.*', 'promotion_langs.lang as lang')->get();
         $promotion_langs = PromotionLang::forDropdown([], false);
-        return view('promotion.edit')
-            ->with(compact('promotions', 'id', 'promotion_langs'));
+        $promotion_collections = PromotionCollection::forDropdown(false);
+        return view('game_list.edit')
+            ->with(compact('promotions', 'id', 'promotion_langs', 'promotion_collections'));
     }
 
     public function getTab($promotion_id, $form_index)
@@ -194,7 +197,8 @@ class PromotionController extends Controller
             $selected_langs[] = $row->lang_id;
         }
         $promotion_langs = PromotionLang::forDropdown($selected_langs, false);
-        return ['html' => view('promotion.form')->with(['form_index' => $form_index, 'promotion' => null, 'promotion_langs' => $promotion_langs])->render() ];
+        $promotion_collections = PromotionCollection::forDropdown(false);
+        return ['html' => view('game_list.form')->with(['form_index' => $form_index, 'promotion' => null, 'promotion_langs' => $promotion_langs, 'promotion_collections' => $promotion_collections])->render() ];
     }
 
     /**
@@ -262,7 +266,7 @@ class PromotionController extends Controller
 //                        ];
 //        }
 //
-        return redirect('promotions')->with('status', $output);
+        return redirect('game_list')->with('status', $output);
     }
 
     /**

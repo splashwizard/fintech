@@ -252,6 +252,8 @@ Route::middleware(['IsInstalled', 'auth', 'SetSessionData', 'language', 'timezon
     Route::resource('promotions', 'PromotionController');
     Route::get('/promotions/{promotion_id}/getTab/{form_index}', 'PromotionController@getTab');
 
+    Route::resource('game_list', 'GameListController');
+    Route::get('/game_list/{promotion_id}/getTab/{form_index}', 'GameListController@getTab');
     //Notices...
     Route::resource('notices', 'NoticeController');
     Route::get('/notices/{notice_id}/getTab/{form_index}', 'NoticeController@getTab');

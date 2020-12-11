@@ -751,9 +751,9 @@
 
                 <li class="treeview {{  in_array( $request->segment(1), ['promotions']) ? 'active active-sub' : '' }}">
                     <a href="#"><span> 3. @lang('promotion.promotions')</span>
-                        <span class="pull-right-container">
-				  <i class="fa fa-angle-left pull-right"></i>
-				</span>
+                    <span class="pull-right-container">
+                      <i class="fa fa-angle-left pull-right"></i>
+                    </span>
                     </a>
                     <ul class="treeview-menu">
                         <li class="{{ $request->segment(1) == 'promotions' && empty($request->segment(2)) ? 'active' : '' }}">
@@ -779,6 +779,20 @@
                     </ul>
                 </li>
 
+                <li class="treeview {{  in_array( $request->segment(1), ['game_list']) ? 'active active-sub' : '' }}">
+                    <a href="#"><span> 5. @lang('game_list.game_list')</span>
+                        <span class="pull-right-container">
+                      <i class="fa fa-angle-left pull-right"></i>
+                    </span>
+                    </a>
+                    <ul class="treeview-menu">
+                        <li class="{{ $request->segment(1) == 'game_list' && empty($request->segment(2)) ? 'active' : '' }}">
+                            <a href="{{action('GameListController@index')}}"><i class="fa fa-list"></i> 5.1 @lang('lang_v1.list_games')</a></li>
+                        <li class="{{ $request->segment(1) == 'game_list' && $request->segment(2) == 'create' ? 'active' : '' }}">
+                            <a href="{{action('GameListController@create')}}"><i class="fa fa-plus-circle"></i> 5.2 @lang('game_list.add_game')
+                            </a></li>
+                    </ul>
+                </li>
         </ul>
 
         <!-- /.sidebar-menu -->

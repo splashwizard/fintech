@@ -47,6 +47,7 @@ return [
     'list_products' => 'List Products',
     'list_expenses' => 'List Expenses',
     'list_promotions' => 'List Promotions',
+    'list_games' => 'List Games',
     'list_notices' => 'List Notices',
     'floating_message' => 'Floating Message',
     'page' => 'Page Content',
