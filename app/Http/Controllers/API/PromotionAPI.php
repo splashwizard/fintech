@@ -32,12 +32,23 @@ class PromotionAPI extends Controller
 
     public function promotions(Request $request) {
         $data = Promotion::join('promotion_langs', 'promotion_langs.id', 'promotions.lang_id')
-                ->select('promotion_id', 'lang_id', 'promotion_langs.lang','title', 'desktop_image', 'content', 'start_time', 'end_time', 'sequence', 'show')
+                ->join('promotion_collections', 'promotion_collections.id', 'promotions.collection_id')
+                ->where('lang_id', 1)
+                ->select('promotion_id AS id', 'type', 'title', 'desktop_image',
+                 'content AS description','start_time', 'end_time', 'sequence', 'show', 'promotion_collections.name AS collection')
                 ->orderBy('promotion_id', 'ASC')->get();
 
-        $output = ['success' => true,
-            'data' => $data
-        ];
+        $formatted_data = [];
+        foreach($data as $row){
+            $row['collection'] = [$row['collection']];
+            $row['images'] = [[
+                'src' => $row['desktop_image']
+            ]];
+            $row['sale'] = false; 
+            $row['new'] = false;
+            $formatted_data[] = $row;
+        }
+        $output = ['success' => true, 'data' => $data];
         return $output;
     }
 
