@@ -377,16 +377,15 @@ class HomeController extends Controller
                 $join->on('AT.account_id', '=', 'accounts.id');
                 $join->whereNull('AT.deleted_at');
             })
-                ->where('is_service', 1)
                 ->where('name', '!=', 'Bonus Account')
                 ->where('business_id', $business_id)
+                ->whereDate('AT.operation_date', '>=', $start)
+               ->whereDate('AT.operation_date', '<=', $end)
                 ->select(['name', 'account_number', 'accounts.note', 'accounts.id as account_id',
                     'is_closed', DB::raw("SUM( IF(AT.type='credit', amount, -1*amount) ) as balance")
 //                    , DB::raw("SUM( IF( AT.type='credit' AND (AT.sub_type IS NULL OR AT.`sub_type` != 'fund_transfer'), AT.amount, 0) ) as total_deposit")
                     , DB::raw("SUM( IF( AT.type='credit' AND (AT.sub_type IS NULL OR AT.`sub_type` != 'fund_transfer'), AT.amount, 0) ) as total_deposit")
                     , DB::raw("SUM( IF( AT.type='debit' AND (AT.sub_type IS NULL OR AT.`sub_type` != 'fund_transfer'), AT.amount, 0) ) as total_withdraw")]);
-//            $bank_accounts_sql->whereDate('AT.operation_date', '>=', $start)
-//                ->whereDate('AT.operation_date', '<=', $end);
 
             $bank_accounts = $bank_accounts_sql->get();
             $output['total_deposit'] = $bank_accounts[0]->total_deposit;
@@ -406,6 +405,7 @@ class HomeController extends Controller
                 $join->whereNull('AT.deleted_at');
             })
                 ->where('is_service', 0)
+                ->where('accounts.name', '!=', 'Bonus Account')
                 ->where('is_closed', 0)
                 ->where('business_id', $business_id)
 //                ->whereBetween(\Illuminate\Support\Facades\DB::raw('date(AT.operation_date)'), [$start, $end])

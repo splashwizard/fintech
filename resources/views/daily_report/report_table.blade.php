@@ -9,10 +9,10 @@
         </tr>
         <tr>
             @foreach($banks_group_obj as $banks_obj)
+                <th>Total</th>
                 @foreach($banks_obj as $bank)
                     <th>{{$bank}}</th>
                 @endforeach
-                <th>Total</th>
             @endforeach
         </tr>
         </thead>
@@ -25,13 +25,6 @@
                         $total = 0;
                     @endphp
                     @foreach($banks_obj as $bank_id => $bank_name)
-                        @if(!in_array($bank_column, array('in_ticket', 'out_ticket', 'currency')))
-                            <td><span class="display_currency" data-orig-value="{{isset($bank_obj[$bank_id]) ? $bank_obj[$bank_id]: 0}}" data-highlight=true>{{(isset($bank_obj[$bank_id]) ? $bank_obj[$bank_id]: 0)}}</span></td>
-                        @elseif($bank_column == 'currency')
-                            <td>{{ isset($bank_obj[$bank_id]) ? $bank_obj[$bank_id]: null}}</td>
-                        @else
-                            <td>{{ isset($bank_obj[$bank_id]) ? $bank_obj[$bank_id]: 0}}</td>
-                        @endif
                         @php
                             if($bank_column != 'currency')
                                 $total += (isset($bank_obj[$bank_id]) ? $bank_obj[$bank_id]: 0);
@@ -39,13 +32,22 @@
                     @endforeach
                     @if($bank_column == 'currency')
                         <td></td>
-                    @elseif(in_array($bank_column, array('in_ticket', 'out_ticket')))
+                    @elseif(in_array($bank_column, array('in_ticket', 'active_topup', 'out_ticket', 'active_withdraw')))
                         <td>{{$total}}</td>
                     @elseif($total == 0 && $bank_column == 'expenses')
                         <td id="expense_link_td"><span class="display_currency sell_amount" data-orig-value="{{$total}}" data-highlight=true>{{$total}}</span></td>
                     @else
                         <td><span class="display_currency sell_amount" data-orig-value="{{$total}}" data-highlight=true>{{$total}}</span></td>
                     @endif
+                    @foreach($banks_obj as $bank_id => $bank_name)
+                        @if(!in_array($bank_column, array('in_ticket', 'active_topup', 'out_ticket', 'active_withdraw')))
+                            <td><span class="display_currency" data-orig-value="{{isset($bank_obj[$bank_id]) ? $bank_obj[$bank_id]: 0}}" data-highlight=true>{{(isset($bank_obj[$bank_id]) ? $bank_obj[$bank_id]: 0)}}</span></td>
+                        @elseif($bank_column == 'currency')
+                            <td>{{ isset($bank_obj[$bank_id]) ? $bank_obj[$bank_id]: null}}</td>
+                        @else
+                            <td>{{ isset($bank_obj[$bank_id]) ? $bank_obj[$bank_id]: 0}}</td>
+                        @endif
+                    @endforeach
                 @endforeach
             </tr>
             @endforeach

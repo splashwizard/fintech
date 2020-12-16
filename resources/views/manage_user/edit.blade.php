@@ -101,7 +101,7 @@
                             <div class="input-group-addon">
                                 <i class="fa fa-laptop"></i>
                             </div>
-                            <input type="text" class="form-control" name="ipaddr_restrict" data-inputmask="'alias': 'ip'" data-mask="">
+                            <input type="text" class="form-control" name="ipaddr_restrict" data-inputmask="'alias': 'ip'" data-mask="" value='{{$user->ipaddr_restrict}}'>
                         </div>
                     </div>
                 </div>

@@ -33,7 +33,7 @@ class DailyReportController extends Controller
         $this->transactionUtil = $transactionUtil;
         $this->moduleUtil = $moduleUtil;
         $this->bank_columns = ['currency' => 'Currency', 'balance' => 'Balance B/F', 'deposit' => 'In', 'withdraw' => 'Out', 'service' => 'Service', 'transfer_in' => 'Transfer In', 'transfer_out' => 'Transfer Out', 'kiosk' => 'Kiosk', 'back' => 'Cancel',
-                            'in_ticket' => 'In Ticket', 'out_ticket' => 'Out Ticket', 'overall' => 'Overall Total', 'win_loss' => 'Win/Loss', 'expenses' => 'Expenses', 'unclaim' => 'Unclaim'];
+                            'in_ticket' => 'In Ticket','active_topup' => 'Active Top up', 'out_ticket' => 'Out Ticket', 'active_withdraw' => 'Active Withdraw', 'overall' => 'Overall Total', 'win_loss' => 'Win/Loss', 'expenses' => 'Expenses', 'unclaim' => 'Unclaim'];
         $this->service_columns = ['balance' => 'Balance B/F', 'deposit' => 'In', 'withdraw' => 'Out', 'bonus' => 'Basic Bonus', 'luckydraw' => 'Luckydraw', 'free_credit' => 'Free Credit', 'advance_credit' => 'Advance credit', 'transfer_in' => 'Transfer + ', 'transfer_out' => 'Transfer - '];
     }
 
@@ -159,9 +159,42 @@ class DailyReportController extends Controller
             ->where('transactions.status', 'final')
             ->where('accounts.is_service', 0)
             ->whereDate('transactions.transaction_date', '>=', $start)
-                        ->whereDate('transactions.transaction_date', '<=', $end)
+            ->whereDate('transactions.transaction_date', '<=', $end)
             ->groupBy('accounts.id')
             ->select('accounts.id as account_id', DB::raw("COUNT(transactions.id) as in_ticket"))->get();
+        foreach ($sells as $row) {
+            $bank_accounts_obj['in_ticket'][$row['account_id']] = $row['in_ticket'];
+        }
+        $sells = Transaction::leftJoin('transaction_payments as tp', 'transactions.id', '=', 'tp.transaction_id')
+        ->leftJoin('accounts', 'tp.account_id', '=', 'accounts.id')
+        ->where('transactions.business_id', $business_id)
+        ->where('transactions.type', 'sell')
+        ->where('transactions.status', 'final')
+        ->where('accounts.is_service', 0)
+        ->whereDate('transactions.transaction_date', '>=', $start)
+        ->whereDate('transactions.transaction_date', '<=', $end)
+        ->groupBy('accounts.id')
+        ->select('accounts.id as account_id', DB::raw("COUNT(DISTINCT transactions.contact_id) as active_topup"))->get();
+        foreach ($sells as $row) {
+            $bank_accounts_obj['active_topup'][$row['account_id']] = $row['active_topup'];
+        }
+
+        $withdraws = Transaction::leftJoin('transaction_payments as tp', 'transactions.id', '=', 'tp.transaction_id')
+            // ->leftJoin('accounts', 'tp.account_id', '=', 'accounts.id')
+            ->where('transactions.business_id', $business_id)
+            ->where('transactions.type', 'sell_return')
+            ->where('transactions.status', 'final')
+            ->where('tp.method', 'bank_transfer')
+            ->where('tp.card_type', 'debit')
+            // ->where('accounts.is_service', 0)
+            ->whereDate('transactions.transaction_date', '>=', $start)
+                        ->whereDate('transactions.transaction_date', '<=', $end)
+            ->groupBy('tp.account_id')
+            ->select('tp.account_id as account_id', DB::raw("COUNT(transactions.id) as out_ticket"))->get();
+        foreach ($withdraws as $row) {
+            $bank_accounts_obj['out_ticket'][$row['account_id']] = $row['out_ticket'];
+        }
+        
         $withdraws = Transaction::leftJoin('transaction_payments as tp', 'transactions.id', '=', 'tp.transaction_id')
             ->leftJoin('accounts', 'tp.account_id', '=', 'accounts.id')
             ->where('transactions.business_id', $business_id)
@@ -171,13 +204,11 @@ class DailyReportController extends Controller
             ->whereDate('transactions.transaction_date', '>=', $start)
                         ->whereDate('transactions.transaction_date', '<=', $end)
             ->groupBy('accounts.id')
-            ->select('accounts.id as account_id', DB::raw("COUNT(transactions.id) as out_ticket"))->get();
-        foreach ($sells as $row) {
-            $bank_accounts_obj['in_ticket'][$row['account_id']] = $row['in_ticket'];
-        }
+            ->select('accounts.id as account_id', DB::raw("COUNT(DISTINCT transactions.contact_id) as active_withdraw"))->get();
         foreach ($withdraws as $row) {
-            $bank_accounts_obj['out_ticket'][$row['account_id']] = $row['out_ticket'];
+            $bank_accounts_obj['active_withdraw'][$row['account_id']] = $row['active_withdraw'];
         }
+        
         // service charge 
         $withdraws = Transaction::join('transaction_payments as tp', 'transactions.id', '=', 'tp.transaction_id')
         ->leftJoin('accounts', 'tp.account_id', '=', 'accounts.id')
