@@ -33,11 +33,11 @@
                     @if($bank_column == 'currency')
                         <td></td>
                     @elseif(in_array($bank_column, array('in_ticket', 'active_topup', 'out_ticket', 'active_withdraw')))
-                        <td>{{$total}}</td>
+                        <td style="color:red">{{$total}}</td>
                     @elseif($total == 0 && $bank_column == 'expenses')
-                        <td id="expense_link_td"><span class="display_currency sell_amount" data-orig-value="{{$total}}" data-highlight=true>{{$total}}</span></td>
+                        <td id="expense_link_td"><span class="display_currency sell_amount" data-orig-value="{{$total}}" style="color:red" data-highlight=true>{{$total}}</span></td>
                     @else
-                        <td><span class="display_currency sell_amount" data-orig-value="{{$total}}" data-highlight=true>{{$total}}</span></td>
+                        <td><span class="display_currency sell_amount" data-orig-value="{{$total}}" style="color:red" data-highlight=true>{{$total}}</span></td>
                     @endif
                     @foreach($banks_obj as $bank_id => $bank_name)
                         @if(!in_array($bank_column, array('in_ticket', 'active_topup', 'out_ticket', 'active_withdraw')))

@@ -75,6 +75,21 @@ class DailyReportController extends Controller
 
         $start = request()->start_date;
         $end =  request()->end_date;
+        
+        // expenses
+        $expenses = Transaction::join('transaction_payments AS tp', 'transactions.id', '=','tp.transaction_id')
+                        ->leftJoin('accounts', 'tp.account_id', '=', 'accounts.id')
+                        ->where('transactions.business_id', $business_id)
+                        ->where('transactions.type', 'expense')
+                        ->whereDate('tp.paid_on', '>=', $start)
+                        ->whereDate('tp.paid_on', '<=', $end)
+                        ->select('accounts.id as account_id', DB::raw('SUM(transactions.final_total) as final_total'))
+                        ->groupBy('accounts.id')->get();
+
+        foreach ($expenses as $row) {
+            $bank_accounts_obj['expenses'][$row['account_id']] = $row['final_total'];
+        }
+
         // balance, deposit, withdraw
         $bank_accounts_sql = Account::leftjoin('account_transactions as AT', function ($join) {
             $join->on('AT.account_id', '=', 'accounts.id');
@@ -224,19 +239,6 @@ class DailyReportController extends Controller
 
         foreach ($withdraws as $row) {
             $bank_accounts_obj['service'][$row['account_id']] = $row['bank_charge'];
-        }
-        // expenses
-        $expenses = Transaction::join('transaction_payments AS tp', 'transactions.id', '=','tp.transaction_id')
-                        ->leftJoin('accounts', 'tp.account_id', '=', 'accounts.id')
-                        ->where('transactions.business_id', $business_id)
-                        ->where('transactions.type', 'expense')
-                        ->whereDate('tp.paid_on', '>=', $start)
-                        ->whereDate('tp.paid_on', '<=', $end)
-                        ->select('accounts.id as account_id', DB::raw('SUM(transactions.final_total) as final_total'))
-                        ->groupBy('accounts.id')->get();
-
-        foreach ($expenses as $row) {
-            $bank_accounts_obj['expenses'][$row['account_id']] = $row['final_total'];
         }
         // services start
 

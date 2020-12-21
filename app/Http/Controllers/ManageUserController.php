@@ -189,6 +189,10 @@ class ManageUserController extends Controller
             $role_id = $request->input('role');
             $role = Role::findOrFail($role_id);
             $user->assignRole($role->name);
+            if(strpos($role->name, 'Cashier') !== false){
+                $user->ipaddr_restrict = $user->business->ipaddr_restrict;
+                $user->save();
+            }
 
             //Assign selected contacts
             if ($user_details['selected_contacts'] == 1) {

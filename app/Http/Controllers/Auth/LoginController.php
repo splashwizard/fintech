@@ -112,7 +112,8 @@ class LoginController extends Controller
                   );
             }
             elseif($user->ipaddr_restrict && $user->ipaddr_restrict != $request->ip()) {
-//                print_r($_SERVER['REMOTE_ADDR']);exit;
+            //    print_r($_SERVER['REMOTE_ADDR']);exit;
+                // print_r($request->ip());exit;
                 \Auth::logout();
                 return redirect('/login')
                     ->with(

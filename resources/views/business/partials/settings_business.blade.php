@@ -136,5 +136,16 @@
                 </div>
             </div>
         </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                {!! Form::label('ipaddr_restrict', __( 'lang_v1.ipaddr_restrict' ) . ':') !!}
+                <div class="input-group">
+                    <div class="input-group-addon">
+                        <i class="fa fa-laptop"></i>
+                    </div>
+                    <input type="text" class="form-control" name="ipaddr_restrict" data-inputmask="'alias': 'ip'" data-mask="" value='{{$business->ipaddr_restrict}}'>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
