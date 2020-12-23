@@ -74,6 +74,34 @@ class AuthController extends Controller
         return $output;
     }
 
+
+    public function changePassword(Request $request) {
+        $required_fields = ['user_id', 'new_password'];
+        $input = $request->only($required_fields);
+        foreach ($required_fields as $key) {
+            if(!isset($input[$key])){
+                $output = ['success' => false,
+                    'msg' => $key.' is missing!'
+                ];
+                return $output;
+            }
+        }
+
+        $count = Contact::where('id', $input['user_id'])->count();
+        if($count == 0){
+            return ['success' => false,
+                'msg' => "The user doesn't exist"
+            ];
+        }
+        $row = Contact::find($input['user_id']);
+        $row->password = Hash::make($input['new_password']);
+        $row->save();
+        $output = ['success' => true,
+            'msg' => "Password changed successfully",
+        ];
+        return $output;
+    }
+
     public function signUp(Request $request) {
         $business_id = 21;
 

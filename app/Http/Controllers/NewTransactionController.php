@@ -9,6 +9,7 @@ use App\Category;
 use App\Contact;
 use App\CustomerGroup;
 use App\InvoiceScheme;
+use App\NewTransactions;
 use App\SellingPriceGroup;
 use App\TaxRate;
 use App\Transaction;
@@ -66,301 +67,37 @@ class NewTransactionController extends Controller
         }
 
         $business_id = request()->session()->get('user.business_id');
-        $is_woocommerce = $this->moduleUtil->isModuleInstalled('Woocommerce');
         if (request()->ajax()) {
-            $with = [];
+            $query = NewTransactions::join('contacts', 'contacts.id', 'new_transactions.client_id')
+                ->where('contacts.business_id', $business_id)
+                ->select( 'new_transactions.id',
+                'contacts.name as client',
+                'new_transactions.bank',
+                'new_transactions.deposit_method',
+                'new_transactions.amount',
+                'new_transactions.reference_number',
+                'new_transactions.product_name',
+                'new_transactions.bonus',
+                'new_transactions.receipt_url',
+                'new_transactions.created_at'
+            );
 
-            $sells = Transaction::leftJoin('contacts', 'transactions.contact_id', '=', 'contacts.id')
-                ->leftJoin('transaction_payments as tp', 'transactions.id', '=', 'tp.transaction_id')
-                ->leftJoin('accounts', 'tp.account_id', '=', 'accounts.id')
-                ->join(
-                    'business_locations AS bl',
-                    'transactions.location_id',
-                    '=',
-                    'bl.id'
-                )
-                ->leftJoin(
-                    'transactions AS SR',
-                    'transactions.id',
-                    '=',
-                    'SR.return_parent_id'
-                )
-                ->where('transactions.business_id', $business_id)
-                ->where('transactions.type', 'sell')
-                ->where('transactions.status', 'final')
-                ->select(
-                    'transactions.id',
-                    'transactions.transaction_date',
-                    'transactions.is_direct_sale',
-                    'transactions.invoice_no',
-                    'transactions.document',
-                    'contacts.contact_id',
-                    'contacts.name',
-                    'contacts.is_default',
-//                    'accounts.name',
-                    'transactions.payment_status',
-                    'transactions.rp_earned',
-                    'transactions.rp_redeemed',
-                    // 'transactions.final_total as amount',
-                    'tp.amount',
-//                    'bl.name as business_location',
-                    'accounts.name as business_location'
-                );
-
-
-            $permitted_locations = auth()->user()->permitted_locations();
-            if ($permitted_locations != 'all') {
-                $sells->whereIn('transactions.location_id', $permitted_locations);
-            }
-
-            //Add condition for created_by,used in sales representative sales report
-            if (request()->has('created_by')) {
-                $created_by = request()->get('created_by');
-                if (!empty($created_by)) {
-                    $sells->where('transactions.created_by', $created_by);
-                }
-            }
-
-            if (!auth()->user()->can('direct_sell.access') && auth()->user()->can('view_own_sell_only')) {
-                $sells->where('transactions.created_by', request()->session()->get('user.id'));
-            }
-            $account_id = request()->input('account_id');
-            if(empty($account_id))
-                $sells->where('accounts.id', -1);
-            else if ($account_id != -1) {
-                $sells->where('accounts.id', request()->input('account_id'));
-            }
-
-
-            if (!empty(request()->input('payment_status'))) {
-                $sells->where('transactions.payment_status', request()->input('payment_status'));
-            }
-
-            //Add condition for location,used in sales representative expense report
-            if (request()->has('location_id')) {
-                $location_id = request()->get('location_id');
-                if (!empty($location_id)) {
-                    $sells->where('transactions.location_id', $location_id);
-                }
-            }
-
-            if (!empty(request()->input('rewards_only')) && request()->input('rewards_only') == true) {
-                $sells->where(function ($q) {
-                    $q->whereNotNull('transactions.rp_earned')
-                    ->orWhere('transactions.rp_redeemed', '>', 0);
-                });
-            }
-
-            if (!empty(request()->customer_id)) {
-                $customer_id = request()->customer_id;
-                $sells->where('contacts.id', $customer_id);
-            }
             if (!empty(request()->start_date) && !empty(request()->end_date)) {
                 $start = request()->start_date;
                 $end =  request()->end_date;
-                $sells->whereDate('transactions.transaction_date', '>=', $start)
-                            ->whereDate('transactions.transaction_date', '<=', $end);
+                $query->whereDate('new_transactions.created_at', '>=', $start)
+                    ->whereDate('new_transactions.created_at', '<=', $end);
             }
-
-            //Check is_direct sell
-            if (request()->has('is_direct_sale')) {
-                $is_direct_sale = request()->is_direct_sale;
-                if ($is_direct_sale == 0) {
-                    $sells->where('transactions.is_direct_sale', 0);
-                    $sells->whereNull('transactions.sub_type');
-                }
-            }
-
-            //Add condition for commission_agent,used in sales representative sales with commission report
-            if (request()->has('commission_agent')) {
-                $commission_agent = request()->get('commission_agent');
-                if (!empty($commission_agent)) {
-                    $sells->where('transactions.commission_agent', $commission_agent);
-                }
-            }
-
-            if ($is_woocommerce) {
-                $sells->addSelect('transactions.woocommerce_order_id');
-                if (request()->only_woocommerce_sells) {
-                    $sells->whereNotNull('transactions.woocommerce_order_id');
-                }
-            }
-
-            if (!empty(request()->list_for) && request()->list_for == 'service_staff_report') {
-                $sells->whereNotNull('transactions.res_waiter_id');
-                $sells->leftJoin('users as ss', 'ss.id', '=', 'transactions.res_waiter_id');
-                $sells->addSelect(
-                    DB::raw('CONCAT(COALESCE(ss.first_name, ""), COALESCE(ss.last_name, "")) as service_staff')
-                );
-            }
-
-            if (!empty(request()->res_waiter_id)) {
-                $sells->where('transactions.res_waiter_id', request()->res_waiter_id);
-            }
-
-            if (!empty(request()->input('sub_type'))) {
-                $sells->where('transactions.sub_type', request()->input('sub_type'));
-            }
-
-            if (!empty(request()->input('created_by'))) {
-                $sells->where('transactions.created_by', request()->input('created_by'));
-            }
-
-            if (!empty(request()->input('sales_cmsn_agnt'))) {
-                $sells->where('transactions.commission_agent', request()->input('sales_cmsn_agnt'));
-            }
-
-            if (!empty(request()->input('service_staffs'))) {
-                $sells->where('transactions.res_waiter_id', request()->input('service_staffs'));
-            }
-
-//            $sells->groupBy('transactions.id');
-
-            if (!empty(request()->suspended)) {
-                $is_tables_enabled = $this->transactionUtil->isModuleEnabled('tables');
-                $is_service_staff_enabled = $this->transactionUtil->isModuleEnabled('service_staff');
-                $with = ['sell_lines'];
-
-                if ($is_tables_enabled) {
-                    $with[] = 'table';
-                }
-
-                if ($is_service_staff_enabled) {
-                    $with[] = 'service_staff';
-                }
-
-                $sales = $sells->where('transactions.is_suspend', 1)
-                            ->with($with)
-                            ->addSelect('transactions.is_suspend', 'transactions.res_table_id', 'transactions.res_waiter_id', 'transactions.additional_notes')
-                            ->get();
-
-                return view('sale_pos.partials.suspended_sales_modal')->with(compact('sales', 'is_tables_enabled', 'is_service_staff_enabled'));
-            }
-            if (!empty($with)) {
-                $sells->with($with);
-            }
-
-            //$business_details = $this->businessUtil->getDetails($business_id);
-            if ($this->businessUtil->isModuleEnabled('subscription')) {
-                $sells->addSelect('transactions.is_recurring', 'transactions.recur_parent_id');
-            }
-
-            $datatable = Datatables::of($sells)
-                ->addColumn(
-                    'action',
-                    function ($row) {
-                        $html = '<div class="btn-group">
-                                    <button type="button" class="btn btn-info dropdown-toggle btn-xs" 
-                                        data-toggle="dropdown" aria-expanded="false">' .
-                                        __("messages.actions") .
-                                        '<span class="caret"></span><span class="sr-only">Toggle Dropdown
-                                        </span>
-                                    </button>
-                                    <ul class="dropdown-menu dropdown-menu-right" role="menu">' ;
-
-                        if (auth()->user()->can("sell.view") || auth()->user()->can("direct_sell.access") || auth()->user()->can("view_own_sell_only")) {
-                            $html .= '<li class="view_li"><a href="' . action("SellController@show", [$row->id]) . '" data-container=".view_modal"><i class="fa fa-external-link" aria-hidden="true"></i> ' . __("messages.view") . '</a></li>';
-                        }
-                        $document = $row->document;
-                        if($document){
-                            $html .='<li><a href="{{ url(\'uploads/documents/\' . $document)}}" download=""><i class="fa fa-download" aria-hidden="true"></i> @lang("purchase.download_document")</a></li>';
-                            if(isFileImage($document))
-                                $html .= '<li><a href="#" data-href="{{ url(\'uploads/documents/\' . $document)}}" class="view_uploaded_document"><i class="fa fa-picture-o" aria-hidden="true"></i>@lang("lang_v1.view_document")</a></li>';
-                        }
-
-                       if ($row->is_direct_sale == 0) {
-                           if ($row->is_default) {
-                               $html .= '<li><a target="_blank" href="' . action('SellPosDepositController@edit', [$row->id]) . '"><i class="glyphicon glyphicon-edit"></i> ' . __("messages.edit") . '</a></li>';
-                           }
-                       } else {
-                           if ($row->is_default) {
-                               $html .= '<li><a target="_blank" href="' . action('SellController@edit', [$row->id]) . '"><i class="glyphicon glyphicon-edit"></i> ' . __("messages.edit") . '</a></li>';
-                           }
-                       }
-
-//                        if (auth()->user()->can("direct_sell.delete") || auth()->user()->can("sell.delete")) {
-                        if(auth()->user()->hasRole('Superadmin') || auth()->user()->hasRole('Admin') || auth()->user()->hasRole('Admin#' . auth()->user()->business_id)){
-                            if($row->payment_status != 'cancelled')
-                                $html .= '<li><a href="' . action('SellPosController@destroy', [$row->id]) . '" class="delete-sale"><i class="fa fa-trash"></i> ' . __("messages.cancel") . '</a></li>';
-                        }
-
-                        if (auth()->user()->can("sell.view") || auth()->user()->can("direct_sell.access")) {
-                            $html .= '<li><a href="#" class="print-invoice" data-href="' . route('sell.printInvoice', [$row->id]) . '"><i class="fa fa-print" aria-hidden="true"></i> ' . __("messages.print") . '</a></li>';
-//                                <li><a href="#" class="print-invoice" data-href="' . route('sell.printInvoice', [$row->id]) . '?package_slip=true"><i class="fa fa-file-text-o" aria-hidden="true"></i> ' . __("lang_v1.packing_slip") . '</a></li>;
-                        }
-//                        $html .= '<li class="divider"></li>';
-//                        if ($row->payment_status != "paid" && (auth()->user()->can("sell.create") || auth()->user()->can("direct_sell.access"))) {
-//                            $html .= '<li><a href="' . action('TransactionPaymentController@addPayment', [$row->id]) . '" class="add_payment_modal"><i class="fa fa-money"></i> ' . __("purchase.add_payment") . '</a></li>';
-//                        }
-//
-//                        $html .= '<li><a href="' . action('TransactionPaymentController@show', [$row->id]) . '" class="view_payment_modal"><i class="fa fa-money"></i> ' . __("purchase.view_payments") . '</a></li>';
-//
-//                        if (auth()->user()->can("sell.create")) {
-//                            $html .= '<li><a href="' . action('SellController@duplicateSell', [$row->id]) . '"><i class="fa fa-copy"></i> ' . __("lang_v1.duplicate_sell") . '</a></li>
-//
-//                            <li><a href="' . action('SellReturnController@add', [$row->id]) . '"><i class="fa fa-undo"></i> ' . __("lang_v1.sell_return") . '</a></li>
-//
-//                            <li><a href="' . action('SellPosController@showInvoiceUrl', [$row->id]) . '" class="view_invoice_url"><i class="fa fa-external-link"></i> ' . __("lang_v1.view_invoice_url") . '</a></li>';
-//                        }
-//
-//                        if (auth()->user()->can("send_notification")) {
-//                            $html .= '<li><a href="#" data-href="' . action('NotificationController@getTemplate', ["transaction_id" => $row->id,"template_for" => "new_sale"]) . '" class="btn-modal" data-container=".view_modal"><i class="fa fa-envelope" aria-hidden="true"></i>' . __("lang_v1.new_sale_notification") . '</a></li>';
-//                        }
-
-                        $html .= '</ul></div>';
-
-                        return $html;
-                    }
-                )
+            $datatable = Datatables::of($query)
+                ->addColumn( 'action', '')
+                ->addColumn('view_receipt', '<a href="#" data-href="{{ url(\'uploads/receipt_images/\' . $receipt_url)}}" class="btn btn-success view_uploaded_document"><i class="fa fa-picture-o" style="margin-right: 0.5em" aria-hidden="true"></i>@lang("new_transaction.view_receipt")</a>')
+                ->editColumn('created_at', '{{@format_datetime($created_at)}}')
                 ->removeColumn('id')
-                ->editColumn('transaction_date', '{{@format_datetime($transaction_date)}}')
-//                ->editColumn('amount', '{{@number_format((float)$amount, 2, ".", ",")}}')
                 ->editColumn(
                     'amount',
                     '<span class="display_currency sell_amount" data-orig-value="{{$amount}}" data-highlight=true>{{($amount)}}</span>'
-                )
-                ->editColumn(
-                    'payment_status',
-                    '<a href="{{ action("TransactionPaymentController@show", [$id])}}" class="view_payment_modal payment-status-label no-print" data-orig-value="{{$payment_status}}" data-status-name="{{__(\'lang_v1.\' . $payment_status)}}"><span class="label @payment_status($payment_status)">{{__(\'lang_v1.\' . $payment_status)}}
-                        </span></a>
-                        <span class="print_section">{{__(\'lang_v1.\' . $payment_status)}}</span>
-                        '
-                )
-                ->editColumn('name', function ($row) {
-                    if($row->is_default)
-                        return '<span style="color:red">'.$row->name.'</span>';
-                    return $row->name;
-                })
-                 ->editColumn('invoice_no', function ($row) {
-                     $invoice_no = $row->invoice_no;
-                     if (!empty($row->woocommerce_order_id)) {
-                         $invoice_no .= ' <i class="fa fa-wordpress text-primary no-print" title="' . __('lang_v1.synced_from_woocommerce') . '"></i>';
-                     }
-                     if (!empty($row->return_exists)) {
-                         $invoice_no .= ' &nbsp;<small class="label bg-red label-round no-print" title="' . __('lang_v1.some_qty_returned_from_sell') .'"><i class="fa fa-undo"></i></small>';
-                     }
-
-                     if (!empty($row->is_recurring)) {
-                         $invoice_no .= ' &nbsp;<small class="label bg-red label-round no-print" title="' . __('lang_v1.subscribed_invoice') .'"><i class="fa fa-recycle"></i></small>';
-                     }
-
-                     if (!empty($row->recur_parent_id)) {
-                         $invoice_no .= ' &nbsp;<small class="label bg-info label-round no-print" title="' . __('lang_v1.subscription_invoice') .'"><i class="fa fa-recycle"></i></small>';
-                     }
-
-                     return $invoice_no;
-                 })
-                ->setRowAttr([
-                    'data-href' => function ($row) {
-                        if (auth()->user()->can("sell.view") || auth()->user()->can("view_own_sell_only")) {
-                            return  action('SellController@show', [$row->id]) ;
-                        } else {
-                            return '';
-                        }
-                    }]);
-
-//            $rawColumns = ['final_total', 'action', 'total_paid', 'total_remaining', 'payment_status', 'invoice_no', 'discount_amount', 'tax_amount', 'total_before_tax'];
-            $rawColumns = ['amount', 'action', 'payment_status', 'invoice_no', 'discount_amount', 'tax_amount', 'total_before_tax', 'name'];
+                );
+            $rawColumns = ['amount', 'view_receipt', 'action'];
                 
             return $datatable->rawColumns($rawColumns)
                       ->make(true);
@@ -379,7 +116,7 @@ class NewTransactionController extends Controller
         }
 
         return view('newtransaction.index')
-        ->with(compact('accounts', 'customers', 'is_woocommerce', 'sales_representative', 'is_cmsn_agent_enabled', 'commission_agents'));
+        ->with(compact('accounts', 'customers', 'sales_representative', 'is_cmsn_agent_enabled', 'commission_agents'));
     }
 
     /**

@@ -130,7 +130,7 @@ Route::middleware(['IsInstalled', 'auth', 'SetSessionData', 'language', 'timezon
     Route::get('/sells/draft-dt', 'SellController@getDraftDatables');
     Route::resource('deposit', 'SellController');
     Route::resource('withdraw', 'WithDrawController');
-    Route::resource('newtransactions', 'NewTransactionController');
+    Route::resource('new_transactions', 'NewTransactionController');
     Route::get('/pos_ledger', 'PosLedgerController@index');
 
     Route::get('/sells/pos/get_product_row/{variation_id}/{location_id}', 'SellPosController@`getProductRow`');
@@ -347,6 +347,9 @@ Route::middleware(['IsInstalled', 'auth', 'SetSessionData', 'language', 'timezon
     Route::get('/discount/activate/{id}', 'DiscountController@activate');
     Route::post('/discount/mass-deactivate', 'DiscountController@massDeactivate');
     Route::resource('discount', 'DiscountController');
+
+    Route::get('/dashboard_deposit', 'DashboardDepositController@index');
+    Route::post('/update_display_front/{id}', 'DashboardDepositController@updateDisplayFront');
 
     Route::group(['prefix' => 'account'], function () {
         Route::resource('/account', 'AccountController');

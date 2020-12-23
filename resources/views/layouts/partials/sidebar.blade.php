@@ -793,6 +793,18 @@
                             </a></li>
                     </ul>
                 </li>
+
+                <li class="{{ $request->segment(1) == 'new_transactions' ? 'active' : '' }}">
+                    <a href="{{action('NewTransactionController@index')}}">
+                        <span> 6. @lang('lang_v1.new_transaction')</span>
+                    </a>
+                </li>
+
+                <li class="{{ $request->segment(1) == 'dashboard_deposit' ? 'active' : '' }}">
+                    <a href="{{action('DashboardDepositController@index')}}">
+                        <span> 7. @lang('lang_v1.deposit')</span>
+                    </a>
+                </li>
         </ul>
 
         <!-- /.sidebar-menu -->

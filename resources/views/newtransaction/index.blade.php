@@ -14,18 +14,6 @@
 <section class="content no-print">
     @component('components.filters', ['title' => __('report.filters')])
         @include('sell.partials.sell_list_filters')
-        @if($is_woocommerce)
-            <div class="col-md-4">
-                <div class="form-group">
-                    <div class="checkbox">
-                        <label>
-                          {!! Form::checkbox('only_woocommerce_sells', 1, false, 
-                          [ 'class' => 'input-icheck', 'id' => 'synced_from_woocommerce']); !!} {{ __('lang_v1.synced_from_woocommerce') }}
-                        </label>
-                    </div>
-                </div>
-            </div>
-        @endif
     @endcomponent
     @component('components.widget', ['class' => 'box-primary', 'title' => __( 'lang_v1.all_sales')])
 {{--        @can('sell.create')--}}
@@ -42,24 +30,22 @@
                     <thead>
                         <tr>
                             <th>@lang('messages.date')</th>
-                            <th>@lang('sale.invoice_no')</th>
-                            <th>@lang('contact.contact_id')</th>
-                            <th>@lang('sale.customer_name')</th>
-                            <th>@lang('sale.payment_status')</th>
-                            <th>@lang('sale.total_amount')</th>
-{{--                            <th>@lang('sale.total_paid')</th>--}}
-{{--                            <th>@lang('purchase.payment_due')</th>--}}
-                            <th>@lang('messages.action')</th>
+                            <th>@lang('new_transaction.client')</th>
+                            <th>@lang('new_transaction.bank')</th>
+                            <th>@lang('new_transaction.deposit_method')</th>
+                            <th>@lang('new_transaction.amount')</th>
+                            <th>@lang('new_transaction.reference_number')</th>
+                            <th>@lang('new_transaction.product_name')</th>
+                            <th>@lang('new_transaction.bonus')</th>
+                            <th>@lang('new_transaction.view_receipt')</th>
+                            <th>@lang('new_transaction.action')</th>
                         </tr>
                     </thead>
                     <tfoot>
                         <tr class="bg-gray font-17 footer-total text-center">
-                            <td colspan="4"><strong>@lang('sale.total'):</strong></td>
+                            <td colspan="5"><strong>@lang('sale.total'):</strong></td>
                             <td id="footer_payment_status_count"></td>
-                            <td><span class="display_currency" id="footer_sale_total"></span></td>
-{{--                            <td><span class="display_currency" id="footer_total_paid" data-currency_symbol ="true"></span></td>--}}
-{{--                            <td class="text-left"><small>@lang('lang_v1.sell_due') - <span class="display_currency" id="footer_total_remaining" data-currency_symbol ="true"></span><br>@lang('lang_v1.sell_return_due') - <span class="display_currency" id="footer_total_sell_return_due" data-currency_symbol ="true"></span></small></td>--}}
-                            <td></td>
+                            <td colspan="4"></td>
                         </tr>
                     </tfoot>
                 </table>
@@ -103,7 +89,7 @@ $(document).ready( function(){
         serverSide: true,
         aaSorting: [[0, 'desc']],
         "ajax": {
-            "url": "/deposit",
+            "url": "/new_transactions",
             "data": function ( d ) {
                 if($('#sell_list_filter_date_range').val()) {
                     var start = $('#sell_list_filter_date_range').data('daterangepicker').startDate.format('YYYY-MM-DD');
@@ -111,7 +97,6 @@ $(document).ready( function(){
                     d.start_date = start;
                     d.end_date = end;
                 }
-                d.is_direct_sale = 1;
 
                 d.location_id = $('#sell_list_filter_location_id').val();
                 d.customer_id = $('#sell_list_filter_customer_id').val();
@@ -119,12 +104,6 @@ $(document).ready( function(){
                 d.created_by = $('#created_by').val();
                 d.sales_cmsn_agnt = $('#sales_cmsn_agnt').val();
                 d.account_id = $('#account_id').val();
-                
-                @if($is_woocommerce)
-                    if($('#synced_from_woocommerce').is(':checked')) {
-                        d.only_woocommerce_sells = 1;
-                    }
-                @endif
             }
         },
         columnDefs: [ {
@@ -133,43 +112,27 @@ $(document).ready( function(){
             "searchable": false
         } ],
         columns: [
-            { data: 'transaction_date', name: 'transaction_date'  },
-            { data: 'invoice_no', name: 'invoice_no'},
-            { data: 'contact_id', name: 'contacts.contact_id'},
-            { data: 'name', name: 'contacts.name'},
-            { data: 'payment_status', name: 'payment_status'},
-            // { data: 'business_location', name: 'bl.name'},
-            // { data: 'payment_status', name: 'payment_status'},
+            { data: 'created_at', name: 'created_at'  },
+            { data: 'client', name: 'client'},
+            { data: 'bank', name: 'bank'},
+            { data: 'deposit_method', name: 'deposit_method'},
             { data: 'amount', name: 'amount'},
+            { data: 'reference_number', name: 'reference_number'},
+            { data: 'product_name', name: 'product_name'},
+            { data: 'bonus', name: 'bonus'},
+            { data: 'view_receipt', name: 'view_receipt'},
             { data: 'action', name: 'action'}
         ],
         "fnDrawCallback": function (oSettings) {
-
-            $('#footer_sale_total').text(sum_table_col($('#sell_table'), 'sell_amount'));
-            
-            // $('#footer_total_paid').text(sum_table_col($('#sell_table'), 'total-paid'));
-
-            $('#footer_total_remaining').text(sum_table_col($('#sell_table'), 'payment_due'));
-
-            $('#footer_total_sell_return_due').text(sum_table_col($('#sell_table'), 'sell_return_due'));
-
-            $('#footer_payment_status_count').html(__sum_status_html($('#sell_table'), 'payment-status-label'));
-
-            __currency_convert_recursively($('#sell_table'));
         },
         createdRow: function( row, data, dataIndex ) {
-            $( row ).find('td:eq(4)').attr('class', 'clickable_td');
+            $( row ).find('td:eq(6)').attr('class', 'clickable_td');
         }
     });
 
     $(document).on('change', '#account_id, #sell_list_filter_customer_id, #sell_list_filter_payment_status, #created_by, #sales_cmsn_agnt, #service_staffs',  function() {
         sell_table.ajax.reload();
     });
-    @if($is_woocommerce)
-        $('#synced_from_woocommerce').on('ifChanged', function(event){
-            sell_table.ajax.reload();
-        });
-    @endif
 });
 </script>
 <script src="{{ asset('js/payment.js?v=' . $asset_v) }}"></script>

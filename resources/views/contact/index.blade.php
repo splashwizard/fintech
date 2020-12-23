@@ -472,7 +472,7 @@
         $(document).on('click', '.btn-remove_bank_detail', function(e) {
             console.log('helllo');
             e.preventDefault();
-            $(this).parents('.account_detail_item').remove();
+            $(this).parents('.bank_detail_item').remove();
         });
 
 

@@ -20,7 +20,11 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 Route::post('/login', 'API\AuthController@login');
 Route::post('/signUp', 'API\AuthController@signUp');
+Route::post('/changePassword', 'API\AuthController@changePassword');
 Route::middleware('api')->group(function(){
     Route::post('/updateUser', 'API\AuthController@updateUser');
     Route::get('/promotions', 'API\PromotionAPI@promotions');
+    Route::post('/new_transaction', 'API\NewTransactionAPIController@store');
+    Route::get('/banks', 'API\BankAPIController@bankList');
+    Route::get('/bank_brand_list', 'API\BankAPIController@bankBrandList');
 });

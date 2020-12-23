@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\BankBrand;
 use App\BusinessLocation;
 use App\Contact;
 use App\Currency;
@@ -69,6 +70,7 @@ class AccountController extends Controller
                     '=',
                     'T.id')
                 ->leftjoin('currencies', 'currencies.id', 'accounts.currency_id')
+                ->leftjoin('bank_brands', 'bank_brands.id', 'accounts.bank_brand_id')
                                 ->where('accounts.is_service', 0)
                                 ->where('accounts.name', '!=', 'Bonus Account')
                                 ->where('accounts.business_id', $business_id)
@@ -77,6 +79,7 @@ class AccountController extends Controller
                                     $q->orWhere('T.payment_status', '=', null);
                                 })
                                 ->select(['accounts.name', 'accounts.account_number', 'accounts.note', 'accounts.id', 'currencies.code as currency',
+                                    'bank_brands.name as bank_brand',
                                     'accounts.is_closed',
                                     \Illuminate\Support\Facades\DB::raw("SUM( IF( accounts.shift_closed_at IS NULL OR AT.operation_date >= accounts.shift_closed_at,  IF( AT.type='credit', AT.amount, -1*AT.amount), 0) ) as balance"),
                                     ])
@@ -164,8 +167,9 @@ class AccountController extends Controller
         $display_groups = DisplayGroup::forDropdown($business_id);
         $currencies = $this->businessUtil->allCurrencies();
 
+        $bank_brands = BankBrand::forDropdown($business_id);
         return view('account.create')
-                ->with(compact('account_types', 'display_groups', 'currencies'));
+                ->with(compact('account_types', 'display_groups', 'currencies', 'bank_brands'));
     }
 
     /**
@@ -181,7 +185,7 @@ class AccountController extends Controller
 
         if (request()->ajax()) {
             try {
-                $input = $request->only(['name', 'account_number', 'note', 'display_group_id', 'currency_id']);
+                $input = $request->only(['name', 'account_number', 'bank_brand_id', 'note', 'display_group_id', 'currency_id']);
                 $business_id = $request->session()->get('user.business_id');
                 $user_id = $request->session()->get('user.id');
                 if(empty($input['display_group_id']))

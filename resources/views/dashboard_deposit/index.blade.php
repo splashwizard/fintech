@@ -47,14 +47,6 @@
                             <i class="fa fa-book"></i> <strong>@lang('account.bank_list')</strong>
                         </a>
                     </li>
-                    {{--
-                    <li>
-                        <a href="#capital_accounts" data-toggle="tab">
-                            <i class="fa fa-book"></i> <strong>
-                            @lang('account.capital_accounts') </strong>
-                        </a>
-                    </li>
-                    --}}
                 </ul>
                 <div class="tab-content">
                     <div class="tab-pane active" id="other_accounts">
@@ -64,29 +56,11 @@
                                     <th>@lang( 'lang_v1.name' )</th>
                                     <th>@lang('account.account_number')</th>
                                     <th>@lang('lang_v1.bank_brand')</th>
-                                    <th>@lang( 'brand.note' )</th>
-                                    <th>@lang('lang_v1.currency')</th>
-                                    <th>@lang('lang_v1.balance')</th>
-                                    <th>@lang( 'messages.action' )</th>
+                                    <th>Display at front</th>
                                 </tr>
                             </thead>
                         </table>
                     </div>
-                    {{--
-                    <div class="tab-pane" id="capital_accounts">
-                        <table class="table table-bordered table-striped" id="capital_account_table" style="width: 100%;">
-                            <thead>
-                                <tr>
-                                    <th>@lang( 'lang_v1.name' )</th>
-                                    <th>@lang('account.account_number')</th>
-                                    <th>@lang( 'brand.note' )</th>
-                                    <th>@lang('lang_v1.balance')</th>
-                                    <th>@lang( 'messages.action' )</th>
-                                </tr>
-                            </thead>
-                        </table>
-                    </div>
-                    --}}
                 </div>
             </div>
         </div>
@@ -203,9 +177,9 @@
         other_account_table = $('#other_account_table').DataTable({
                         processing: true,
                         serverSide: true,
-                        ajax: '/account/account?account_type=other',
+                        ajax: '/dashboard_deposit?account_type=other',
                         columnDefs:[{
-                                "targets": 5,
+                                "targets": 3,
                                 "orderable": false,
                                 "searchable": false
                             }],
@@ -213,10 +187,7 @@
                             {data: 'name', name: 'name'},
                             {data: 'account_number', name: 'account_number'},
                             {data: 'bank_brand', name: 'bank_brand'},
-                            {data: 'note', name: 'note'},
-                            {data: 'currency', name: 'currency'},
-                            {data: 'balance', name: 'balance', searchable: false},
-                            {data: 'action', name: 'action'}
+                            {data: 'is_display_front', name: 'is_display_front'}
                         ],
                         "fnDrawCallback": function (oSettings) {
                             __currency_convert_recursively($('#other_account_table'));
@@ -313,6 +284,20 @@
                     toastr.error(result.msg);
                 }
             }
+        });
+    });
+
+    $(document).on('click', '.account_display_front', function (e) {
+        var is_display_front = $(this).prop('checked') ? 1 : 0;
+        var id = $(this).data('id');
+        $.ajax({
+            method: 'POST',
+            url: '/update_display_front/' + id,
+            data: {is_display_front: is_display_front},
+            dataType: 'json',
+            success: function(result) {
+
+            },
         });
     });
 
