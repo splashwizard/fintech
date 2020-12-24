@@ -410,8 +410,10 @@ class AccountController extends Controller
             $display_groups = DisplayGroup::forDropdown($business_id);
             $currencies = $this->businessUtil->allCurrencies();
 
+            $bank_brands = BankBrand::forDropdown($business_id);
+
             return view('account.edit')
-                ->with(compact('account', 'account_types', 'display_groups', 'currencies'));
+                ->with(compact('account', 'account_types', 'display_groups', 'currencies', 'bank_brands'));
         }
     }
 
@@ -428,7 +430,7 @@ class AccountController extends Controller
 
         if (request()->ajax()) {
             try {
-                $input = $request->only(['name', 'account_number', 'note', 'is_safe', 'is_daily_zero', 'service_charge', 'display_group_id', 'currency_id']);
+                $input = $request->only(['name', 'account_number', 'note', 'is_safe', 'is_daily_zero', 'bank_brand_id', 'service_charge', 'display_group_id', 'currency_id']);
 
                 if(empty($input['display_group_id']))
                     $input['display_group_id'] = 0;
@@ -440,6 +442,7 @@ class AccountController extends Controller
                 $account->is_safe = isset($input['is_safe']) ? 1 : 0;
                 $account->is_daily_zero = isset($input['is_daily_zero']) ? 1 : 0;
                 $account->note = $input['note'];
+                $account->bank_brand_id = $input['bank_brand_id'];
                 $account->service_charge = $input['service_charge'];
                 $account->display_group_id = $input['display_group_id'];
                 $account->currency_id = $input['currency_id'];

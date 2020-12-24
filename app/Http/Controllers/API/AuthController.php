@@ -102,6 +102,34 @@ class AuthController extends Controller
         return $output;
     }
 
+    public function addBankDetail(Request $request) {
+        $new_bank_detail = $request->get('bank_detail');
+        $contact_id = $request->get('user_id');
+        $count = Contact::where('id', $contact_id)->count();
+        if($count == 0){
+            return ['success' => false,
+                'msg' => "The user doesn't exist"
+            ];
+        }
+        $contact = Contact::find($contact_id);
+        $bank_details = empty($contact->bank_details) ? [] : json_decode($contact->bank_details);
+        $bank_details[] = $new_bank_detail;
+        $contact->bank_details = json_encode($bank_details);
+        $contact->save();
+        $output = ['success' => true,
+            'data' => [
+                'business_id' => $contact->business_id,
+                'user_id' => $contact->id,
+                "username" => $contact->name,
+                "mobile" => json_decode($contact->mobile),
+                "email" => $contact->email,
+                "birthday" => $contact->birthday,
+                "bank_details" => json_decode($contact->bank_details),
+            ]
+        ];
+        return $output;
+    }
+
     public function signUp(Request $request) {
         $business_id = 21;
 

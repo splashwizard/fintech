@@ -18,6 +18,10 @@
                 {!! Form::label('account_number', __( 'account.account_number' ) .":*") !!}
                 {!! Form::text('account_number', $account->account_number, ['class' => 'form-control', 'required','placeholder' => __( 'account.account_number' ) ]); !!}
             </div>
+            <div class="form-group">
+                {!! Form::label('bank_brand_id', __( 'lang_v1.bank_name') . ':') !!}
+                {!! Form::select("bank_brand_id", $bank_brands, $account->bank_brand_id, ['class' => 'form-control']); !!}
+            </div>
             <div class="row">
                 <div class="col-sm-3">
                     <div class="form-group">
