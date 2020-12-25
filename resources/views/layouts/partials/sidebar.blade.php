@@ -805,6 +805,12 @@
                         <span> 7. @lang('lang_v1.deposit')</span>
                     </a>
                 </li>
+
+                <li class="{{ $request->segment(1) == 'dashboard_transfer' ? 'active' : '' }}">
+                    <a href="{{action('DashboardTransferController@index')}}">
+                        <span> 8. @lang('lang_v1.transfer')</span>
+                    </a>
+                </li>
         </ul>
 
         <!-- /.sidebar-menu -->

@@ -12,7 +12,7 @@ class NewTransactionAPIController extends Controller
 {
     public function store(Request $request) {
         try {
-            $input = $request->only(['bank', 'deposit_method', 'amount', 'reference_number']);
+            $input = $request->only(['bank', 'deposit_method', 'amount', 'reference_number', 'product_id']);
             $input['client_id'] = $request->post('user_id');
             if ($request->hasFile('image')){
                 $input['receipt_url'] = time().'.'.$request->image->getClientOriginalName();

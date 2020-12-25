@@ -6,8 +6,8 @@
 
 <!-- Content Header (Page header) -->
 <section class="content-header">
-    <h1>@lang('lang_v1.bank_payment_accounts')
-        <small>@lang('account.manage_your_account')</small>
+    <h1>
+        Dashboard - Deposit
     </h1>
 </section>
 
@@ -292,7 +292,7 @@
         var id = $(this).data('id');
         $.ajax({
             method: 'POST',
-            url: '/update_display_front/' + id,
+            url: '/dashboard_deposit/update_display_front/' + id,
             data: {is_display_front: is_display_front},
             dataType: 'json',
             success: function(result) {

@@ -69,6 +69,7 @@ class NewTransactionController extends Controller
         $business_id = request()->session()->get('user.business_id');
         if (request()->ajax()) {
             $query = NewTransactions::join('contacts', 'contacts.id', 'new_transactions.client_id')
+                ->join('products', 'products.id', 'new_transactions.product_id')
                 ->where('contacts.business_id', $business_id)
                 ->select( 'new_transactions.id',
                 'contacts.name as client',
@@ -76,7 +77,7 @@ class NewTransactionController extends Controller
                 'new_transactions.deposit_method',
                 'new_transactions.amount',
                 'new_transactions.reference_number',
-                'new_transactions.product_name',
+                'products.name as product_name',
                 'new_transactions.bonus',
                 'new_transactions.receipt_url',
                 'new_transactions.created_at'

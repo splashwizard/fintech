@@ -28,5 +28,6 @@ Route::middleware('api')->group(function(){
     Route::get('/banks', 'API\BankAPIController@bankList');
     Route::get('/bank_brand_list', 'API\BankAPIController@bankBrandList');
     Route::get('/kiosk_list', 'API\BankAPIController@kioskList');
+    Route::get('/product_list', 'API\BankAPIController@productList');
     Route::post('/add_bank_detail', 'API\AuthController@addBankDetail');
 });

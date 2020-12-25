@@ -335,6 +335,7 @@ return [
    'invoice.presale_note' => 'Access presale note',
    'checkout_multi_pay' => 'Multiple Pay',
    'deposit' => 'Deposit',
+   'transfer' => 'Transfer',
    'pos_ledger_log' => 'POS Ledger Log',
    'pos_ledger' => 'POS Ledger',
    'tooltip_checkout_multi_pay' => 'Checkout using multiple payment methods',

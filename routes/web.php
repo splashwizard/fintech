@@ -349,7 +349,9 @@ Route::middleware(['IsInstalled', 'auth', 'SetSessionData', 'language', 'timezon
     Route::resource('discount', 'DiscountController');
 
     Route::get('/dashboard_deposit', 'DashboardDepositController@index');
-    Route::post('/update_display_front/{id}', 'DashboardDepositController@updateDisplayFront');
+    Route::post('/dashboard_deposit/update_display_front/{id}', 'DashboardDepositController@updateDisplayFront');
+    Route::get('/dashboard_transfer', 'DashboardTransferController@index');
+    Route::post('/dashboard_transfer/update_display_front/{id}', 'DashboardTransferController@updateDisplayFront');
 
     Route::group(['prefix' => 'account'], function () {
         Route::resource('/account', 'AccountController');
