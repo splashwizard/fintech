@@ -129,7 +129,7 @@ class GameListController extends Controller
     {
         try {
 
-            $input = $request->only(['lang_id', 'title', 'sub_title', 'content', 'start_time', 'end_time', 'sequence']);
+            $input = $request->only(['lang_id', 'title', 'sub_title', 'content', 'start_time', 'collection_id', 'end_time', 'sequence']);
             if(!empty($request->get('show')))
                 $input['show'] = 'active';
             else

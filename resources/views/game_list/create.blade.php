@@ -64,7 +64,7 @@
 									<div class="col-md-6">
 										<label for="start_time">Start Time</label>
 										<div class='input-group date' id='start_time'>
-											<input type='text' class="form-control" name="start_time"/>
+											<input type='text' class="form-control" name="start_time" required/>
 											<span class="input-group-addon">
 										    <span class="glyphicon glyphicon-calendar"></span>
 										    </span>
@@ -73,7 +73,7 @@
 									<div class="col-md-6">
 										<label for="end_time">End Time</label>
 										<div class='input-group date' id='end_time'>
-											<input type='text' class="form-control" name="end_time"/>
+											<input type='text' class="form-control" name="end_time" required/>
 											<span class="input-group-addon">
 										    <span class="glyphicon glyphicon-calendar"></span>
 										    </span>
