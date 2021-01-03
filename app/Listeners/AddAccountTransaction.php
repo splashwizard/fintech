@@ -45,6 +45,7 @@ class AddAccountTransaction
                 'amount' => $event->formInput['amount'],
                 'account_id' => $event->formInput['account_id'],
                 'type' => AccountTransaction::getAccountTransactionType($event->formInput['transaction_type'], $event->transactionPayment->card_type),
+                'sub_type' => $event->formInput['transaction_type'] == 'expense' ? 'expense' : null,
                 'operation_date' => $event->transactionPayment->paid_on,
                 'created_by' => $event->transactionPayment->created_by,
                 'transaction_id' => $event->transactionPayment->transaction_id,

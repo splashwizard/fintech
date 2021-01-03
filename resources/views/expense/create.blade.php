@@ -32,7 +32,7 @@
 				<div class="col-sm-4">
 					<div class="form-group">
 						{!! Form::label('expense_category_id', __('expense.expense_category').':') !!}
-						{!! Form::select('expense_category_id', $expense_categories, null, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select')]); !!}
+						{!! Form::select('expense_category_id', $expense_categories, null, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select'), 'required']); !!}
 					</div>
 				</div>
 				<div class="col-sm-4">

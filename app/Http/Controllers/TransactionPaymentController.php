@@ -376,7 +376,7 @@ class TransactionPaymentController extends Controller
 
                 //Accounts
 //                $accounts = $this->moduleUtil->accountsDropdown($business_id, false, false, true);
-                $accounts = Account::forDropdown($business_id, false, false, true);
+                $accounts = Account::forDropdown($business_id, false, false, true, false);
 
                 $view = view('transaction_payment.payment_row')
                 ->with(compact('transaction', 'payment_types', 'payment_line', 'amount_formated', 'accounts', 'account_holder', 'account_number', 'bank_name'))->render();
