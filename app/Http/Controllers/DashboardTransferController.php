@@ -9,6 +9,7 @@ use App\Currency;
 use App\CustomerGroup;
 use App\DisplayGroup;
 use App\Product;
+use App\Unit;
 use App\User;
 use App\Utils\BusinessUtil;
 use App\Utils\Util;
@@ -92,25 +93,10 @@ class DashboardTransferController extends Controller
                     DB::raw('MAX(v.sell_price_inc_tax) as max_price'),
                     DB::raw('MIN(v.sell_price_inc_tax) as min_price')
                 )->groupBy('products.id');
+            $gtrans_unit_id = Unit::where('business_id', $business_id)->where('short_name', 'GTrans')->first()->id;
 
-            $type = request()->get('type', null);
-            if (!empty($type)) {
-                $products->where('products.type', $type);
-            }
-
-            $category_id = request()->get('category_id', null);
-            if (!empty($category_id)) {
-                $products->where('products.category_id', $category_id);
-            }
-
-            $brand_id = request()->get('brand_id', null);
-            if (!empty($brand_id)) {
-                $products->where('products.brand_id', $brand_id);
-            }
-
-            $unit_id = request()->get('unit_id', null);
-            if (!empty($unit_id)) {
-                $products->where('products.unit_id', $unit_id);
+            if (!empty($gtrans_unit_id)) {
+                $products->where('products.unit_id', $gtrans_unit_id);
             }
 
             $tax_id = request()->get('tax_id', null);

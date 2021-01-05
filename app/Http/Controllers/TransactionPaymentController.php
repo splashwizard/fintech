@@ -161,7 +161,7 @@ class TransactionPaymentController extends Controller
             $business_id = request()->session()->get('user.business_id');
             $payroll = Transaction::where('business_id', $business_id)
                 ->with(['transaction_for'])
-                ->where('type', 'payroll')
+//                ->where('type', 'payroll')
                 ->findOrFail($id);
 
             $allowances = !empty($payroll->essentials_allowances) ? json_decode($payroll->essentials_allowances, true) : [];

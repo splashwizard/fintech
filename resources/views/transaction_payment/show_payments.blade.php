@@ -242,19 +242,21 @@
                             @php
                                 $total_allowances = 0;
                             @endphp
-                            @forelse($allowances['allowance_names'] as $key => $value)
-{{--                                @include('essentials::payroll.allowance_and_deduction_row', ['add_button' => $loop->index == 0 ? true : false, 'type' => 'allowance', 'name' => $value, 'value' => $allowances['allowance_amounts'][$key]])--}}
-                                <tr>
-                                    <td>{{$value}}</td>
-                                    <td>{{$allowances['allowance_amounts'][$key]}}</td>
-                                </tr>
+                            @if(!empty($allowances['allowance_names']))
+                                @forelse($allowances['allowance_names'] as $key => $value)
+    {{--                                @include('essentials::payroll.allowance_and_deduction_row', ['add_button' => $loop->index == 0 ? true : false, 'type' => 'allowance', 'name' => $value, 'value' => $allowances['allowance_amounts'][$key]])--}}
+                                    <tr>
+                                        <td>{{$value}}</td>
+                                        <td>{{$allowances['allowance_amounts'][$key]}}</td>
+                                    </tr>
 
-                                @php
-                                    $total_allowances += !empty($allowances['allowance_amounts'][$key]) ? $allowances['allowance_amounts'][$key] : 0;
-                                @endphp
-                            @empty
-                                @include('essentials::payroll.allowance_and_deduction_row', ['add_button' => true, 'type' => 'allowance'])
-                            @endforelse
+                                    @php
+                                        $total_allowances += !empty($allowances['allowance_amounts'][$key]) ? $allowances['allowance_amounts'][$key] : 0;
+                                    @endphp
+                                @empty
+                                    @include('essentials::payroll.allowance_and_deduction_row', ['add_button' => true, 'type' => 'allowance'])
+                                @endforelse
+                            @endif
                             </tbody>
                             <tfoot>
                             <tr>
@@ -279,18 +281,20 @@
                         @php
                             $total_deductions = 0;
                         @endphp
-                        @forelse($deductions['deduction_names'] as $key => $value)
-{{--                            @include('essentials::payroll.allowance_and_deduction_row', ['add_button' => $loop->index == 0 ? true : false, 'type' => 'deduction', 'name' => $value, 'value' => $deductions['deduction_amounts'][$key]])--}}
-                            <tr>
-                                <td>{{$value}}</td>
-                                <td>{{$deductions['deduction_amounts'][$key]}}</td>
-                            </tr>
-                            @php
-                                $total_deductions += !empty($deductions['deduction_amounts'][$key]) ? $deductions['deduction_amounts'][$key] : 0;
-                            @endphp
-                        @empty
-                            @include('essentials::payroll.allowance_and_deduction_row', ['add_button' => true, 'type' => 'deduction'])
-                        @endforelse
+                        @if(!empty($allowances['deduction_names']))
+                            @forelse($deductions['deduction_names'] as $key => $value)
+    {{--                            @include('essentials::payroll.allowance_and_deduction_row', ['add_button' => $loop->index == 0 ? true : false, 'type' => 'deduction', 'name' => $value, 'value' => $deductions['deduction_amounts'][$key]])--}}
+                                <tr>
+                                    <td>{{$value}}</td>
+                                    <td>{{$deductions['deduction_amounts'][$key]}}</td>
+                                </tr>
+                                @php
+                                    $total_deductions += !empty($deductions['deduction_amounts'][$key]) ? $deductions['deduction_amounts'][$key] : 0;
+                                @endphp
+                            @empty
+                                @include('essentials::payroll.allowance_and_deduction_row', ['add_button' => true, 'type' => 'deduction'])
+                            @endforelse
+                        @endif
                         </tbody>
                         <tfoot>
                         <tr>
