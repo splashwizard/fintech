@@ -124,7 +124,7 @@ class DashboardTransferController extends Controller
                         } else {
                             return '';
                         }
-                    }])
+                }])
                 ->rawColumns(['product', 'is_display_front'])
                 ->make(true);
         }

@@ -130,6 +130,11 @@ Route::middleware(['IsInstalled', 'auth', 'SetSessionData', 'language', 'timezon
     Route::get('/sells/draft-dt', 'SellController@getDraftDatables');
     Route::resource('deposit', 'SellController');
     Route::resource('withdraw', 'WithDrawController');
+    Route::post('/new_transactions/approve/{id}', 'NewTransactionController@approve');
+    Route::post('/new_transactions/reject/{id}', 'NewTransactionController@reject');
+    Route::get('/new_transactions/withdraw', 'NewTransactionController@withdraw');
+    Route::post('/new_transactions/approveWithdraw/{id}', 'NewTransactionController@approveWithdraw');
+    Route::post('/new_transactions/rejectWithdraw/{id}', 'NewTransactionController@rejectWithdraw');
     Route::resource('new_transactions', 'NewTransactionController');
     Route::get('/pos_ledger', 'PosLedgerController@index');
 
@@ -351,6 +356,8 @@ Route::middleware(['IsInstalled', 'auth', 'SetSessionData', 'language', 'timezon
     Route::get('/dashboard_deposit', 'DashboardDepositController@index');
     Route::post('/dashboard_deposit/update_display_front/{id}', 'DashboardDepositController@updateDisplayFront');
     Route::get('/dashboard_transfer', 'DashboardTransferController@index');
+    Route::post('/dashboard_transfer/approve/{id}', 'DashboardTransferController@approve');
+    Route::post('/dashboard_transfer/reject/{id}', 'DashboardTransferController@reject');
     Route::post('/dashboard_transfer/update_display_front/{id}', 'DashboardTransferController@updateDisplayFront');
 
     Route::group(['prefix' => 'account'], function () {

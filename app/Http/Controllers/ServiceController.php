@@ -814,7 +814,6 @@ class ServiceController extends Controller
         if (!auth()->user()->can('account.access')) {
             abort(403, 'Unauthorized action.');
         }
-
         try {
             $business_id = session()->get('user.business_id');
             $is_request = $request->input('is_request');

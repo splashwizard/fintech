@@ -15,8 +15,10 @@ return [
     'deposit_method' => 'Deposit method',
     'amount' => 'Amount',
     'reference_number' => 'Reference number',
+    'remark' => 'Remark',
     'product_name' => 'Product name',
     'bonus' => 'Bonus',
     'view_receipt' => 'View Receipt',
-    'action' => 'Action'
+    'action' => 'Action',
+    'status' => 'Status'
 ];

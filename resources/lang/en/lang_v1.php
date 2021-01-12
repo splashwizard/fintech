@@ -217,6 +217,8 @@ return [
     'opening_stock_sold' => "Product can't be deleted because some stocks are sold",
     'stock_adjusted' => "Product can't be deleted because some stocks are adjusted",
     'product_delete_success' => 'Product deleted successfully',
+    'new_transaction_approve_success' => 'New Transaction Approved successfully',
+    'new_transaction_reject_success' => 'New Transaction Rejected successfully',
     'manage_products' => 'Manage your products',
     'all_products' => 'All Products',
     'login' => 'Login',
