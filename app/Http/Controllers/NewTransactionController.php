@@ -167,14 +167,9 @@ class NewTransactionController extends Controller
             $query = NewTransactionWithdraw::join('contacts', 'contacts.id', 'new_transaction_withdraws.client_id')
                 ->join('products', 'products.id', 'new_transaction_withdraws.product_id')
                 ->where('contacts.business_id', $business_id)
-                ->select( 'new_transaction_withdraws.id',
+                ->select('new_transaction_withdraws.*',
                     'contacts.name as client',
-                    'new_transaction_withdraws.bank_id',
-                    'new_transaction_withdraws.remark',
-                    'new_transaction_withdraws.amount',
-                    'products.name as product_name',
-                    'new_transaction_withdraws.status',
-                    'new_transaction_withdraws.created_at'
+                    'products.name as product_name'
                 );
 
             if (!empty(request()->start_date) && !empty(request()->end_date)) {
@@ -187,7 +182,9 @@ class NewTransactionController extends Controller
                 ->addColumn(
                     'action',function ($row){
                     if($row->status == 'pending'){
-                        $html = '<button class="btn btn-xs btn-success approve-deposit" style="margin-right:0.5em" href="' . action('NewTransactionController@approveWithdraw', [$row->id]) . '">Approve</button>';
+                        $account_id = Product::find($row->product_id)->account_id;
+//                        $html = '<button class="btn btn-xs btn-success approve-deposit" style="margin-right:0.5em" href="' . action('NewTransactionController@approveWithdraw', [$row->id]) . '">Approve</button>';
+                        $html = '<button data-href="http://localhost:8000/service/withdraw/'.$account_id.'" data-amount="'.$row->amount.'"  data-client_id="'.$row->client_id.'" style="margin: 5px 5px 5px 0" class="btn btn-xs btn-primary btn-modal btn-edit-withdraw" data-container=".view_modal">edit</button>';
                         $html .= '<button class="btn btn-xs btn-danger reject-deposit" href="' . action('NewTransactionController@rejectWithdraw', [$row->id]) . '">Reject</button>';
                         return $html;
                     }
@@ -526,7 +523,7 @@ class NewTransactionController extends Controller
             'recur_interval' => null,
             'recur_interval_type' => 'days',
             'recur_repetitions' => null,
-            'status' => 'final'
+            'status' => 'final',
         ];
 
         $is_direct_sale = false;

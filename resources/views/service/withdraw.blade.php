@@ -165,6 +165,7 @@
 
 
         function getBankDetail(){
+            console.log('here');
             $.ajax({
                 method: $(this).attr('method'),
                 url: '/contacts/bank_detail',

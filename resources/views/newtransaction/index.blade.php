@@ -106,6 +106,8 @@
 <script type="text/javascript">
 $(document).ready( function(){
     var active_table = 'deposit';
+    var client_id = 0;
+    var amount = 0;
 
     function reloadTable() {
         if(active_table === 'deposit')
@@ -230,6 +232,16 @@ $(document).ready( function(){
         }
     });
 
+    $(document).on('click', '.btn-edit-withdraw', function (e) {
+        client_id = $(this).data('client_id');
+        amount = $(this).data('amount');
+    });
+
+    $(document).on('shown.bs.modal', '.view_modal', function (e) {
+        $('select#withdraw_to').val(client_id).trigger('change');
+        $('#amount').val(amount);
+    });
+
     $(document).on('click', '.approve-deposit', function (e) {
         e.preventDefault();
         swal({
@@ -278,6 +290,28 @@ $(document).ready( function(){
                         }
                     }
                 });
+            }
+        });
+    });
+
+    $(document).on('submit', 'form#withdraw_form', function(e){
+        e.preventDefault();
+
+        $.ajax({
+            method: "POST",
+            url: $(this).attr("action"),
+            dataType: "json",
+            data: new FormData(this),
+            contentType: false,
+            cache: false,
+            processData:false,
+            success: function(result){
+                if(result.success == true){
+                    $('div.view_modal').modal('hide');
+                    toastr.success(result.msg);
+                } else {
+                    toastr.error(result.msg);
+                }
             }
         });
     });

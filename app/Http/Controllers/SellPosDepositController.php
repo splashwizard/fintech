@@ -3375,7 +3375,7 @@ class SellPosDepositController extends Controller
                 'products' => $sell_lines,
                 'is_created_from_api' => 1,
                 'discount_type' => 'fixed',
-                'discount_amount' => 0
+                'discount_amount' => 0,
             ];
 
             $invoice_total = [
@@ -3384,6 +3384,7 @@ class SellPosDepositController extends Controller
             ];
 
             DB::beginTransaction();
+
 
             $transaction = $this->transactionUtil->createSellTransaction($business_id, $order_data, $invoice_total, $user_id, false);
 

@@ -670,10 +670,10 @@ class ServiceController extends Controller
             $contacts = Contact::where('business_id', $business_id);
             $selected_contacts = User::isSelectedContacts($user_id);
 
-            if ($selected_contacts) {
-                $contacts->join('user_contact_access AS uca', 'contacts.id', 'uca.contact_id')
-                    ->where('uca.user_id', $user_id);
-            }
+//            if ($selected_contacts) {
+//                $contacts->join('user_contact_access AS uca', 'contacts.id', 'uca.contact_id')
+//                    ->where('uca.user_id', $user_id);
+//            }
             $to_users = $contacts->pluck('contact_id', 'id');
 
 //            $withdraw_mode = ['w' => 'Wallet', 'b' => 'Bank'];

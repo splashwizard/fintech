@@ -377,6 +377,7 @@ class HomeController extends Controller
                 $join->on('AT.account_id', '=', 'accounts.id');
                 $join->whereNull('AT.deleted_at');
             })
+                ->where('accounts.is_service', 0)
                 ->where('name', '!=', 'Bonus Account')
                 ->where('business_id', $business_id)
                 ->whereDate('AT.operation_date', '>=', $start)
