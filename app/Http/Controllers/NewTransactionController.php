@@ -68,7 +68,7 @@ class NewTransactionController extends Controller
         $this->productUtil = $productUtil;
 
         $this->dummyPaymentLine = ['method' => 'cash', 'amount' => 0, 'note' => '', 'card_transaction_number' => '', 'card_number' => '', 'card_type' => '', 'card_holder_name' => '', 'card_month' => '', 'card_year' => '', 'card_security' => '', 'cheque_number' => '', 'bank_account_number' => '',
-        'is_return' => 0, 'transaction_no' => ''];
+            'is_return' => 0, 'transaction_no' => ''];
     }
 
     /**
@@ -88,17 +88,17 @@ class NewTransactionController extends Controller
                 ->join('products', 'products.id', 'new_transactions.product_id')
                 ->where('contacts.business_id', $business_id)
                 ->select( 'new_transactions.id',
-                'contacts.name as client',
-                'new_transactions.bank_id',
-                'new_transactions.deposit_method',
-                'new_transactions.amount',
-                'new_transactions.reference_number',
-                'products.name as product_name',
-                'new_transactions.bonus',
-                'new_transactions.receipt_url',
-                'new_transactions.status',
-                'new_transactions.created_at'
-            );
+                    'contacts.name as client',
+                    'new_transactions.bank_id',
+                    'new_transactions.deposit_method',
+                    'new_transactions.amount',
+                    'new_transactions.reference_number',
+                    'products.name as product_name',
+                    'new_transactions.bonus',
+                    'new_transactions.receipt_url',
+                    'new_transactions.status',
+                    'new_transactions.created_at'
+                );
 
             if (!empty(request()->start_date) && !empty(request()->end_date)) {
                 $start = request()->start_date;
@@ -135,16 +135,16 @@ class NewTransactionController extends Controller
                     '<span class="display_currency sell_amount" data-orig-value="{{$amount}}" data-highlight=true>{{($amount)}}</span>'
                 );
             $rawColumns = ['amount', 'view_receipt', 'action', 'status'];
-                
+
             return $datatable->rawColumns($rawColumns)
-                      ->make(true);
+                ->make(true);
         }
 
 //        $categories = Category::forDropdownBankOrService($business_id);
         $accounts = Account::forDropdown($business_id, false);
         $customers = Contact::customersDropdown($business_id, false);
         $sales_representative = User::forDropdown($business_id, false, false, true);
-        
+
         //Commission agent filter
         $is_cmsn_agent_enabled = request()->session()->get('business.sales_cmsn_agnt');
         $commission_agents = [];
@@ -153,7 +153,7 @@ class NewTransactionController extends Controller
         }
 
         return view('newtransaction.index')
-        ->with(compact('accounts', 'customers', 'sales_representative', 'is_cmsn_agent_enabled', 'commission_agents'));
+            ->with(compact('accounts', 'customers', 'sales_representative', 'is_cmsn_agent_enabled', 'commission_agents'));
     }
 
     public function withdraw()
@@ -184,7 +184,7 @@ class NewTransactionController extends Controller
                     if($row->status == 'pending'){
                         $account_id = Product::find($row->product_id)->account_id;
 //                        $html = '<button class="btn btn-xs btn-success approve-deposit" style="margin-right:0.5em" href="' . action('NewTransactionController@approveWithdraw', [$row->id]) . '">Approve</button>';
-                        $html = '<button data-href="http://localhost:8000/service/withdraw/'.$account_id.'" data-amount="'.$row->amount.'"  data-client_id="'.$row->client_id.'" style="margin: 5px 5px 5px 0" class="btn btn-xs btn-primary btn-modal btn-edit-withdraw" data-container=".view_modal">edit</button>';
+                        $html = '<button data-href="'.action('ServiceController@getWithdraw', $account_id).'" data-amount="'.$row->amount.'"  data-client_id="'.$row->client_id.'" style="margin: 5px 5px 5px 0" class="btn btn-xs btn-primary btn-modal btn-edit-withdraw" data-container=".view_modal">edit</button>';
                         $html .= '<button class="btn btn-xs btn-danger reject-deposit" href="' . action('NewTransactionController@rejectWithdraw', [$row->id]) . '">Reject</button>';
                         return $html;
                     }
@@ -250,7 +250,7 @@ class NewTransactionController extends Controller
         }
 
         $walk_in_customer = $this->contactUtil->getWalkInCustomer($business_id);
-        
+
         $business_details = $this->businessUtil->getDetails($business_id);
         $taxes = TaxRate::forBusinessDropdown($business_id, true, true);
 
@@ -324,15 +324,15 @@ class NewTransactionController extends Controller
     {
         if (request()->ajax()) {
 //            try {
-                $newTransaction = NewTransactions::find($id);
-                $newTransaction->status = 'approved';
-                $newTransaction->save();
+            $newTransaction = NewTransactions::find($id);
+            $newTransaction->status = 'approved';
+            $newTransaction->save();
 
-                $result = $this->createDeposit($request, $newTransaction->client_id, $newTransaction->bank_id, $newTransaction->amount, $newTransaction->product_id);
-                $output = ['success' => true,
-                    'data' => $result,
-                    'msg' => __("lang_v1.new_transaction_approve_success")
-                ];
+            $result = $this->createDeposit($request, $newTransaction->client_id, $newTransaction->bank_id, $newTransaction->amount, $newTransaction->product_id);
+            $output = ['success' => true,
+                'data' => $result,
+                'msg' => __("lang_v1.new_transaction_approve_success")
+            ];
 //            } catch (\Exception $e) {
 //                DB::rollBack();
 //                \Log::emergency("File:" . $e->getFile() . "Line:" . $e->getLine() . "Message:" . $e->getMessage());
@@ -594,199 +594,199 @@ class NewTransactionController extends Controller
         $payments = [];
         // sum to one transaction
         $service_id_arr = [];
-            $input['game_id'] = '';
-            if(GameId::where('service_id', $service_id)->where('contact_id', $contact_id)->count() > 0)
-                $input['game_id'] = GameId::where('service_id', $service_id)->where('contact_id', $contact_id)->get()->first()->cur_game_id;
-            $total_credit = 0;
-            $payment_data = [];
-            $new_payment_item = [];
+        $input['game_id'] = '';
+        if(GameId::where('service_id', $service_id)->where('contact_id', $contact_id)->count() > 0)
+            $input['game_id'] = GameId::where('service_id', $service_id)->where('contact_id', $contact_id)->get()->first()->cur_game_id;
+        $total_credit = 0;
+        $payment_data = [];
+        $new_payment_item = [];
 
-            foreach ($products as $key => $product) {
-                if(empty($product['payment_for']))
-                    $products[$key]['payment_for'] = $contact_id;
+        foreach ($products as $key => $product) {
+            if(empty($product['payment_for']))
+                $products[$key]['payment_for'] = $contact_id;
+        }
+        foreach ($products as $product) {
+            if($product['category_id'] == 66) {
+                $total_credit += $product['amount'];
+            } else if($product['category_id'] == 67) {
+                $service_id_arr[] = $product['account_id'];
             }
-            foreach ($products as $product) {
-                if($product['category_id'] == 66) {
-                    $total_credit += $product['amount'];
-                } else if($product['category_id'] == 67) {
-                    $service_id_arr[] = $product['account_id'];
+            if($product['no_bonus'] == 1)
+                $no_bonus = 1;
+            $if_contact_account_same = false;
+            foreach ($payment_data as $key => $payment_item) {
+                if($payment_item['account_id'] == $product['account_id'] && $payment_item['payment_for'] == $product['payment_for']){
+                    $payment_data[$key]['amount'] += $product['amount'];
+                    $if_contact_account_same = true;
+                    break;
                 }
-                if($product['no_bonus'] == 1)
-                    $no_bonus = 1;
-                $if_contact_account_same = false;
-                foreach ($payment_data as $key => $payment_item) {
-                    if($payment_item['account_id'] == $product['account_id'] && $payment_item['payment_for'] == $product['payment_for']){
-                        $payment_data[$key]['amount'] += $product['amount'];
-                        $if_contact_account_same = true;
-                        break;
+            }
+            if($if_contact_account_same == false){
+                $new_payment_item['amount'] = $product['amount'];
+                $new_payment_item['category_id'] = $product['category_id'];
+                $new_payment_item['p_name'] = $product['p_name'];
+                $new_payment_item['account_id'] = $product['account_id'];
+                $new_payment_item['payment_for'] = $product['payment_for'];
+                $payment_data[] = $new_payment_item;
+            }
+        }
+        foreach ($payment_data as $payment){
+            $data = Category::where('id', $payment['category_id'])->get()->first();
+            if($data->name == 'Banking'){
+                $card_type = 'credit';
+                $method = 'bank_transfer';
+                $payments[] = ['account_id' => $payment['account_id'], 'method' => $method, 'amount' => $payment['amount'], 'note' => '', 'card_transaction_number' => '', 'card_number' => '', 'card_type' => $card_type, 'card_holder_name' => '', 'card_month' => '', 'card_year' => '', 'card_security' => '', 'cheque_number' => '', 'bank_account_number' => '',
+                    'is_return' => 0, 'transaction_no' => '', 'category_name' => $data->name, 'payment_for' => $payment['payment_for']];
+            }
+
+        }
+        if(!empty($basic_bonus) || !empty($special_bonus)){
+            if($bonus_variation_id == -1) {
+                $bonus_key = Account::where('business_id', $business_id)->where('name', 'Bonus Account')->get()[0]->id;
+                $query = Category::where('name', 'Banking');
+                $data = $query->get()[0];
+                $payments[] = ['account_id' => $bonus_key, 'method' => 'basic_bonus', 'amount' => $basic_bonus, 'note' => '', 'card_transaction_number' => '', 'card_number' => '', 'card_type' => 'credit', 'card_holder_name' => '', 'card_month' => '', 'card_year' => '', 'card_security' => '', 'cheque_number' => '', 'bank_account_number' => '',
+                    'is_return' => 0, 'transaction_no' => '', 'category_name' => $data->name, 'payment_for' => $contact_id];
+            } else {
+                $bonus_key = Account::where('business_id', $business_id)->where('name', 'Bonus Account')->get()[0]->id;
+                $query = Category::where('name', 'Banking');
+                $data = $query->get()[0];
+                $payments[] = ['account_id' => $bonus_key, 'method' => 'free_credit', 'amount' => $special_bonus, 'note' => '', 'card_transaction_number' => '', 'card_number' => '', 'card_type' => 'credit', 'card_holder_name' => '', 'card_month' => '', 'card_year' => '', 'card_security' => '', 'cheque_number' => '', 'bank_account_number' => '',
+                    'is_return' => 0, 'transaction_no' => '', 'category_name' => $data->name, 'payment_for' => $contact_id];
+            }
+        }
+        foreach ($payment_data as $payment){
+            $data = Category::where('id', $payment['category_id'])->get()->first();
+            if($data->name != 'Banking'){
+                $method = 'service_transfer';
+                $card_type = 'debit';
+                $payments[] = ['account_id' => $payment['account_id'], 'method' => $method, 'amount' => $payment['amount'], 'note' => '', 'card_transaction_number' => '', 'card_number' => '', 'card_type' => $card_type, 'card_holder_name' => '', 'card_month' => '', 'card_year' => '', 'card_security' => '', 'cheque_number' => '', 'bank_account_number' => '',
+                    'is_return' => 0, 'transaction_no' => '', 'category_name' => $data->name, 'payment_for' => $payment['payment_for']];
+            }
+        }
+        $input['payment'] = $payments;
+        //payment end
+
+        if ($request->session()->get('business.enable_rp') == 1) {
+            $earned = $redeemed = 0;
+            foreach ($input['payment'] as $key => $payment_item){
+                //                        if($key < count($input['payment']) - 1 ){
+                $product_category = $payment_item['category_name'];
+                if($product_category == 'Banking') {
+                    $earned += $payment_item['amount'];
+                } else if($product_category == 'Service List') {
+                    $redeemed += $payment_item['amount'];
+                }
+                //                        }
+            }
+            $input['final_total'] = $earned;
+            $input['rp_redeemed'] = $redeemed;
+        }
+
+        $transaction = $this->transactionUtil->createSellTransaction($business_id, $input, $invoice_total, $user_id);
+        ActivityLogger::activity("Created transaction, ticket # ".$transaction->invoice_no);
+
+        $this->transactionUtil->createOrUpdateSellLines($transaction, $input['products'], $input['location_id']);
+
+        if (!$is_direct_sale) {
+            //Add change return
+            $change_return = $this->dummyPaymentLine;
+            $change_return['amount'] = $input['change_return'];
+            $change_return['is_return'] = 1;
+            $input['payment'][] = $change_return;
+        }
+
+
+        if (!$transaction->is_suspend && !empty($input['payment'])) {
+            if(!(auth()->user()->hasRole('Admin#' . auth()->user()->business_id) || auth()->user()->hasRole('Admin') || auth()->user()->hasRole('Superadmin'))){
+                if(!$this->isShiftClosed($business_id)){
+                    foreach( $input['payment'] as $i => $payment){
+                        $input['payment'][$i]['paid_on'] = date('Y-m-d H:i:s', strtotime('today') - 1);
                     }
                 }
-                if($if_contact_account_same == false){
-                    $new_payment_item['amount'] = $product['amount'];
-                    $new_payment_item['category_id'] = $product['category_id'];
-                    $new_payment_item['p_name'] = $product['p_name'];
-                    $new_payment_item['account_id'] = $product['account_id'];
-                    $new_payment_item['payment_for'] = $product['payment_for'];
-                    $payment_data[] = $new_payment_item;
-                }
             }
-            foreach ($payment_data as $payment){
-                $data = Category::where('id', $payment['category_id'])->get()->first();
-                if($data->name == 'Banking'){
-                    $card_type = 'credit';
-                    $method = 'bank_transfer';
-                    $payments[] = ['account_id' => $payment['account_id'], 'method' => $method, 'amount' => $payment['amount'], 'note' => '', 'card_transaction_number' => '', 'card_number' => '', 'card_type' => $card_type, 'card_holder_name' => '', 'card_month' => '', 'card_year' => '', 'card_security' => '', 'cheque_number' => '', 'bank_account_number' => '',
-                        'is_return' => 0, 'transaction_no' => '', 'category_name' => $data->name, 'payment_for' => $payment['payment_for']];
+            $this->transactionUtil->createOrUpdatePaymentLines($transaction, $input['payment']);
+        }
+
+        $update_transaction = false;
+        if ($this->transactionUtil->isModuleEnabled('tables')) {
+            $transaction->res_table_id = request()->get('res_table_id');
+            $update_transaction = true;
+        }
+        if ($this->transactionUtil->isModuleEnabled('service_staff')) {
+            $transaction->res_waiter_id = request()->get('res_waiter_id');
+            $update_transaction = true;
+        }
+        if ($update_transaction) {
+            $transaction->save();
+        }
+
+        //Check for final and do some processing.
+        if ($input['status'] == 'final') {
+            //update product stock
+            foreach ($input['products'] as $product) {
+                $decrease_qty = $this->productUtil
+                    ->num_uf($product['quantity']);
+                if (!empty($product['base_unit_multiplier'])) {
+                    $decrease_qty = $decrease_qty * $product['base_unit_multiplier'];
                 }
 
-            }
-            if(!empty($basic_bonus) || !empty($special_bonus)){
-                if($bonus_variation_id == -1) {
-                    $bonus_key = Account::where('business_id', $business_id)->where('name', 'Bonus Account')->get()[0]->id;
-                    $query = Category::where('name', 'Banking');
-                    $data = $query->get()[0];
-                    $payments[] = ['account_id' => $bonus_key, 'method' => 'basic_bonus', 'amount' => $basic_bonus, 'note' => '', 'card_transaction_number' => '', 'card_number' => '', 'card_type' => 'credit', 'card_holder_name' => '', 'card_month' => '', 'card_year' => '', 'card_security' => '', 'cheque_number' => '', 'bank_account_number' => '',
-                        'is_return' => 0, 'transaction_no' => '', 'category_name' => $data->name, 'payment_for' => $contact_id];
-                } else {
-                    $bonus_key = Account::where('business_id', $business_id)->where('name', 'Bonus Account')->get()[0]->id;
-                    $query = Category::where('name', 'Banking');
-                    $data = $query->get()[0];
-                    $payments[] = ['account_id' => $bonus_key, 'method' => 'free_credit', 'amount' => $special_bonus, 'note' => '', 'card_transaction_number' => '', 'card_number' => '', 'card_type' => 'credit', 'card_holder_name' => '', 'card_month' => '', 'card_year' => '', 'card_security' => '', 'cheque_number' => '', 'bank_account_number' => '',
-                        'is_return' => 0, 'transaction_no' => '', 'category_name' => $data->name, 'payment_for' => $contact_id];
+                if ($product['enable_stock']) {
+                    $this->productUtil->decreaseProductQuantity(
+                        $product['product_id'],
+                        $product['variation_id'],
+                        $input['location_id'],
+                        $decrease_qty
+                    );
+                }
+
+                if ($product['product_type'] == 'combo') {
+                    //Decrease quantity of combo as well.
+                    $this->productUtil
+                        ->decreaseProductQuantityCombo(
+                            $product['combo'],
+                            $input['location_id']
+                        );
                 }
             }
-            foreach ($payment_data as $payment){
-                $data = Category::where('id', $payment['category_id'])->get()->first();
-                if($data->name != 'Banking'){
-                    $method = 'service_transfer';
-                    $card_type = 'debit';
-                    $payments[] = ['account_id' => $payment['account_id'], 'method' => $method, 'amount' => $payment['amount'], 'note' => '', 'card_transaction_number' => '', 'card_number' => '', 'card_type' => $card_type, 'card_holder_name' => '', 'card_month' => '', 'card_year' => '', 'card_security' => '', 'cheque_number' => '', 'bank_account_number' => '',
-                        'is_return' => 0, 'transaction_no' => '', 'category_name' => $data->name, 'payment_for' => $payment['payment_for']];
-                }
+
+            //Add payments to Cash Register
+            if (!$is_direct_sale && !$transaction->is_suspend && !empty($input['payment'])) {
+                $this->cashRegisterUtil->addSellPayments($transaction, $input['payment']);
             }
-            $input['payment'] = $payments;
-            //payment end
+
+            //Update payment status
+            $this->transactionUtil->updatePaymentStatus($transaction->id, $transaction->final_total);
 
             if ($request->session()->get('business.enable_rp') == 1) {
-                $earned = $redeemed = 0;
-                foreach ($input['payment'] as $key => $payment_item){
-                    //                        if($key < count($input['payment']) - 1 ){
-                    $product_category = $payment_item['category_name'];
-                    if($product_category == 'Banking') {
-                        $earned += $payment_item['amount'];
-                    } else if($product_category == 'Service List') {
-                        $redeemed += $payment_item['amount'];
-                    }
-                    //                        }
-                }
-                $input['final_total'] = $earned;
-                $input['rp_redeemed'] = $redeemed;
+                $this->transactionUtil->updateCustomerRewardPoints($contact_id, $transaction->rp_earned, 0, $transaction->rp_redeemed);
             }
 
-            $transaction = $this->transactionUtil->createSellTransaction($business_id, $input, $invoice_total, $user_id);
-            ActivityLogger::activity("Created transaction, ticket # ".$transaction->invoice_no);
+            //Allocate the quantity from purchase and add mapping of
+            //purchase & sell lines in
+            //transaction_sell_lines_purchase_lines table
+            $business_details = $this->businessUtil->getDetails($business_id);
+            $pos_settings = empty($business_details->pos_settings) ? $this->businessUtil->defaultPosSettings() : json_decode($business_details->pos_settings, true);
 
-            $this->transactionUtil->createOrUpdateSellLines($transaction, $input['products'], $input['location_id']);
+            $business = ['id' => $business_id,
+                'accounting_method' => $request->session()->get('business.accounting_method'),
+                'location_id' => $input['location_id'],
+                'pos_settings' => $pos_settings
+            ];
+            $this->transactionUtil->mapPurchaseSell($business, $transaction->sell_lines, 'purchase');
 
-            if (!$is_direct_sale) {
-                //Add change return
-                $change_return = $this->dummyPaymentLine;
-                $change_return['amount'] = $input['change_return'];
-                $change_return['is_return'] = 1;
-                $input['payment'][] = $change_return;
-            }
+            //Auto send notification
+            $this->notificationUtil->autoSendNotification($business_id, 'new_sale', $transaction, $transaction->contact);
+        }
 
+        //Set Module fields
+        if (!empty($input['has_module_data'])) {
+            $this->moduleUtil->getModuleData('after_sale_saved', ['transaction' => $transaction, 'input' => $input]);
+        }
 
-            if (!$transaction->is_suspend && !empty($input['payment'])) {
-                if(!(auth()->user()->hasRole('Admin#' . auth()->user()->business_id) || auth()->user()->hasRole('Admin') || auth()->user()->hasRole('Superadmin'))){
-                    if(!$this->isShiftClosed($business_id)){
-                        foreach( $input['payment'] as $i => $payment){
-                            $input['payment'][$i]['paid_on'] = date('Y-m-d H:i:s', strtotime('today') - 1);
-                        }
-                    }
-                }
-                $this->transactionUtil->createOrUpdatePaymentLines($transaction, $input['payment']);
-            }
+        Media::uploadMedia($business_id, $transaction, $request, 'documents');
 
-            $update_transaction = false;
-            if ($this->transactionUtil->isModuleEnabled('tables')) {
-                $transaction->res_table_id = request()->get('res_table_id');
-                $update_transaction = true;
-            }
-            if ($this->transactionUtil->isModuleEnabled('service_staff')) {
-                $transaction->res_waiter_id = request()->get('res_waiter_id');
-                $update_transaction = true;
-            }
-            if ($update_transaction) {
-                $transaction->save();
-            }
-
-            //Check for final and do some processing.
-            if ($input['status'] == 'final') {
-                //update product stock
-                foreach ($input['products'] as $product) {
-                    $decrease_qty = $this->productUtil
-                        ->num_uf($product['quantity']);
-                    if (!empty($product['base_unit_multiplier'])) {
-                        $decrease_qty = $decrease_qty * $product['base_unit_multiplier'];
-                    }
-
-                    if ($product['enable_stock']) {
-                        $this->productUtil->decreaseProductQuantity(
-                            $product['product_id'],
-                            $product['variation_id'],
-                            $input['location_id'],
-                            $decrease_qty
-                        );
-                    }
-
-                    if ($product['product_type'] == 'combo') {
-                        //Decrease quantity of combo as well.
-                        $this->productUtil
-                            ->decreaseProductQuantityCombo(
-                                $product['combo'],
-                                $input['location_id']
-                            );
-                    }
-                }
-
-                //Add payments to Cash Register
-                if (!$is_direct_sale && !$transaction->is_suspend && !empty($input['payment'])) {
-                    $this->cashRegisterUtil->addSellPayments($transaction, $input['payment']);
-                }
-
-                //Update payment status
-                $this->transactionUtil->updatePaymentStatus($transaction->id, $transaction->final_total);
-
-                if ($request->session()->get('business.enable_rp') == 1) {
-                    $this->transactionUtil->updateCustomerRewardPoints($contact_id, $transaction->rp_earned, 0, $transaction->rp_redeemed);
-                }
-
-                //Allocate the quantity from purchase and add mapping of
-                //purchase & sell lines in
-                //transaction_sell_lines_purchase_lines table
-                $business_details = $this->businessUtil->getDetails($business_id);
-                $pos_settings = empty($business_details->pos_settings) ? $this->businessUtil->defaultPosSettings() : json_decode($business_details->pos_settings, true);
-
-                $business = ['id' => $business_id,
-                    'accounting_method' => $request->session()->get('business.accounting_method'),
-                    'location_id' => $input['location_id'],
-                    'pos_settings' => $pos_settings
-                ];
-                $this->transactionUtil->mapPurchaseSell($business, $transaction->sell_lines, 'purchase');
-
-                //Auto send notification
-                $this->notificationUtil->autoSendNotification($business_id, 'new_sale', $transaction, $transaction->contact);
-            }
-
-            //Set Module fields
-            if (!empty($input['has_module_data'])) {
-                $this->moduleUtil->getModuleData('after_sale_saved', ['transaction' => $transaction, 'input' => $input]);
-            }
-
-            Media::uploadMedia($business_id, $transaction, $request, 'documents');
-
-            DB::commit();
+        DB::commit();
         if (empty($input['sub_type'])) {
             if (!$is_direct_sale && !$transaction->is_suspend) {
                 $receipt = $this->receiptContent($business_id, $input['location_id'], $transaction->id);
@@ -893,7 +893,7 @@ class NewTransactionController extends Controller
         if($accounts->get()->first()->balance < $amount){
             $output = ['success' => false,
 //                'msg' => 'Insufficient Bank Balance, please top up bank credit!'
-            'msg' => json_encode($accounts->get())
+                'msg' => json_encode($accounts->get())
             ];
             return $output;
         }
@@ -987,7 +987,7 @@ class NewTransactionController extends Controller
         $credit = AccountTransaction::createAccountTransaction($credit_data);
 
         $output = ['success' => true,
-        'msg' => __("account.withdrawn_successfully")
+            'msg' => __("account.withdrawn_successfully")
         ];
         return $output;
     }
@@ -1105,12 +1105,12 @@ class NewTransactionController extends Controller
 
         $business_id = request()->session()->get('user.business_id');
         $taxes = TaxRate::where('business_id', $business_id)
-                            ->pluck('name', 'id');
+            ->pluck('name', 'id');
         $query = Transaction::where('business_id', $business_id)
-                    ->where('id', $id)
-                    ->with(['contact', 'sell_lines' => function ($q) {
-                        $q->whereNull('parent_sell_line_id');
-                    },'sell_lines.product', 'sell_lines.product.unit', 'sell_lines.variations', 'sell_lines.variations.product_variation', 'payment_lines', 'sell_lines.modifiers', 'sell_lines.lot_details', 'tax', 'sell_lines.sub_unit', 'table', 'service_staff', 'sell_lines.service_staff']);
+            ->where('id', $id)
+            ->with(['contact', 'sell_lines' => function ($q) {
+                $q->whereNull('parent_sell_line_id');
+            },'sell_lines.product', 'sell_lines.product.unit', 'sell_lines.variations', 'sell_lines.variations.product_variation', 'payment_lines', 'sell_lines.modifiers', 'sell_lines.lot_details', 'tax', 'sell_lines.sub_unit', 'table', 'service_staff', 'sell_lines.service_staff']);
 
         if (!auth()->user()->can('sell.view') && !auth()->user()->can('direct_sell.access') && auth()->user()->can('view_own_sell_only')) {
             $query->where('transactions.created_by', request()->session()->get('user.id'));
@@ -1166,77 +1166,77 @@ class NewTransactionController extends Controller
         //Check if return exist then not allowed
         if ($this->transactionUtil->isReturnExist($id)) {
             return back()->with('status', ['success' => 0,
-                    'msg' => __('lang_v1.return_exist')]);
+                'msg' => __('lang_v1.return_exist')]);
         }
-        
+
         $business_id = request()->session()->get('user.business_id');
-        
+
         $business_details = $this->businessUtil->getDetails($business_id);
         $taxes = TaxRate::forBusinessDropdown($business_id, true, true);
 
         $transaction = Transaction::where('business_id', $business_id)
-                            ->where('type', 'sell')
-                            ->findorfail($id);
+            ->where('type', 'sell')
+            ->findorfail($id);
 
         $location_id = $transaction->location_id;
         $location_printer_type = BusinessLocation::find($location_id)->receipt_printer_type;
 
         $sell_details = TransactionSellLine::
-                        join(
-                            'products AS p',
-                            'transaction_sell_lines.product_id',
-                            '=',
-                            'p.id'
-                        )
-                        ->join(
-                            'variations AS variations',
-                            'transaction_sell_lines.variation_id',
-                            '=',
-                            'variations.id'
-                        )
-                        ->join(
-                            'product_variations AS pv',
-                            'variations.product_variation_id',
-                            '=',
-                            'pv.id'
-                        )
-                        ->leftjoin('variation_location_details AS vld', function ($join) use ($location_id) {
-                            $join->on('variations.id', '=', 'vld.variation_id')
-                                ->where('vld.location_id', '=', $location_id);
-                        })
-                        ->leftjoin('units', 'units.id', '=', 'p.unit_id')
-                        ->where('transaction_sell_lines.transaction_id', $id)
-                        ->select(
-                            DB::raw("IF(pv.is_dummy = 0, CONCAT(p.name, ' (', pv.name, ':',variations.name, ')'), p.name) AS product_name"),
-                            'p.id as product_id',
-                            'p.enable_stock',
-                            'p.name as product_actual_name',
-                            'pv.name as product_variation_name',
-                            'pv.is_dummy as is_dummy',
-                            'variations.name as variation_name',
-                            'variations.sub_sku',
-                            'p.barcode_type',
-                            'p.enable_sr_no',
-                            'variations.id as variation_id',
-                            'units.short_name as unit',
-                            'units.allow_decimal as unit_allow_decimal',
-                            'transaction_sell_lines.tax_id as tax_id',
-                            'transaction_sell_lines.item_tax as item_tax',
-                            'transaction_sell_lines.unit_price as default_sell_price',
-                            'transaction_sell_lines.unit_price_inc_tax as sell_price_inc_tax',
-                            'transaction_sell_lines.unit_price_before_discount as unit_price_before_discount',
-                            'transaction_sell_lines.id as transaction_sell_lines_id',
-                            'transaction_sell_lines.quantity as quantity_ordered',
-                            'transaction_sell_lines.sell_line_note as sell_line_note',
-                            'transaction_sell_lines.lot_no_line_id',
-                            'transaction_sell_lines.line_discount_type',
-                            'transaction_sell_lines.line_discount_amount',
-                            'transaction_sell_lines.res_service_staff_id',
-                            'units.id as unit_id',
-                            'transaction_sell_lines.sub_unit_id',
-                            DB::raw('vld.qty_available + transaction_sell_lines.quantity AS qty_available')
-                        )
-                        ->get();
+        join(
+            'products AS p',
+            'transaction_sell_lines.product_id',
+            '=',
+            'p.id'
+        )
+            ->join(
+                'variations AS variations',
+                'transaction_sell_lines.variation_id',
+                '=',
+                'variations.id'
+            )
+            ->join(
+                'product_variations AS pv',
+                'variations.product_variation_id',
+                '=',
+                'pv.id'
+            )
+            ->leftjoin('variation_location_details AS vld', function ($join) use ($location_id) {
+                $join->on('variations.id', '=', 'vld.variation_id')
+                    ->where('vld.location_id', '=', $location_id);
+            })
+            ->leftjoin('units', 'units.id', '=', 'p.unit_id')
+            ->where('transaction_sell_lines.transaction_id', $id)
+            ->select(
+                DB::raw("IF(pv.is_dummy = 0, CONCAT(p.name, ' (', pv.name, ':',variations.name, ')'), p.name) AS product_name"),
+                'p.id as product_id',
+                'p.enable_stock',
+                'p.name as product_actual_name',
+                'pv.name as product_variation_name',
+                'pv.is_dummy as is_dummy',
+                'variations.name as variation_name',
+                'variations.sub_sku',
+                'p.barcode_type',
+                'p.enable_sr_no',
+                'variations.id as variation_id',
+                'units.short_name as unit',
+                'units.allow_decimal as unit_allow_decimal',
+                'transaction_sell_lines.tax_id as tax_id',
+                'transaction_sell_lines.item_tax as item_tax',
+                'transaction_sell_lines.unit_price as default_sell_price',
+                'transaction_sell_lines.unit_price_inc_tax as sell_price_inc_tax',
+                'transaction_sell_lines.unit_price_before_discount as unit_price_before_discount',
+                'transaction_sell_lines.id as transaction_sell_lines_id',
+                'transaction_sell_lines.quantity as quantity_ordered',
+                'transaction_sell_lines.sell_line_note as sell_line_note',
+                'transaction_sell_lines.lot_no_line_id',
+                'transaction_sell_lines.line_discount_type',
+                'transaction_sell_lines.line_discount_amount',
+                'transaction_sell_lines.res_service_staff_id',
+                'units.id as unit_id',
+                'transaction_sell_lines.sub_unit_id',
+                DB::raw('vld.qty_available + transaction_sell_lines.quantity AS qty_available')
+            )
+            ->get();
         if (!empty($sell_details)) {
             foreach ($sell_details as $key => $value) {
                 if ($transaction->status != 'final') {
@@ -1244,7 +1244,7 @@ class NewTransactionController extends Controller
                     $sell_details[$key]->qty_available = $actual_qty_avlbl;
                     $value->qty_available = $actual_qty_avlbl;
                 }
-                    
+
                 $sell_details[$key]->formatted_qty_available = $this->transactionUtil->num_f($value->qty_available);
                 $lot_numbers = [];
                 if (request()->session()->get('business.enable_lot_number') == 1) {
@@ -1410,12 +1410,12 @@ class NewTransactionController extends Controller
             if ($permitted_locations != 'all') {
                 $sells->whereIn('transactions.location_id', $permitted_locations);
             }
-                
+
             if (!empty(request()->start_date) && !empty(request()->end_date)) {
                 $start = request()->start_date;
                 $end =  request()->end_date;
                 $sells->whereDate('transaction_date', '>=', $start)
-                            ->whereDate('transaction_date', '<=', $end);
+                    ->whereDate('transaction_date', '<=', $end);
             }
             $sells->groupBy('transactions.id');
 
@@ -1468,8 +1468,8 @@ class NewTransactionController extends Controller
             $user_id = request()->session()->get('user.id');
 
             $transaction = Transaction::where('business_id', $business_id)
-                            ->where('type', 'sell')
-                            ->findorfail($id);
+                ->where('type', 'sell')
+                ->findorfail($id);
             $duplicate_transaction_data = [];
             foreach ($transaction->toArray() as $key => $value) {
                 if (!in_array($key, ['id', 'created_at', 'updated_at'])) {
@@ -1506,15 +1506,15 @@ class NewTransactionController extends Controller
             DB::commit();
 
             $output = ['success' => 0,
-                            'msg' => trans("lang_v1.duplicate_sell_created_successfully")
-                        ];
+                'msg' => trans("lang_v1.duplicate_sell_created_successfully")
+            ];
         } catch (\Exception $e) {
             DB::rollBack();
             \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-            
+
             $output = ['success' => 0,
-                            'msg' => trans("messages.something_went_wrong")
-                        ];
+                'msg' => trans("messages.something_went_wrong")
+            ];
         }
 
         if (!empty($duplicate_transaction)) {

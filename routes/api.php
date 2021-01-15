@@ -31,4 +31,5 @@ Route::middleware('api')->group(function(){
     Route::get('/kiosk_list', 'API\BankAPIController@kioskList');
     Route::get('/product_list', 'API\BankAPIController@productList');
     Route::post('/add_bank_detail', 'API\AuthController@addBankDetail');
+    Route::get('/pages', 'API\PagesAPIController@pages');
 });
