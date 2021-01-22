@@ -4,19 +4,22 @@ namespace App\Http\Controllers\API;
 
 use App\Account;
 use App\BankBrand;
+use App\DashboardBonus;
 use App\Http\Controllers\Controller;
 use App\NewTransactions;
 use App\Product;
 use App\Unit;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\DB;
 
 
 class BankAPIController extends Controller
 {
     public function bankList(Request $request) {
         try {
+            $business_id = $request->get('business_id');
             $data = Account::leftjoin('bank_brands', 'bank_brands.id', 'accounts.bank_brand_id')
+                ->where('accounts.business_id', $business_id)
                 ->where('is_display_front', true)
                 ->select('accounts.id AS bank_id', 'accounts.name', 'accounts.account_number', 'bank_brands.name as bank_brand')->get();
             $output = ['success' => true, 'list' => $data];
@@ -29,7 +32,31 @@ class BankAPIController extends Controller
         return $output;
     }
 
+    public function bonusList(Request $request) {
+        try {
+            $business_id = $request->get('business_id');
+            $data = DashboardBonus
+                ::leftjoin('variations as v', 'v.id', 'dashboard_bonuses.variation_id')
+                ->join('products as p', 'v.product_id', 'p.id')
+                ->where('dashboard_bonuses.variation_id', '!=', '-1')
+                ->where('dashboard_bonuses.business_id', $business_id)
+                ->where('dashboard_bonuses.is_display_front', true)
+                ->select('dashboard_bonuses.variation_id', DB::raw("CONCAT(p.name, ' - ', v.name) AS name"))
+                ->get();
+            $new_data = [];
+            foreach ($data as $row)
+                $new_data[] = $row;
+            if(DashboardBonus::where('business_id', $business_id)->where('variation_id', '-1')->where('is_display_front', true)->count() > 0)
+                $new_data[] =  ['variation_id' => -1, 'name' => 'Basic Bonus'];
+            $output = ['success' => true, 'list' => $new_data];
+        } catch (\Exception $e) {
+            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
 
+            $output = ['success' => false, 'msg' => __("messages.something_went_wrong")
+            ];
+        }
+        return $output;
+    }
 
     public function bankBrandList(Request $request) {
         try {

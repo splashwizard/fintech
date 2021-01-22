@@ -51,7 +51,8 @@ class NoticeController extends Controller
         if (request()->ajax()) {
             $business_id = request()->session()->get('user.business_id');
 
-            $expenses = Notice::select(
+            $expenses = Notice::where('business_id', $business_id)
+            ->select(
                 'notices.*',
                 'notice_id as no',
                 'updated_at as last_modified_on'
@@ -128,6 +129,7 @@ class NoticeController extends Controller
         try {
 
             $input = $request->only(['lang_id', 'title', 'sub_title', 'content', 'start_time', 'end_time', 'sequence']);
+            $input['business_id'] = request()->session()->get('user.business_id');
             if(!empty($request->get('show')))
                 $input['show'] = 'active';
             else

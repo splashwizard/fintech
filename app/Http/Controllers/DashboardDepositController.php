@@ -7,12 +7,14 @@ use App\BusinessLocation;
 use App\Contact;
 use App\Currency;
 use App\CustomerGroup;
+use App\DashboardBonus;
 use App\DisplayGroup;
 use App\User;
 use App\Utils\BusinessUtil;
 use App\Utils\Util;
 use App\Utils\TransactionUtil;
 use App\Utils\ContactUtil;
+use App\Variation;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
@@ -119,6 +121,7 @@ class DashboardDepositController extends Controller
                 ->rawColumns(['is_display_front', 'name'])
                 ->make(true);
         }
+        $bonuses = $this->getBonuses($business_id);
 
         $not_linked_payments = TransactionPayment::leftjoin(
             'transactions as T',
@@ -131,12 +134,85 @@ class DashboardDepositController extends Controller
             ->whereNull('account_id')
             ->count();
         return view('dashboard_deposit.index')
-            ->with(compact('not_linked_payments'));
+            ->with(compact('not_linked_payments', 'bonuses'));
+    }
+
+    private function getBonuses($business_id){
+        $business_locations = BusinessLocation::forDropdown($business_id, false, true);
+        $bl_attributes = $business_locations['attributes'];
+        $business_locations = $business_locations['locations'];
+
+        $default_location = null;
+        if (count($business_locations) == 1) {
+            foreach ($business_locations as $id => $name) {
+                $default_location = $id;
+            }
+        }
+        $location_id = $default_location;
+        $bonuses_query = Variation::join('products as p', 'variations.product_id', '=', 'p.id')
+            ->leftjoin(
+                'variation_location_details AS VLD',
+                function ($join) use ($location_id) {
+                    $join->on('variations.id', '=', 'VLD.variation_id');
+
+                    //Include Location
+                    if (!empty($location_id)) {
+                        $join->where(function ($query) use ($location_id) {
+                            $query->where('VLD.location_id', '=', $location_id);
+                            //Check null to show products even if no quantity is available in a location.
+                            //TODO: Maybe add a settings to show product not available at a location or not.
+                            $query->orWhereNull('VLD.location_id');
+                        });
+                        ;
+                    }
+                }
+            )
+            ->join('accounts', 'p.account_id', 'accounts.id')
+            ->leftjoin('account_transactions as AT', function ($join) {
+                $join->on('AT.account_id', '=', 'accounts.id');
+                $join->whereNull('AT.deleted_at');
+            })
+            ->groupBy('accounts.id')
+            ->groupBy('variations.id')
+            ->where('accounts.business_id', $business_id)
+            ->where('p.type', '!=', 'modifier')
+            ->where('p.is_inactive', 0)
+            ->where('p.not_for_selling', 0);
+        $bonuses_query->where('accounts.name', '=', 'Bonus Account');
+
+        $no_bonus = (object)['variation_id' => -1, 'name' => 'Basic Bonus'];
+        $bonuses = [];
+        $bonuses[] = $no_bonus;
+        $bonuses_data = $bonuses_query->select(
+            DB::raw("CONCAT(p.name, ' - ', variations.name) AS name"),
+            'variations.id as variation_id'
+        )
+            ->orderBy('p.name', 'asc')
+            ->get();
+        foreach ($bonuses_data as $item) {
+            $bonuses[] = $item;
+        }
+        return $bonuses;
     }
 
     public function updateDisplayFront(Request $request, $id){
         $is_display_front = $request->get('is_display_front');
         Account::find($id)->update(['is_display_front' => $is_display_front]);
+        return ['success' => true];
+    }
+
+    public function updateBonusDisplayFront(Request $request, $id){
+        $business_id = session()->get('user.business_id');
+        $is_display_front = $request->get('is_display_front');
+        if(DashboardBonus::where('business_id', $business_id)->where('variation_id', $id)->count() == 0){
+            DashboardBonus::create([
+                'business_id' => $business_id,
+                'variation_id' => $id,
+                'is_display_front' => $is_display_front
+            ]);
+        } else {
+            DashboardBonus::where('business_id', $business_id)->where('variation_id', $id)->update(['is_display_front' => $is_display_front]);
+        }
         return ['success' => true];
     }
 }

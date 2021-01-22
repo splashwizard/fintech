@@ -47,6 +47,11 @@
                             <i class="fa fa-book"></i> <strong>@lang('account.bank_list')</strong>
                         </a>
                     </li>
+                    <li>
+                        <a href="#bonus-tab" data-toggle="tab">
+                            <i class="fa fa-book"></i> <strong>@lang('account.bonus')</strong>
+                        </a>
+                    </li>
                 </ul>
                 <div class="tab-content">
                     <div class="tab-pane active" id="other_accounts">
@@ -59,6 +64,26 @@
                                     <th>Display at front</th>
                                 </tr>
                             </thead>
+                        </table>
+                    </div>
+                    <div class="tab-pane active" id="bonus-tab">
+                        <table class="table table-bordered table-striped" id="bonus_table">
+                            <thead>
+                                <tr>
+                                    <th>@lang( 'account.bonus' )</th>
+                                    <th>@lang('lang_v1.description')</th>
+                                    <th>Display at front</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($bonuses as $bonus)
+                                    <tr>
+                                        <td>{{$bonus->name }}</td>
+                                        <td></td>
+                                        <td><input type="checkbox" class="bonus_display_front" data-id="{{$bonus->variation_id }}"></td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
                         </table>
                     </div>
                 </div>
@@ -293,6 +318,20 @@
         $.ajax({
             method: 'POST',
             url: '/dashboard_deposit/update_display_front/' + id,
+            data: {is_display_front: is_display_front},
+            dataType: 'json',
+            success: function(result) {
+
+            },
+        });
+    });
+
+    $(document).on('click', '.bonus_display_front', function (e) {
+        var is_display_front = $(this).prop('checked') ? 1 : 0;
+        var id = $(this).data('id');
+        $.ajax({
+            method: 'POST',
+            url: '/dashboard_deposit/update_bonus_display_front/' + id,
             data: {is_display_front: is_display_front},
             dataType: 'json',
             success: function(result) {

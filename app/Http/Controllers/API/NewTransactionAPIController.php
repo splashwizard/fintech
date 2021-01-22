@@ -20,7 +20,7 @@ class NewTransactionAPIController extends Controller
     }
     public function store(Request $request) {
         try {
-            $input = $request->only(['bank_id', 'deposit_method', 'amount', 'reference_number', 'product_id']);
+            $input = $request->only(['bank_id', 'deposit_method', 'amount', 'reference_number', 'product_id', 'bonus_id']);
             $business_id = $request->get('business_id');
             $input['client_id'] = $request->post('user_id');
             if ($request->hasFile('image')){

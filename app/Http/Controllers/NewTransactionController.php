@@ -88,13 +88,15 @@ class NewTransactionController extends Controller
                 ->join('products', 'products.id', 'new_transactions.product_id')
                 ->where('contacts.business_id', $business_id)
                 ->select( 'new_transactions.id',
-                    'contacts.name as client',
+                    'contacts.business_id as business_id',
+                    'contacts.contact_id as contact_id',
+                    'new_transactions.invoice_no as request_number',
                     'new_transactions.bank_id',
                     'new_transactions.deposit_method',
                     'new_transactions.amount',
                     'new_transactions.reference_number',
                     'products.name as product_name',
-                    'new_transactions.bonus',
+                    'new_transactions.bonus_id',
                     'new_transactions.receipt_url',
                     'new_transactions.status',
                     'new_transactions.created_at'
@@ -123,6 +125,9 @@ class NewTransactionController extends Controller
                         return '<span class="badge btn-success">Approved</span>';
                     else
                         return '<span class="badge btn-danger">Rejected</span>';
+                })
+                ->addColumn('bonus', function ($row) {
+                    return $this->getBonusName($row->business_id, $row->bonus_id);
                 })
                 ->addColumn('bank', function ($row) {
                     return Account::find($row->bank_id)->name;
@@ -168,7 +173,8 @@ class NewTransactionController extends Controller
                 ->join('products', 'products.id', 'new_transaction_withdraws.product_id')
                 ->where('contacts.business_id', $business_id)
                 ->select('new_transaction_withdraws.*',
-                    'contacts.name as client',
+                    'new_transaction_withdraws.invoice_no as request_number',
+                    'contacts.contact_id as contact_id',
                     'products.name as product_name'
                 );
 
@@ -328,7 +334,7 @@ class NewTransactionController extends Controller
             $newTransaction->status = 'approved';
             $newTransaction->save();
 
-            $result = $this->createDeposit($request, $newTransaction->client_id, $newTransaction->bank_id, $newTransaction->amount, $newTransaction->product_id);
+            $result = $this->createDeposit($request, $newTransaction->client_id, $newTransaction->bank_id, $newTransaction->amount, $newTransaction->product_id, $newTransaction->bonus_id);
             $output = ['success' => true,
                 'data' => $result,
                 'msg' => __("lang_v1.new_transaction_approve_success")
@@ -411,7 +417,57 @@ class NewTransactionController extends Controller
         return $bonuses;
     }
 
-    private function createDeposit(Request $request, $contact_id, $bank_id, $total_credit, $game_id){
+    private function getBonusName($business_id, $bonus_variation_id){
+        if($bonus_variation_id == -1)
+            return 'Basic Bonus';
+        $business_locations = BusinessLocation::forDropdown($business_id, false, true);
+        $business_locations = $business_locations['locations'];
+
+        $default_location = null;
+        if (count($business_locations) == 1) {
+            foreach ($business_locations as $id => $name) {
+                $default_location = $id;
+            }
+        }
+        $location_id = $default_location;
+        $bonuses_query = Variation::join('products as p', 'variations.product_id', '=', 'p.id')
+            ->leftjoin(
+                'variation_location_details AS VLD',
+                function ($join) use ($location_id) {
+                    $join->on('variations.id', '=', 'VLD.variation_id');
+
+                    //Include Location
+                    if (!empty($location_id)) {
+                        $join->where(function ($query) use ($location_id) {
+                            $query->where('VLD.location_id', '=', $location_id);
+                            //Check null to show products even if no quantity is available in a location.
+                            //TODO: Maybe add a settings to show product not available at a location or not.
+                            $query->orWhereNull('VLD.location_id');
+                        });
+                        ;
+                    }
+                }
+            )
+            ->join('accounts', 'p.account_id', 'accounts.id')
+            ->leftjoin('account_transactions as AT', function ($join) {
+                $join->on('AT.account_id', '=', 'accounts.id');
+                $join->whereNull('AT.deleted_at');
+            })
+            ->groupBy('accounts.id')
+            ->groupBy('variations.id')
+            ->where('accounts.business_id', $business_id)
+            ->where('variations.id', $bonus_variation_id);
+        $bonuses_query->where('accounts.name', '=', 'Bonus Account');
+        $bonuses_data = $bonuses_query->select(
+            DB::raw("CONCAT(p.name, ' - ', variations.name) AS name"),
+            'variations.id as variation_id'
+        )
+            ->orderBy('p.name', 'asc')
+            ->first();
+        return $bonuses_data->name;
+    }
+
+    private function createDeposit(Request $request, $contact_id, $bank_id, $total_credit, $game_id, $bonus_id){
         $business_id = $request->session()->get('user.business_id');
         $business_locations = BusinessLocation::forDropdown($business_id, false, true);
         $business_locations = $business_locations['locations'];
@@ -457,7 +513,7 @@ class NewTransactionController extends Controller
         //bonus start
         $bonus_amount = 0;
         $bonus_name = '';
-        $bonus_variation_id = -1;
+        $bonus_variation_id = $bonus_id;
         $bonuses = $this->getBonuses($business_id);
         foreach ($bonuses as $bonus){
             if($bonus->id == $bonus_variation_id) {

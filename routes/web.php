@@ -355,6 +355,7 @@ Route::middleware(['IsInstalled', 'auth', 'SetSessionData', 'language', 'timezon
 
     Route::get('/dashboard_deposit', 'DashboardDepositController@index');
     Route::post('/dashboard_deposit/update_display_front/{id}', 'DashboardDepositController@updateDisplayFront');
+    Route::post('/dashboard_deposit/update_bonus_display_front/{id}', 'DashboardDepositController@updateBonusDisplayFront');
     Route::get('/dashboard_transfer', 'DashboardTransferController@index');
     Route::post('/dashboard_transfer/approve/{id}', 'DashboardTransferController@approve');
     Route::post('/dashboard_transfer/reject/{id}', 'DashboardTransferController@reject');

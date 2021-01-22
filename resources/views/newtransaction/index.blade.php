@@ -5,7 +5,7 @@
 
 <!-- Content Header (Page header) -->
 <section class="content-header no-print">
-    <h1>@lang( 'lang_v1.deposit_log')
+    <h1>@lang('new_transaction.label')
         <small></small>
     </h1>
 </section>
@@ -24,6 +24,9 @@
                 <li>
                     <a href="#withdraw_tab" data-toggle="tab" aria-expanded="true"><i class="fa fa-cubes" aria-hidden="true"></i>Withdraw</a>
                 </li>
+                <li>
+                    <a href="#transfer_tab" data-toggle="tab" aria-expanded="true"><i class="fa fa-cubes" aria-hidden="true"></i>Transfer</a>
+                </li>
             </ul>
         </div>
         <div class="tab-content">
@@ -34,7 +37,8 @@
                             <thead>
                                 <tr>
                                     <th style="width:85px">@lang('messages.date')</th>
-                                    <th>@lang('new_transaction.client')</th>
+                                    <th>@lang('new_transaction.request_number')</th>
+                                    <th>@lang('new_transaction.contact_id')</th>
                                     <th>@lang('new_transaction.bank')</th>
                                     <th>@lang('new_transaction.deposit_method')</th>
                                     <th>@lang('new_transaction.amount')</th>
@@ -48,7 +52,7 @@
                             </thead>
                             <tfoot>
                                 <tr class="bg-gray font-17 footer-total text-center">
-                                    <td colspan="4"><strong>@lang('sale.total'):</strong></td>
+                                    <td colspan="5"><strong>@lang('sale.total'):</strong></td>
                                     <td id="footer_payment_status_count"></td>
                                     <td colspan="6"></td>
                                 </tr>
@@ -64,7 +68,8 @@
                             <thead>
                             <tr>
                                 <th style="width:85px">@lang('messages.date')</th>
-                                <th>@lang('new_transaction.client')</th>
+                                <th>@lang('new_transaction.request_number')</th>
+                                <th>@lang('new_transaction.contact_id')</th>
                                 <th>@lang('new_transaction.bank')</th>
                                 <th>@lang('new_transaction.amount')</th>
                                 <th>@lang('new_transaction.product_name')</th>
@@ -75,7 +80,7 @@
                             </thead>
                             <tfoot>
                             <tr class="bg-gray font-17 footer-total text-center">
-                                <td colspan="3"><strong>@lang('sale.total'):</strong></td>
+                                <td colspan="4"><strong>@lang('sale.total'):</strong></td>
                                 <td id="footer_payment_status_count"></td>
                                 <td colspan="4"></td>
                             </tr>
@@ -83,6 +88,19 @@
                         </table>
                     </div>
                 @endif
+            </div>
+            <div class="tab-pane" id="transfer_tab">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped ajax_view" id="withdraw_table" style="width: 100%;">
+                        <thead>
+                            <tr>
+                                <th>@lang('new_transaction.from_game')</th>
+                                <th>@lang('new_transaction.to_game')</th>
+                                <th>@lang('new_transaction.amount')</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
             </div>
         </div>
     @endcomponent
@@ -157,8 +175,9 @@ $(document).ready( function(){
             "searchable": false
         } ],
         columns: [
-            { data: 'created_at', name: 'created_at'  },
-            { data: 'client', name: 'client'},
+            { data: 'created_at', name: 'created_at'},
+            { data: 'request_number', name: 'request_number'},
+            { data: 'contact_id', name: 'contact_id'},
             { data: 'bank', name: 'bank'},
             { data: 'deposit_method', name: 'deposit_method'},
             { data: 'amount', name: 'amount'},
@@ -204,8 +223,9 @@ $(document).ready( function(){
             "searchable": false
         } ],
         columns: [
-            { data: 'created_at', name: 'created_at'  },
-            { data: 'client', name: 'client'},
+            { data: 'created_at', name: 'created_at'},
+            { data: 'request_number', name: 'request_number'},
+            { data: 'contact_id', name: 'contact_id'},
             { data: 'bank', name: 'bank'},
             { data: 'amount', name: 'amount'},
             { data: 'product_name', name: 'product_name'},
@@ -230,6 +250,7 @@ $(document).ready( function(){
         } else {
             active_table = 'withdraw';
         }
+        reloadTable();
     });
 
     $(document).on('click', '.btn-edit-withdraw', function (e) {
