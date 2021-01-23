@@ -12,6 +12,7 @@ return [
     */
 
     'notices' => 'Notices',
+    'all_notices' => 'All notices',
     'no' => 'No.',
     'title' => 'Title',
     'sequence' => 'Sequence',

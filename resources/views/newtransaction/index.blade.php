@@ -99,6 +99,15 @@
                                 <th>@lang('new_transaction.amount')</th>
                             </tr>
                         </thead>
+                        <tbody>
+                            @foreach($transaction_data as $row)
+                                <tr>
+                                    <td>{{$row->from_name}}</td>
+                                    <td>{{$row->to_name}}</td>
+                                    <td>{{$row->amount}}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
                     </table>
                 </div>
             </div>

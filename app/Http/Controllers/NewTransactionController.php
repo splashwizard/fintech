@@ -13,6 +13,7 @@ use App\CustomerGroup;
 use App\GameId;
 use App\InvoiceScheme;
 use App\NewTransactions;
+use App\NewTransactionTransfer;
 use App\NewTransactionWithdraw;
 use App\Product;
 use App\SellingPriceGroup;
@@ -157,8 +158,14 @@ class NewTransactionController extends Controller
             $commission_agents = User::forDropdown($business_id, false, true, true);
         }
 
+        $transaction_data = NewTransactionTransfer::join('products AS p', 'p.id', 'new_transaction_transfers.from_product_id')
+            ->where('new_transaction_transfers.business_id', $business_id)
+            ->select('p.name AS from_name','to_product_id', 'amount')->get();
+        foreach ($transaction_data as $key => $row){
+            $transaction_data[$key]->to_name = Product::where('id', $row->to_product_id)->first()->name;
+        }
         return view('newtransaction.index')
-            ->with(compact('accounts', 'customers', 'sales_representative', 'is_cmsn_agent_enabled', 'commission_agents'));
+            ->with(compact('accounts', 'customers', 'sales_representative', 'is_cmsn_agent_enabled', 'commission_agents', 'transaction_data'));
     }
 
     public function withdraw()

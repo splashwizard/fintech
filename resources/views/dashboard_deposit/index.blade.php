@@ -27,17 +27,6 @@
         </div>
     @endif
     @can('account.access')
-         @if(auth()->user()->hasRole('Admin#' . auth()->user()->business_id) || auth()->user()->hasRole('Superadmin') || auth()->user()->hasRole('Admin'))
-         <div class="row">
-            <div class="col-sm-12">
-                <button type="button" class="btn btn-primary btn-modal pull-right"
-                    data-container=".account_model"
-                    data-href="{{action('AccountController@create')}}">
-                    <i class="fa fa-plus"></i> @lang( 'messages.add' )</button>
-            </div>
-        </div>
-        <br>
-        @endif
     <div class="row">
         <div class="col-sm-12">
             <div class="nav-tabs-custom">
@@ -76,11 +65,11 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach($bonuses as $bonus)
+                                @foreach($bonuses as $variation_id => $bonus)
                                     <tr>
-                                        <td>{{$bonus->name }}</td>
-                                        <td></td>
-                                        <td><input type="checkbox" class="bonus_display_front" data-id="{{$bonus->variation_id }}"></td>
+                                        <td>{{$bonus['name'] }}</td>
+                                        <td class="bonus-description" data-id="{{$variation_id}}">{{ empty($bonus['description']) ? '' : $bonus['description'] }}</td>
+                                        <td><input type="checkbox" class="bonus_display_front" data-id="{{$variation_id }}" {{ empty($bonus['is_display_front']) ? null : 'checked' }}></td>
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -333,6 +322,44 @@
             method: 'POST',
             url: '/dashboard_deposit/update_bonus_display_front/' + id,
             data: {is_display_front: is_display_front},
+            dataType: 'json',
+            success: function(result) {
+
+            },
+        });
+    });
+
+    $(document).on('dblclick', '.bonus-description', function (e) {
+        newInput(this);
+    });
+
+    function closeInput(elm) {
+        var value = $(elm).find('textarea').val();
+        $(elm).empty().text(value);
+
+    }
+
+    function newInput(elm) {
+
+        var value = $(elm).text();
+        $(elm).empty();
+
+        $("<textarea>")
+            .attr('type', 'text')
+            .css('width', '100%')
+            .val(value)
+            .blur(function () {
+                closeInput(elm);
+            })
+            .appendTo($(elm))
+            .focus();
+    }
+    $(document).on('change', 'textarea', function () {
+        const id = $(this).parent().data('id');
+        $.ajax({
+            method: 'POST',
+            url: '/dashboard_deposit/update_bonus_description/' + id,
+            data: {description: $(this).val()},
             dataType: 'json',
             success: function(result) {
 

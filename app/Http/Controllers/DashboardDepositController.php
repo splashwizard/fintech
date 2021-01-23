@@ -180,9 +180,7 @@ class DashboardDepositController extends Controller
             ->where('p.not_for_selling', 0);
         $bonuses_query->where('accounts.name', '=', 'Bonus Account');
 
-        $no_bonus = (object)['variation_id' => -1, 'name' => 'Basic Bonus'];
-        $bonuses = [];
-        $bonuses[] = $no_bonus;
+        $bonuses = [ -1 => ['name' => 'Basic Bonus'], 0 => ['name' => 'No Bonus']];
         $bonuses_data = $bonuses_query->select(
             DB::raw("CONCAT(p.name, ' - ', variations.name) AS name"),
             'variations.id as variation_id'
@@ -190,8 +188,14 @@ class DashboardDepositController extends Controller
             ->orderBy('p.name', 'asc')
             ->get();
         foreach ($bonuses_data as $item) {
-            $bonuses[] = $item;
+            $bonuses[$item->variation_id] = ['name' => $item->name];
         }
+        $data = DashboardBonus::where('business_id' ,$business_id)->whereIn('variation_id', array_keys($bonuses))->select('variation_id', 'description', 'is_display_front')->get();
+        foreach ($data as $item) {
+            $bonuses[$item->variation_id]['description'] = $item->description;
+            $bonuses[$item->variation_id]['is_display_front'] = $item->is_display_front;
+        }
+
         return $bonuses;
     }
 
@@ -202,7 +206,7 @@ class DashboardDepositController extends Controller
     }
 
     public function updateBonusDisplayFront(Request $request, $id){
-        $business_id = session()->get('user.business_id');
+        $business_id = $request->session()->get('user.business_id');
         $is_display_front = $request->get('is_display_front');
         if(DashboardBonus::where('business_id', $business_id)->where('variation_id', $id)->count() == 0){
             DashboardBonus::create([
@@ -212,6 +216,21 @@ class DashboardDepositController extends Controller
             ]);
         } else {
             DashboardBonus::where('business_id', $business_id)->where('variation_id', $id)->update(['is_display_front' => $is_display_front]);
+        }
+        return ['success' => true];
+    }
+
+    public function updateBonusDescription(Request $request, $id){
+        $business_id = $request->session()->get('user.business_id');
+        $description = $request->get('description');
+        if(DashboardBonus::where('business_id', $business_id)->where('variation_id', $id)->count() == 0){
+            DashboardBonus::create([
+                'business_id' => $business_id,
+                'variation_id' => $id,
+                'description' => $description
+            ]);
+        } else {
+            DashboardBonus::where('business_id', $business_id)->where('variation_id', $id)->update(['description' => $description]);
         }
         return ['success' => true];
     }

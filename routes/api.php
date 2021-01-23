@@ -26,6 +26,7 @@ Route::middleware('api')->group(function(){
     Route::get('/promotions', 'API\PromotionAPI@promotions');
     Route::post('/new_transaction', 'API\NewTransactionAPIController@store');
     Route::post('/new_transaction_withdraw', 'API\NewTransactionAPIController@postWithdraw');
+    Route::post('/new_transaction_transfer', 'API\NewTransactionAPIController@postTransfer');
     Route::get('/banks', 'API\BankAPIController@bankList');
     Route::get('/bonuses', 'API\BankAPIController@bonusList');
     Route::get('/bank_brand_list', 'API\BankAPIController@bankBrandList');
