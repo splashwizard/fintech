@@ -1662,6 +1662,30 @@ class TransactionUtil extends Util
         return $invoice_no;
     }
 
+    public function getNewTransferNumber($business_id, $location_id)
+    {
+        if (empty($invoice_scheme_id)) {
+            $scheme = $this->getInvoiceScheme($business_id, $location_id);
+        } else {
+            $scheme = InvoiceScheme::where('business_id', $business_id)
+                ->find($invoice_scheme_id);
+        }
+
+        $prefix = 'req-';
+        //Count
+        $count = 1 + $scheme->new_transfer_count;
+        $count = str_pad($count, 3, '0', STR_PAD_LEFT);
+
+        //Prefix + count
+        $invoice_no = $prefix.'t' . $count;
+
+        //Increment the invoice count
+        $scheme->new_transfer_count = $scheme->new_transfer_count + 1;
+        $scheme->save();
+
+        return $invoice_no;
+    }
+
     private function getInvoiceScheme($business_id, $location_id)
     {
         $scheme_id = BusinessLocation::where('business_id', $business_id)

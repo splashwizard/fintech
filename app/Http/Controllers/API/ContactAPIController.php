@@ -56,13 +56,13 @@ class ContactAPIController extends Controller
                     'bonus' => ($payment->card_type == 'credit' && ($payment->method == 'basic_bonus' || $payment->method == 'free_credit') ) ? $payment->amount : '',
                     'service_debit' => ($payment->card_type == 'debit' && $payment->method == 'service_transfer') ? $payment->amount : '',
                     'service_credit' => ($payment->card_type == 'credit' && $payment->method == 'service_transfer' ) ? $payment->amount : '',
-                    'payment_method' => !empty($paymentTypes[$payment->method]) ? $paymentTypes[$payment->method] : '',
-                    'others' => $payment->note . '<small>' . __('account.payment_for') . ': ' . $ref_no . '</small>'
+                    'Ref Detail' => !empty($paymentTypes[$payment->method]) ? $paymentTypes[$payment->method] : '',
+                    'Item Number' => $payment->note . '<small>' . __('account.payment_for') . ': ' . $ref_no . '</small>'
                 ];
                 if($payment->method =='bank_transfer')
-                    $new_item['payment_method'] = Account::find($payment->account_id)->name;
+                    $new_item['Ref Detail'] = Account::find($payment->account_id)->name;
                 else if ($payment->method =='service_transfer')
-                    $new_item['payment_method'] = '<span style="color: red">'.Account::find($payment->account_id)->name.'</span>';
+                    $new_item['Ref Detail'] = Account::find($payment->account_id)->name;
                 $ledger[]= $new_item;
             }
             //Sort by date

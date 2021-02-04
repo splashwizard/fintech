@@ -90,7 +90,7 @@ class NewTransactionController extends Controller
                 ->where('contacts.business_id', $business_id)
                 ->select( 'new_transactions.id',
                     'contacts.business_id as business_id',
-                    'contacts.contact_id as contact_id',
+                    'contacts.name as contact_id',
                     'new_transactions.invoice_no as request_number',
                     'new_transactions.bank_id',
                     'new_transactions.deposit_method',
@@ -168,6 +168,24 @@ class NewTransactionController extends Controller
             ->with(compact('accounts', 'customers', 'sales_representative', 'is_cmsn_agent_enabled', 'commission_agents', 'transaction_data'));
     }
 
+    public function transfer(Request $request) {
+        $business_id = $request->session()->get('user.business_id');
+        $query = NewTransactionTransfer::join('products AS p', 'p.id', 'new_transaction_transfers.from_product_id')
+            ->join('contacts', 'contacts.id', 'new_transaction_transfers.client_id')
+            ->where('new_transaction_transfers.business_id', $business_id);
+        if (!empty(request()->start_date) && !empty(request()->end_date)) {
+            $start = request()->start_date;
+            $end =  request()->end_date;
+            $query->whereDate('new_transaction_transfers.created_at', '>=', $start)
+                ->whereDate('new_transaction_transfers.created_at', '<=', $end);
+        }
+        $transaction_data = $query->select('p.name AS from_name','to_product_id', 'amount','contacts.name as contact_id', 'new_transaction_transfers.created_at', 'invoice_no')->get();
+        foreach ($transaction_data as $key => $row){
+            $transaction_data[$key]->to_name = Product::where('id', $row->to_product_id)->first()->name;
+        }
+        return ['html' => view('newtransaction.partials.transfer_table')->with(compact('transaction_data'))->render()];
+    }
+
     public function withdraw()
     {
         if (!auth()->user()->can('sell.view') && !auth()->user()->can('sell.create') && !auth()->user()->can('direct_sell.access') && !auth()->user()->can('view_own_sell_only')) {
@@ -181,7 +199,7 @@ class NewTransactionController extends Controller
                 ->where('contacts.business_id', $business_id)
                 ->select('new_transaction_withdraws.*',
                     'new_transaction_withdraws.invoice_no as request_number',
-                    'contacts.contact_id as contact_id',
+                    'contacts.name as contact_id',
                     'products.name as product_name'
                 );
 

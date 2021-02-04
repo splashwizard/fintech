@@ -133,6 +133,7 @@ Route::middleware(['IsInstalled', 'auth', 'SetSessionData', 'language', 'timezon
     Route::post('/new_transactions/approve/{id}', 'NewTransactionController@approve');
     Route::post('/new_transactions/reject/{id}', 'NewTransactionController@reject');
     Route::get('/new_transactions/withdraw', 'NewTransactionController@withdraw');
+    Route::get('/new_transactions/transfer', 'NewTransactionController@transfer');
     Route::post('/new_transactions/approveWithdraw/{id}', 'NewTransactionController@approveWithdraw');
     Route::post('/new_transactions/rejectWithdraw/{id}', 'NewTransactionController@rejectWithdraw');
     Route::resource('new_transactions', 'NewTransactionController');

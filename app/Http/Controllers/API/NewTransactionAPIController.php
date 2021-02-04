@@ -68,7 +68,13 @@ class NewTransactionAPIController extends Controller
     public function postTransfer(Request $request) {
         try {
             $input = $request->only(['business_id', 'from_product_id', 'to_product_id', 'amount']);
-//            $input['client_id'] = $request->post('user_id');
+            $input['client_id'] = $request->post('user_id');
+            $business_id = $request->get('business_id');
+            $default_location = null;
+            if(BusinessLocation::where('business_id', $business_id)->count() == 1){
+                $default_location = BusinessLocation::where('business_id', $business_id)->first()->id;
+            }
+            $input['invoice_no'] = $this->transactionUtil->getNewTransferNumber($business_id, $default_location);
             NewTransactionTransfer::create($input);
             $output = ['success' => true, 'msg' => 'Transfered Successfully'];
         } catch (\Exception $e) {

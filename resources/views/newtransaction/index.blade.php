@@ -94,19 +94,15 @@
                     <table class="table table-bordered table-striped ajax_view" id="withdraw_table" style="width: 100%;">
                         <thead>
                             <tr>
+                                <th style="width:135px">@lang('messages.date')</th>
+                                <th>@lang('new_transaction.request_number')</th>
+                                <th>@lang('new_transaction.contact_id')</th>
                                 <th>@lang('new_transaction.from_game')</th>
                                 <th>@lang('new_transaction.to_game')</th>
                                 <th>@lang('new_transaction.amount')</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($transaction_data as $row)
-                                <tr>
-                                    <td>{{$row->from_name}}</td>
-                                    <td>{{$row->to_name}}</td>
-                                    <td>{{$row->amount}}</td>
-                                </tr>
-                            @endforeach
                         </tbody>
                     </table>
                 </div>
@@ -139,8 +135,21 @@ $(document).ready( function(){
     function reloadTable() {
         if(active_table === 'deposit')
             deposit_table.ajax.reload();
-        else
+        else if (active_table === 'withdraw')
             withdraw_table.ajax.reload();
+        else {
+            var start = $('#sell_list_filter_date_range').data('daterangepicker').startDate.format('YYYY-MM-DD');
+            var end = $('#sell_list_filter_date_range').data('daterangepicker').endDate.format('YYYY-MM-DD');
+            $.ajax({
+                method: "GET",
+                url: '/new_transactions/transfer',
+                data: {start_date: start, end_date: end},
+                dataType: "json",
+                success: function (result) {
+                    $('#withdraw_table tbody').html(result.html);
+                }
+            });
+        }
     }
     //Date range as a button
     $('#sell_list_filter_date_range').daterangepicker(
@@ -256,9 +265,10 @@ $(document).ready( function(){
     $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
         if ($(e.target).attr('href') === '#deposit_tab') {
             active_table = 'deposit';
-        } else {
+        } else if ($(e.target).attr('href') === '#withdraw_tab'){
             active_table = 'withdraw';
-        }
+        } else
+            active_table = 'transfer';
         reloadTable();
     });
 

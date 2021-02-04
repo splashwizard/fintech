@@ -695,6 +695,8 @@ class ContactController extends Controller
         }
 
         if (request()->ajax()) {
+            Contact::where('id', 9289)->update(['mobile' => json_encode(["601114067084"])]);
+
             $business_id = request()->session()->get('user.business_id');
             $contact = Contact::where('business_id', $business_id)->find($id);
 
@@ -810,9 +812,10 @@ class ContactController extends Controller
         $business_id = request()->session()->get('user.business_id');
 
         $mobile_list = $request->get('mobile');
-        $data = Contact::where('business_id', $business_id)->where('id', '!=', $id)->get(['mobile', 'blacked_by_user']);
+        $data = Contact::where('business_id', $business_id)->where('id', '=', 5274)->get(['id', 'mobile', 'blacked_by_user']);
         foreach ($data as $item){
             if(!empty($item->mobile)){
+
                 foreach (json_decode($item->mobile) as $old_mobile){
                     foreach ($mobile_list as $new_mobile){
                         if($old_mobile == $new_mobile){
@@ -885,17 +888,21 @@ class ContactController extends Controller
                 if($is_equal)
                     break;
                 $bank_details = empty($contact->bank_details) ? [] : json_decode($contact->bank_details);
-                foreach ($bank_details as $bank_detail){
-                    foreach ($new_bank_details as $new_bank_detail){
-                        if(!empty($bank_detail->bank_brand_id)){
-                            if($new_bank_detail['bank_brand_id'] == $bank_detail->bank_brand_id && $new_bank_detail['account_number'] == $bank_detail->account_number){
-                                $is_equal = 1;
-                                $equal_id = $contact->id;
-                                $bank_account_number = $bank_detail->account_number;
-                                break;
+                try {
+                    foreach ($bank_details as $bank_detail){
+                        foreach ($new_bank_details as $new_bank_detail){
+                            if(!empty($bank_detail->bank_brand_id)){
+                                if($new_bank_detail['bank_brand_id'] == $bank_detail->bank_brand_id && $new_bank_detail['account_number'] == $bank_detail->account_number){
+                                    $is_equal = 1;
+                                    $equal_id = $contact->id;
+                                    $bank_account_number = $bank_detail->account_number;
+                                    break;
+                                }
                             }
                         }
                     }
+                } catch (\Exception $e) {
+                    return $contact;
                 }
             }
             if($is_equal){
