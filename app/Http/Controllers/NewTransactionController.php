@@ -90,7 +90,7 @@ class NewTransactionController extends Controller
                 ->where('contacts.business_id', $business_id)
                 ->select( 'new_transactions.id',
                     'contacts.business_id as business_id',
-                    'contacts.name as contact_id',
+                    DB::raw('CONCAT("(", contacts.contact_id, ") ", contacts.name) as contact_id'),
                     'new_transactions.invoice_no as request_number',
                     'new_transactions.bank_id',
                     'new_transactions.deposit_method',
@@ -179,7 +179,7 @@ class NewTransactionController extends Controller
             $query->whereDate('new_transaction_transfers.created_at', '>=', $start)
                 ->whereDate('new_transaction_transfers.created_at', '<=', $end);
         }
-        $transaction_data = $query->select('p.name AS from_name','to_product_id', 'amount','contacts.name as contact_id', 'new_transaction_transfers.created_at', 'invoice_no')->get();
+        $transaction_data = $query->select('p.name AS from_name','to_product_id', 'amount',DB::raw('CONCAT("(", contacts.contact_id, ") ", contacts.name) as contact_id'), 'new_transaction_transfers.created_at', 'invoice_no')->get();
         foreach ($transaction_data as $key => $row){
             $transaction_data[$key]->to_name = Product::where('id', $row->to_product_id)->first()->name;
         }
@@ -199,7 +199,7 @@ class NewTransactionController extends Controller
                 ->where('contacts.business_id', $business_id)
                 ->select('new_transaction_withdraws.*',
                     'new_transaction_withdraws.invoice_no as request_number',
-                    'contacts.name as contact_id',
+                    DB::raw('CONCAT("(", contacts.contact_id, ") ", contacts.name) as contact_id'),
                     'products.name as product_name'
                 );
 
