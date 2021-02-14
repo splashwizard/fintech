@@ -509,7 +509,6 @@ class SellPosDepositController extends Controller
                         $input['transaction_date'] = date('Y-m-d H:i:s', strtotime('today') - 1);
                     }
                 }
-
                 if ($is_direct_sale) {
                     $input['is_direct_sale'] = 1;
                 }

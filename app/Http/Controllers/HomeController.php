@@ -15,7 +15,6 @@ use App\Utils\ModuleUtil;
 use App\Utils\TransactionUtil;
 use App\VariationLocationDetails;
 
-use Charts;
 
 use Datatables;
 use DB;
