@@ -100,7 +100,8 @@
             <!-- The user image in the menu -->
             <li class="user-header">
               @if(!empty(Session::get('business.logo')))
-                <img src="{{ url( 'uploads/business_logos/' . Session::get('business.logo') ) }}" alt="Logo"></span>
+{{--                <img src="{{ url( 'uploads/business_logos/' . Session::get('business.logo') ) }}" alt="Logo">--}}
+                    <img src="{{ env('AWS_IMG_URL').'/uploads/business_logos/' . Session::get('business.logo') }}" alt="Logo">
               @endif
               <p>
                 {{ Auth::User()->first_name }} {{ Auth::User()->last_name }}

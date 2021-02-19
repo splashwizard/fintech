@@ -556,7 +556,7 @@ class BusinessController extends Controller
 
             if (!empty($settings_array['slides'])) {
                 foreach ($settings_array['slides'] as $key => $value) {
-                    $settings_array['slides'][$key]['image_url'] = !empty($value['image']) ? url('uploads/img/' . $value['image']) : '';
+                    $settings_array['slides'][$key]['image_url'] = !empty($value['image']) ? env('AWS_IMG_URL').'/uploads/img/' . $value['image'] : '';
                 }
             }
         } catch (\Exception $e) {

@@ -11,6 +11,7 @@ use App\Unit;
 use App\User;
 use App\VariationLocationDetails;
 use App\AdminHasBusiness;
+use Illuminate\Support\Facades\Storage;
 
 use DB;
 
@@ -546,9 +547,9 @@ class Util
         if ($request->hasFile($file_name) && $request->file($file_name)->isValid()) {
             if ($request->$file_name->getSize() <= config('constants.document_size_limit')) {
                 $new_file_name = time() . '_' . $request->$file_name->getClientOriginalName();
-                if ($request->$file_name->storeAs($dir_name, $new_file_name)) {
-                    $uploaded_file_name = $new_file_name;
-                }
+                $file = $request->file($file_name);
+                Storage::disk('s3')->put('uploads/'.$dir_name.'/'.$new_file_name, file_get_contents($file));
+                $uploaded_file_name = $new_file_name;
             }
         }
         return $uploaded_file_name;
@@ -651,7 +652,7 @@ class Util
             //Replace business_logo
             if (strpos($value, '{business_logo}') !== false) {
                 $logo_name = $business->logo;
-                $business_logo = !empty($logo_name) ? '<img src="' . url('uploads/business_logos/' . $logo_name) . '" alt="Business Logo" >' : '';
+                $business_logo = !empty($logo_name) ? '<img src="' . env('AWS_IMG_URL').'/uploads/business_logos/' . $logo_name . '" alt="Business Logo" >' : '';
 
                 $data[$key] = str_replace('{business_logo}', $business_logo, $data[$key]);
             }

@@ -136,12 +136,12 @@ class NoticeController extends Controller
                 $input['show'] = 'inactive';
             $input['notice_id'] = $this->noticeUtil->generateNoticeID();
             if ($request->hasFile('desktop_imageUpload')){
-                $input['desktop_image'] = '/uploads/notice_images/'.time().'.'.$request->desktop_imageUpload->getClientOriginalName();
-                $request->desktop_imageUpload->move(public_path('/uploads/notice_images'), $input['desktop_image']);
+                $uploaded_file_name = $this->noticeUtil->uploadFile($request, 'desktop_imageUpload', 'notice_images');
+                $input['desktop_image'] = '/uploads/notice_images/'.$uploaded_file_name;
             }
             if ($request->hasFile('mobile_imageUpload')){
-                $input['mobile_image'] = '/uploads/notice_images/'.time().'.'.$request->mobile_imageUpload->getClientOriginalName();
-                $request->mobile_imageUpload->move(public_path('/uploads/notice_images'), $input['mobile_image']);
+                $uploaded_file_name = $this->noticeUtil->uploadFile($request, 'mobile_imageUpload', 'notice_images');
+                $input['mobile_image'] = '/uploads/notice_images/'.$uploaded_file_name;
             }
 
             Notice::create($input);
@@ -221,13 +221,13 @@ class NoticeController extends Controller
                     $input['notice_id'] = $id;
                     $desktop_file_key = "form_".$key."_desktop_imageUpload";
                     if ($request->hasFile($desktop_file_key)){
-                        $input['desktop_image'] = '/uploads/notice_images/'.time().'.'.$request->file($desktop_file_key)->getClientOriginalName();
-                        $request->file($desktop_file_key)->move(public_path('/uploads/notice_images'), $input['desktop_image']);
+                        $uploaded_file_name = $this->noticeUtil->uploadFile($request, $desktop_file_key, 'notice_images');
+                        $input['desktop_image'] = '/uploads/promotion_images/'.$uploaded_file_name;
                     }
                     $mobile_file_key = "form_".$key."_mobile_imageUpload";
                     if ($request->hasFile($mobile_file_key)){
-                        $input['mobile_image'] = '/uploads/notice_images/'.time().'.'.$request->file($mobile_file_key)->getClientOriginalName();
-                        $request->file($mobile_file_key)->move(public_path('/uploads/notice_images'), $input['mobile_image']);
+                        $uploaded_file_name = $this->noticeUtil->uploadFile($request, $mobile_file_key, 'notice_images');
+                        $input['mobile_image'] = '/uploads/promotion_images/'.$uploaded_file_name;
                     }
 
                     Notice::create($input);
@@ -239,13 +239,13 @@ class NoticeController extends Controller
                         $input['show'] = 'inactive';
                     $desktop_file_key = "form_".$key."_desktop_imageUpload";
                     if ($request->hasFile($desktop_file_key)){
-                        $input['desktop_image'] = '/uploads/notice_images/'.time().'.'.$request->file($desktop_file_key)->getClientOriginalName();
-                        $request->file($desktop_file_key)->move(public_path('/uploads/notice_images'), $input['desktop_image']);
+                        $uploaded_file_name = $this->noticeUtil->uploadFile($request, $desktop_file_key, 'notice_images');
+                        $input['desktop_image'] = '/uploads/promotion_images/'.$uploaded_file_name;
                     }
                     $mobile_file_key = "form_".$key."_mobile_imageUpload";
                     if ($request->hasFile($mobile_file_key)){
-                        $input['mobile_image'] = '/uploads/notice_images/'.time().'.'.$request->file($mobile_file_key)->getClientOriginalName();
-                        $request->file($mobile_file_key)->move(public_path('/uploads/notice_images'), $input['mobile_image']);
+                        $uploaded_file_name = $this->noticeUtil->uploadFile($request, $mobile_file_key, 'notice_images');
+                        $input['mobile_image'] = '/uploads/promotion_images/'.$uploaded_file_name;
                     }
 
                     Notice::where('notice_id', $id)->where('lang_id', $form['lang_id'])->update($input);

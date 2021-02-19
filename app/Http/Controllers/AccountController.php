@@ -72,6 +72,7 @@ class AccountController extends Controller
                 ->leftjoin('currencies', 'currencies.id', 'accounts.currency_id')
                 ->leftjoin('bank_brands', 'bank_brands.id', 'accounts.bank_brand_id')
                                 ->where('accounts.is_service', 0)
+                                ->where('accounts.is_closed', 0)
                                 ->where('accounts.name', '!=', 'Bonus Account')
                                 ->where('accounts.business_id', $business_id)
                                 ->where(function ($q) {
@@ -791,7 +792,6 @@ class AccountController extends Controller
                     ->where('uca.user_id', $user_id);
             }
             $to_users = $contacts->pluck('name', 'id');
-
 
             return view('account.withdraw')
                 ->with(compact('account', 'account', 'to_users'));

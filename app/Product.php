@@ -48,7 +48,7 @@ class Product extends Model
     public function getImageUrlAttribute()
     {
         if (!empty($this->image)) {
-            $image_url = asset('/uploads/img/' . $this->image);
+            $image_url = env('AWS_IMG_URL').'/uploads/img/' . $this->image;
         } else {
             $image_url = asset('/img/default.png');
         }

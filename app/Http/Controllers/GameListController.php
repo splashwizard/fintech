@@ -137,12 +137,12 @@ class GameListController extends Controller
             $input['type'] = 'jewellery';
             $input['promotion_id'] = $this->promotionUtil->generatePromotionID();
             if ($request->hasFile('desktop_imageUpload')){
-                $input['desktop_image'] = '/uploads/promotion_images/'.time().'.'.$request->desktop_imageUpload->getClientOriginalName();
-                $request->desktop_imageUpload->move(public_path('/uploads/promotion_images'), $input['desktop_image']);
+                $uploaded_file_name = $this->promotionUtil->uploadFile($request, 'desktop_imageUpload', 'promotion_images');
+                $input['desktop_image'] = '/uploads/promotion_images/'.$uploaded_file_name;
             }
             if ($request->hasFile('mobile_imageUpload')){
-                $input['mobile_image'] = '/uploads/promotion_images/'.time().'.'.$request->mobile_imageUpload->getClientOriginalName();
-                $request->mobile_imageUpload->move(public_path('/uploads/promotion_images'), $input['mobile_image']);
+                $uploaded_file_name = $this->promotionUtil->uploadFile($request, 'mobile_imageUpload', 'promotion_images');
+                $input['mobile_image'] = '/uploads/promotion_images/'.$uploaded_file_name;
             }
 
             Promotion::create($input);
@@ -224,13 +224,13 @@ class GameListController extends Controller
                     $input['promotion_id'] = $id;
                     $desktop_file_key = "form_".$key."_desktop_imageUpload";
                     if ($request->hasFile($desktop_file_key)){
-                        $input['desktop_image'] = '/uploads/promotion_images/'.time().'.'.$request->file($desktop_file_key)->getClientOriginalName();
-                        $request->file($desktop_file_key)->move(public_path('/uploads/promotion_images'), $input['desktop_image']);
+                        $uploaded_file_name = $this->promotionUtil->uploadFile($request, $desktop_file_key, 'promotion_images');
+                        $input['desktop_image'] = '/uploads/promotion_images/'.$uploaded_file_name;
                     }
                     $mobile_file_key = "form_".$key."_mobile_imageUpload";
                     if ($request->hasFile($mobile_file_key)){
-                        $input['mobile_image'] = '/uploads/promotion_images/'.time().'.'.$request->file($mobile_file_key)->getClientOriginalName();
-                        $request->file($mobile_file_key)->move(public_path('/uploads/promotion_images'), $input['mobile_image']);
+                        $uploaded_file_name = $this->promotionUtil->uploadFile($request, $mobile_file_key, 'promotion_images');
+                        $input['mobile_image'] = '/uploads/promotion_images/'.$uploaded_file_name;
                     }
 
                     Promotion::create($input);
@@ -242,13 +242,13 @@ class GameListController extends Controller
                         $input['show'] = 'inactive';
                     $desktop_file_key = "form_".$key."_desktop_imageUpload";
                     if ($request->hasFile($desktop_file_key)){
-                        $input['desktop_image'] = '/uploads/promotion_images/'.time().'.'.$request->file($desktop_file_key)->getClientOriginalName();
-                        $request->file($desktop_file_key)->move(public_path('/uploads/promotion_images'), $input['desktop_image']);
+                        $uploaded_file_name = $this->promotionUtil->uploadFile($request, $desktop_file_key, 'promotion_images');
+                        $input['desktop_image'] = '/uploads/promotion_images/'.$uploaded_file_name;
                     }
                     $mobile_file_key = "form_".$key."_mobile_imageUpload";
                     if ($request->hasFile($mobile_file_key)){
-                        $input['mobile_image'] = '/uploads/promotion_images/'.time().'.'.$request->file($mobile_file_key)->getClientOriginalName();
-                        $request->file($mobile_file_key)->move(public_path('/uploads/promotion_images'), $input['mobile_image']);
+                        $uploaded_file_name = $this->promotionUtil->uploadFile($request, $mobile_file_key, 'promotion_images');
+                        $input['mobile_image'] = '/uploads/promotion_images/'.$uploaded_file_name;
                     }
 
                     Promotion::where('promotion_id', $id)->where('lang_id', $form['lang_id'])->update($input);

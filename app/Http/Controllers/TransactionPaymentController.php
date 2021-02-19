@@ -703,7 +703,7 @@ class TransactionPaymentController extends Controller
                     data-href="{{action("TransactionPaymentController@edit", [$id]) }}"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</button>
                     &nbsp; <button type="button" class="btn btn-danger btn-xs delete_payment" 
                     data-href="{{ action("TransactionPaymentController@destroy", [$id]) }}"
-                    ><i class="fa fa-trash" aria-hidden="true"></i> @lang("messages.delete")</button> @if(!empty($document))<a href="{{asset("/uploads/documents/" . $document)}}" class="btn btn-success btn-xs" download=""><i class="fa fa-download"></i> @lang("purchase.download_document")</a>@endif')
+                    ><i class="fa fa-trash" aria-hidden="true"></i> @lang("messages.delete")</button> @if(!empty($document))<a href="{{env(\'AWS_IMG_URL\').\'/uploads/documents/\' . $document}}" class="btn btn-success btn-xs" download=""><i class="fa fa-download"></i> @lang("purchase.download_document")</a>@endif')
                 ->rawColumns(['amount', 'method', 'action'])
                 ->make(true);
         }

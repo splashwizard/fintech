@@ -153,9 +153,9 @@ class PurchaseController extends Controller
 
                     if (auth()->user()->can("purchase.view") && !empty($row->document)) {
                         $document_name = !empty(explode("_", $row->document, 2)[1]) ? explode("_", $row->document, 2)[1] : $row->document ;
-                        $html .= '<li><a href="' . url('uploads/documents/' . $row->document) .'" download="' . $document_name . '"><i class="fa fa-download" aria-hidden="true"></i>' . __("purchase.download_document") . '</a></li>';
+                        $html .= '<li><a href="' . env('AWS_IMG_URL').'/uploads/documents/' . $row->document .'" download="' . $document_name . '"><i class="fa fa-download" aria-hidden="true"></i>' . __("purchase.download_document") . '</a></li>';
                         if (isFileImage($document_name)) {
-                            $html .= '<li><a href="#" data-href="' . url('uploads/documents/' . $row->document) .'" class="view_uploaded_document"><i class="fa fa-picture-o" aria-hidden="true"></i>' . __("lang_v1.view_document") . '</a></li>';
+                            $html .= '<li><a href="#" data-href="' . env('AWS_IMG_URL').'/uploads/documents/' . $row->document .'" class="view_uploaded_document"><i class="fa fa-picture-o" aria-hidden="true"></i>' . __("lang_v1.view_document") . '</a></li>';
                         }
                     }
                                         

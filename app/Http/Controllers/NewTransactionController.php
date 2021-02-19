@@ -133,7 +133,7 @@ class NewTransactionController extends Controller
                 ->addColumn('bank', function ($row) {
                     return Account::find($row->bank_id)->name;
                 })
-                ->addColumn('view_receipt', '<a href="#" data-href="{{ url(\'uploads/receipt_images/\' . $receipt_url)}}" class="btn btn-success view_uploaded_document"><i class="fa fa-picture-o" style="margin-right: 0.5em" aria-hidden="true"></i>@lang("new_transaction.view_receipt")</a>')
+                ->addColumn('view_receipt', '<a href="#" data-href="{{ env(\'AWS_IMG_URL\').\'/uploads/receipt_images/\' . $receipt_url}}" class="btn btn-success view_uploaded_document"><i class="fa fa-picture-o" style="margin-right: 0.5em" aria-hidden="true"></i>@lang("new_transaction.view_receipt")</a>')
                 ->editColumn('created_at', '{{@format_datetime($created_at)}}')
                 ->removeColumn('id')
                 ->editColumn(

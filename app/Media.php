@@ -38,7 +38,7 @@ class Media extends Model
      */
     public function getDisplayUrlAttribute()
     {
-        $path = asset('/uploads/media/' . $this->file_name);
+        $path = env('AWS_IMG_URL').'/uploads/media/'. $this->file_name;
 
         return $path;
     }
@@ -48,7 +48,7 @@ class Media extends Model
      */
     public function getDisplayPathAttribute()
     {
-        $path = public_path('uploads/media') . '/' . $this->file_name;
+        $path = env('AWS_IMG_URL').'/uploads/media/' . $this->file_name;
 
         return $path;
     }
@@ -141,7 +141,7 @@ class Media extends Model
         $media = Media::where('business_id', $business_id)
                         ->findOrFail($media_id);
 
-        $media_path = public_path('uploads/media/' . $media->file_name);
+        $media_path = env('AWS_IMG_URL').'/uploads/media/' . $media->file_name;
 
         if (file_exists($media_path)) {
             unlink($media_path);

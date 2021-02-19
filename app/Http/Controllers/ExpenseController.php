@@ -142,10 +142,9 @@ class ExpenseController extends Controller
                     <ul class="dropdown-menu dropdown-menu-right" role="menu">
                     <li><a href="{{action(\'ExpenseController@edit\', [$id])}}"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</a></li>
                     @if($document)
-                        <li><a href="{{ url(\'uploads/documents/\' . $document)}}" 
-                        download=""><i class="fa fa-download" aria-hidden="true"></i> @lang("purchase.download_document")</a></li>
+                        <li><a download="{{$document}}" href="{{ env(\'AWS_IMG_URL\').\'/uploads/documents/\' . $document}}"><i class="fa fa-download" aria-hidden="true"></i> @lang("purchase.download_document")</a></li>
                         @if(isFileImage($document))
-                            <li><a href="#" data-href="{{ url(\'uploads/documents/\' . $document)}}" class="view_uploaded_document"><i class="fa fa-picture-o" aria-hidden="true"></i>@lang("lang_v1.view_document")</a></li>
+                            <li><a href="#" data-href="{{ env(\'AWS_IMG_URL\').\'/uploads/documents/\' . $document}}" class="view_uploaded_document"><i class="fa fa-picture-o" aria-hidden="true"></i>@lang("lang_v1.view_document")</a></li>
                         @endif
                     @endif
                     <li>

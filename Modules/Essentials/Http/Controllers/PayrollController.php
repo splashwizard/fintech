@@ -103,10 +103,10 @@ class PayrollController extends Controller
                         $html .=' <li><a data-href="'.action('\Modules\Essentials\Http\Controllers\PayrollController@destroy', [$row->id]).'" class="delete_payroll"><i class="glyphicon glyphicon-trash"></i>'.__("messages.delete").'</a></li>';
                         if($row->document){
                             $html .= '
-                            <li><a href="'.url('/uploads/documents/' . $row->document).'"
+                            <li><a href="'.env('AWS_IMG_URL'). $row->document.'"
                             download=""><i class="fa fa-download" aria-hidden="true"></i>'.__("purchase.download_document").'</a></li>';
                             if(isFileImage($row->document))
-                                $html .='<li><a href="#" data-href="'.url('/uploads/documents/' . $row->document).'" class="view_uploaded_document"><i class="fa fa-picture-o" aria-hidden="true"></i>'.__("lang_v1.view_document").'</a></li>';
+                                $html .='<li><a href="#" data-href="'.env('AWS_IMG_URL'). $row->document.'" class="view_uploaded_document"><i class="fa fa-picture-o" aria-hidden="true"></i>'.__("lang_v1.view_document").'</a></li>';
                         }
 
                         if ($row->payment_status != "paid" && $is_admin) {

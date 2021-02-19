@@ -20,9 +20,9 @@
 			</div>
 		</div>
 	@else
-		<input type='file' class="hidden desktop_imageUpload" name="form_{{$form_index}}_desktop_imageUpload" accept="image/*" value="{{URL::to('/public').$promotion['desktop_image']}}"/>
+		<input type='file' class="hidden desktop_imageUpload" name="form_{{$form_index}}_desktop_imageUpload" accept="image/*" value="{{env('AWS_IMG_URL').$promotion['desktop_image']}}"/>
 		<div class="image-preview form-group">
-			<div class="desktop_imagePreview" style="background-image: url({{$promotion['desktop_image']}});">
+			<div class="desktop_imagePreview" style="background-image: url({{env('AWS_IMG_URL').$promotion['desktop_image']}});">
 			</div>
 		</div>
 	@endif

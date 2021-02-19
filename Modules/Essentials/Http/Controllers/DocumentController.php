@@ -101,7 +101,7 @@ class DocumentController extends Controller
                         $file = explode("_", $name, 2);
                     @endphp
                     @if($type == "document")
-                        {{$file["1"]}} <small class="text-muted"><a href="/uploads/documents/{{$name}}" target="_blank" ><i class="fa fa-external-link"></i></a></small>
+                        {{$file["1"]}} <small class="text-muted"><a href="{{env(\'AWS_IMG_URL\').\'/uploads/documents/\' . $name}}" target="_blank" ><i class="fa fa-external-link"></i></a></small>
                         @if(file_exists(public_path("uploads/documents/" . $name)))
                         <p class="help-block mb-0">
                             <small>

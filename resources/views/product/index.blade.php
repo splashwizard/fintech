@@ -166,7 +166,7 @@
                             }
                         },
                         columnDefs: [{
-                            "targets": is_admin_or_super ? [0, 1, 10] : [0, 1, 3],
+                            "targets": is_admin_or_super ? [0, 1, 9] : [0, 1, 3],
                             "orderable": false,
                             "searchable": false
                         }],

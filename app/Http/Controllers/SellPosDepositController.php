@@ -2871,7 +2871,7 @@ class SellPosDepositController extends Controller
                     $item['service_credit'] = $payment->amount;
                 $document = $payment->document;
                 if($document && isFileImage($document)) {
-                    $document_path = 'uploads/service_documents/' . $document;
+                    $document_path = env('AWS_IMG_URL').'/uploads/service_documents/' . $document;
                     $item['document_path'] = $document_path;
                 }
                 $ledger[] = $item;
@@ -2916,9 +2916,9 @@ class SellPosDepositController extends Controller
                             $document = $payment->document;
                             if($document && isFileImage($document)) {
                                 if ($payment->sub_type == null)
-                                    $document_path = 'uploads/account_documents/' . $document;
+                                    $document_path = env('AWS_IMG_URL').'/uploads/account_documents/' . $document;
                                 else
-                                    $document_path = 'uploads/service_documents/' . $document;
+                                    $document_path = env('AWS_IMG_URL').'/uploads/service_documents/' . $document;
                                 $payment_item['document_path'] = $document_path;
                             }
                         }
