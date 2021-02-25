@@ -197,8 +197,6 @@ class GameListController extends Controller
         return ['html' => view('game_list.form')->with(['form_index' => $form_index, 'promotion' => null, 'promotion_langs' => $promotion_langs, 'promotion_collections' => $promotion_collections])->render() ];
     }
 
-<<<<<<< HEAD
-=======
     public function updateGameSale(Request $request, $id){
         $is_sale = $request->get('is_sale');
         Promotion::find($id)->update(['sale' => $is_sale]);
@@ -211,7 +209,6 @@ class GameListController extends Controller
         return ['success' => true];
     }
 
->>>>>>> 2102422 (Game 50a)
     /**
      * Update the specified resource in storage.
      *
