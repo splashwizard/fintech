@@ -61,6 +61,7 @@ return [
             'secret' => env('AWS_SECRET'),
             'region' => env('AWS_REGION'),
             'bucket' => env('AWS_BUCKET'),
+            'url' => 'http://d2l817l47dn4mv.cloudfront.net'
         ],
 
         'dropbox' => [
