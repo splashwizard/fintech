@@ -17,6 +17,8 @@ return [
     'title' => 'Title',
     'sequence' => 'Sequence',
     'show' => 'Show',
+    'sale' => 'Sale',
+    'new' => 'New',
     'start_time' => 'Start Time',
     'end_time' => 'End Time',
     'last_modified_on' => 'Last Modified On',

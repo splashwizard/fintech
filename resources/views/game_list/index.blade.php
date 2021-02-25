@@ -29,8 +29,8 @@
                                     <th>@lang('promotion.title')</th>
                                     <th>@lang('promotion.sequence')</th>
                                     <th>@lang('promotion.show')</th>
-                                    <th>@lang('promotion.start_time')</th>
-                                    <th>@lang('promotion.end_time')</th>
+                                    <th>@lang('promotion.sale')</th>
+                                    <th>@lang('promotion.new')</th>
                                     <th>@lang('promotion.last_modified_on')</th>
                                     <th>@lang('messages.action')</th>
                                 </tr>
