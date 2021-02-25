@@ -32,10 +32,10 @@ class PromotionAPI extends Controller
 
     public function promotions(Request $request) {
         $data = Promotion::join('promotion_langs', 'promotion_langs.id', 'promotions.lang_id')
-                ->join('promotion_collections', 'promotion_collections.id', 'promotions.collection_id')
+                ->leftjoin('promotion_collections', 'promotions.collection_id', 'promotion_collections.id')
                 ->where('lang_id', 1)
                 ->select('promotion_id AS id', 'type', 'title', 'desktop_image',
-                 'content AS description','start_time', 'end_time', 'sequence', 'show', 'promotion_collections.name AS collection')
+                 'content AS description','start_time', 'end_time', 'sequence', 'show', 'sale', 'new', 'promotion_collections.name AS collection')
                 ->orderBy('promotion_id', 'ASC')->get();
 
         $formatted_data = [];
@@ -44,11 +44,9 @@ class PromotionAPI extends Controller
             $row['images'] = [[
                 'src' => env('AWS_IMG_URL').$row['desktop_image']
             ]];
-            $row['sale'] = false; 
-            $row['new'] = false;
             $formatted_data[] = $row;
         }
-        $output = ['success' => true, 'data' => $data];
+        $output = ['success' => true, 'data' => $formatted_data];
         return $output;
     }
 

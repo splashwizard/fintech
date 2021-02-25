@@ -29,7 +29,7 @@
       <ul class="nav navbar-nav navbar-right">
         @if (Route::has('login'))
             @if(!Auth::check())
-                <li><a href="{{ route('login') }}">@lang('lang_v1.login')1</a></li>
+                <li><a href="{{ route('login') }}">@lang('lang_v1.login')</a></li>
                 @if(env('ALLOW_REGISTRATION', true))
                     <li><a href="{{ route('business.getRegister') }}">@lang('lang_v1.register')</a></li>
                 @endif

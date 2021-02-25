@@ -51,13 +51,15 @@ class GameListController extends Controller
         if (request()->ajax()) {
             $business_id = request()->session()->get('user.business_id');
 
-            $expenses = Promotion::select(
+            $expenses = Promotion::join('promotion_collections', 'promotion_collections.id', 'promotions.collection_id')
+            ->select(
                 'promotions.*',
-                'promotion_id as no',
-                'updated_at as last_modified_on'
-            )->where('type', 'jewellery')
-                ->groupBy('promotion_id')
-            ->orderBy('promotion_id', 'ASC');
+                'promotions.promotion_id as no',
+                'promotions.updated_at as last_modified_on',
+                'promotion_collections.name as collection'
+            )->where('promotions.type', 'jewellery')
+                ->groupBy('promotions.promotion_id')
+            ->orderBy('promotions.promotion_id', 'ASC');
 
             
             return Datatables::of($expenses)
@@ -76,19 +78,13 @@ class GameListController extends Controller
                     @endif
                     '
                     )
-                ->editColumn('start_time',
-                    '@if($start_time == "0000-00-00 00:00:00")
-                        -
-                    @else
-                        {{$start_time}}
-                    @endif')
-                ->editColumn('end_time',
-                    '@if($end_time == "0000-00-00 00:00:00")
-                        -
-                    @else
-                        {{$end_time}}
-                    @endif')
-                ->rawColumns(['action', 'show'])
+                ->editColumn('sale', function ($row) {
+                    return  '<input type="checkbox" class="checkbox_game_sale" data-id="'.$row->id.'"'. ($row->sale ? 'checked' : null) .'>' ;
+                })
+                ->editColumn('new', function ($row) {
+                    return  '<input type="checkbox" class="checkbox_game_new" data-id="'.$row->id.'"'. ($row->new ? 'checked' : null) .'>' ;
+                })
+                ->rawColumns(['action', 'show', 'sale', 'new'])
                 ->make(true);
         }
 
@@ -201,6 +197,21 @@ class GameListController extends Controller
         return ['html' => view('game_list.form')->with(['form_index' => $form_index, 'promotion' => null, 'promotion_langs' => $promotion_langs, 'promotion_collections' => $promotion_collections])->render() ];
     }
 
+<<<<<<< HEAD
+=======
+    public function updateGameSale(Request $request, $id){
+        $is_sale = $request->get('is_sale');
+        Promotion::find($id)->update(['sale' => $is_sale]);
+        return ['success' => true];
+    }
+
+    public function updateGameNew(Request $request, $id){
+        $is_new = $request->get('is_new');
+        Promotion::find($id)->update(['new' => $is_new]);
+        return ['success' => true];
+    }
+
+>>>>>>> 2102422 (Game 50a)
     /**
      * Update the specified resource in storage.
      *

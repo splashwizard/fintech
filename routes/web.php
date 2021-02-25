@@ -260,6 +260,8 @@ Route::middleware(['IsInstalled', 'auth', 'SetSessionData', 'language', 'timezon
 
     Route::resource('game_list', 'GameListController');
     Route::get('/game_list/{promotion_id}/getTab/{form_index}', 'GameListController@getTab');
+    Route::post('/game_list/update_game_sale/{id}', 'GameListController@updateGameSale');
+    Route::post('/game_list/update_game_new/{id}', 'GameListController@updateGameNew');
     //Notices...
     Route::resource('notices', 'NoticeController');
     Route::get('/notices/{notice_id}/getTab/{form_index}', 'NoticeController@getTab');
