@@ -191,7 +191,7 @@ class ContactController extends Controller
         if($month!="0")
             $query->where(DB::raw('DATE_FORMAT(STR_TO_DATE(birthday, "%Y-%m-%d"), "%m")'), $month);
         $query->addSelect(['contacts.contact_id', 'contacts.name', 'contacts.email', 'contacts.created_at', 'contacts.remarks1', 'contacts.remarks2', 'contacts.remarks3',
-            'total_rp', 'cg.name as customer_group', 'm.name as membership', 'city', 'state', 'country', 'landmark', 'mobile', 'contacts.id', 'is_default',
+            'contacts.total_rp', 'cg.name as customer_group', 'm.name as membership', 'contacts.city', 'contacts.state', 'contacts.country', 'contacts.landmark', 'contacts.mobile', 'contacts.id', 'contacts.is_default',
             DB::raw( 'DATE_FORMAT(STR_TO_DATE(birthday, "%Y-%m-%d"), "%d/%m") as birthday'),
             DB::raw("SUM(IF(card_type = 'credit' && method= 'bank_transfer', tp.amount, 0)) as total_invoice"),
 //                        DB::raw("SUM(IF( t.type = 'sell_return' AND (SELECT transaction_payments.method FROM transaction_payments WHERE transaction_payments.transaction_id=t.id) = 'bank_transfer', final_total, 0)) as total_sell_return"),
@@ -203,8 +203,8 @@ class ContactController extends Controller
         $is_admin_or_super = auth()->user()->hasRole('Admin#' . auth()->user()->business_id) || auth()->user()->hasRole('Superadmin') || auth()->user()->hasRole('Admin');
         $contacts = Datatables::of($query)
             ->editColumn(
-                'landmark',
-                '{{implode(array_filter([$landmark, $city, $state, $country]), ", ")}}'
+                'contacts.landmark',
+                '{{implode(", ", array_filter([$landmark, $city, $state, $country]))}}'
             )
             ->addColumn(
                 'due',
@@ -239,18 +239,15 @@ class ContactController extends Controller
                 @endcan
                 @endif </ul></div>'
             )
-            ->editColumn('total_rp', '{{$total_rp ?? 0}}')
-            ->editColumn('created_at', '{{@format_date($created_at)}}')
-            ->removeColumn('total_invoice')
-            ->removeColumn('opening_balance')
-            ->removeColumn('opening_balance_paid')
-            ->removeColumn('state')
-            ->removeColumn('country')
-            ->removeColumn('city')
-            ->removeColumn('type')
-            ->removeColumn('id')
-            ->removeColumn('is_default')
-            ->removeColumn('total_sell_return');
+            ->editColumn('contacts.total_rp', '{{$total_rp ?? 0}}')
+            ->editColumn('contacts.created_at', '{{@format_date($created_at)}}')
+            ->removeColumn('contacts.state')
+            ->removeColumn('contacts.country')
+            ->removeColumn('contacts.city')
+            ->removeColumn('contacts.type')
+            ->removeColumn('contacts.id')
+            ->removeColumn('contacts.is_default')
+            ->removeColumn('contacts.total_sell_return');
         $reward_enabled = (request()->session()->get('business.enable_rp') == 1) ? true : false;
         $raw = ['due', 'return_due', 'action'];
 //        if (!$reward_enabled) {
