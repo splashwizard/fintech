@@ -124,108 +124,6 @@ class HomeController extends Controller
             }
         }
 
-        //Get sell for indivisual locations
-//        $all_locations = BusinessLocation::forDropdown($business_id);
-//        $location_sells = [];
-//        $sells_by_location = $this->transactionUtil->getSellsLast30Days($business_id, true);
-//        foreach ($all_locations as $loc_id => $loc_name) {
-//            $values = [];
-//            foreach ($dates as $date) {
-//                $sell = $sells_by_location->first(function ($item) use ($loc_id, $date) {
-//                    return $item->date == $date &&
-//                        $item->location_id == $loc_id;
-//                });
-//
-//                if (!empty($sell)) {
-//                    $values[] = $sell->total_sells;
-//                } else {
-//                    $values[] = 0;
-//                }
-//            }
-//            $location_sells[$loc_id]['loc_label'] = $loc_name;
-//            $location_sells[$loc_id]['values'] = $values;
-//        }
-//        $sells_chart_1 = Charts::multi('line', 'highcharts')
-//                            ->title(' ')
-//                            ->template('material')
-//                            ->labels($labels)
-//                            ->elementLabel(__('home.total_sells', ['currency' => $currency->code]));
-//
-//        if (!empty($location_sells)) {
-//            foreach ($location_sells as $location_sell) {
-//                $sells_chart_1->dataset($location_sell['loc_label'], $location_sell['values']);
-//            }
-//        }
-//
-//        if (count($all_locations) > 1) {
-//            $sells_chart_1->dataset(__('report.all_locations'), $all_sell_values);
-//        }
-
-//        //Chart for sells this financial year
-//        $sells_this_fy = $this->transactionUtil->getSellsCurrentFy($business_id, $fy['start'], $fy['end']);
-//
-//        $labels = [];
-//        $values = [];
-//
-//        $months = [];
-//        $date = strtotime($fy['start']);
-//        $last   = date('m-Y', strtotime($fy['end']));
-//
-//        $fy_months = [];
-//        do {
-//            $month_year = date('m-Y', $date);
-//            $fy_months[] = $month_year;
-//
-//            $month_number = date('m', $date);
-//
-//            $labels[] = \Carbon::createFromFormat('m-Y', $month_year)
-//                            ->format('M-Y');
-//            $date = strtotime('+1 month', $date);
-//
-//            if (!empty($sells_this_fy[$month_year])) {
-//                $values[] = $sells_this_fy[$month_year];
-//            } else {
-//                $values[] = 0;
-//            }
-//        } while ($month_year != $last);
-//
-//        $fy_sells_by_location = $this->transactionUtil->getSellsCurrentFy($business_id, $fy['start'], $fy['end'], true);
-//        $fy_sells_by_location_data = [];
-//
-//        foreach ($all_locations as $loc_id => $loc_name) {
-//            $values_data = [];
-//            foreach ($fy_months as $month) {
-//                $sell = $fy_sells_by_location->first(function ($item) use ($loc_id, $month) {
-//                    return $item->yearmonth == $month &&
-//                        $item->location_id == $loc_id;
-//                });
-//
-//                if (!empty($sell)) {
-//                    $values_data[] = $sell->total_sells;
-//                } else {
-//                    $values_data[] = 0;
-//                }
-//            }
-//            $fy_sells_by_location_data[$loc_id]['loc_label'] = $loc_name;
-//            $fy_sells_by_location_data[$loc_id]['values'] = $values_data;
-//        }
-//        $sells_chart_2 = Charts::multi('line', 'highcharts')
-//                            ->title(__(' '))
-//                            ->labels($labels)
-//                            ->template('material')
-//                            ->elementLabel(__(
-//                                'home.total_sells',
-//                                ['currency' => $currency->code]
-//                            ));
-//        if (!empty($fy_sells_by_location_data)) {
-//            foreach ($fy_sells_by_location_data as $location_sell) {
-//                $sells_chart_2->dataset($location_sell['loc_label'], $location_sell['values']);
-//            }
-//        }
-//        if (count($all_locations) > 1) {
-//            $sells_chart_2->dataset(__('report.all_locations'), $values);
-//        }
-
         //Get Dashboard widgets from module
         $module_widgets = $this->moduleUtil->getModuleData('dashboard_widget');
 
@@ -238,23 +136,17 @@ class HomeController extends Controller
         }
 
 
-        $bank_accounts_sql = Account::leftjoin('account_transactions as AT', function ($join) {
-            $join->on('AT.account_id', '=', 'accounts.id');
-            $join->whereNull('AT.deleted_at');
-        })
+        $bank_accounts_sql = Account::where('name', '!=', "Bonus Account")
             ->where('is_service', 0)
+            ->where('is_closed', 0)
             ->where('business_id', $business_id)
-            ->select(['name', 'account_number', 'accounts.note', 'accounts.id',
-                'is_closed', DB::raw("SUM( IF(AT.type='credit', amount, -1*amount) ) as balance")
-                , DB::raw("SUM( IF(AT.type='credit', amount, 0) ) as total_deposit")
-                , DB::raw("SUM( IF(AT.type='debit', amount, 0) ) as total_withdraw")])
-            ->groupBy('accounts.id');
-
-        $bank_accounts_sql->where(function ($q) {
-            $q->where('account_type', '!=', 'capital');
-            $q->orWhereNull('account_type');
-        });
+            ->select(['name']);
         $bank_accounts = $bank_accounts_sql->get();
+        $banks = [];
+        foreach ($bank_accounts as $item) {
+            $banks[] = $item->name;
+        }
+
 
         $total_bank_sql = Account::leftjoin('account_transactions as AT', function ($join) {
             $join->on('AT.account_id', '=', 'accounts.id');
@@ -276,26 +168,19 @@ class HomeController extends Controller
 
         $total_bank = $total_bank_sql->get()[0];
 
-        $service_accounts_sql = Account::leftjoin('account_transactions as AT', function ($join) {
-            $join->on('AT.account_id', '=', 'accounts.id');
-            $join->whereNull('AT.deleted_at');
-        })
-            ->where('is_service', 1)->where('accounts.name', '!=', 'Safe Kiosk Account')
+        $service_accounts_sql = Account::where('name', '!=', "Safe Kiosk Account")
+            ->where('is_service', 1)
+            ->where('is_closed', 0)
             ->where('business_id', $business_id)
-            ->select(['name', 'account_number', 'accounts.note', 'accounts.id',
-                'is_closed', DB::raw("SUM( IF(AT.type='credit', amount, -1*amount) ) as balance")
-                , DB::raw("SUM( IF(AT.type='credit', amount, 0) ) as total_deposit")
-                , DB::raw("SUM( IF(AT.type='debit', amount, 0) ) as total_withdraw")])
-            ->groupBy('accounts.id');
-
-        $service_accounts_sql->where(function ($q) {
-            $q->where('account_type', '!=', 'capital');
-            $q->orWhereNull('account_type');
-        });
+            ->select(['name']);
         $service_accounts = $service_accounts_sql->get();
+        $services = [];
+        foreach ($service_accounts as $item) {
+            $services[] = $item->name;
+        }
 
 //        return view('home.index', compact('date_filters', 'sells_chart_1', 'sells_chart_2', 'widgets', 'bank_accounts', 'service_accounts', 'total_bank'));
-        return view('home.index', compact('date_filters', 'widgets', 'bank_accounts', 'service_accounts', 'total_bank'));
+        return view('home.index', compact('date_filters', 'widgets', 'banks', 'services', 'total_bank'));
     }
 
     /**
@@ -420,6 +305,11 @@ class HomeController extends Controller
                 $q->orWhereNull('account_type');
             });
             $bank_accounts = $bank_accounts_sql->get();
+            foreach ($bank_accounts as $item){
+                $banks["balance"][] = empty($item["balance"]) ? 0 : $item["balance"];
+                $banks["deposit"][] = empty($item["total_deposit"]) ? 0 : $item["total_deposit"];
+                $banks["withdraw"][] = empty($item["total_withdraw"]) ? 0 : $item["total_withdraw"];
+            }
     
             $total_bank_sql = Account::leftjoin('account_transactions as AT', function ($join) {
                 $join->on('AT.account_id', '=', 'accounts.id');
@@ -447,6 +337,7 @@ class HomeController extends Controller
                 $join->whereNull('AT.deleted_at');
             })
                 ->where('is_service', 1)
+                ->where('is_closed', 0)
                 ->where('name', '!=', 'Safe Kiosk Account')
                 ->where('business_id', $business_id)
 //                ->whereBetween(\Illuminate\Support\Facades\DB::raw('date(AT.operation_date)'), [$start, $end])
@@ -461,8 +352,16 @@ class HomeController extends Controller
                 $q->orWhereNull('account_type');
             });
             $service_accounts = $service_accounts_sql->get();
+            foreach ($service_accounts as $item){
+                $services["balance"][] = empty($item["balance"]) ? 0 : $item["balance"];
+                $services["deposit"][] = empty($item["total_deposit"]) ? 0 : $item["total_deposit"];
+                $services["withdraw"][] = empty($item["total_withdraw"]) ? 0 : $item["total_withdraw"];
+            }
 
             $output['bank_service_part_html'] = view('home.bank_service_part')->with(compact('bank_accounts', 'service_accounts'))->render();
+            $output['banks'] = $banks;
+            $output['services'] = $services;
+
 
             return $output;
         }

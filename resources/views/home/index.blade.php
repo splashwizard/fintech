@@ -203,8 +203,14 @@
 	    <!-- /.col -->
   	</div>
     <br>
+    <div class="bg-white" style="height: 400px;width: 100%;margin: 0 20px 30px 0;">
+       <canvas id="canvas_banks"></canvas>
+    </div>
+    <div class="bg-white" style="height: 400px;width: 100%;margin: 0 20px 30px 0;">
+        <canvas id="canvas_services"></canvas>
+    </div>
     <div id="bank_service_part">
-{{--    @include('home.bank_service_part')--}}
+
     </div>
     @if(!empty($widgets['after_sale_purchase_totals']))
       @foreach($widgets['after_sale_purchase_totals'] as $widget)
@@ -274,7 +280,7 @@
               <tr>
                 <th>@lang( 'purchase.supplier' )</th>
                 <th>@lang( 'purchase.ref_no' )</th>
-                        <th>@lang( 'home.due_amount' )</th>
+                <th>@lang( 'home.due_amount' )</th>
               </tr>
             </thead>
           </table>
@@ -340,7 +346,12 @@
 <!-- /.content -->
 @stop
 @section('javascript')
+    <script>
+        const banks = JSON.parse('<?php echo json_encode($banks);?>');
+        const services = JSON.parse('<?php echo json_encode($services);?>');
+    </script>
     <script src="{{ asset('AdminLTE/plugins/chartjs/Chart.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
     <script src="{{ asset('js/home.js?v=' . $asset_v) }}"></script>
 {{--    {!! Charts::assets(['highcharts']) !!}--}}
 {{--    {!! $sells_chart_1->script() !!}--}}
