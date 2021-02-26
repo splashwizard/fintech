@@ -190,7 +190,7 @@
                 {data: 'customer_group', name: 'cg.name', width: "10%"},
                 {data: 'due', width: "10%"},
                 {data: 'return_due', width: "10%"},
-                {data: 'birthday', width: "10%"}];
+                {data: 'birthday', width: "5%"}];
         }
         // columns.push({data: 'total_rp', width: "10%"});
         if (contact_table_type === 'blacklisted_customer'){
@@ -207,7 +207,7 @@
             ]);
         } else {
             columns.push.apply(columns,[
-                {data: 'landmark', width: "10%"},
+                {data: 'landmark', width: "5%"},
                 {data: 'remarks1', visible: false, width: "0%"},
                 {data: 'remarks2', visible: false, width: "0%"},
                 {data: 'remarks3', visible: false, width: "0%"},

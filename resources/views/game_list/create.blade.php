@@ -59,7 +59,7 @@
 							<div class="form-group">
 								<?php echo Form::select('collection_id', $promotion_collections, null, ['class' => 'form-control']);; ?>
 							</div>
-							<div class="form-group">
+							<!-- <div class="form-group">
 								<div class="row">
 									<div class="col-md-6">
 										<label for="start_time">Start Time</label>
@@ -80,7 +80,7 @@
 										</div>
 									</div>
 								</div>
-							</div>
+							</div> -->
 							<div class="form-group">
 								<div class="row">
 									<div class="col-md-6">
@@ -162,7 +162,7 @@
 			$('#mobile_imagePreview').parent().hide();
 			$('#mobile_imageUpload').val('');
 		});
-		$('#start_time, #end_time').datetimepicker({format: 'YYYY-MM-DD hh:mm:ss'});
+		// $('#start_time, #end_time').datetimepicker({format: 'YYYY-MM-DD hh:mm:ss'});
 		// $('#desktop_imageUpload').rules('add', {
 		// 	messages: {
 		// 		required: "Please upload desktop image"

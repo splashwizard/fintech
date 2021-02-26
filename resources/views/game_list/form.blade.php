@@ -50,7 +50,7 @@
 	<div class="form-group">
 		<?php echo Form::select('form['.$form_index.'][collection_id]', $promotion_collections, !empty($promotion['collection_id']) ? $promotion['collection_id'] : null, ['class' => 'form-control']);; ?>
 	</div>
-	<div class="form-group">
+	<!-- <div class="form-group">
 		<div class="row">
 			<div class="col-md-6">
 				<label for="start_time">Start Time</label>
@@ -71,7 +71,7 @@
 				</div>
 			</div>
 		</div>
-	</div>
+	</div> -->
 	<div class="form-group">
 		<div class="row">
 			<div class="col-md-6">
