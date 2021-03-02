@@ -31,8 +31,10 @@ class PromotionAPI extends Controller
     }
 
     public function promotions(Request $request) {
+        $business_id = $request->get("business_id");
         $data = Promotion::join('promotion_langs', 'promotion_langs.id', 'promotions.lang_id')
                 ->leftjoin('promotion_collections', 'promotions.collection_id', 'promotion_collections.id')
+                ->where('business_id', $business_id)
                 ->where('lang_id', 1)
                 ->select('promotion_id AS id', 'type', 'title', 'desktop_image',
                  'content AS description','start_time', 'end_time', 'sequence', 'show', 'sale', 'new', 'promotion_collections.name AS collection')

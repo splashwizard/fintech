@@ -183,7 +183,13 @@
 				},
 				mobile_imageUpload: {
 					required: true
-				}
+				},
+				start_time: {
+					required: true
+				},
+				end_time: {
+					required: true
+				},
 			},
 			messages: {
 				desktop_imageUpload: { // message declared
@@ -191,6 +197,12 @@
 				},
 				mobile_imageUpload: { // message declared
 					required: "Please select mobile image"
+				},
+				start_time: { // message declared
+					required: "Please select start time"
+				},
+				end_time: { // message declared
+					required: "Please select end time"
 				},
 			},
 			ignore: []

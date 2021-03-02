@@ -133,6 +133,8 @@ class PromotionController extends Controller
             else
                 $input['show'] = 'inactive';
             $input['type'] = 'promo';
+            $business_id = request()->session()->get('user.business_id');
+            $input['business_id'] = $business_id;
             $input['promotion_id'] = $this->promotionUtil->generatePromotionID();
             if ($request->hasFile('desktop_imageUpload')){
                 $uploaded_file_name = $this->promotionUtil->uploadFile($request, 'desktop_imageUpload', 'promotion_images');
