@@ -55,7 +55,8 @@ class PageController extends Controller
                 'pages.*',
                 'page_id as no',
                 'updated_at as last_modified_on'
-            )->groupBy('page_id')
+            )
+                ->groupBy('page_id')
             ->orderBy('page_id', 'ASC');
 
             

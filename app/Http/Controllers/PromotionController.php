@@ -55,6 +55,7 @@ class PromotionController extends Controller
                 'promotion_id as no',
                 'updated_at as last_modified_on'
             )
+                ->where('business_id', $business_id)
                 ->where('type', 'promo')->groupBy('promotion_id')
             ->orderBy('promotion_id', 'ASC');
 

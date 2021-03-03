@@ -58,6 +58,7 @@ class GameListController extends Controller
                 'promotions.updated_at as last_modified_on',
                 'promotion_collections.name as collection'
             )->where('promotions.type', 'jewellery')
+             ->where('business_id', $business_id)
                 ->groupBy('promotions.promotion_id')
             ->orderBy('promotions.promotion_id', 'ASC');
 
@@ -132,6 +133,7 @@ class GameListController extends Controller
                 $input['show'] = 'inactive';
             $input['type'] = 'jewellery';
             $input['promotion_id'] = $this->promotionUtil->generatePromotionID();
+            $input['business_id'] = request()->session()->get('user.business_id');
             if ($request->hasFile('desktop_imageUpload')){
                 $uploaded_file_name = $this->promotionUtil->uploadFile($request, 'desktop_imageUpload', 'promotion_images');
                 $input['desktop_image'] = '/uploads/promotion_images/'.$uploaded_file_name;

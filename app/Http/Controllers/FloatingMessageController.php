@@ -48,7 +48,9 @@ class FloatingMessageController extends Controller
      */
     public function index()
     {
+        $business_id = request()->session()->get('user.business_id');
         $floating_messages = FloatingMessage::join('promotion_langs', 'promotion_langs.id', 'lang_id')
+            ->where('business_id', $business_id)
             ->orderBy('lang_id', 'ASC')
             ->select('floating_messages.*', 'promotion_langs.lang as lang')->get();
         $promotion_langs = PromotionLang::forDropdown([], false);
@@ -59,7 +61,8 @@ class FloatingMessageController extends Controller
     public function getTab($id)
     {
         $selected_langs = [];
-        $data = FloatingMessage::get();
+        $business_id = request()->session()->get('user.business_id');
+        $data = FloatingMessage::where('business_id', $business_id)->get();
         foreach ($data as $row){
             $selected_langs[] = $row->lang_id;
         }
@@ -76,31 +79,33 @@ class FloatingMessageController extends Controller
      */
     public function update(Request $request)
     {
-//        try {
+        try {
             $forms = $request->get('form');
+            $business_id = request()->session()->get('user.business_id');
             foreach ($forms as $key => $form){
-                $promotion_cnt = FloatingMessage::where('lang_id', $form['lang_id'])->count();
+                $promotion_cnt = FloatingMessage::where('business_id', $business_id)->where('lang_id', $form['lang_id'])->count();
                 if($promotion_cnt == 0){
                     $input = $form;
+                    $input['business_id'] = $business_id;
 
                     FloatingMessage::create($input);
                 } else {
                     $input = $form;
-                    FloatingMessage::where('lang_id', $form['lang_id'])->update($input);
+                    FloatingMessage::where('business_id', $business_id)->where('lang_id', $form['lang_id'])->update($input);
                 }
             }
 
             $output = ['success' => 1,
                             'msg' => "Floating message updated successfully"
                         ];
-//        } catch (\Exception $e) {
-//            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-//
-//            $output = ['success' => 0,
-//                            'msg' => __('messages.something_went_wrong')
-//                        ];
-//        }
-//
+        } catch (\Exception $e) {
+            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+
+            $output = ['success' => 0,
+                            'msg' => __('messages.something_went_wrong')
+                        ];
+        }
+
         return redirect('floating_message')->with('status', $output);
     }
 
