@@ -1,10 +1,6 @@
 @extends('layouts.app')
 @section('title', __('home.home'))
 
-@section('css')
-    {!! Charts::styles(['highcharts']) !!}
-@endsection
-
 @section('content')
 
 <!-- Content Header (Page header) -->

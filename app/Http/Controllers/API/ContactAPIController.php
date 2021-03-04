@@ -56,8 +56,8 @@ class ContactAPIController extends Controller
                     'bonus' => ($payment->card_type == 'credit' && ($payment->method == 'basic_bonus' || $payment->method == 'free_credit') ) ? $payment->amount : '',
                     'service_debit' => ($payment->card_type == 'debit' && $payment->method == 'service_transfer') ? $payment->amount : '',
                     'service_credit' => ($payment->card_type == 'credit' && $payment->method == 'service_transfer' ) ? $payment->amount : '',
-                    'Ref Detail' => !empty($paymentTypes[$payment->method]) ? $paymentTypes[$payment->method] : '',
-                    'Item Number' => $payment->note . '<small>' . __('account.payment_for') . ': ' . $ref_no . '</small>'
+                    'RefDetail' => !empty($paymentTypes[$payment->method]) ? $paymentTypes[$payment->method] : '',
+                    'ItemNumber' => $payment->note . '<small>' . __('account.payment_for') . ': ' . $ref_no . '</small>'
                 ];
                 if($payment->method =='bank_transfer')
                     $new_item['Ref Detail'] = Account::find($payment->account_id)->name;
