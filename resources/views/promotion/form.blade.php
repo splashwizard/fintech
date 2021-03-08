@@ -43,7 +43,7 @@
 	@else
 		<input type='file' class="hidden mobile_imageUpload" name="form_{{$form_index}}_mobile_imageUpload" accept="image/*" value="{{URL::to('/public').$promotion['mobile_image']}}"/>
 		<div class="image-preview form-group">
-			<div class="mobile_imagePreview" style="background-image: url({{$promotion['mobile_image']}});">
+			<div class="mobile_imagePreview" style="background-image: url({{env('AWS_IMG_URL').$promotion['mobile_image']}});">
 			</div>
 		</div>
 	@endif

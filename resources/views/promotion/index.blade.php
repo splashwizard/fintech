@@ -5,14 +5,14 @@
 
 <!-- Content Header (Page header) -->
 <section class="content-header">
-    <h1>@lang('expense.expenses')</h1>
+    <h1>@lang('promotion.promotions')</h1>
 </section>
 
 <!-- Main content -->
 <section class="content">
     <div class="row">
         <div class="col-md-12">
-            @component('components.widget', ['class' => 'box-primary', 'title' => __('expense.all_expenses')])
+            @component('components.widget', ['class' => 'box-primary', 'title' => __('promotion.all_promotions')])
                 @can('expenses')
                     @slot('tool')
                         <div class="box-tools">

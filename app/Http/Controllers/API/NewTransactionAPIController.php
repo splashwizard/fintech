@@ -25,7 +25,7 @@ class NewTransactionAPIController extends Controller
             $business_id = $request->get('business_id');
             $input['client_id'] = $request->post('user_id');
             if ($request->hasFile('image')){
-                $this->transactionUtil->uploadFile($request, 'image', 'receipt_images');
+                $input['receipt_url'] = $this->transactionUtil->uploadFile($request, 'image', 'receipt_images');
             }
             $default_location = null;
             if(BusinessLocation::where('business_id', $business_id)->count() == 1){

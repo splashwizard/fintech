@@ -35,5 +35,6 @@ Route::middleware('api')->group(function(){
     Route::post('/add_bank_detail', 'API\AuthController@addBankDetail');
     Route::get('/pages', 'API\PagesAPIController@pages');
     Route::get('/notices', 'API\NoticeAPIController@notices');
+    Route::get('/floating_message', 'API\FloatingMessageAPIController@index');
     Route::get('/history', 'API\ContactAPIController@history');
 });

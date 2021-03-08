@@ -11,7 +11,7 @@
 	@else
 		<input type='file' class="hidden desktop_imageUpload" name="form_{{$form_index}}_desktop_imageUpload" accept="image/*" value="{{URL::to('/public').$notice['desktop_image']}}"/>
 		<div class="image-preview form-group">
-			<div class="desktop_imagePreview" style="background-image: url({{$notice['desktop_image']}});">
+			<div class="desktop_imagePreview" style="background-image: url({{env('AWS_IMG_URL').$notice['desktop_image']}});">
 			</div>
 		</div>
 	@endif
@@ -32,7 +32,7 @@
 	@else
 		<input type='file' class="hidden mobile_imageUpload" name="form_{{$form_index}}_mobile_imageUpload" accept="image/*" value="{{URL::to('/public').$notice['mobile_image']}}"/>
 		<div class="image-preview form-group">
-			<div class="mobile_imagePreview" style="background-image: url({{$notice['mobile_image']}});">
+			<div class="mobile_imagePreview" style="background-image: url({{env('AWS_IMG_URL').$notice['mobile_image']}});">
 			</div>
 		</div>
 	@endif

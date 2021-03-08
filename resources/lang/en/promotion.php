@@ -12,6 +12,7 @@ return [
     */
 
     'promotions' => 'Promotions',
+    'all_promotions' => 'All Promotions',
     'collection' => 'Collection',
     'no' => 'No.',
     'title' => 'Title',

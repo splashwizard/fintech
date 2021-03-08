@@ -193,9 +193,9 @@ class ContactController extends Controller
         $query->addSelect(['contacts.contact_id', 'contacts.name', 'contacts.email', 'contacts.created_at', 'contacts.remarks1', 'contacts.remarks2', 'contacts.remarks3',
             'contacts.total_rp', 'cg.name as customer_group', 'm.name as membership', 'contacts.city', 'contacts.state', 'contacts.country', 'contacts.landmark', 'contacts.mobile', 'contacts.id', 'contacts.is_default',
             DB::raw( 'DATE_FORMAT(STR_TO_DATE(birthday, "%Y-%m-%d"), "%d/%m") as birthday'),
-            DB::raw("SUM(IF(card_type = 'credit' && method= 'bank_transfer', tp.amount, 0)) as total_invoice"),
+            DB::raw("SUM(IF(card_type = 'credit' && method= 'bank_transfer', tp.amount, 0)) as due"),
 //                        DB::raw("SUM(IF( t.type = 'sell_return' AND (SELECT transaction_payments.method FROM transaction_payments WHERE transaction_payments.transaction_id=t.id) = 'bank_transfer', final_total, 0)) as total_sell_return"),
-            DB::raw("SUM(IF(card_type = 'debit' && method != 'service_transfer', tp.amount, 0)) as total_sell_return"),
+            DB::raw("SUM(IF(card_type = 'debit' && method != 'service_transfer', tp.amount, 0)) as return_due"),
             DB::raw("SUM(IF(t.type = 'opening_balance', final_total, 0)) as opening_balance"),
             DB::raw("SUM(IF(t.type = 'opening_balance', (SELECT SUM(IF(is_return = 1,-1*amount,amount)) FROM transaction_payments WHERE transaction_payments.transaction_id=t.id), 0)) as opening_balance_paid")
             ])
@@ -206,13 +206,13 @@ class ContactController extends Controller
                 'contacts.landmark',
                 '{{implode(", ", array_filter([$landmark, $city, $state, $country]))}}'
             )
-            ->addColumn(
+            ->editColumn(
                 'due',
-                '<span class="display_currency contact_due" data-orig-value="{{$total_invoice}}" data-highlight=true>{{($total_invoice)}}</span>'
+                '<span class="display_currency contact_due" data-orig-value="{{$due}}" data-highlight=true>{{($due)}}</span>'
             )
-            ->addColumn(
+            ->editColumn(
                 'return_due',
-                '<span class="display_currency return_due" data-orig-value="{{$total_sell_return}}" data-highlight=false>{{$total_sell_return}}</span>'
+                '<span class="display_currency return_due" data-orig-value="{{$return_due}}" data-highlight=false>{{$return_due}}</span>'
             )
             ->addColumn(
                 'action',

@@ -2,30 +2,20 @@
 
 namespace App\Http\Controllers\API;
 
+use App\FloatingMessage;
 use App\Http\Controllers\Controller;
-use App\Notice;
 use Illuminate\Http\Request;
 
-class NoticeAPIController extends Controller
+
+class FloatingMessageAPIController extends Controller
 {
-    public function notices(Request $request) {
+    public function index(Request $request) {
         try {
             $business_id = $request->get('business_id');
-            $expenses = Notice::select(
-                'notice_id as no',
+            $expenses = FloatingMessage::select(
                 'lang_id',
-                'title',
-                'content',
-                'desktop_image',
-                'mobile_image',
-                'sequence',
-                'show',
-                'start_time',
-                'end_time',
-                'updated_at as last_modified_on'
+                'title'
             )->where('business_id', $business_id)
-            ->groupBy('notice_id')
-            ->orderBy('notice_id', 'ASC')
             ->get();
             $output = ['success' => true, 'list' => $expenses];
         } catch (\Exception $e) {
