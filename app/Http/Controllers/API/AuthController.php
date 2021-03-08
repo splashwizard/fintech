@@ -30,7 +30,7 @@ class AuthController extends Controller
     }
 
     public function login(Request $request) {
-        $required_fields = ['name', 'password'];
+        $required_fields = ['name', 'password', 'business_id'];
         $input = $request->only($required_fields);
         foreach ($required_fields as $key) {
             if(!isset($input[$key])){
@@ -41,14 +41,14 @@ class AuthController extends Controller
             }
         }
 
-        $count = Contact::where('name', $input['name'])->count();
+        $count = Contact::where('name', $input['name'])->where('business_id', $input['business_id'])->count();
         if($count == 0){
             return ['success' => false,
                 'msg' => "The username doesn't exist"
             ];
         }
-        if(Hash::check($input['password'], Contact::where('name', $input['name'])->first()->password)){
-            $row = Contact::where('name', $input['name'])->first();
+        if(Hash::check($input['password'], Contact::where('name', $input['name'])->where('business_id', $input['business_id'])->first()->password)){
+            $row = Contact::where('name', $input['name'])->where('business_id', $input['business_id'])->first();
 
             $token = Str::random(60);
             $row->api_token = hash('sha256', $token);
@@ -131,10 +131,10 @@ class AuthController extends Controller
     }
 
     public function signUp(Request $request) {
-        $business_id = 21;
 
-        $required_fields = ['name', 'password' , 'mobile'];
+        $required_fields = ['name', 'password' , 'mobile', 'business_id'];
         $input = $request->only($required_fields);
+        $business_id = $input['business_id'];
 
         foreach ($required_fields as $key) {
             if(!isset($input[$key])){
