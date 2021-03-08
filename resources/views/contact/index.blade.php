@@ -188,8 +188,8 @@
                 {data: 'email', width: "10%"},
                 {data: 'membership', name: 'm.name', width: "10%"},
                 {data: 'customer_group', name: 'cg.name', width: "10%"},
-                {data: 'due', width: "10%"},
-                {data: 'return_due', width: "10%"},
+                {data: 'due', searchable: false,  width: "10%"},
+                {data: 'return_due', searchable: false, width: "10%"},
                 {data: 'birthday', width: "5%"}];
         }
         // columns.push({data: 'total_rp', width: "10%"});
@@ -203,7 +203,7 @@
                 {data: 'blacked_by_user', width: "10%"},
                 {data: 'remark', width: "10%"},
                 {data: 'banned_by_user', visible: false, width: "0%"},
-                {data: 'action', width: "10%"}
+                {data: 'action', searchable: false, orderable: false, width: "10%"}
             ]);
         } else {
             columns.push.apply(columns,[
@@ -212,7 +212,7 @@
                 {data: 'remarks2', visible: false, width: "0%"},
                 {data: 'remarks3', visible: false, width: "0%"},
                 {data: 'created_at', width: "10%"},
-                {data: 'action', width: "10%"}
+                {data: 'action', searchable: false, orderable: false, width: "10%"}
             ]);
         }
 

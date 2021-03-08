@@ -246,8 +246,7 @@ class ContactController extends Controller
             ->removeColumn('contacts.city')
             ->removeColumn('contacts.type')
             ->removeColumn('contacts.id')
-            ->removeColumn('contacts.is_default')
-            ->removeColumn('contacts.total_sell_return');
+            ->removeColumn('contacts.is_default');
         $reward_enabled = (request()->session()->get('business.enable_rp') == 1) ? true : false;
         $raw = ['due', 'return_due', 'action'];
 //        if (!$reward_enabled) {
