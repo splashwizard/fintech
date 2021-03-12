@@ -24,16 +24,12 @@
                 </div>
             </div>
             <div class="form-group">
-                {!! Form::label('connected_kiosk_id', __('lang_v1.connected_kiosk') . ':') !!}
-                {!! Form::select('connected_kiosk_id', $connected_kiosks, $account->connected_kiosk_id != 0 ? $account->connected_kiosk_id : '', ['class' => 'form-control', 'id' => 'connected_kiosk_id']); !!}
-            </div>
-            <div class="form-group">
                 {!! Form::label('name', __( 'lang_v1.name' ) .":*") !!}
                 {!! Form::text('name', $account->name, ['class' => 'form-control', 'required','placeholder' => __( 'lang_v1.name' ) ]); !!}
             </div>
 
              <div class="form-group">
-                {!! Form::label('account_number', __( 'account.short_name' ) .":*") !!}
+                {!! Form::label('account_number', __( 'account.account_number' ) .":*") !!}
                 {!! Form::text('account_number', $account->account_number, ['class' => 'form-control', 'required','placeholder' => __( 'account.account_number' ) ]); !!}
             </div>
 

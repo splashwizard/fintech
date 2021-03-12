@@ -368,6 +368,7 @@ Route::middleware(['IsInstalled', 'auth', 'SetSessionData', 'language', 'timezon
     Route::group(['prefix' => 'account'], function () {
         Route::resource('/account', 'AccountController');
         Route::resource('/service', 'ServiceController');
+        Route::resource('/connectedlist', 'ConnectedKioskController');
         Route::get('/fund-transfer/{id}', 'AccountController@getFundTransfer');
         Route::post('/fund-transfer', 'AccountController@postFundTransfer');
         Route::get('/deposit/{id}', 'AccountController@getDeposit');
@@ -385,6 +386,7 @@ Route::middleware(['IsInstalled', 'auth', 'SetSessionData', 'language', 'timezon
         Route::get('/link-account/{id}', 'AccountReportsController@getLinkAccount');
         Route::post('/link-account', 'AccountReportsController@postLinkAccount');
         Route::get('/cash-flow', 'AccountController@cashFlow');
+        Route::get('/connected_kiosk/{id}', 'ConnectedKioskController@getKioskData');
     });
     Route::group(['prefix' => 'service'], function () {
         Route::get('/deposit/{id}', 'ServiceController@getDeposit');

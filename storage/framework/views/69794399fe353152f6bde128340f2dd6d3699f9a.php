@@ -404,6 +404,9 @@
                         <li class="<?php echo e($request->segment(1) == 'account' && $request->segment(2) == 'service' ? 'active' : '', false); ?>">
                             <a href="<?php echo e(action('ServiceController@index'), false); ?>"><i
                                         class="fa fa-list"></i> 9.2 <?php echo app('translator')->get('account.service_list'); ?></a></li>
+                        <li class="<?php echo e($request->segment(1) == 'account' && $request->segment(2) == 'connectedlist' ? 'active' : '', false); ?>">
+                            <a href="<?php echo e(action('ConnectedKioskController@index'), false); ?>"><i
+                                        class="fa fa-list"></i> 9.3 <?php echo app('translator')->get('account.connected_kiosks'); ?></a></li>
                         <?php if($is_superadmin): ?>
                             <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('account.balance_sheet_details')): ?>
                                 <li class="<?php echo e($request->segment(1) == 'account' && $request->segment(2) == 'balance-sheet' ? 'active' : '', false); ?>">

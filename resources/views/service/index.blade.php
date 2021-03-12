@@ -138,6 +138,8 @@
 
         $(document).on('submit', 'form#edit_payment_account_form', function(e){
             e.preventDefault();
+            $('#name').prop("disabled", false);
+            $('#account_number').prop("disabled", false);
             var data = $(this).serialize();
             $.ajax({
                 method: "POST",
@@ -159,6 +161,8 @@
 
         $(document).on('submit', 'form#payment_account_form', function(e){
             e.preventDefault();
+            $('#name').prop("disabled", false);
+            $('#account_number').prop("disabled", false);
             var data = $(this).serialize();
             $.ajax({
                 method: "post",
@@ -321,6 +325,29 @@
 
             },
         });
+    });
+
+    $(document).on('change', '#connected_kiosk_id', function (e) {
+        var connected_kiosk_id = $(this).val();
+        if(connected_kiosk_id !== '0'){
+            $('#name').prop("disabled", true);
+            $('#account_number').prop("disabled", true);
+            $.ajax({
+                method: 'GET',
+                url: '/account/connected_kiosk/' + connected_kiosk_id,
+                dataType: 'json',
+                success: function(result) {
+                    $('#name').val(result.name);
+                    $('#account_number').val(result.short_name);
+                },
+            });
+        } else {
+            var name = $('#name'), account_number = $('#account_number');
+            name.prop("disabled", false);
+            account_number.prop("disabled", false);
+            name.val('');
+            account_number.val('');
+        }
     });
 
 </script>

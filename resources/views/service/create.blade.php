@@ -9,33 +9,37 @@
     </div>
 
     <div class="modal-body">
-            <div class="form-group">
-                {!! Form::label('name', __( 'lang_v1.name' ) .":*") !!}
-                {!! Form::text('name', null, ['class' => 'form-control', 'required','placeholder' => __( 'lang_v1.name' ) ]); !!}
-            </div>
+        <div class="form-group">
+            {!! Form::label('connected_kiosk_id', __('lang_v1.connected_kiosk') . ':') !!}
+            {!! Form::select('connected_kiosk_id', $connected_kiosks, '', ['class' => 'form-control', 'id' => 'connected_kiosk_id']); !!}
+        </div>
+        <div class="form-group">
+            {!! Form::label('name', __( 'lang_v1.name' ) .":*") !!}
+            {!! Form::text('name', null, ['class' => 'form-control', 'required','placeholder' => __( 'lang_v1.name' ) ]); !!}
+        </div>
 
-            <div class="form-group">
-                {!! Form::label('account_number', __( 'account.short_name' ) .":*") !!}
-                {!! Form::text('account_number', null, ['class' => 'form-control', 'required','placeholder' => __( 'account.short_name' ) ]); !!}
-            </div>
+        <div class="form-group">
+            {!! Form::label('account_number', __( 'account.short_name' ) .":*") !!}
+            {!! Form::text('account_number', null, ['class' => 'form-control', 'required','placeholder' => __( 'account.short_name' ) ]); !!}
+        </div>
 
-            {{--
-            <div class="form-group">
-                {!! Form::label('account_type', __( 'account.account_type' ) .":") !!}
-                {!! Form::select('account_type', $account_types, null, ['class' => 'form-control']); !!}
-            </div>
-            --}}
+        {{--
+        <div class="form-group">
+            {!! Form::label('account_type', __( 'account.account_type' ) .":") !!}
+            {!! Form::select('account_type', $account_types, null, ['class' => 'form-control']); !!}
+        </div>
+        --}}
 
-            <div class="form-group">
-                {!! Form::label('opening_balance', __( 'account.opening_balance' ) .":") !!}
-                {!! Form::text('opening_balance', 0, ['class' => 'form-control input_number','placeholder' => __( 'account.opening_balance' ) ]); !!}
-            </div>
+        <div class="form-group">
+            {!! Form::label('opening_balance', __( 'account.opening_balance' ) .":") !!}
+            {!! Form::text('opening_balance', 0, ['class' => 'form-control input_number','placeholder' => __( 'account.opening_balance' ) ]); !!}
+        </div>
 
-        
-            <div class="form-group">
-                {!! Form::label('note', __( 'brand.note' )) !!}
-                {!! Form::textarea('note', null, ['class' => 'form-control', 'placeholder' => __( 'brand.note' ), 'rows' => 4]); !!}
-            </div>
+
+        <div class="form-group">
+            {!! Form::label('note', __( 'brand.note' )) !!}
+            {!! Form::textarea('note', null, ['class' => 'form-control', 'placeholder' => __( 'brand.note' ), 'rows' => 4]); !!}
+        </div>
     </div>
 
     <div class="modal-footer">

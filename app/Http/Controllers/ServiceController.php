@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\BusinessLocation;
+use App\ConnectedKiosk;
 use App\Contact;
 use App\GameId;
 use App\Transaction;
@@ -168,9 +169,10 @@ class ServiceController extends Controller
         }
 
         $account_types = Account::accountTypes();
+        $connected_kiosks = ConnectedKiosk::forDropdown(true);
 
         return view('service.create')
-                ->with(compact('account_types'));
+                ->with(compact('account_types', 'connected_kiosks'));
     }
 
     /**
@@ -186,7 +188,7 @@ class ServiceController extends Controller
 
         if (request()->ajax()) {
             try {
-                $input = $request->only(['name', 'account_number', 'note']);
+                $input = $request->only(['name', 'account_number', 'note', 'connected_kiosk_id']);
                 $business_id = $request->session()->get('user.business_id');
                 $user_id = $request->session()->get('user.id');
                 $input['business_id'] = $business_id;
@@ -409,9 +411,10 @@ class ServiceController extends Controller
                                 ->find($id);
 
             $account_types = Account::accountTypes();
+            $connected_kiosks = ConnectedKiosk::forDropdown(true);
 
             return view('service.edit')
-                ->with(compact('account', 'account_types'));
+                ->with(compact('account', 'account_types', 'connected_kiosks'));
         }
     }
 

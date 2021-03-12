@@ -404,6 +404,9 @@
                         <li class="{{ $request->segment(1) == 'account' && $request->segment(2) == 'service' ? 'active' : '' }}">
                             <a href="{{action('ServiceController@index')}}"><i
                                         class="fa fa-list"></i> 9.2 @lang('account.service_list')</a></li>
+                        <li class="{{ $request->segment(1) == 'account' && $request->segment(2) == 'connectedlist' ? 'active' : '' }}">
+                            <a href="{{action('ConnectedKioskController@index')}}"><i
+                                        class="fa fa-list"></i> 9.3 @lang('account.connected_kiosks')</a></li>
                         @if($is_superadmin)
                             @can('account.balance_sheet_details')
                                 <li class="{{ $request->segment(1) == 'account' && $request->segment(2) == 'balance-sheet' ? 'active' : '' }}">

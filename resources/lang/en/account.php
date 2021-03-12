@@ -18,6 +18,7 @@ return [
     'closed' => 'Closed',
     'bank_list' => 'Bank List',
     'service_list' => 'Kiosk List',
+    'connected_kiosks' => 'Connected Kiosks',
     'opening_balance' => 'Opening Balance',
     'account_book' => 'Account Book',
     'credit' => '(Credit)<br>Deposit',
