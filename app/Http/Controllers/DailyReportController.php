@@ -95,11 +95,15 @@ class DailyReportController extends Controller
             $join->on('AT.account_id', '=', 'accounts.id');
             $join->whereNull('AT.deleted_at');
         })
-            ->where('is_service', 0)
-            ->where('name', '!=', 'Bonus Account')
-            ->where('business_id', $business_id)
-            ->select(['name', 'account_number', 'accounts.note', 'accounts.id as account_id',
-                'is_closed', DB::raw("SUM( IF( accounts.shift_closed_at IS NULL OR AT.operation_date >= accounts.shift_closed_at,  IF( AT.type='credit', AT.amount, -1*AT.amount), 0) ) as balance")
+            ->leftjoin( 'transactions as T',
+                'AT.transaction_id',
+                '=',
+                'T.id')
+            ->where('accounts.is_service', 0)
+            ->where('accounts.name', '!=', 'Bonus Account')
+            ->where('accounts.business_id', $business_id)
+            ->select(['accounts.name', 'accounts.account_number', 'accounts.note', 'accounts.id as account_id',
+                'accounts.is_closed', DB::raw("SUM( IF( accounts.shift_closed_at IS NULL OR AT.operation_date >= accounts.shift_closed_at,  IF( AT.type='credit', AT.amount, -1*AT.amount), 0) ) as balance")
                 , DB::raw("SUM( IF( AT.type='credit' AND (AT.sub_type IS NULL OR (AT.`sub_type` != 'fund_transfer' AND AT.`sub_type` != 'opening_balance' AND AT.`sub_type` != 'expense')), AT.amount, 0) ) as total_deposit")
                 , DB::raw("SUM( IF( AT.type='debit' AND (AT.sub_type IS NULL OR (AT.`sub_type` != 'fund_transfer' AND AT.`sub_type` != 'opening_balance' AND AT.`sub_type` != 'expense')), AT.amount, 0) ) as total_withdraw")
                 , DB::raw("SUM( IF(AT.type='credit' AND AT.sub_type='fund_transfer', amount, 0) ) as transfer_in")
@@ -109,6 +113,10 @@ class DailyReportController extends Controller
             $q->where('account_type', '!=', 'capital');
             $q->orWhereNull('account_type');
         });
+        $bank_accounts_sql = $bank_accounts_sql->where(function ($q) {
+                $q->where('T.payment_status', '!=', 'cancelled');
+                $q->orWhere('T.payment_status', '=', null);
+            });
         $bank_account_balances = $bank_accounts_sql->get();
         foreach ($bank_account_balances as $bank_account) {
             $bank_accounts_obj['balance'][$bank_account['account_id']] = $bank_account['balance'];
@@ -173,6 +181,7 @@ class DailyReportController extends Controller
             ->where('transactions.type', 'sell')
             ->where('transactions.status', 'final')
             ->where('accounts.is_service', 0)
+            ->where('transactions.payment_status', '!=', 'cancelled')
             ->whereDate('transactions.transaction_date', '>=', $start)
             ->whereDate('transactions.transaction_date', '<=', $end)
             ->groupBy('accounts.id')
