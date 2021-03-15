@@ -13,6 +13,7 @@ use App\Membership;
 use App\Transaction;
 use App\TransactionPayment;
 use App\User;
+use App\Utils\GameUtil;
 use App\Utils\ModuleUtil;
 use App\Utils\TransactionUtil;
 use App\Utils\Util;
@@ -28,6 +29,7 @@ class ContactController extends Controller
     protected $commonUtil;
     protected $transactionUtil;
     protected $moduleUtil;
+    protected $gameUtil;
 
     /**
      * Constructor
@@ -38,11 +40,13 @@ class ContactController extends Controller
     public function __construct(
         Util $commonUtil,
         ModuleUtil $moduleUtil,
-        TransactionUtil $transactionUtil
+        TransactionUtil $transactionUtil,
+        GameUtil $gameUtil
     ) {
         $this->commonUtil = $commonUtil;
         $this->moduleUtil = $moduleUtil;
         $this->transactionUtil = $transactionUtil;
+        $this->gameUtil = $gameUtil;
         $this->transactionTypes = [
                     'sell' => __('sale.sale'),
                     'purchase' => __('lang_v1.purchase'),
@@ -652,10 +656,18 @@ class ContactController extends Controller
         $reward_enabled = (request()->session()->get('business.enable_rp') == 1 && in_array($contact->type, ['customer', 'both'])) ? true : false;
 
 
-        $game_data = GameId::join('accounts', 'accounts.id', 'game_ids.service_id')->where('game_ids.contact_id', $id)
-            ->select('accounts.name', 'game_ids.cur_game_id')
-            ->get();
-//        print_r($game_data);exit;
+//        $game_data = GameId::join('accounts', 'accounts.id', 'game_ids.service_id')->where('game_ids.contact_id', $id)
+//            ->select('accounts.name', 'game_ids.cur_game_id')
+//            ->get();
+
+        $game_list = ['XE88'];
+        $game_data = [];
+        foreach ($game_list as $game){
+            $resp = $this->gameUtil->getPlayerInfo($game, $contact->name);
+            if($resp->code == 0) {
+                $game_data[$game] = $resp->result->balance;
+            }
+        }
         $transaction_total = TransactionPayment::join(
             'transactions as t',
             'transaction_payments.transaction_id',
