@@ -215,6 +215,10 @@ class HomeController extends Controller
                 ->where('transactions.business_id', $business_id)
                 ->where('transactions.type', 'sell')
                 ->where('transactions.status', 'final')
+                ->where(function ($q) {
+                    $q->where('transactions.payment_status', '!=', 'cancelled');
+                    $q->orWhere('transactions.payment_status', '=', null);
+                })
                 ->where('accounts.is_service', 0)
                 ->whereBetween(\Illuminate\Support\Facades\DB::raw('date(transactions.transaction_date)'), [$start, $end]);
 
@@ -237,6 +241,10 @@ class HomeController extends Controller
                 ->where('transactions.type', 'sell_return')
                 ->where('transactions.status', 'final')
                 ->where('accounts.is_service', 0)
+                ->where(function ($q) {
+                    $q->where('transactions.payment_status', '!=', 'cancelled');
+                    $q->orWhere('transactions.payment_status', '=', null);
+                })
                 ->whereBetween(\Illuminate\Support\Facades\DB::raw('date(transactions.transaction_date)'), [$start, $end]);
 
             $sells->groupBy('transactions.id');
@@ -253,21 +261,34 @@ class HomeController extends Controller
                 ->select(DB::raw('COUNT(contacts.id) as cnt'), 'g.name')
                 ->groupBy('contacts.customer_group_id');
 
-            $data = TransactionPayment::where('business_id', $business_id)
-                ->whereBetween(\Illuminate\Support\Facades\DB::raw('date(created_at)'), [$start, $end])
+            $data = TransactionPayment::where('transaction_payments.business_id', $business_id)
+                ->leftJoin('transactions as T', 'T.id', '=', 'transaction_payments.transaction_id')
+                ->where(function ($q) {
+                    $q->where('T.payment_status', '!=', 'cancelled');
+                    $q->orWhere('T.payment_status', '=', null);
+                })
+                ->whereBetween(\Illuminate\Support\Facades\DB::raw('date(transaction_payments.created_at)'), [$start, $end])
                 ->select(DB::raw("SUM(IF(method='free_credit', amount, 0)) as free_credit"), DB::raw("SUM(IF(method='basic_bonus', amount, 0)) as basic_bonus"))->get()[0];
 
             $bank_accounts_sql = Account::leftjoin('account_transactions as AT', function ($join) {
                 $join->on('AT.account_id', '=', 'accounts.id');
                 $join->whereNull('AT.deleted_at');
             })
+                ->leftjoin( 'transactions as T',
+                    'AT.transaction_id',
+                    '=',
+                    'T.id')
                 ->where('accounts.is_service', 0)
-                ->where('name', '!=', 'Bonus Account')
-                ->where('business_id', $business_id)
+                ->where('accounts.name', '!=', 'Bonus Account')
+                ->where('accounts.business_id', $business_id)
                 ->whereDate('AT.operation_date', '>=', $start)
                ->whereDate('AT.operation_date', '<=', $end)
-                ->select(['name', 'account_number', 'accounts.note', 'accounts.id as account_id',
-                    'is_closed', DB::raw("SUM( IF(AT.type='credit', amount, -1*amount) ) as balance")
+                ->where(function ($q) {
+                    $q->where('T.payment_status', '!=', 'cancelled');
+                    $q->orWhere('T.payment_status', '=', null);
+                })
+                ->select(['accounts.name', 'accounts.account_number', 'accounts.note', 'accounts.id as account_id',
+                    'accounts.is_closed', DB::raw("SUM( IF(AT.type='credit', amount, -1*amount) ) as balance")
 //                    , DB::raw("SUM( IF( AT.type='credit' AND (AT.sub_type IS NULL OR AT.`sub_type` != 'fund_transfer'), AT.amount, 0) ) as total_deposit")
                     , DB::raw("SUM( IF( AT.type='credit' AND (AT.sub_type IS NULL OR AT.`sub_type` != 'fund_transfer'), AT.amount, 0) ) as total_deposit")
                     , DB::raw("SUM( IF( AT.type='debit' AND (AT.sub_type IS NULL OR AT.`sub_type` != 'fund_transfer'), AT.amount, 0) ) as total_withdraw")]);
@@ -289,13 +310,21 @@ class HomeController extends Controller
                 $join->on('AT.account_id', '=', 'accounts.id');
                 $join->whereNull('AT.deleted_at');
             })
-                ->where('is_service', 0)
+                ->leftjoin( 'transactions as T',
+                    'AT.transaction_id',
+                    '=',
+                    'T.id')
+                ->where('accounts.is_service', 0)
                 ->where('accounts.name', '!=', 'Bonus Account')
-                ->where('is_closed', 0)
-                ->where('business_id', $business_id)
+                ->where('accounts.is_closed', 0)
+                ->where('accounts.business_id', $business_id)
+                ->where(function ($q) {
+                    $q->where('T.payment_status', '!=', 'cancelled');
+                    $q->orWhere('T.payment_status', '=', null);
+                })
 //                ->whereBetween(\Illuminate\Support\Facades\DB::raw('date(AT.operation_date)'), [$start, $end])
-                ->select(['name', 'account_number', 'accounts.note', 'accounts.id',
-                    'is_closed', DB::raw("SUM( IF(AT.type='credit', amount, -1*amount) ) as balance")
+                ->select(['accounts.name', 'accounts.account_number', 'accounts.note', 'accounts.id',
+                    'accounts.is_closed', DB::raw("SUM( IF(AT.type='credit', amount, -1*amount) ) as balance")
                     , DB::raw("SUM( IF(AT.type='credit' AND DATE_FORMAT(operation_date, '%Y-%m-%d') >='".$start."' AND DATE_FORMAT(operation_date, '%Y-%m-%d') <='".$end."', amount, 0) ) as total_deposit")
                     , DB::raw("SUM( IF(AT.type='debit'  AND DATE_FORMAT(operation_date, '%Y-%m-%d') >='".$start."' AND DATE_FORMAT(operation_date, '%Y-%m-%d') <='".$end."', amount, 0) ) as total_withdraw")])
                 ->groupBy('accounts.id');

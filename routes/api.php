@@ -38,4 +38,7 @@ Route::middleware('api')->group(function(){
     Route::get('/floating_message', 'API\FloatingMessageAPIController@index');
     Route::get('/history', 'API\ContactAPIController@history');
     Route::post('/createGameUser', 'API\GameAPIController@createGameUser');
+    Route::post('/getGameInfo', 'API\GameAPIController@getGameInfo');
+    Route::post('/getGameReport', 'API\GameAPIController@getGameReport');
+    Route::post('/getGameLog', 'API\GameAPIController@getGameLog');
 });
