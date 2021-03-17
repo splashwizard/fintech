@@ -329,7 +329,15 @@ class AuthController extends Controller
                     }
 
                     $output = ['success' => true,
-                        'data' => $contact,
+                        'data' => [
+                            'business_id' => $contact->business_id,
+                            'user_id' => $contact->id,
+                            "username" => $contact->name,
+                            "mobile" => json_decode($contact->mobile),
+                            "email" => $contact->email,
+                            "birthday" => $contact->birthday,
+                            "bank_details" => json_decode($contact->bank_details)
+                        ],
                         'msg' => __("contact.added_success").'</br>Name: '.$contact->name.'</br>Contact ID:'.$contact->contact_id
                     ];
                 }
