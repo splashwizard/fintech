@@ -68,7 +68,7 @@ class GameAPIController extends Controller
     public function getGameInfo(Request $request) {
         try {
             $username = $request->get('username');
-            $game_list = ['XE88'];
+            $game_list = ['Xe88'];
             $game_data = [];
             foreach ($game_list as $game){
                 $resp = $this->gameUtil->getPlayerInfo($game, $username);
@@ -88,7 +88,7 @@ class GameAPIController extends Controller
     public function getGameReport(Request $request) {
         try {
             $username = $request->get('username');
-            $game_list = ['XE88'];
+            $game_list = ['Xe88'];
             $data = [];
             for ($i = 0; $i < count($game_list); $i++ ){
                 $resp = $this->gameUtil->getGameReport($game_list[$i], $username);
@@ -134,8 +134,8 @@ class GameAPIController extends Controller
     public function getGameLog(Request $request) {
 //        try {
             $username = $request->get('username');
-            $game = $request->get('product_name'); // 'XE88'
-            $date = $request->get('date'); // 'XE88'
+            $game = $request->get('product_name'); // 'Xe88'
+            $date = $request->get('date'); // 'Xe88'
             $resp = $this->gameUtil->getGameLog($game, $username, $date);
             if($resp->code == 0){ // Player name exist
                 $output = ['success' => true, 'data' => $resp->result];
