@@ -660,7 +660,7 @@ class ContactController extends Controller
 //            ->select('accounts.name', 'game_ids.cur_game_id')
 //            ->get();
 
-        $game_list = ['XE88'];
+        $game_list = ['Xe88'];
         $game_data = [];
         foreach ($game_list as $game){
             $resp = $this->gameUtil->getPlayerInfo($game, $contact->name);
