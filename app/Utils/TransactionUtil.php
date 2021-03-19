@@ -649,7 +649,7 @@ class TransactionUtil extends Util
             'created_by' => empty($user_id) ? auth()->user()->id : $user_id,
             'payment_for' => $transaction->contact_id,
             'account_id' => !empty($account_id) ? $account_id : null,
-            'game_id' => $is_service ? GameId::where('service_id', $account_id)->where('contact_id', $transaction->contact_id)->get()->first()->cur_game_id : null
+            'game_id' => $is_service && GameId::where('service_id', $account_id)->where('contact_id', $transaction->contact_id)->count() > 0 ? GameId::where('service_id', $account_id)->where('contact_id', $transaction->contact_id)->first()->cur_game_id : null
         ];
 
         $transaction_payment = new TransactionPayment($payment_data);
