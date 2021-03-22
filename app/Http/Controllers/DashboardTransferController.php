@@ -76,7 +76,8 @@ class DashboardTransferController extends Controller
                     'products.sku',
                     'products.image',
                     'products.is_inactive',
-                    'products.not_for_selling'
+                    'products.not_for_selling',
+                    'products.is_display_front'
                 )->groupBy('products.id');
             $gtrans_unit_id = Unit::where('business_id', $business_id)->where('short_name', 'GTrans')->first()->id;
 
