@@ -55,7 +55,7 @@
                             </thead>
                         </table>
                     </div>
-                    <div class="tab-pane active" id="bonus-tab">
+                    <div class="tab-pane" id="bonus-tab">
                         <table class="table table-bordered table-striped" id="bonus_table">
                             <thead>
                                 <tr>
@@ -112,7 +112,6 @@
                          success: function(result){
                              if(result.success == true){
                                 toastr.success(result.msg);
-                                capital_account_table.ajax.reload();
                                 other_account_table.ajax.reload();
                              }else{
                                 toastr.error(result.msg);
@@ -136,7 +135,6 @@
                     if(result.success == true){
                         $('div.account_model').modal('hide');
                         toastr.success(result.msg);
-                        capital_account_table.ajax.reload();
                         other_account_table.ajax.reload();
                     }else{
                         toastr.error(result.msg);
@@ -157,7 +155,6 @@
                     if(result.success == true){
                         $('div.account_model').modal('hide');
                         toastr.success(result.msg);
-                        capital_account_table.ajax.reload();
                         other_account_table.ajax.reload();
                     }else{
                         toastr.error(result.msg);
@@ -165,28 +162,6 @@
                 }
             });
         });
-
-        // capital_account_table
-        capital_account_table = $('#capital_account_table').DataTable({
-                        processing: true,
-                        serverSide: true,
-                        ajax: '/account/account?account_type=capital',
-                        columnDefs:[{
-                                "targets": 4,
-                                "orderable": false,
-                                "searchable": false
-                            }],
-                        columns: [
-                            {data: 'name', name: 'name'},
-                            {data: 'account_number', name: 'account_number'},
-                            {data: 'note', name: 'note'},
-                            {data: 'balance', name: 'balance', searchable: false},
-                            {data: 'action', name: 'action'}
-                        ],
-                        "fnDrawCallback": function (oSettings) {
-                            __currency_convert_recursively($('#capital_account_table'));
-                        }
-                    });
         // capital_account_table
         other_account_table = $('#other_account_table').DataTable({
                         processing: true,
@@ -223,7 +198,6 @@
             if(result.success == true){
               $('div.view_modal').modal('hide');
               toastr.success(result.msg);
-              capital_account_table.ajax.reload();
               other_account_table.ajax.reload();
             } else {
               toastr.error(result.msg);
@@ -267,7 +241,6 @@
             if(result.success == true){
               $('div.view_modal').modal('hide');
               toastr.success(result.msg);
-              capital_account_table.ajax.reload();
               other_account_table.ajax.reload();
             } else {
               toastr.error(result.msg);
@@ -291,8 +264,7 @@
             success: function(result){
                 if(result.success == true){
                     $('div.view_modal').modal('hide');
-                    toastr.success(result.msg);
-                    capital_account_table.ajax.reload();
+                    toastr.success(result.msg)
                     other_account_table.ajax.reload();
                 } else {
                     toastr.error(result.msg);

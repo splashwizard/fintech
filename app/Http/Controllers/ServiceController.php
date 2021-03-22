@@ -270,12 +270,15 @@ class ServiceController extends Controller
             }
 
             $start_date = request()->input('start_date');
-//            $start_date = "2020-06-11";
             $end_date = request()->input('end_date');
 
-            if (!empty($start_date) && !empty($end_date)) {
-                $accounts->whereBetween(DB::raw('date(operation_date)'), [$start_date, $end_date]);
+            if (empty($start_date)) {
+                $start_date = date('Y-m-d');
             }
+            if (empty($end_date)) {
+                $end_date = date('Y-m-d');
+            }
+            $accounts->whereBetween(DB::raw('date(operation_date)'), [$start_date, $end_date]);
 
             return DataTables::of($accounts)
                 ->addColumn('debit', function ($row) {

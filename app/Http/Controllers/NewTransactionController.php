@@ -97,10 +97,10 @@ class NewTransactionController extends Controller
                     'new_transactions.amount',
                     'new_transactions.reference_number',
                     'products.name as product_name',
-                    'new_transactions.bonus_id',
+                    'new_transactions.bonus_id as bank',
                     'new_transactions.receipt_url',
                     'new_transactions.status',
-                    'new_transactions.created_at'
+                    'new_transactions.created_at',
                 );
 
             if (!empty(request()->start_date) && !empty(request()->end_date)) {
@@ -128,7 +128,8 @@ class NewTransactionController extends Controller
                         return '<span class="badge btn-danger">Rejected</span>';
                 })
                 ->addColumn('bonus', function ($row) {
-                    return $this->getBonusName($row->business_id, $row->bonus_id);
+//                    return $this->getBonusName($row->business_id, $row->bonus_id);
+                    return 1;
                 })
                 ->addColumn('bank', function ($row) {
                     return Account::find($row->bank_id)->name;
@@ -356,10 +357,10 @@ class NewTransactionController extends Controller
         if (request()->ajax()) {
 //            try {
             $newTransaction = NewTransactions::find($id);
-            $newTransaction->status = 'approved';
-            $newTransaction->save();
 
             $result = $this->createDeposit($request, $newTransaction->client_id, $newTransaction->bank_id, $newTransaction->amount, $newTransaction->product_id, $newTransaction->bonus_id);
+            $newTransaction->status = 'approved';
+            $newTransaction->save();
             $output = ['success' => true,
                 'data' => $result,
                 'msg' => __("lang_v1.new_transaction_approve_success")
@@ -614,6 +615,7 @@ class NewTransactionController extends Controller
         } elseif (!$this->moduleUtil->isQuotaAvailable('invoices', $business_id)) {
             return $this->moduleUtil->quotaExpiredResponse('invoices', $business_id, action('SellPosController@index'));
         }
+
 
         $user_id = $request->session()->get('user.id');
 

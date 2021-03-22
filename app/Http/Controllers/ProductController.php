@@ -311,9 +311,10 @@ class ProductController extends Controller
 
         $module_form_parts = $this->moduleUtil->getModuleData('product_form_part');
         $product_types = $this->product_types;
+        $is_superadmin = auth()->user()->hasRole('Superadmin');
 
         return view('product.create')
-            ->with(compact('categories', 'brands', 'units', 'accounts', 'taxes', 'barcode_types', 'default_profit_percent', 'tax_attributes', 'barcode_default', 'business_locations', 'duplicate_product', 'sub_categories', 'rack_details', 'selling_price_group_count', 'module_form_parts', 'product_types'));
+            ->with(compact('is_superadmin', 'categories', 'brands', 'units', 'accounts', 'taxes', 'barcode_types', 'default_profit_percent', 'tax_attributes', 'barcode_default', 'business_locations', 'duplicate_product', 'sub_categories', 'rack_details', 'selling_price_group_count', 'module_form_parts', 'product_types'));
     }
 
     /**
@@ -511,9 +512,10 @@ class ProductController extends Controller
 
         $module_form_parts = $this->moduleUtil->getModuleData('product_form_part');
         $product_types = $this->product_types;
+        $is_superadmin = auth()->user()->hasRole('Superadmin');
 
         return view('product.edit')
-                ->with(compact('categories', 'brands', 'units', 'accounts', 'sub_units', 'taxes', 'tax_attributes', 'barcode_types', 'product', 'sub_categories', 'default_profit_percent', 'business_locations', 'rack_details', 'selling_price_group_count', 'module_form_parts', 'product_types'));
+                ->with(compact('is_superadmin', 'categories', 'brands', 'units', 'accounts', 'sub_units', 'taxes', 'tax_attributes', 'barcode_types', 'product', 'sub_categories', 'default_profit_percent', 'business_locations', 'rack_details', 'selling_price_group_count', 'module_form_parts', 'product_types'));
     }
 
     /**

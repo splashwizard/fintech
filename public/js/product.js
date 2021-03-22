@@ -2,7 +2,7 @@
 
 $(document).ready(function() {
     $(document).on('ifChecked', 'input#enable_stock', function() {
-        $('div#alert_quantity_div').show();
+        $('div#alert_quantity_div').removeClass('hide');
         $('div#quick_product_opening_stock_div').show();
 
         //Enable expiry selection
@@ -15,7 +15,7 @@ $(document).ready(function() {
         }
     });
     $(document).on('ifUnchecked', 'input#enable_stock', function() {
-        $('div#alert_quantity_div').hide();
+        $('div#alert_quantity_div').addClass('hide');
         $('div#quick_product_opening_stock_div').hide();
         $('input#alert_quantity').val(0);
 

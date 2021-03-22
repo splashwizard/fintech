@@ -65,9 +65,6 @@ class DashboardTransferController extends Controller
         if (request()->ajax()) {
             $products = Product::leftJoin('brands', 'products.brand_id', '=', 'brands.id')
                 ->join('units', 'products.unit_id', '=', 'units.id')
-                ->leftJoin('categories as c1', 'products.category_id', '=', 'c1.id')
-                ->leftJoin('categories as c2', 'products.sub_category_id', '=', 'c2.id')
-                ->leftJoin('tax_rates', 'products.tax', '=', 'tax_rates.id')
                 ->join('variations as v', 'v.product_id', '=', 'products.id')
                 ->leftJoin('variation_location_details as vld', 'vld.variation_id', '=', 'v.id')
                 ->where('products.business_id', $business_id)
@@ -75,33 +72,16 @@ class DashboardTransferController extends Controller
                 ->select(
                     'products.id',
                     'products.name as product',
-                    'products.is_display_front',
-                    'products.type',
-                    'c1.name as category',
-                    'c2.name as sub_category',
                     'products.priority as priority',
-                    'units.actual_name as unit',
-                    'brands.name as brand',
-                    'tax_rates.name as tax',
                     'products.sku',
                     'products.image',
-                    'products.enable_stock',
                     'products.is_inactive',
-                    'products.not_for_selling',
-                    'products.no_bonus',
-                    \Illuminate\Support\Facades\DB::raw('SUM(vld.qty_available) as current_stock'),
-                    DB::raw('MAX(v.sell_price_inc_tax) as max_price'),
-                    DB::raw('MIN(v.sell_price_inc_tax) as min_price')
+                    'products.not_for_selling'
                 )->groupBy('products.id');
             $gtrans_unit_id = Unit::where('business_id', $business_id)->where('short_name', 'GTrans')->first()->id;
 
             if (!empty($gtrans_unit_id)) {
                 $products->where('products.unit_id', $gtrans_unit_id);
-            }
-
-            $tax_id = request()->get('tax_id', null);
-            if (!empty($tax_id)) {
-                $products->where('products.tax', $tax_id);
             }
 
             return Datatables::of($products)

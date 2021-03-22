@@ -9,6 +9,8 @@ use App\Currency;
 use App\CustomerGroup;
 use App\DashboardBonus;
 use App\DisplayGroup;
+use App\Product;
+use App\Unit;
 use App\User;
 use App\Utils\BusinessUtil;
 use App\Utils\Util;
@@ -63,62 +65,45 @@ class DashboardDepositController extends Controller
 
         $business_id = session()->get('user.business_id');
         if (request()->ajax()) {
-            $accounts = Account::leftjoin('account_transactions as AT', function ($join) {
-                $join->on('AT.account_id', '=', 'accounts.id');
-                $join->whereNull('AT.deleted_at');
-            })
-                ->leftjoin( 'transactions as T',
-                    'AT.transaction_id',
-                    '=',
-                    'T.id')
-                ->leftjoin('currencies', 'currencies.id', 'accounts.currency_id')
+            $products = Product::leftJoin('brands', 'products.brand_id', '=', 'brands.id')
+                ->join('units', 'products.unit_id', '=', 'units.id')
+                ->join('variations as v', 'v.product_id', '=', 'products.id')
+                ->leftJoin('variation_location_details as vld', 'vld.variation_id', '=', 'v.id')
+                ->leftJoin('accounts', 'accounts.id', '=', 'products.account_id')
                 ->leftjoin('bank_brands', 'bank_brands.id', 'accounts.bank_brand_id')
-                ->where('accounts.is_service', 0)
-                ->where('accounts.name', '!=', 'Bonus Account')
-                ->where('accounts.business_id', $business_id)
-                ->where(function ($q) {
-                    $q->where('T.payment_status', '!=', 'cancelled');
-                    $q->orWhere('T.payment_status', '=', null);
-                })
-                ->select(['accounts.name', 'accounts.account_number', 'accounts.note', 'accounts.id', 'currencies.code as currency',
-                    'bank_brands.name as bank_brand', 'accounts.is_display_front',
-                    'accounts.is_closed',
-                    \Illuminate\Support\Facades\DB::raw("SUM( IF( accounts.shift_closed_at IS NULL OR AT.operation_date >= accounts.shift_closed_at,  IF( AT.type='credit', AT.amount, -1*AT.amount), 0) ) as balance"),
-                ])
-                ->groupBy('accounts.id');
+                ->where('products.business_id', $business_id)
+                ->where('products.type', '!=', 'modifier')
+                ->select(
+                    'products.id',
+                    'products.name',
+                    'products.priority as priority',
+                    'products.sku',
+                    'products.image',
+                    'products.is_inactive',
+                    'products.not_for_selling',
+                    'accounts.account_number',
+                    'bank_brands.name as bank_brand'
+                )->groupBy('products.id');
+            $gtrans_unit_id = Unit::where('business_id', $business_id)->where('short_name', 'BTrans')->first()->id;
 
-            $account_type = request()->input('account_type');
-
-            if ($account_type == 'capital') {
-                $accounts->where('account_type', 'capital');
-            } elseif ($account_type == 'other') {
-                $accounts->where(function ($q) {
-                    $q->where('account_type', '!=', 'capital');
-                    $q->orWhereNull('account_type');
-                });
-            }
-            $is_admin_or_super = auth()->user()->hasRole('Admin#' . auth()->user()->business_id) || auth()->user()->hasRole('Superadmin') || auth()->user()->hasRole('Admin');
-            if(!$is_admin_or_super){
-                $accounts->where('is_safe','0');
+            if (!empty($gtrans_unit_id)) {
+                $products->where('products.unit_id', $gtrans_unit_id);
             }
 
-            return DataTables::of($accounts)
-                ->editColumn('name', function ($row) {
-                    if ($row->is_closed == 1) {
-                        return $row->name . ' <small class="label pull-right bg-red no-print">' . __("account.closed") . '</small><span class="print_section">(' . __("account.closed") . ')</span>';
-                    } else {
-                        return $row->name;
-                    }
-                })
-                ->editColumn('balance', function ($row) {
-                    return '<span class="display_currency">' . $row->balance . '</span>';
+            return Datatables::of($products)
+                ->editColumn('product', function ($row) {
+                    $product = $row->is_inactive == 1 ? $row->product . ' <span class="label bg-gray">Inactive
+                        </span>' : $row->product;
+
+                    $product = $row->not_for_selling == 1 ? $product . ' <span class="label bg-gray">' . __("lang_v1.not_for_selling") .
+                        '</span>' : $product;
+
+                    return $product;
                 })
                 ->addColumn('is_display_front', function ($row) {
                     return  '<input type="checkbox" class="account_display_front" data-id="'.$row->id.'"'. ($row->is_display_front ? 'checked' : null) .'>' ;
                 })
-                ->removeColumn('id')
-                ->removeColumn('is_closed')
-                ->rawColumns(['is_display_front', 'name'])
+                ->rawColumns(['product', 'is_display_front'])
                 ->make(true);
         }
         $bonuses = $this->getBonuses($business_id);
@@ -201,7 +186,7 @@ class DashboardDepositController extends Controller
 
     public function updateDisplayFront(Request $request, $id){
         $is_display_front = $request->get('is_display_front');
-        Account::find($id)->update(['is_display_front' => $is_display_front]);
+        Product::find($id)->update(['is_display_front' => $is_display_front]);
         return ['success' => true];
     }
 
