@@ -84,7 +84,7 @@ class NewTransactionAPIController extends Controller
             if($from_game == 'Main Wallet'){
                 $main_wallet_balance = $this->contactUtil->getMainWalletBalance($business_id, $input['client_id']);
                 if($main_wallet_balance < $input['amount']){
-                    $output = ['success' => false, 'msg' => "Kiosk doesn't have enough balance"];
+                    $output = ['success' => false, 'msg' => "Main Wallet doesn't have enough balance"];
                     return $output;
                 }
             }

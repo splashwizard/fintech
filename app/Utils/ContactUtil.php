@@ -66,7 +66,6 @@ class ContactUtil
         if(Account::where('business_id', $business_id)->where('name', $main_wallet)->count() > 0){
             $wallet_id = Account::where('business_id', $business_id)->where('name', $main_wallet)->first()->id;
             $is_special_kiosk = Account::find($wallet_id)->is_special_kiosk;
-            $business_id = session()->get('user.business_id');
             $shift_closed_at = Account::find($wallet_id)->shift_closed_at;
             $query = AccountTransaction::join(
                 'accounts as A',
