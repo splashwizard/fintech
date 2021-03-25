@@ -51,6 +51,7 @@ use App\User;
 use App\Utils\BusinessUtil;
 use App\Utils\CashRegisterUtil;
 use App\Utils\ContactUtil;
+use App\Utils\GameUtil;
 use App\Utils\ModuleUtil;
 use App\Utils\NotificationUtil;
 use App\Utils\ProductUtil;
@@ -77,6 +78,7 @@ class SellPosDepositController extends Controller
     protected $cashRegisterUtil;
     protected $moduleUtil;
     protected $notificationUtil;
+    protected $gameUtil;
 
     /**
      * Constructor
@@ -91,7 +93,8 @@ class SellPosDepositController extends Controller
         TransactionUtil $transactionUtil,
         CashRegisterUtil $cashRegisterUtil,
         ModuleUtil $moduleUtil,
-        NotificationUtil $notificationUtil
+        NotificationUtil $notificationUtil,
+        GameUtil $gameUtil
     ) {
         $this->contactUtil = $contactUtil;
         $this->productUtil = $productUtil;
@@ -100,6 +103,7 @@ class SellPosDepositController extends Controller
         $this->cashRegisterUtil = $cashRegisterUtil;
         $this->moduleUtil = $moduleUtil;
         $this->notificationUtil = $notificationUtil;
+        $this->gameUtil = $gameUtil;
 
         $this->dummyPaymentLine = ['method' => 'bank_transfer', 'amount' => 0, 'note' => '', 'card_transaction_number' => '', 'card_number' => '', 'card_type' => '', 'card_holder_name' => '', 'card_month' => '', 'card_year' => '', 'card_security' => '', 'cheque_number' => '', 'bank_account_number' => '',
         'is_return' => 0, 'transaction_no' => ''];
@@ -627,6 +631,18 @@ class SellPosDepositController extends Controller
                         $basic_bonus = floor($total_credit * $bonus_rate / 100);
 //                        $basic_bonus = 0;
                     }
+
+                    // Deposit to XE88 vendor
+                    $deposit_amount = $total_credit + $basic_bonus + $special_bonus;
+                    $username = Contact::find($contact_id)->name;
+                    $to_game = Account::find($service_id)->name;
+                    $resp = $this->gameUtil->deposit($to_game, $username, $deposit_amount);
+                    if($resp['success'] == false) { // Player name exist
+                        return $resp;
+                    }
+
+                    //end Deposit
+
                     foreach ($payment_data as $payment){
                         $data = Category::where('id', $payment['category_id'])->get()->first();
                         if($data->name == 'Banking'){

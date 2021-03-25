@@ -23,6 +23,7 @@ use App\TransactionSellLine;
 use App\User;
 use App\Utils\BusinessUtil;
 use App\Utils\ContactUtil;
+use App\Utils\GameUtil;
 use App\Utils\ModuleUtil;
 use App\Utils\CashRegisterUtil;
 use App\Utils\NotificationUtil;
@@ -49,6 +50,7 @@ class NewTransactionController extends Controller
     protected $cashRegisterUtil;
     protected $moduleUtil;
     protected $notificationUtil;
+    protected $gameUtil;
 
 
     /**
@@ -58,7 +60,7 @@ class NewTransactionController extends Controller
      * @return void
      */
     public function __construct(ContactUtil $contactUtil, BusinessUtil $businessUtil, TransactionUtil $transactionUtil,
-                                CashRegisterUtil $cashRegisterUtil, ModuleUtil $moduleUtil,NotificationUtil $notificationUtil, ProductUtil $productUtil)
+                                CashRegisterUtil $cashRegisterUtil, ModuleUtil $moduleUtil,NotificationUtil $notificationUtil, ProductUtil $productUtil, GameUtil $gameUtil)
     {
         $this->contactUtil = $contactUtil;
         $this->businessUtil = $businessUtil;
@@ -67,6 +69,7 @@ class NewTransactionController extends Controller
         $this->moduleUtil = $moduleUtil;
         $this->notificationUtil = $notificationUtil;
         $this->productUtil = $productUtil;
+        $this->gameUtil = $gameUtil;
 
         $this->dummyPaymentLine = ['method' => 'cash', 'amount' => 0, 'note' => '', 'card_transaction_number' => '', 'card_number' => '', 'card_type' => '', 'card_holder_name' => '', 'card_month' => '', 'card_year' => '', 'card_security' => '', 'cheque_number' => '', 'bank_account_number' => '',
             'is_return' => 0, 'transaction_no' => ''];
@@ -358,6 +361,14 @@ class NewTransactionController extends Controller
 //            try {
             $newTransaction = NewTransactions::find($id);
 
+            $username = Contact::find($newTransaction->client_id)->name;
+            $to_game = Product::find($newTransaction->product_id)->name;
+            $deposit_amount = $this->getDepositAmount($request->session()->get('user.business_id'), $newTransaction->client_id, $newTransaction->amount, $newTransaction->bonus_id);
+            $resp = $this->gameUtil->deposit($to_game, $username, $deposit_amount);
+            if($resp['success'] == false) { // Player name exist
+                return $resp;
+            }
+
             $result = $this->createDeposit($request, $newTransaction->client_id, $newTransaction->bank_id, $newTransaction->amount, $newTransaction->product_id, $newTransaction->bonus_id);
             $newTransaction->status = 'approved';
             $newTransaction->save();
@@ -375,6 +386,34 @@ class NewTransactionController extends Controller
 //            }
             return $output;
         }
+    }
+
+    private function getDepositAmount($business_id, $contact_id, $total_credit, $bonus_id){
+        $bonus_amount = 0;
+        $bonus_name = '';
+        $bonus_variation_id = $bonus_id;
+        $bonuses = $this->getBonuses($business_id);
+        foreach ($bonuses as $bonus){
+            if($bonus->id == $bonus_variation_id) {
+                $bonus_name = $bonus->name;
+                $bonus_amount = $bonus->selling_price;
+            }
+        }
+        $no_bonus = Contact::find($contact_id)->no_bonus;
+        $basic_bonus = 0;
+        $special_bonus = 0;
+        $bonus_rate = CountryCode::find(Contact::find($contact_id)->country_code_id)->basic_bonus_percent;
+        if($bonus_variation_id != -1){
+            if($bonus_name === 'Bonus') {
+                $special_bonus = $total_credit * $bonus_amount / 100;
+            } else {
+                $special_bonus = $bonus_amount;
+            }
+        } else if($no_bonus == 0 && Contact::find($contact_id)->name != 'Unclaimed Trans') {
+            $basic_bonus = floor($total_credit * $bonus_rate / 100);
+        }
+        $total_deposit = $total_credit + $basic_bonus + $special_bonus;
+        return $total_deposit;
     }
 
     private function getBonuses($business_id){

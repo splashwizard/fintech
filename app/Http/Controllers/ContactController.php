@@ -14,6 +14,7 @@ use App\Membership;
 use App\Transaction;
 use App\TransactionPayment;
 use App\User;
+use App\Utils\ContactUtil;
 use App\Utils\GameUtil;
 use App\Utils\ModuleUtil;
 use App\Utils\TransactionUtil;
@@ -31,6 +32,7 @@ class ContactController extends Controller
     protected $transactionUtil;
     protected $moduleUtil;
     protected $gameUtil;
+    protected $contactUtil;
 
     /**
      * Constructor
@@ -42,12 +44,14 @@ class ContactController extends Controller
         Util $commonUtil,
         ModuleUtil $moduleUtil,
         TransactionUtil $transactionUtil,
-        GameUtil $gameUtil
+        GameUtil $gameUtil,
+        ContactUtil $contactUtil
     ) {
         $this->commonUtil = $commonUtil;
         $this->moduleUtil = $moduleUtil;
         $this->transactionUtil = $transactionUtil;
         $this->gameUtil = $gameUtil;
+        $this->contactUtil = $contactUtil;
         $this->transactionTypes = [
                     'sell' => __('sale.sale'),
                     'purchase' => __('lang_v1.purchase'),
@@ -660,42 +664,8 @@ class ContactController extends Controller
 //        $game_data = GameId::join('accounts', 'accounts.id', 'game_ids.service_id')->where('game_ids.contact_id', $id)
 //            ->select('accounts.name', 'game_ids.cur_game_id')
 //            ->get();
-        $main_wallet = 'Main Wallet';
         $game_data = [];
-        if(Account::where('business_id', $business_id)->where('name', $main_wallet)->count() > 0){
-            $wallet_id = Account::where('business_id', $business_id)->where('name', $main_wallet)->first()->id;
-            $is_special_kiosk = Account::find($wallet_id)->is_special_kiosk;
-            $business_id = session()->get('user.business_id');
-            $shift_closed_at = Account::find($wallet_id)->shift_closed_at;
-            $query = AccountTransaction::join(
-                'accounts as A',
-                'account_transactions.account_id',
-                '=',
-                'A.id'
-            )
-                ->leftjoin( 'transactions as T',
-                    'transaction_id',
-                    '=',
-                    'T.id')
-                ->where('A.business_id', $business_id)
-                ->where('A.id', $wallet_id);
-            if($shift_closed_at != null)
-                $query = $query->where('account_transactions.operation_date', '>=', $shift_closed_at);
-            $query = $query->whereNull('account_transactions.deleted_at')
-                ->where(function ($q) {
-                    $q->where('T.payment_status', '!=', 'cancelled');
-                    $q->orWhere('T.payment_status', '=', null);
-                });
-
-            if($is_special_kiosk)
-                $query = $query->where(function ($q) {
-                    $q->where('account_transactions.sub_type', '!=', 'opening_balance');
-                    $q->orWhere('account_transactions.sub_type', '=', null);
-                });
-            $total_row = $query->select(DB::raw("SUM( IF(account_transactions.type='credit', account_transactions.amount, -1 * account_transactions.amount) )*( 1 - is_special_kiosk * 2) as balance"))
-                ->first();
-            $game_data[$main_wallet] = $total_row->balance;
-        }
+        $game_data['Main Wallet'] = $this->contactUtil->getMainWalletBalance($business_id, $id);
 
         $game_list = ['Xe88'];
         foreach ($game_list as $game){

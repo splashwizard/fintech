@@ -8,6 +8,7 @@ use App\Contact;
 use App\GameId;
 use App\Transaction;
 use App\User;
+use App\Utils\GameUtil;
 use App\Utils\Util;
 use App\Utils\ModuleUtil;
 use App\Utils\TransactionUtil;
@@ -33,6 +34,7 @@ class ServiceController extends Controller
     protected $transactionUtil;
     protected $contactUtil;
     protected $moduleUtil;
+    protected $gameUtil;
 
     /**
      * Constructor
@@ -43,12 +45,14 @@ class ServiceController extends Controller
     public function __construct(Util $commonUtil,
                                 TransactionUtil $transactionUtil,
                                 ContactUtil $contactUtil,
-                                ModuleUtil $moduleUtil
+                                ModuleUtil $moduleUtil,
+                                GameUtil $gameUtil
     ) {
         $this->commonUtil = $commonUtil;
         $this->transactionUtil = $transactionUtil;
         $this->contactUtil = $contactUtil;
         $this->moduleUtil = $moduleUtil;
+        $this->gameUtil = $gameUtil;
     }
 
     /**
@@ -820,7 +824,7 @@ class ServiceController extends Controller
         if (!auth()->user()->can('account.access')) {
             abort(403, 'Unauthorized action.');
         }
-        try {
+//        try {
             $business_id = session()->get('user.business_id');
             $is_request = $request->input('is_request');
             $amount = $this->commonUtil->num_uf($request->input('amount'));
@@ -851,6 +855,23 @@ class ServiceController extends Controller
                                 'msg' => 'Insufficient Bank Balance, please top up bank credit!'
                             ];
                             return $output;
+                        }
+                    }
+
+                    if($withdraw_mode == 'gt') {
+                        $from_game = Account::find($account_id)->name;
+                        $to_game = Account::find($request->input('service_id'))->name;
+                        if($from_game == 'Main Wallet'){
+                            $main_wallet_balance = $this->contactUtil->getMainWalletBalance($business_id, $contact_id);
+                            if($main_wallet_balance < $amount){
+                                $output = ['success' => false, 'msg' => "Kiosk doesn't have enough balance"];
+                                return $output;
+                            }
+                        }
+                        $username = Contact::find($contact_id)->name;
+                        $resp = $this->gameUtil->transfer($username, $from_game, $to_game, $amount);
+                        if($resp['success'] == false){
+                            return $resp;
                         }
                     }
 
@@ -1033,14 +1054,14 @@ class ServiceController extends Controller
                     'msg' => __("account.requested_successfully")
                 ];
             }
-        } catch (\Exception $e) {
-            DB::rollBack();
-            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-
-            $output = ['success' => false,
-                'msg' => __("messages.something_went_wrong")
-            ];
-        }
+//        } catch (\Exception $e) {
+//            DB::rollBack();
+//            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+//
+//            $output = ['success' => false,
+//                'msg' => __("messages.something_went_wrong")
+//            ];
+//        }
 
         return $output;
     }
