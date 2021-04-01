@@ -22,7 +22,7 @@
 	@else
 		<input type='file' class="hidden desktop_imageUpload" name="form_{{$form_index}}_desktop_imageUpload" accept="image/*" value="{{env('AWS_IMG_URL').$promotion['desktop_image']}}"/>
 		<div class="image-preview form-group">
-			<div class="desktop_imagePreview" style="background-image: url({{env('AWS_IMG_URL').$promotion['desktop_image']}});">
+			<div class="desktop_imagePreview" style="background-image: url({{ strpos($promotion['desktop_image'], "http://") === false ? env('AWS_IMG_URL').$promotion['desktop_image'] : $promotion['desktop_image']}});">
 			</div>
 		</div>
 	@endif

@@ -44,7 +44,7 @@ class PromotionAPI extends Controller
         foreach($data as $row){
             $row['collection'] = [$row['collection']];
             $row['images'] = [[
-                'src' => env('AWS_IMG_URL').$row['desktop_image']
+                'src' => strpos($row['desktop_image'], "http://") === false ? env('AWS_IMG_URL').$row['desktop_image'] : $row['desktop_image']
             ]];
             $formatted_data[] = $row;
         }

@@ -52,10 +52,11 @@ class GameAPIController extends Controller
 
             $response = curl_exec($ch);
             if(json_decode($response)->code == 31 || json_decode($response)->code == 0){ // Player name exist
+                $link =
                 $output = ['success' => true, 'account' => $account_name, 'hash' => md5($password)];
             }
             else
-                $output = ['success' => false, 'account' => $response];
+                $output = ['success' => false, 'message' => json_decode($response)->message];
 
         } catch (\Exception $e) {
             \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
