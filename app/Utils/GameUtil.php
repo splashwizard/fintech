@@ -63,7 +63,7 @@ class GameUtil extends Util
             {
                 $output = ['success' => false, 'msg' => $result->Message];
             }
-        }
+        } else $output = ['success' => true, 'link' => ''];
         return $output;
     }
 
