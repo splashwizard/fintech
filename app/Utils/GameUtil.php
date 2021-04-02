@@ -56,7 +56,8 @@ class GameUtil extends Util
         }
         else if($game_key == 'Transfer Wallet'){ //
             $result = $this->transferwallet->GetPlayGameUrlWithDepositAmount($username, 0.00, uniqid(),'s6xhiogba5dhe' );
-            return $result;
+            echo '34343434';
+            print_r($result);
             if ($result->Success == true) {
                 $output = ['success' => true, 'link' => $result->ForwardUrl];
             }
