@@ -3,8 +3,11 @@
 namespace App\Http\Controllers\API;
 
 use App\Account;
+use App\Contact;
 use App\Http\Controllers\Controller;
+use App\Promotion;
 use App\TransactionPayment;
+use App\Utils\ContactUtil;
 use App\Utils\GameUtil;
 use App\Utils\TransactionUtil;
 use Illuminate\Http\Request;
@@ -16,48 +19,23 @@ use GuzzleHttp\Psr7\Request as Req;
 class GameAPIController extends Controller
 {
     protected $gameUtil;
+    protected $contactUtil;
     public function __construct(
         TransactionUtil $transactionUtil,
-        GameUtil $gameUtil
+        GameUtil $gameUtil,
+        ContactUtil $contactUtil
     ) {
         $this->transactionUtil = $transactionUtil;
         $this->gameUtil = $gameUtil;
+        $this->contactUtil = $contactUtil;
     }
     public function createGameUser(Request $request) {
-        $agent_code_prefix = 'K112_';
-        $password = "Whatpurpose!88";
         try {
             $username = $request->get('username');
-            $account_name = $agent_code_prefix.$username;
-            $requestbody = '{"agentid":"testapi112","account": "'.$account_name.'","password":"'.$password.'"}';
-
-            $signaturekey= '76dce332-9e17-432b-b8a8-3df22e20f67a';
-
-            $hashdata = hash_hmac("sha256", $requestbody, $signaturekey, true);
-
-            $hash = base64_encode($hashdata);
-
-            $headerstring = 'hashkey: ' . $hash;
-
-            $headers = [
-                $headerstring
-            ];
-            $url = 'http://xespublicapi.eznet88.com/player/create/';
-            $ch = curl_init($url);
-
-            curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $requestbody);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-
-            $response = curl_exec($ch);
-            if(json_decode($response)->code == 31 || json_decode($response)->code == 0){ // Player name exist
-                $link =
-                $output = ['success' => true, 'account' => $account_name, 'hash' => md5($password)];
-            }
-            else
-                $output = ['success' => false, 'message' => json_decode($response)->message];
-
+            $promotion_id = $request->get('productId');
+            $product_title = Promotion::where('promotion_id', $promotion_id)->first()->title;
+            $output = $this->gameUtil->createGameUser($product_title, $username);
+            return $output;
         } catch (\Exception $e) {
             \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
 
@@ -69,13 +47,17 @@ class GameAPIController extends Controller
     public function getGameInfo(Request $request) {
         try {
             $username = $request->get('username');
-            $game_list = ['Xe88'];
-            $game_data = [];
+            $business_id = $request->get('business_id');
+            $id = $request->get('user_id');
+            $game_data['Main Wallet'] = $this->contactUtil->getMainWalletBalance($business_id, $id);
+
+            $game_list = ["Xe88", "Transfer Wallet"];
             foreach ($game_list as $game){
-                $resp = $this->gameUtil->getPlayerInfo($game, $username);
-                if($resp->code == 0) {
-                    $game_data[$game] = $resp->result->balance;
-                }
+                $resp = $this->gameUtil->getBalance($game, $username);
+                if($resp['success']) {
+                    $game_data[$game] = $resp['balance'];
+                } else
+                    $game_data[$game] = 0;
             }
             $output = ['success' => true, 'data' => $game_data];
         } catch (\Exception $e) {

@@ -667,12 +667,13 @@ class ContactController extends Controller
         $game_data = [];
         $game_data['Main Wallet'] = $this->contactUtil->getMainWalletBalance($business_id, $id);
 
-        $game_list = ['Xe88'];
+        $game_list = ["Xe88", "Transfer Wallet"];
         foreach ($game_list as $game){
-            $resp = $this->gameUtil->getPlayerInfo($game, $contact->name);
-            if($resp->code == 0) {
-                $game_data[$game] = $resp->result->balance;
-            }
+            $resp = $this->gameUtil->getBalance($game, $contact->name);
+            if($resp['success']) {
+                $game_data[$game] = $resp['balance'];
+            } else
+                $game_data[$game] = 0;
         }
         $transaction_total = TransactionPayment::join(
             'transactions as t',
