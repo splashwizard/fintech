@@ -35,7 +35,6 @@ class GameAPIController extends Controller
             $promotion_id = $request->get('productId');
             $product_title = Promotion::where('promotion_id', $promotion_id)->first()->title;
             $output = $this->gameUtil->createGameUser($product_title, $username);
-            return $product_title;
             return $output;
 //        } catch (\Exception $e) {
 //            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
