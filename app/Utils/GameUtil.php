@@ -21,9 +21,6 @@ class GameUtil extends Util
     }
 
     public function createGameUser($game_key, $username){
-//        \Log::emergency($game_key);
-//        \Log::emergency(Normalizer::normalize($game_key) == Normalizer::normalize('Transfer Wallet') ? 11 : 00);
-        return $game_key.'.'.'Transfer Wallet';
         if($game_key == "XE88"){
             $agent_code_prefix = 'K112_';
             $password = "Whatpurpose!88";
@@ -60,7 +57,6 @@ class GameUtil extends Util
         }
         else if($game_key == "Transfer Wallet"){
             $result = $this->transferwallet->GetPlayGameUrlWithDepositAmount($username, 0.00, uniqid(),'s6xhiogba5dhe' );
-//            \Log::emergency($result);
             if ($result->Success == true) {
                 $output = ['success' => true, 'link' => $result->ForwardUrl];
             }
@@ -69,7 +65,7 @@ class GameUtil extends Util
                 $output = ['success' => false, 'msg' => $result->Message];
             }
         }
-//        else $output = ['success' => true, 'link' => ''];
+        else $output = ['success' => true, 'link' => ''];
         return $output;
     }
 
