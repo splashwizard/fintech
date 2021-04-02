@@ -30,18 +30,18 @@ class GameAPIController extends Controller
         $this->contactUtil = $contactUtil;
     }
     public function createGameUser(Request $request) {
-        try {
+//        try {
             $username = $request->get('username');
             $promotion_id = $request->get('productId');
             $product_title = Promotion::where('promotion_id', $promotion_id)->first()->title;
             $output = $this->gameUtil->createGameUser($product_title, $username);
             return $output;
-        } catch (\Exception $e) {
-            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-
-            $output = ['success' => false, 'msg' => __("messages.something_went_wrong")];
-        }
-        return $output;
+//        } catch (\Exception $e) {
+//            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+//
+//            $output = ['success' => false, 'msg' => __("messages.something_went_wrong")];
+//        }
+//        return $output;
     }
 
     public function getGameInfo(Request $request) {
