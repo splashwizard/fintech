@@ -54,11 +54,8 @@ class GameUtil extends Util
             else
                 $output = ['success' => false, 'msg' => json_decode($response)->message];
         }
-//        else if($game_key == 'Transfer Wallet'){ //
-        else{
+        else if($game_key == "Transfer Wallet"){
             $result = $this->transferwallet->GetPlayGameUrlWithDepositAmount($username, 0.00, uniqid(),'s6xhiogba5dhe' );
-            \Log::emergency($game_key);
-//            \Log::emergency($result);
             if ($result->Success == true) {
                 $output = ['success' => true, 'link' => $result->ForwardUrl];
             }
