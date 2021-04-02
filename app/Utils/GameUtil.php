@@ -23,7 +23,7 @@ class GameUtil extends Util
     public function createGameUser($game_key, $username){
 //        \Log::emergency($game_key);
 //        \Log::emergency(Normalizer::normalize($game_key) == Normalizer::normalize('Transfer Wallet') ? 11 : 00);
-        return Normalizer::normalize($game_key) == Normalizer::normalize('Transfer Wallet') ? 11 : 00;
+        return $game_key.'.'.'Transfer Wallet';
         if($game_key == "XE88"){
             $agent_code_prefix = 'K112_';
             $password = "Whatpurpose!88";
