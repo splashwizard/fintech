@@ -2,6 +2,7 @@
 
 namespace App\Utils;
 use App\Utils\GameUtils\TransferWallet;
+use Symfony\Polyfill\Intl\Normalizer\Normalizer;
 
 class GameUtil extends Util
 {
@@ -20,6 +21,9 @@ class GameUtil extends Util
     }
 
     public function createGameUser($game_key, $username){
+//        \Log::emergency($game_key);
+//        \Log::emergency(Normalizer::normalize($game_key) == Normalizer::normalize('Transfer Wallet') ? 11 : 00);
+        return Normalizer::normalize($game_key) == Normalizer::normalize('Transfer Wallet') ? 11 : 00;
         if($game_key == "XE88"){
             $agent_code_prefix = 'K112_';
             $password = "Whatpurpose!88";
@@ -56,6 +60,7 @@ class GameUtil extends Util
         }
         else if($game_key == "Transfer Wallet"){
             $result = $this->transferwallet->GetPlayGameUrlWithDepositAmount($username, 0.00, uniqid(),'s6xhiogba5dhe' );
+//            \Log::emergency($result);
             if ($result->Success == true) {
                 $output = ['success' => true, 'link' => $result->ForwardUrl];
             }
