@@ -31,10 +31,9 @@ class GameAPIController extends Controller
     }
     public function createGameUser(Request $request) {
         try {
-            $username = $request->get('username');
+            $user_id = $request->get('user_id');
             $promotion_id = $request->get('productId');
-            $product_title = Promotion::where('promotion_id', $promotion_id)->first()->title;
-            $output = $this->gameUtil->createGameUser($product_title, $username);
+            $output = $this->gameUtil->createGameUser($promotion_id, $user_id);
             return $output;
         } catch (\Exception $e) {
             \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
@@ -49,16 +48,7 @@ class GameAPIController extends Controller
             $username = $request->get('username');
             $business_id = $request->get('business_id');
             $id = $request->get('user_id');
-            $game_data['Main Wallet'] = $this->contactUtil->getMainWalletBalance($business_id, $id);
-
-            $game_list = ["Xe88", "Transfer Wallet"];
-            foreach ($game_list as $game){
-                $resp = $this->gameUtil->getBalance($game, $username);
-                if($resp['success']) {
-                    $game_data[$game] = $resp['balance'];
-                } else
-                    $game_data[$game] = 0;
-            }
+            $game_data = $this->gameUtil->getAllBalances($business_id, $id, $username);
             $output = ['success' => true, 'data' => $game_data];
         } catch (\Exception $e) {
             \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());

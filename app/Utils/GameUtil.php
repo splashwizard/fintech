@@ -1,6 +1,10 @@
 <?php
 
 namespace App\Utils;
+use App\Account;
+use App\ConnectedKiosk;
+use App\Contact;
+use App\Promotion;
 use App\Utils\GameUtils\TransferWallet;
 use Symfony\Polyfill\Intl\Normalizer\Normalizer;
 
@@ -8,7 +12,8 @@ class GameUtil extends Util
 {
     protected $games;
     protected $transferwallet;
-    public function __construct(TransferWallet $transferwallet){
+    protected $contactUtil;
+    public function __construct(TransferWallet $transferwallet, ContactUtil $contactUtil){
         $this->games = [
             'Xe88' => [
                 "agentid" => "testapi112",
@@ -18,10 +23,19 @@ class GameUtil extends Util
             ]
         ];
         $this->transferwallet = $transferwallet;
+        $this->contactUtil = $contactUtil;
     }
 
-    public function createGameUser($game_key, $username){
-        if($game_key == "XE88"){
+    public function createGameUser($promotion_id, $user_id){
+        $connected_kiosk_id = Promotion::where('promotion_id', $promotion_id)->first()->connected_kiosk_id;
+        if($connected_kiosk_id == 0){
+            $output = ['success' => false, 'msg' => __("messages.something_went_wrong")];
+            return $output;
+        }
+        $game_name = ConnectedKiosk::find($connected_kiosk_id)->name;
+        $username = Contact::find($user_id)->name;
+        $game_code = Promotion::where('promotion_id', $promotion_id)->first()->game_code;
+        if($game_name == "Xe88"){
             $agent_code_prefix = 'K112_';
             $password = "Whatpurpose!88";
             $account_name = $agent_code_prefix.$username;
@@ -48,15 +62,14 @@ class GameUtil extends Util
 
             $response = curl_exec($ch);
             if(json_decode($response)->code == 31 || json_decode($response)->code == 0){ // Player name exist
-                $gameid = 979;
-                $link = "http://vgame.eznet88.com/index.html?language=En&gameid=".$gameid."&userid=".urlencode($account_name)."&userpwd=".md5($password);
+                $link = "http://vgame.eznet88.com/index.html?language=En&gameid=".$game_code."&userid=".urlencode($account_name)."&userpwd=".md5($password);
                 $output = ['success' => true, 'link' => $link];
             }
             else
                 $output = ['success' => false, 'msg' => json_decode($response)->message];
         }
-        else if($game_key == "Transfer Wallet"){
-            $result = $this->transferwallet->GetPlayGameUrlWithDepositAmount($username, 0.00, uniqid(),'s6xhiogba5dhe' );
+        else if($game_name == "Joker"){
+            $result = $this->transferwallet->GetPlayGameUrlWithDepositAmount($username, 0.00, uniqid(),$game_code );
             if ($result->Success == true) {
                 $output = ['success' => true, 'link' => $result->ForwardUrl];
             }
@@ -69,14 +82,29 @@ class GameUtil extends Util
         return $output;
     }
 
-    public function getBalance($game_key, $username){
-        try{
-            if($game_key == 'Xe88'){
-                $game = $this->games[$game_key];
-                $account = $game["account_prefix"].$username;
-                $requestbody = '{"agentid":"'.$game["agentid"].'","account":"'.$account.'"}';
+    public function getAllBalances($business_id, $contact_id, $username) {
+        $game_data = [];
+        $game_data['Main Wallet'] = $this->contactUtil->getMainWalletBalance($business_id, $contact_id);
+        $data = Account::where('business_id', $business_id)->where('is_service', 1)->where('connected_kiosk_id', '!=', 0)->get();
+        foreach ($data as $row){
+            $resp = $this->getBalance($row->connected_kiosk_id, $username);
+            if($resp['success']) {
+                $game_data[$row->name] = $resp['balance'];
+            } else
+                $game_data[$row->name] = 0;
+        }
+        return $game_data;
+    }
 
-                $hashdata = hash_hmac("sha256", $requestbody, $game["signaturekey"], true);
+    public function getBalance($connected_kiosk_id, $username){
+        try{
+            $game_name = ConnectedKiosk::find($connected_kiosk_id)->name;
+            if($game_name == 'Xe88'){
+                $game_data = $this->games['Xe88'];
+                $account = $game_data["account_prefix"].$username;
+                $requestbody = '{"agentid":"'.$game_data["agentid"].'","account":"'.$account.'"}';
+
+                $hashdata = hash_hmac("sha256", $requestbody, $game_data["signaturekey"], true);
 
                 $hash = base64_encode($hashdata);
 
@@ -86,7 +114,7 @@ class GameUtil extends Util
                     $headerstring
                 ];
 
-                $url = $game["url"]."player/info";
+                $url = $game_data["url"]."player/info";
                 $ch = curl_init($url);
 
                 curl_setopt($ch, CURLOPT_POST, 1);
@@ -101,7 +129,7 @@ class GameUtil extends Util
                 }
                 return ['success' => false, 'msg' => $resp->message];
             }
-            else if($game_key == 'Transfer Wallet'){ //
+            else if($game_name == 'Joker'){ //
                 $result = $this->transferwallet->GetUserCredit($username);
                 if ($result->Success == true) {
                     $output = ['success' => true, 'balance' => $result->Credit];
@@ -173,9 +201,10 @@ class GameUtil extends Util
         return json_decode($response);
     }
 
-    public function deposit($game_key, $username, $amount){
-        if($game_key == 'Xe88') {
-            $game = $this->games[$game_key];
+    public function deposit($connected_kiosk_id, $username, $amount){
+        $game_name = ConnectedKiosk::find($connected_kiosk_id)->name;
+        if($game_name == 'Xe88') {
+            $game = $this->games[$game_name];
             $account = $game["account_prefix"].$username;
             $requestbody = '{"agentid":"'.$game["agentid"].'","account":"'.$account.'", "amount": "'.$amount.'"}';
 
@@ -237,7 +266,7 @@ class GameUtil extends Util
             }
             return ['success' => true];
         }
-        else if($game_key == 'Transfer Wallet'){ //Transfer Wallet
+        else if($game_name == 'Joker'){ //Joker
             $this->transferwallet->TransferCreditToJoker($username, $amount, uniqid());
             $output = ['success' => true];
             return $output;
@@ -245,9 +274,10 @@ class GameUtil extends Util
         return ['success' => true];
     }
 
-    public function withdraw($game_key, $username, $amount){
-        if($game_key == 'Xe88'){
-            $game = $this->games[$game_key];
+    public function withdraw($connected_kiosk_id, $username, $amount){
+        $game_name = ConnectedKiosk::find($connected_kiosk_id)->name;
+        if($game_name == 'Xe88'){
+            $game = $this->games[$game_name];
             $account = $game["account_prefix"].$username;
             $requestbody = '{"agentid":"'.$game["agentid"].'","account":"'.$account.'", "amount": "'.$amount.'"}';
 
@@ -308,7 +338,7 @@ class GameUtil extends Util
                 return $output;
             }
             return ['success' => true];
-        } else if($game_key == 'Transfer Wallet'){ //Transfer Wallet
+        } else if($game_name == 'Joker'){ //Joker
              $result = $this->transferwallet->GetUserCredit($username);
              if ($result->Success == true) {
                  $resultTransferOut = $this->transferwallet->TransferCreditOutJoker($username, $amount, uniqid());
@@ -323,13 +353,13 @@ class GameUtil extends Util
         return ['success' => true];
     }
 
-    public function transfer($username, $from_game, $to_game, $amount)
+    public function transfer($username, $from_kiosk_id, $to_kiosk_id, $amount)
     {
-        $resp = $this->withdraw($from_game, $username, $amount);
+        $resp = $this->withdraw($from_kiosk_id, $username, $amount);
         if($resp['success'] == false) { // Player name exist
             return $resp;
         }
-        $resp = $this->deposit($to_game, $username, $amount);
+        $resp = $this->deposit($to_kiosk_id, $username, $amount);
         if($resp['success'] == false) { // Player name exist
             return $resp;
         }

@@ -664,17 +664,7 @@ class ContactController extends Controller
 //        $game_data = GameId::join('accounts', 'accounts.id', 'game_ids.service_id')->where('game_ids.contact_id', $id)
 //            ->select('accounts.name', 'game_ids.cur_game_id')
 //            ->get();
-        $game_data = [];
-        $game_data['Main Wallet'] = $this->contactUtil->getMainWalletBalance($business_id, $id);
-
-        $game_list = ["Xe88", "Transfer Wallet"];
-        foreach ($game_list as $game){
-            $resp = $this->gameUtil->getBalance($game, $contact->name);
-            if($resp['success']) {
-                $game_data[$game] = $resp['balance'];
-            } else
-                $game_data[$game] = 0;
-        }
+        $game_data = $this->gameUtil->getAllBalances($business_id, $id, $contact->name);
         $transaction_total = TransactionPayment::join(
             'transactions as t',
             'transaction_payments.transaction_id',

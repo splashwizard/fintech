@@ -31,7 +31,7 @@
         <div class="col-sm-12">
             <button type="button" class="btn btn-primary btn-modal pull-right" 
                 data-container=".account_model"
-                data-href="{{action('ServiceController@create')}}">
+                data-href="{{action('ConnectedKioskController@create')}}">
                 <i class="fa fa-plus"></i> @lang( 'messages.add' )</button>
         </div>
     </div>
@@ -61,6 +61,7 @@
                             <thead>
                                 <tr>
                                     <th>@lang( 'lang_v1.name' )</th>
+                                    <th>@lang( 'account.short_name' )</th>
                                 </tr>
                             </thead>
                         </table>
@@ -89,8 +90,29 @@
             serverSide: true,
             ajax: '/account/connectedlist',
             columns: [
-                {data: 'name', name: 'name'}
+                {data: 'name', name: 'name'},
+                {data: 'short_name', name: 'short_name'}
             ],
+        });
+
+        $(document).on('submit', 'form#payment_account_form', function(e){
+            e.preventDefault();
+            var data = $(this).serialize();
+            $.ajax({
+                method: "post",
+                url: $(this).attr("action"),
+                dataType: "json",
+                data: data,
+                success:function(result){
+                    if(result.success == true){
+                        $('div.account_model').modal('hide');
+                        toastr.success(result.msg);
+                        other_account_table.ajax.reload();
+                    }else{
+                        toastr.error(result.msg);
+                    }
+                }
+            });
         });
 
     });

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\AccountTransaction;
 
 use App\BusinessLocation;
+use App\ConnectedKiosk;
 use App\ExpenseCategory;
 use App\Promotion;
 use App\PromotionCollection;
@@ -52,13 +53,17 @@ class GameListController extends Controller
             $business_id = request()->session()->get('user.business_id');
 
             $expenses = Promotion::join('promotion_collections', 'promotion_collections.id', 'promotions.collection_id')
+                ->join('connected_kiosks', 'connected_kiosks.id', 'promotions.connected_kiosk_id')
             ->select(
                 'promotions.*',
                 'promotions.promotion_id as no',
                 'promotions.updated_at as last_modified_on',
-                'promotion_collections.name as collection'
+                'promotion_collections.name as collection',
+                'connected_kiosks.name as connected_kiosk'
             )->where('promotions.type', 'jewellery')
              ->where('business_id', $business_id)
+             ->where('promotions.type', 'jewellery')
+             ->where('promotions.connected_kiosk_id', '!=', 0)
                 ->groupBy('promotions.promotion_id')
             ->orderBy('promotions.promotion_id', 'ASC');
 
@@ -183,8 +188,9 @@ class GameListController extends Controller
             ->select('promotions.*', 'promotion_langs.lang as lang')->get();
         $promotion_langs = PromotionLang::forDropdown([], false);
         $promotion_collections = PromotionCollection::forDropdown(false);
+        $connected_kiosks = ConnectedKiosk::forDropdown(false);
         return view('game_list.edit')
-            ->with(compact('promotions', 'id', 'promotion_langs', 'promotion_collections'));
+            ->with(compact('promotions', 'id', 'promotion_langs', 'promotion_collections', 'connected_kiosks'));
     }
 
     public function getTab($promotion_id, $form_index)

@@ -34,6 +34,10 @@
 	<p>Recommended 1920px with minimum 500px Height</p>
 
 	<div class="form-group">
+		<label for="content">Connected Kiosk</label>
+		<?php echo Form::select('form['.$form_index.'][connected_kiosk_id]', $connected_kiosks, !empty($promotion['connected_kiosk_id']) ? $promotion['connected_kiosk_id'] : null, ['class' => 'form-control']);; ?>
+	</div>
+	<div class="form-group">
 		<label for="title">Title</label>
 		<input class="form-control" id="title" name="form[{{$form_index}}][title]" placeholder="Title" value="{{empty($promotion['title']) ? null : $promotion['title']}}" required>
 	</div>
@@ -48,6 +52,7 @@
 		</textarea>
 	</div>
 	<div class="form-group">
+		<label for="content">Collection</label>
 		<?php echo Form::select('form['.$form_index.'][collection_id]', $promotion_collections, !empty($promotion['collection_id']) ? $promotion['collection_id'] : null, ['class' => 'form-control']);; ?>
 	</div>
 	<!-- <div class="form-group">

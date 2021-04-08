@@ -62,7 +62,7 @@ class ConnectedKioskController extends Controller
         }
 
         if (request()->ajax()) {
-            $accounts = ConnectedKiosk::select(['name']);
+            $accounts = ConnectedKiosk::select(['name', 'short_name']);
             return DataTables::of($accounts)
                             ->make(true);
         }
@@ -72,6 +72,54 @@ class ConnectedKioskController extends Controller
         $data = ConnectedKiosk::find($id);
         if($data){
             return $data;
+        }
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     * @return Response
+     */
+    public function create()
+    {
+        if (!auth()->user()->can('account.access')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $account_types = Account::accountTypes();
+        $connected_kiosks = ConnectedKiosk::forDropdown(true);
+
+        return view('connected_kiosk.create')
+            ->with(compact('account_types', 'connected_kiosks'));
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     * @param  Request $request
+     * @return Response
+     */
+    public function store(Request $request)
+    {
+        if (!auth()->user()->can('account.access')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        if (request()->ajax()) {
+            try {
+                $input = $request->only(['name', 'short_name']);
+                ConnectedKiosk::create($input);
+
+                $output = ['success' => true,
+                    'msg' => __("account.connected_kiosk_created_success")
+                ];
+            } catch (\Exception $e) {
+                \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+
+                $output = ['success' => false,
+                    'msg' => __("messages.something_went_wrong")
+                ];
+            }
+
+            return $output;
         }
     }
 }

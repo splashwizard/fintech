@@ -11,12 +11,13 @@ $(document).ready(function() {
         },
         columnDefs: [
             {
-                targets: [7, 8],
+                targets: [8, 9],
                 orderable: false,
                 searchable: false,
             },
         ],
         columns: [
+            { data: 'connected_kiosk', name: 'connected_kiosk' },
             { data: 'collection', name: 'collection' },
             { data: 'no', name: 'no' },
             { data: 'title', name: 'title' },

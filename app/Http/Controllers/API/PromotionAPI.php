@@ -17,6 +17,7 @@ use jeremykenedy\LaravelLogger\App\Http\Traits\ActivityLogger;
 use Illuminate\Support\Facades\Hash;
 use Modules\Essentials\Notifications\EditCustomerNotification;
 use Illuminate\Support\Str;
+use DB;
 
 
 
@@ -34,10 +35,12 @@ class PromotionAPI extends Controller
         $business_id = $request->get("business_id");
         $data = Promotion::join('promotion_langs', 'promotion_langs.id', 'promotions.lang_id')
                 ->leftjoin('promotion_collections', 'promotions.collection_id', 'promotion_collections.id')
+                ->leftjoin('connected_kiosks', 'connected_kiosks.id', 'promotions.connected_kiosk_id')
                 ->where('business_id', $business_id)
                 ->where('lang_id', 1)
-                ->select('promotion_id AS id', 'type', 'title', 'desktop_image',
-                 'content AS description','start_time', 'end_time', 'sequence', 'show', 'sale', 'new', 'promotion_collections.name AS collection')
+//                ->select('promotion_id AS id', 'type', 'title', 'desktop_image', 'promotions.connected_kiosk_id',
+//                 'content AS description','start_time', 'end_time', 'sequence', 'show', 'sale', 'new', 'promotion_collections.name AS collection')
+            ->select('content AS description','promotions.*', 'promotion_id AS id', DB::raw('CONCAT(promotions.title, " - ", connected_kiosks.name) as title'), 'promotion_collections.name AS collection')
                 ->orderBy('promotion_id', 'ASC')->get();
 
         $formatted_data = [];

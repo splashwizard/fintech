@@ -225,7 +225,7 @@ class ServiceController extends Controller
                 \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
                     
                 $output = ['success' => false,
-                            'msg' => __("messages.something_fwent_wrong")
+                            'msg' => __("messages.something_went_wrong")
                             ];
             }
 
@@ -860,7 +860,6 @@ class ServiceController extends Controller
 
                     if($withdraw_mode == 'gt') {
                         $from_game = Account::find($account_id)->name;
-                        $to_game = Account::find($request->input('service_id'))->name;
                         if($from_game == 'Main Wallet'){
                             $main_wallet_balance = $this->contactUtil->getMainWalletBalance($business_id, $contact_id);
                             if($main_wallet_balance < $amount){
@@ -869,7 +868,9 @@ class ServiceController extends Controller
                             }
                         }
                         $username = Contact::find($contact_id)->name;
-                        $resp = $this->gameUtil->transfer($username, $from_game, $to_game, $amount);
+                        $from_kiosk_id = Account::find($account_id)->connected_kiosk_id;
+                        $to_kiosk_id = Account::find($request->input('service_id'))->connected_kiosk_id;
+                        $resp = $this->gameUtil->transfer($username, $from_kiosk_id, $to_kiosk_id, $amount);
                         if($resp['success'] == false){
                             return $resp;
                         }

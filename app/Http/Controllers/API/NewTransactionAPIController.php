@@ -80,7 +80,6 @@ class NewTransactionAPIController extends Controller
             $input['client_id'] = $request->post('user_id');
             $business_id = $request->get('business_id');
             $from_game = Product::find($input['from_product_id'])->name;
-            $to_game = Product::find($input['to_product_id'])->name;
             if($from_game == 'Main Wallet'){
                 $main_wallet_balance = $this->contactUtil->getMainWalletBalance($business_id, $input['client_id']);
                 if($main_wallet_balance < $input['amount']){
@@ -93,8 +92,10 @@ class NewTransactionAPIController extends Controller
             if(BusinessLocation::where('business_id', $business_id)->count() == 1){
                 $default_location = BusinessLocation::where('business_id', $business_id)->first()->id;
             }
+            $from_kiosk_id = Account::find(Product::find($input['from_product_id'])->account_id)->connected_kiosk_id;
+            $to_kiosk_id = Account::find(Product::find($input['to_product_id'])->account_id)->connected_kiosk_id;
 
-            $resp = $this->gameUtil->transfer($input['username'], $from_game, $to_game, $input['amount']);
+            $resp = $this->gameUtil->transfer($input['username'], $from_kiosk_id, $to_kiosk_id, $input['amount']);
             if($resp['success'] == false){
                 return $resp;
             }

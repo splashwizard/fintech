@@ -633,12 +633,14 @@ class SellPosDepositController extends Controller
                     }
 
                     // Deposit to XE88 vendor
-                    $deposit_amount = $total_credit + $basic_bonus + $special_bonus;
-                    $username = Contact::find($contact_id)->name;
-                    $to_game = Account::find($service_id)->name;
-                    $resp = $this->gameUtil->deposit($to_game, $username, $deposit_amount);
-                    if($resp['success'] == false) { // Player name exist
-                        return $resp;
+                    $connected_kiosk_id = Account::find($service_id)->connected_kiosk_id;
+                    if($connected_kiosk_id != 0){ // Kiosk Game
+                        $deposit_amount = $total_credit + $basic_bonus + $special_bonus;
+                        $username = Contact::find($contact_id)->name;
+                        $resp = $this->gameUtil->deposit($connected_kiosk_id, $username, $deposit_amount);
+                        if($resp['success'] == false) { // Player name exist
+                            return $resp;
+                        }
                     }
 
                     //end Deposit
