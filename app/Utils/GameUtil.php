@@ -355,13 +355,17 @@ class GameUtil extends Util
 
     public function transfer($username, $from_kiosk_id, $to_kiosk_id, $amount)
     {
-        $resp = $this->withdraw($from_kiosk_id, $username, $amount);
-        if($resp['success'] == false) { // Player name exist
-            return $resp;
+        if($from_kiosk_id != 0){
+            $resp = $this->withdraw($from_kiosk_id, $username, $amount);
+            if($resp['success'] == false) { // Player name exist
+                return $resp;
+            }
         }
-        $resp = $this->deposit($to_kiosk_id, $username, $amount);
-        if($resp['success'] == false) { // Player name exist
-            return $resp;
+        if($to_kiosk_id != 0) {
+            $resp = $this->deposit($to_kiosk_id, $username, $amount);
+            if ($resp['success'] == false) { // Player name exist
+                return $resp;
+            }
         }
         return ['success' => true];
     }
