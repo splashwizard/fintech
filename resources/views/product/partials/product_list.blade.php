@@ -14,9 +14,9 @@
                     <th>@lang('product.category')</th>
                 @endif
                 <th>@lang('product.priority')</th>
-{{--                @if($unit == 'GameTransactions (GTrans)')--}}
-{{--                    <th>@lang('product.product_no_bonus')</th>--}}
-{{--                @endif--}}
+                @if($unit == 'GameTransactions (GTrans)')
+                    <th>@lang('product.product_no_bonus')</th>
+                @endif
                 @if(auth()->user()->hasRole('Superadmin'))
                     <th>@lang('product.brand')</th>
                     <th>@lang('product.tax')</th>
