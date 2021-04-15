@@ -5,6 +5,7 @@ use App\Account;
 use App\ConnectedKiosk;
 use App\Contact;
 use App\Promotion;
+use App\Utils\GameUtils\Ace333;
 use App\Utils\GameUtils\TransferWallet;
 use Symfony\Polyfill\Intl\Normalizer\Normalizer;
 
@@ -12,8 +13,9 @@ class GameUtil extends Util
 {
     protected $games;
     protected $transferwallet;
+    protected $ace333;
     protected $contactUtil;
-    public function __construct(TransferWallet $transferwallet, ContactUtil $contactUtil){
+    public function __construct(TransferWallet $transferwallet, Ace333 $ace333, ContactUtil $contactUtil){
         $this->games = [
             'Xe88' => [
                 "agentid" => "testapi112",
@@ -23,6 +25,7 @@ class GameUtil extends Util
             ]
         ];
         $this->transferwallet = $transferwallet;
+        $this->ace333 = $ace333;
         $this->contactUtil = $contactUtil;
     }
 
@@ -70,6 +73,16 @@ class GameUtil extends Util
         }
         else if($game_name == "Joker"){
             $result = $this->transferwallet->GetPlayGameUrlWithDepositAmount($username, 0.00, uniqid(),$game_code );
+            if ($result->Success == true) {
+                $output = ['success' => true, 'link' => $result->ForwardUrl];
+            }
+            else
+            {
+                $output = ['success' => false, 'msg' => $result->Message];
+            }
+        }
+        else if ($game_name == "Ace333") {
+            $result = $this->ace333->GetPlayGameUrl($username, $game_code);
             if ($result->Success == true) {
                 $output = ['success' => true, 'link' => $result->ForwardUrl];
             }

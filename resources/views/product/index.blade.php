@@ -151,6 +151,8 @@
                 if(units.hasOwnProperty(key)) {
                     console.log('key', key);
                     var $table = $(`#product_table_${key}`);
+                    var additional_columns = units[key] === 'GameTransactions (GTrans)' ? [{data: 'priority', name: 'priority'},
+                            {data: 'product_no_bonus', name: 'product_no_bonus'}]: [{data: 'priority', name: 'priority'}];
                     product_table = $table.DataTable({
                         processing: true,
                         serverSide: true,
@@ -181,28 +183,17 @@
                             {data: 'type', name: 'products.type'},
                             {data: 'category', name: 'c1.name'},
                             // { data: 'sub_category', name: 'c2.name'},
-                            {data: 'priority', name: 'priority'},
+                            ...additional_columns,
                             {data: 'brand', name: 'brands.name'},
                             {data: 'tax', name: 'tax_rates.name', searchable: false},
                             {data: 'sku', name: 'products.sku'},
                             {data: 'action', name: 'action'}
-                        ] : (units[key] === 'GameTransactions (GTrans)' ? [
+                        ] :[
                             {data: 'mass_delete'},
-                            // {data: 'image', name: 'products.image'},
                             {data: 'product', name: 'products.name'},
-                            // {data: 'current_stock', searchable: false},
-                            {data: 'priority', name: 'priority'},
-                            {data: 'product_no_bonus', name: 'product_no_bonus'},
+                            ...additional_columns,
                             {data: 'action', name: 'action'}
-                        ] : [
-                                {data: 'mass_delete'},
-                                // {data: 'image', name: 'products.image'},
-                                {data: 'product', name: 'products.name'},
-                                // {data: 'current_stock', searchable: false},
-                                {data: 'priority', name: 'priority'},
-                                {data: 'action', name: 'action'}
-                            ]
-                        ),
+                        ],
                         createdRow: function (row, data, dataIndex) {
                             if ($('input#is_rack_enabled').val() == 1) {
                                 var target_col = 0;

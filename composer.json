@@ -34,7 +34,8 @@
         "stripe/stripe-php": "^6.10",
         "yajra/laravel-datatables-buttons": "4.*",
         "yajra/laravel-datatables-oracle": "^9.0.1",
-        "ext-curl": "*"
+        "ext-curl": "*",
+        "ext-openssl": "*"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.2",
