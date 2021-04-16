@@ -574,7 +574,7 @@ class AuthController extends Controller
         $response->playerID = 4973;
         $response->error = 0;
         $response->description = null;
-        return json_encode($response);
+        return response()->json($response, 200);
 
         $required_fields = ['userName', 'password'];
         $business_id = 35;
