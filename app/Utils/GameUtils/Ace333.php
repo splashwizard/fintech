@@ -94,7 +94,7 @@ class Ace333
             curl_close($curl);
 
             $result = json_decode($data, true);
-            return $result;
+//            return $result;
             $response = new stdClass();
             if ($result['error'] == "0" || $result['error'] == "1000") {
                 $result = $this->getLoginAccessToken($username);
