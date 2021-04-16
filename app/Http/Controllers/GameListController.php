@@ -53,7 +53,7 @@ class GameListController extends Controller
             $business_id = request()->session()->get('user.business_id');
 
             $expenses = Promotion::join('promotion_collections', 'promotion_collections.id', 'promotions.collection_id')
-                ->join('connected_kiosks', 'connected_kiosks.id', 'promotions.connected_kiosk_id')
+                ->leftjoin('connected_kiosks', 'connected_kiosks.id', 'promotions.connected_kiosk_id')
             ->select(
                 'promotions.*',
                 'promotions.promotion_id as no',
@@ -63,7 +63,7 @@ class GameListController extends Controller
             )->where('promotions.type', 'jewellery')
              ->where('business_id', $business_id)
              ->where('promotions.type', 'jewellery')
-             ->where('promotions.connected_kiosk_id', '!=', 0)
+//             ->where('promotions.connected_kiosk_id', '!=', 0)
                 ->groupBy('promotions.promotion_id')
             ->orderBy('promotions.promotion_id', 'ASC');
 
