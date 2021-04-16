@@ -572,8 +572,8 @@ class AuthController extends Controller
     public function authenticate(Request $request) {
         $response = new stdClass();
         $response->playerID = 4973;
-        $response->balance = 10;
         $response->error = 0;
+        $response->description = null;
         return json_encode($response);
 
         $required_fields = ['userName', 'password'];
@@ -592,7 +592,6 @@ class AuthController extends Controller
         if($count == 0){
             $response = new stdClass();
             $response->playerID = 0;
-            $response->balance = 0;
             $response->error = 1;
             $response->description = "Username doesn't exist";
             return json_encode($response);
@@ -602,16 +601,15 @@ class AuthController extends Controller
 
             $response = new stdClass();
             $response->playerID = $row->name;
-            $response->balance = 10;
             $response->error = 0;
             return json_encode($response);
         } else {
             $response = new stdClass();
             $response->playerID = 0;
-            $response->balance = 0;
             $response->error = 2;
             $response->description = "Password doesn't match ";
             return json_encode($response);
         }
     }
 }
+
