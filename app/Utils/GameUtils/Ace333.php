@@ -67,6 +67,7 @@ class Ace333
         curl_close($curl);
 
         $result = json_decode($data, true);
+        $result['qs'] = $QS;
         return $result;
     }
 
@@ -97,10 +98,11 @@ class Ace333
             if ($result['error'] == "0" || $result['error'] == "1000") {
                 $result = $this->getLoginAccessToken($username);
                 if($result["status"] === "1"){
-                    $forwardUrl = "{$this->H5_game_domain}/{$gameCode}?actk={$result["actk"]}&lang=1&userName={$username}";
+                    $forwardUrl = "{$this->H5_game_domain}/{$gameCode}/?actk={$result["actk"]}&lang=1&userName={$username}@jdj";
 
                     $response->Success = true;
                     $response->ForwardUrl = $forwardUrl;
+                    $response->QS = $result["qs"];
                     return $response;
                 }
             }

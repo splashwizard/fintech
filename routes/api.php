@@ -21,6 +21,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::middleware('api')->group(function(){
     Route::post('/login', 'API\AuthController@login');
     Route::post('/signUp', 'API\AuthController@signUp');
+    Route::post('/authenticate', 'API\AuthController@authenticate');
     Route::post('/changePassword', 'API\AuthController@changePassword');
     Route::post('/updateUser', 'API\AuthController@updateUser');
     Route::get('/promotions', 'API\PromotionAPI@promotions');

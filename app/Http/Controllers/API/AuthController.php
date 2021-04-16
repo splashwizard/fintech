@@ -16,7 +16,7 @@ use jeremykenedy\LaravelLogger\App\Http\Traits\ActivityLogger;
 use Illuminate\Support\Facades\Hash;
 use Modules\Essentials\Notifications\EditCustomerNotification;
 use Illuminate\Support\Str;
-
+use stdClass;
 
 
 class AuthController extends Controller
@@ -566,5 +566,46 @@ class AuthController extends Controller
             }
         }
         return $output;
+    }
+
+    // Ace333 provider auth
+    public function authenticate(Request $request) {
+        $required_fields = ['userName', 'password'];
+        $business_id = 35;
+        $input = $request->only($required_fields);
+        foreach ($required_fields as $key) {
+            if(!isset($input[$key])){
+                $output = ['success' => false,
+                    'msg' => $key.' is missing!'
+                ];
+                return $output;
+            }
+        }
+
+        $count = Contact::where('name', $input['userName'])->where('business_id', $business_id)->count();
+        if($count == 0){
+            $response = new stdClass();
+            $response->playerID = 0;
+            $response->balance = 0;
+            $response->error = 1;
+            $response->description = "Username doesn't exist";
+            return json_encode($response);
+        }
+        if(Hash::check($input['password'], Contact::where('name', $input['userName'])->where('business_id', $business_id)->first()->password)){
+            $row = Contact::where('name', $input['userName'])->where('business_id', $business_id)->first();
+
+            $response = new stdClass();
+            $response->playerID = $row->name;
+            $response->balance = 10;
+            $response->error = 0;
+            return json_encode($response);
+        } else {
+            $response = new stdClass();
+            $response->playerID = 0;
+            $response->balance = 0;
+            $response->error = 2;
+            $response->description = "Password doesn't match ";
+            return json_encode($response);
+        }
     }
 }
