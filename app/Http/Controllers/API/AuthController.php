@@ -571,7 +571,7 @@ class AuthController extends Controller
     // Ace333 provider auth
     public function authenticate(Request $request) {
         $response = new stdClass();
-        $response->playerID = "dummy09";
+        $response->playerID = 4973;
         $response->balance = 10;
         $response->error = 0;
         return json_encode($response);

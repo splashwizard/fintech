@@ -83,7 +83,7 @@ class GameUtil extends Util
         }
         else if ($game_name == "Ace333") {
             $result = $this->ace333->GetPlayGameUrl($username, $game_code);
-//            return json_encode($result);
+            return json_encode($result);
             if ($result->Success == true) {
                 $output = ['success' => true, 'link' => $result->ForwardUrl];
             }
