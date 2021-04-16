@@ -24,8 +24,8 @@
                         <table class="table table-bordered table-striped text-center" id="promotion_table">
                             <thead>
                                 <tr>
-                                    <th>@lang('lang_v1.connected_kiosk')</th>
                                     <th>@lang('promotion.collection')</th>
+                                    <th>@lang('product.brand')</th>
                                     <th>@lang('promotion.no')</th>
                                     <th>@lang('promotion.title')</th>
                                     <th>@lang('promotion.sequence')</th>

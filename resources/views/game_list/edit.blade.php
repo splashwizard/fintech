@@ -44,7 +44,7 @@
             @endif
           @endforeach
         </div>
-        <button class="btn" style="background-color: #000000;color: white" id="add_promotion"> Update Promotion</button>
+        <button class="btn" style="background-color: #000000;color: white" id="add_promotion"> Update Product</button>
       </div>
 
     </div>

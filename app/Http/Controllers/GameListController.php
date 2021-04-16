@@ -59,7 +59,7 @@ class GameListController extends Controller
                 'promotions.promotion_id as no',
                 'promotions.updated_at as last_modified_on',
                 'promotion_collections.name as collection',
-                'connected_kiosks.name as connected_kiosk'
+                'connected_kiosks.name as brand'
             )->where('promotions.type', 'jewellery')
              ->where('business_id', $business_id)
              ->where('promotions.type', 'jewellery')

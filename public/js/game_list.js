@@ -17,8 +17,8 @@ $(document).ready(function() {
             },
         ],
         columns: [
-            { data: 'connected_kiosk', name: 'connected_kiosk' },
             { data: 'collection', name: 'collection' },
+            { data: 'brand', name: 'brand' },
             { data: 'no', name: 'no' },
             { data: 'title', name: 'title' },
             { data: 'sequence', name: 'sequence' },

@@ -34,7 +34,7 @@
 	<p>Recommended 1920px with minimum 500px Height</p>
 
 	<div class="form-group">
-		<label for="content">Connected Kiosk</label>
+		<label for="content">Brand</label>
 		<?php echo Form::select('form['.$form_index.'][connected_kiosk_id]', $connected_kiosks, !empty($promotion['connected_kiosk_id']) ? $promotion['connected_kiosk_id'] : null, ['class' => 'form-control']);; ?>
 	</div>
 	<div class="form-group">

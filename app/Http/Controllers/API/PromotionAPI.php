@@ -40,7 +40,7 @@ class PromotionAPI extends Controller
                 ->where('lang_id', 1)
 //                ->select('promotion_id AS id', 'type', 'title', 'desktop_image', 'promotions.connected_kiosk_id',
 //                 'content AS description','start_time', 'end_time', 'sequence', 'show', 'sale', 'new', 'promotion_collections.name AS collection')
-            ->select('content AS description','promotions.*', 'promotion_id AS id', DB::raw('CONCAT(promotions.title, " - ", connected_kiosks.name) as title'), 'promotion_collections.name AS collection')
+            ->select('content AS description','promotions.*', 'promotion_id AS id', 'connected_kiosks.name AS brand', 'promotion_collections.name AS collection')
                 ->orderBy('promotion_id', 'ASC')->get();
 
         $formatted_data = [];
