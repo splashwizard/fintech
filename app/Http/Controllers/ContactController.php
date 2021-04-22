@@ -664,7 +664,7 @@ class ContactController extends Controller
 //        $game_data = GameId::join('accounts', 'accounts.id', 'game_ids.service_id')->where('game_ids.contact_id', $id)
 //            ->select('accounts.name', 'game_ids.cur_game_id')
 //            ->get();
-        $game_data = $this->gameUtil->getAllBalances($business_id, $id, $contact->name);
+        $game_data = $this->gameUtil->getAllBalances($business_id, $id);
         $transaction_total = TransactionPayment::join(
             'transactions as t',
             'transaction_payments.transaction_id',

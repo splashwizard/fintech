@@ -867,10 +867,9 @@ class ServiceController extends Controller
                                 return $output;
                             }
                         }
-                        $username = Contact::find($contact_id)->name;
                         $from_kiosk_id = Account::find($account_id)->connected_kiosk_id;
                         $to_kiosk_id = Account::find($request->input('service_id'))->connected_kiosk_id;
-                        $resp = $this->gameUtil->transfer($username, $from_kiosk_id, $to_kiosk_id, $amount);
+                        $resp = $this->gameUtil->transfer($contact_id, $from_kiosk_id, $to_kiosk_id, $amount);
                         if($resp['success'] == false){
                             return $resp;
                         }

@@ -1,6 +1,8 @@
 <?php
 namespace App\Utils\GameUtils;
 
+use App\ConnectedKiosk;
+use App\ConnectedKioskContact;
 use stdClass;
 
 class Ace333
@@ -71,16 +73,106 @@ class Ace333
         return $result;
     }
 
-    public function GetPlayGameUrl($username, $gameCode)
+    public function GetPlayGameUrl($connected_kiosk_id, $user_id, $username, $gameCode)
     {
         try {
+            if(ConnectedKioskContact::where('connected_kiosk_id', $connected_kiosk_id)->where('contact_id', $user_id)->count() === 0){
+                $fields = [
+                    "accountID" => $username,
+                    "nickname" => $username,
+                    "currency" => "MYR",
+                ];
+                $url = $this->Provider_url . "/api/createPlayer";
+                $postData = json_encode($fields);
+                $curl = curl_init($url);
+                curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "POST");
+                curl_setopt($curl, CURLOPT_POSTFIELDS, $postData);
+                curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($curl, CURLOPT_HTTPHEADER, array(
+                        'Content-Type: application/json', "Token: {$this->token}")
+                );
+
+                $data = curl_exec($curl);
+                curl_close($curl);
+
+                $result = json_decode($data, true);
+                if ($result['error'] == "0"){
+                    ConnectedKioskContact::create([
+                        'connected_kiosk_id' => $connected_kiosk_id,
+                        'contact_id' => $user_id,
+                        'data' => json_encode(["playerID" => $result["playerID"]])
+                    ]);
+                } else {
+                    $response = new stdClass();
+                    $response->Success = false;
+                    $response->Message = $result['description'];
+
+                    return $response;
+                }
+            }
+            $result = $this->getLoginAccessToken($username);
+            $response = new stdClass();
+            if($result["status"] === "1"){
+                $forwardUrl = "{$this->H5_game_domain}/{$gameCode}/?actk={$result["actk"]}&lang=1&userName={$username}@jdj";
+
+                $response->Success = true;
+                $response->ForwardUrl = $forwardUrl;
+                $response->QS = $result["qs"];
+                return $response;
+            }
+        } catch (Exception $e) {
+            $response = new stdClass();
+            $response->Success = false;
+            $response->Message = $e->getMessage();
+            return $response;
+        }
+    }
+
+    public function TopUp($connected_kiosk_id, $contact_id, $username, $referenceID, $amount)
+    {
+        try {
+            if(ConnectedKioskContact::where('connected_kiosk_id', $connected_kiosk_id)->where('contact_id', $contact_id)->count() === 0){
+                $fields = [
+                    "accountID" => $username,
+                    "nickname" => $username,
+                    "currency" => "MYR",
+                ];
+                $url = $this->Provider_url . "/api/createPlayer";
+                $postData = json_encode($fields);
+                $curl = curl_init($url);
+                curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "POST");
+                curl_setopt($curl, CURLOPT_POSTFIELDS, $postData);
+                curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($curl, CURLOPT_HTTPHEADER, array(
+                        'Content-Type: application/json', "Token: {$this->token}")
+                );
+
+                $data = curl_exec($curl);
+                curl_close($curl);
+
+                $result = json_decode($data, true);
+                if ($result['error'] == "0"){
+                    ConnectedKioskContact::create([
+                        'connected_kiosk_id' => $connected_kiosk_id,
+                        'contact_id' => $contact_id,
+                        'data' => json_encode(["playerID" => $result["playerID"]])
+                    ]);
+                } else {
+                    $response = new stdClass();
+                    $response->Success = false;
+                    $response->Message = $result['description'];
+
+                    return $response;
+                }
+            }
+            $connected_kiosk = ConnectedKioskContact::where('connected_kiosk_id', $connected_kiosk_id)->where('contact_id', $contact_id)->first();
             $fields = [
-                "accountID" => $username,
-                "nickname" => $username,
+                "playerID" => json_decode($connected_kiosk->data)->playerID,
+                "referenceID" => $referenceID,
+                "topUpAmount" => $amount,
                 "currency" => "MYR",
             ];
-            $url = $this->Provider_url . "/api/createPlayer";
-
+            $url = $this->Provider_url . "/api/topup";
             $postData = json_encode($fields);
             $curl = curl_init($url);
             curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "POST");
@@ -92,28 +184,99 @@ class Ace333
 
             $data = curl_exec($curl);
             curl_close($curl);
-
             $result = json_decode($data, true);
-//            return $result;
-            $response = new stdClass();
-            if ($result['error'] == "0" || $result['error'] == "1000") {
-                $result = $this->getLoginAccessToken($username);
-                if($result["status"] === "1"){
-                    $forwardUrl = "{$this->H5_game_domain}/{$gameCode}/?actk={$result["actk"]}&lang=1&userName={$username}@jdj";
 
-                    $response->Success = true;
-                    $response->ForwardUrl = $forwardUrl;
-                    $response->QS = $result["qs"];
+            if ($result['error'] == "0"){
+                $response = new stdClass();
+                $response->success = true;
+                return $response;
+            } else {
+                $response = new stdClass();
+                $response->success = false;
+                $response->Message = $result['description'];
+
+                return $response;
+            }
+        } catch (Exception $e) {
+            $response = new stdClass();
+            $response->success = false;
+            $response->Message = $e->getMessage();
+            return $response;
+        }
+    }
+
+    public function withdraw($connected_kiosk_id, $contact_id, $username, $referenceID, $amount)
+    {
+        try {
+            if(ConnectedKioskContact::where('connected_kiosk_id', $connected_kiosk_id)->where('contact_id', $contact_id)->count() === 0){
+                $fields = [
+                    "accountID" => $username,
+                    "nickname" => $username,
+                    "currency" => "MYR",
+                ];
+                $url = $this->Provider_url . "/api/createPlayer";
+                $postData = json_encode($fields);
+                $curl = curl_init($url);
+                curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "POST");
+                curl_setopt($curl, CURLOPT_POSTFIELDS, $postData);
+                curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($curl, CURLOPT_HTTPHEADER, array(
+                        'Content-Type: application/json', "Token: {$this->token}")
+                );
+
+                $data = curl_exec($curl);
+                curl_close($curl);
+
+                $result = json_decode($data, true);
+                if ($result['error'] == "0"){
+                    ConnectedKioskContact::create([
+                        'connected_kiosk_id' => $connected_kiosk_id,
+                        'contact_id' => $contact_id,
+                        'data' => json_encode(["playerID" => $result["playerID"]])
+                    ]);
+                } else {
+                    $response = new stdClass();
+                    $response->Success = false;
+                    $response->Message = $result['description'];
+
                     return $response;
                 }
             }
-            $response->Success = false;
-            $response->Message = $result['description'];
+            $connected_kiosk = ConnectedKioskContact::where('connected_kiosk_id', $connected_kiosk_id)->where('contact_id', $contact_id)->first();
+            $fields = [
+                "playerID" => json_decode($connected_kiosk->data)->playerID,
+                "referenceID" => $referenceID,
+                "withdrawAmount" => $amount,
+                "currency" => "MYR",
+            ];
+            $url = $this->Provider_url . "/api/withdraw";
+            $postData = json_encode($fields);
+            $curl = curl_init($url);
+            curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "POST");
+            curl_setopt($curl, CURLOPT_POSTFIELDS, $postData);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($curl, CURLOPT_HTTPHEADER, array(
+                    'Content-Type: application/json', "Token: {$this->token}")
+            );
 
-            return $response;
+            $data = curl_exec($curl);
+            curl_close($curl);
+            $result = json_decode($data, true);
+
+            if ($result['error'] == "0"){
+                $response = new stdClass();
+                $response->success = true;
+                return $response;
+            } else {
+                $response = new stdClass();
+                $response->success = false;
+                $response->Message = $result['description'];
+
+                return $response;
+            }
         } catch (Exception $e) {
             $response = new stdClass();
-            $response->Success = false;
+            $response->success = false;
             $response->Message = $e->getMessage();
             return $response;
         }
@@ -154,6 +317,41 @@ class Ace333
             $response = new stdClass();
             $response->Success = true;
             $response->data =$result;
+
+        } catch (Exception $e) {
+            $response = new stdClass();
+            $response->Success = false;
+            $response->Message = $e->getMessage();
+        }
+        return json_encode($response);
+    }
+
+    public function getBalance($playerID)
+    {
+        try {
+            $fields = [
+                "playerID" => $playerID
+            ];
+            $curl = curl_init("{$this->Provider_url}/api/getbalance?".http_build_query($fields));
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($curl, CURLOPT_HTTPHEADER, array(
+                    'Content-Type: application/json', "Token: {$this->token}")
+            );
+
+            $data = curl_exec($curl);
+            curl_close($curl);
+
+            $result = json_decode($data, true);
+            if ($result['error'] == "0"){
+                $response = new stdClass();
+                $response->Success = true;
+                $response->balance = $result['balance'];
+            } else {
+                $response = new stdClass();
+                $response->Success = false;
+                $response->Message = $result['description'];
+            }
+            return $response;
 
         } catch (Exception $e) {
             $response = new stdClass();

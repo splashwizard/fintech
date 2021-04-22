@@ -4,6 +4,8 @@ namespace App\Http\Controllers\API;
 
 use App\Account;
 use App\BankBrand;
+use App\ConnectedKiosk;
+use App\ConnectedKioskContact;
 use App\Contact;
 use App\GameId;
 use App\Http\Controllers\Controller;
@@ -570,11 +572,11 @@ class AuthController extends Controller
 
     // Ace333 provider auth
     public function authenticate(Request $request) {
-        $response = new stdClass();
-        $response->playerID = 4973;
-        $response->error = 0;
-        $response->description = null;
-        return response()->json($response, 200);
+//        $response = new stdClass();
+//        $response->playerID = 4973;
+//        $response->error = 0;
+//        $response->description = null;
+//        return response()->json($response, 200);
 
         $required_fields = ['userName', 'password'];
         $business_id = 35;
@@ -594,21 +596,30 @@ class AuthController extends Controller
             $response->playerID = 0;
             $response->error = 1;
             $response->description = "Username doesn't exist";
-            return json_encode($response);
+            return response()->json($response, 200);
         }
-        if(Hash::check($input['password'], Contact::where('name', $input['userName'])->where('business_id', $business_id)->first()->password)){
-            $row = Contact::where('name', $input['userName'])->where('business_id', $business_id)->first();
-
-            $response = new stdClass();
-            $response->playerID = $row->name;
-            $response->error = 0;
-            return json_encode($response);
+        $contact = Contact::where('name', $input['userName'])->where('business_id', $business_id)->first();
+        if(Hash::check($input['password'], $contact->password)){
+            $connected_kiosk_id = ConnectedKiosk::where('name', 'Ace333')->first()->id;
+            if(ConnectedKioskContact::where('connected_kiosk_id', $connected_kiosk_id)->where('contact_id', $contact->id)->count() > 0) {
+                $row = ConnectedKioskContact::where('connected_kiosk_id', $connected_kiosk_id)->where('contact_id', $contact->id)->first();
+                $response = new stdClass();
+                $response->playerID = json_decode($row->data)->playerID;
+                $response->error = 0;
+                return response()->json($response, 200);
+            } else {
+                $response = new stdClass();
+                $response->playerID = 0;
+                $response->error = 3;
+                $response->description = "Player haven't created yet.";
+                return response()->json($response, 200);
+            }
         } else {
             $response = new stdClass();
             $response->playerID = 0;
             $response->error = 2;
             $response->description = "Password doesn't match ";
-            return json_encode($response);
+            return response()->json($response, 200);
         }
     }
 }

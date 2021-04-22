@@ -48,7 +48,7 @@ class GameAPIController extends Controller
             $username = $request->get('username');
             $business_id = $request->get('business_id');
             $id = $request->get('user_id');
-            $game_data = $this->gameUtil->getAllBalances($business_id, $id, $username);
+            $game_data = $this->gameUtil->getAllBalances($business_id, $id);
             $output = ['success' => true, 'data' => $game_data];
         } catch (\Exception $e) {
             \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());

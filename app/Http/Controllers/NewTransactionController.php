@@ -360,13 +360,10 @@ class NewTransactionController extends Controller
         if (request()->ajax()) {
 //            try {
             $newTransaction = NewTransactions::find($id);
-
-            $username = Contact::find($newTransaction->client_id)->name;
-//            $to_game = Product::find($newTransaction->product_id)->name;
             $connected_kiosk_id = Account::find(Product::find($newTransaction->product_id)->account_id)->connected_kiosk_id;
             if($connected_kiosk_id != 0){
                 $deposit_amount = $this->getDepositAmount($request->session()->get('user.business_id'), $newTransaction->client_id, $newTransaction->amount, $newTransaction->bonus_id);
-                $resp = $this->gameUtil->deposit($connected_kiosk_id, $username, $deposit_amount);
+                $resp = $this->gameUtil->deposit($connected_kiosk_id, $newTransaction->client_id, $deposit_amount);
                 if($resp['success'] == false) { // Player name exist
                     return $resp;
                 }

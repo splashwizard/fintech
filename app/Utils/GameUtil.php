@@ -3,6 +3,7 @@
 namespace App\Utils;
 use App\Account;
 use App\ConnectedKiosk;
+use App\ConnectedKioskContact;
 use App\Contact;
 use App\Promotion;
 use App\Utils\GameUtils\Ace333;
@@ -82,8 +83,7 @@ class GameUtil extends Util
             }
         }
         else if ($game_name == "Ace333") {
-            $result = $this->ace333->GetPlayGameUrl($username, $game_code);
-//            return json_encode($result);
+            $result = $this->ace333->GetPlayGameUrl($connected_kiosk_id, $user_id, $username, $game_code);
             if ($result->Success == true) {
                 $output = ['success' => true, 'link' => $result->ForwardUrl];
             }
@@ -96,12 +96,12 @@ class GameUtil extends Util
         return $output;
     }
 
-    public function getAllBalances($business_id, $contact_id, $username) {
+    public function getAllBalances($business_id, $contact_id) {
         $game_data = [];
         $game_data['Main Wallet'] = $this->contactUtil->getMainWalletBalance($business_id, $contact_id);
         $data = Account::where('business_id', $business_id)->where('is_service', 1)->where('connected_kiosk_id', '!=', 0)->get();
         foreach ($data as $row){
-            $resp = $this->getBalance($row->connected_kiosk_id, $username);
+            $resp = $this->getBalance($row->connected_kiosk_id, $contact_id);
             if($resp['success']) {
                 $game_data[$row->name] = $resp['balance'];
             } else
@@ -110,9 +110,10 @@ class GameUtil extends Util
         return $game_data;
     }
 
-    public function getBalance($connected_kiosk_id, $username){
+    public function getBalance($connected_kiosk_id, $contact_id){
         try{
             $game_name = ConnectedKiosk::find($connected_kiosk_id)->name;
+            $username = Contact::find($contact_id)->name;
             if($game_name == 'Xe88'){
                 $game_data = $this->games['Xe88'];
                 $account = $game_data["account_prefix"].$username;
@@ -153,6 +154,24 @@ class GameUtil extends Util
                     $output = ['success' => false, 'msg' => $result->Message];
                 }
                 return $output;
+            }
+            else if($game_name == 'Ace333'){ //Ace333
+                if(ConnectedKioskContact::where('connected_kiosk_id', $connected_kiosk_id)->where('contact_id', $contact_id)->count() > 0) {
+                    $row = ConnectedKioskContact::where('connected_kiosk_id', $connected_kiosk_id)->where('contact_id', $contact_id)->first();
+                    $result = $this->ace333->getBalance(json_decode($row->data)->playerID);
+                    if ($result->Success == true) {
+                        $output = ['success' => true, 'balance' => $result->balance];
+                    }
+                    else
+                    {
+                        $output = ['success' => false, 'msg' => $result->Message];
+                    }
+                } else
+                    $output = ['success' => true, 'balance' => 0];
+                return $output;
+            }
+            else {
+                return ['success' => true, 'balance' => 0];
             }
         } catch (\Exception $e) {
 
@@ -215,8 +234,9 @@ class GameUtil extends Util
         return json_decode($response);
     }
 
-    public function deposit($connected_kiosk_id, $username, $amount){
+    public function deposit($connected_kiosk_id, $contact_id, $amount, $invoice_no = null){
         $game_name = ConnectedKiosk::find($connected_kiosk_id)->name;
+        $username = Contact::find($contact_id)->name;
         if($game_name == 'Xe88') {
             $game = $this->games[$game_name];
             $account = $game["account_prefix"].$username;
@@ -276,20 +296,29 @@ class GameUtil extends Util
                         $msg = __("messages.something_went_wrong");
                 }
                 $output = ['success' => false, 'msg' => $msg];
-                return $output;
-            }
-            return ['success' => true];
+            } else
+                $output = ['success' => true];
         }
         else if($game_name == 'Joker'){ //Joker
-            $this->transferwallet->TransferCreditToJoker($username, $amount, uniqid());
-            $output = ['success' => true];
+            $message = $this->transferwallet->TransferCreditToJoker($username, $amount, uniqid());
+            if($message == 'Success')
+                $output = ['success' => true];
+            else
+                $output = ['success' => false, 'msg' => $message];
             return $output;
         }
-        return ['success' => true];
+        else if($game_name == 'Ace333'){ //Joker
+            $output = $this->ace333->TopUp($connected_kiosk_id, $contact_id, $username, $invoice_no, $amount);
+            $output = json_decode(json_encode($output), true);
+        }
+        else
+            $output = ['success' => true];
+        return $output;
     }
 
-    public function withdraw($connected_kiosk_id, $username, $amount){
+    public function withdraw($connected_kiosk_id, $contact_id, $amount, $invoice_no = null){
         $game_name = ConnectedKiosk::find($connected_kiosk_id)->name;
+        $username = Contact::find($contact_id)->name;
         if($game_name == 'Xe88'){
             $game = $this->games[$game_name];
             $account = $game["account_prefix"].$username;
@@ -363,20 +392,31 @@ class GameUtil extends Util
                  $output = ['success' => false, 'msg' => $result->Message];
              }
              return $output;
+        } else if ($game_name == 'Ace333'){ //Ace333
+            $output = $this->ace333->TopUp($connected_kiosk_id, $contact_id, $username, $invoice_no, $amount);
+            $result = json_decode(json_encode($output), true);
+            if ($result->Success == true) {
+                $output = ['success' => true];
+            }
+            else
+            {
+                $output = ['success' => false, 'msg' => $result->Message];
+            }
+            return $output;
         }
         return ['success' => true];
     }
 
-    public function transfer($username, $from_kiosk_id, $to_kiosk_id, $amount)
+    public function transfer($contact_id, $from_kiosk_id, $to_kiosk_id, $amount, $invoice_no = null)
     {
         if($from_kiosk_id != 0){
-            $resp = $this->withdraw($from_kiosk_id, $username, $amount);
+            $resp = $this->withdraw($from_kiosk_id, $contact_id, $amount, $invoice_no);
             if($resp['success'] == false) { // Player name exist
                 return $resp;
             }
         }
         if($to_kiosk_id != 0) {
-            $resp = $this->deposit($to_kiosk_id, $username, $amount);
+            $resp = $this->deposit($to_kiosk_id, $contact_id, $amount, $invoice_no);
             if ($resp['success'] == false) { // Player name exist
                 return $resp;
             }

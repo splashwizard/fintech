@@ -35,6 +35,7 @@ use App\Business;
 use App\BusinessLocation;
 use App\CashRegister;
 use App\Category;
+use App\ConnectedKiosk;
 use App\Contact;
 use App\CountryCode;
 use App\CustomerGroup;
@@ -636,8 +637,12 @@ class SellPosDepositController extends Controller
                     $connected_kiosk_id = Account::find($service_id)->connected_kiosk_id;
                     if($connected_kiosk_id != 0){ // Kiosk Game
                         $deposit_amount = $total_credit + $basic_bonus + $special_bonus;
-                        $username = Contact::find($contact_id)->name;
-                        $resp = $this->gameUtil->deposit($connected_kiosk_id, $username, $deposit_amount);
+                        $default_location = null;
+                        if(BusinessLocation::where('business_id', $business_id)->count() == 1){
+                            $default_location = BusinessLocation::where('business_id', $business_id)->first()->id;
+                        }
+                        $invoice_no = $this->transactionUtil->getNewTransferNumber($business_id, $default_location);
+                        $resp = $this->gameUtil->deposit($connected_kiosk_id, $contact_id, $deposit_amount, $invoice_no);
                         if($resp['success'] == false) { // Player name exist
                             return $resp;
                         }

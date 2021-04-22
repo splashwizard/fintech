@@ -75,7 +75,7 @@ class NewTransactionAPIController extends Controller
     }
 
     public function postTransfer(Request $request) {
-        try {
+//        try {
             $input = $request->only(['business_id', 'from_product_id', 'to_product_id', 'amount', 'username']);
             $input['client_id'] = $request->post('user_id');
             $business_id = $request->get('business_id');
@@ -95,20 +95,20 @@ class NewTransactionAPIController extends Controller
             $from_kiosk_id = Account::find(Product::find($input['from_product_id'])->account_id)->connected_kiosk_id;
             $to_kiosk_id = Account::find(Product::find($input['to_product_id'])->account_id)->connected_kiosk_id;
 
-            $resp = $this->gameUtil->transfer($input['username'], $from_kiosk_id, $to_kiosk_id, $input['amount']);
+            $input['invoice_no'] = $this->transactionUtil->getNewTransferNumber($business_id, $default_location);
+            $resp = $this->gameUtil->transfer($input['client_id'], $from_kiosk_id, $to_kiosk_id, $input['amount'], $input['invoice_no']);
             if($resp['success'] == false){
                 return $resp;
             }
-            $input['invoice_no'] = $this->transactionUtil->getNewTransferNumber($business_id, $default_location);
             NewTransactionTransfer::create($input);
             $this->transfer($input['client_id'], $business_id, Product::find($input['from_product_id'])->account_id, Product::find($input['to_product_id'])->account_id, $input['amount']);
             $output = ['success' => true, 'msg' => 'Transferred Successfully'];
-        } catch (\Exception $e) {
-            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-
-            $output = ['success' => false, 'msg' => __("messages.something_fwent_wrong")
-            ];
-        }
+//        } catch (\Exception $e) {
+//            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+//
+//            $output = ['success' => false, 'msg' => __("messages.something_fwent_wrong")
+//            ];
+//        }
         return $output;
     }
 
