@@ -125,7 +125,7 @@ class ClientStatementController extends Controller
                 )
                 ->addColumn(
                     'win_loss',
-                    '<span class="display_currency win_loss" data-orig-value="{{$due - $return_due}}" data-highlight=false>{{$due - $return_due}}</span>'
+                    '<span class="display_currency win_loss" data-orig-value="{{$return_due - $due}}" data-highlight=false>{{$return_due - $due}}</span>'
                 )
                 ->editColumn('contacts.total_rp', '{{$total_rp ?? 0}}')
                 ->editColumn('contacts.created_at', '{{@format_date($created_at)}}')
