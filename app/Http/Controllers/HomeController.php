@@ -104,36 +104,36 @@ class HomeController extends Controller
         $date_filters['this_week']['start'] = date('Y-m-d', strtotime('monday this week'));
         $date_filters['this_week']['end'] = date('Y-m-d', strtotime('sunday this week'));
 
-        $currency = Currency::where('id', request()->session()->get('business.currency_id'))->first();
-        
-        //Chart for sells last 30 days
-        $sells_last_30_days = $this->transactionUtil->getSellsLast30Days($business_id);
-        $labels = [];
-        $all_sell_values = [];
-        $dates = [];
-        for ($i = 29; $i >= 0; $i--) {
-            $date = \Carbon::now()->subDays($i)->format('Y-m-d');
-            $dates[] = $date;
-
-            $labels[] = date('j M Y', strtotime($date));
-
-            if (!empty($sells_last_30_days[$date])) {
-                $all_sell_values[] = $sells_last_30_days[$date];
-            } else {
-                $all_sell_values[] = 0;
-            }
-        }
+//        $currency = Currency::where('id', request()->session()->get('business.currency_id'))->first();
+//
+//        //Chart for sells last 30 days
+//        $sells_last_30_days = $this->transactionUtil->getSellsLast30Days($business_id);
+//        $labels = [];
+//        $all_sell_values = [];
+//        $dates = [];
+//        for ($i = 29; $i >= 0; $i--) {
+//            $date = \Carbon::now()->subDays($i)->format('Y-m-d');
+//            $dates[] = $date;
+//
+//            $labels[] = date('j M Y', strtotime($date));
+//
+//            if (!empty($sells_last_30_days[$date])) {
+//                $all_sell_values[] = $sells_last_30_days[$date];
+//            } else {
+//                $all_sell_values[] = 0;
+//            }
+//        }
 
         //Get Dashboard widgets from module
-        $module_widgets = $this->moduleUtil->getModuleData('dashboard_widget');
-
-        $widgets = [];
-
-        foreach ($module_widgets as $widget_array) {
-            if (!empty($widget_array['position'])) {
-                $widgets[$widget_array['position']][] = $widget_array['widget'];
-            }
-        }
+//        $module_widgets = $this->moduleUtil->getModuleData('dashboard_widget');
+//
+//        $widgets = [];
+//
+//        foreach ($module_widgets as $widget_array) {
+//            if (!empty($widget_array['position'])) {
+//                $widgets[$widget_array['position']][] = $widget_array['widget'];
+//            }
+//        }
 
 
         $bank_accounts_sql = Account::where('name', '!=', "Bonus Account")
@@ -180,7 +180,7 @@ class HomeController extends Controller
         }
 
 //        return view('home.index', compact('date_filters', 'sells_chart_1', 'sells_chart_2', 'widgets', 'bank_accounts', 'service_accounts', 'total_bank'));
-        return view('home.index', compact('date_filters', 'widgets', 'banks', 'services', 'total_bank'));
+        return view('home.index', compact('date_filters', 'banks', 'services', 'total_bank'));
     }
 
     /**

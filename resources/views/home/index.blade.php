@@ -212,11 +212,11 @@
     <div id="bank_service_part">
 
     </div>
-    @if(!empty($widgets['after_sale_purchase_totals']))
-      @foreach($widgets['after_sale_purchase_totals'] as $widget)
-        {!! $widget !!}
-      @endforeach
-    @endif
+{{--    @if(!empty($widgets['after_sale_purchase_totals']))--}}
+{{--      @foreach($widgets['after_sale_purchase_totals'] as $widget)--}}
+{{--        {!! $widget !!}--}}
+{{--      @endforeach--}}
+{{--    @endif--}}
   	<!-- sales chart start -->
 {{--  	<div class="row" style="display: none">--}}
 {{--  		<div class="col-sm-12">--}}
@@ -225,11 +225,11 @@
 {{--            @endcomponent--}}
 {{--  		</div>--}}
 {{--  	</div>--}}
-    @if(!empty($widgets['after_sales_last_30_days']))
-      @foreach($widgets['after_sales_last_30_days'] as $widget)
-        {!! $widget !!}
-      @endforeach
-    @endif
+{{--    @if(!empty($widgets['after_sales_last_30_days']))--}}
+{{--      @foreach($widgets['after_sales_last_30_days'] as $widget)--}}
+{{--        {!! $widget !!}--}}
+{{--      @endforeach--}}
+{{--    @endif--}}
 {{--  	<div class="row" style="display: none">--}}
 {{--  		<div class="col-sm-12">--}}
 {{--            @component('components.widget', ['class' => 'box-primary', 'title' => __('home.sells_current_fy')])--}}
@@ -238,11 +238,11 @@
 {{--  		</div>--}}
 {{--  	</div>--}}
   	<!-- sales chart end -->
-    @if(!empty($widgets['after_sales_current_fy']))
-      @foreach($widgets['after_sales_current_fy'] as $widget)
-        {!! $widget !!}
-      @endforeach
-    @endif
+{{--    @if(!empty($widgets['after_sales_current_fy']))--}}
+{{--      @foreach($widgets['after_sales_current_fy'] as $widget)--}}
+{{--        {!! $widget !!}--}}
+{{--      @endforeach--}}
+{{--    @endif--}}
   	<!-- products less than alert quntity -->
   	<div class="row" style="display: none" >
 
@@ -337,11 +337,11 @@
       @endcan
   	</div>
 
-    @if(!empty($widgets['after_dashboard_reports']))
-      @foreach($widgets['after_dashboard_reports'] as $widget)
-        {!! $widget !!}
-      @endforeach
-    @endif
+{{--    @if(!empty($widgets['after_dashboard_reports']))--}}
+{{--      @foreach($widgets['after_dashboard_reports'] as $widget)--}}
+{{--        {!! $widget !!}--}}
+{{--      @endforeach--}}
+{{--    @endif--}}
 </section>
 <!-- /.content -->
 @stop
