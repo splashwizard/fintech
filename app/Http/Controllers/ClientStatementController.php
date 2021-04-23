@@ -96,6 +96,7 @@ class ClientStatementController extends Controller
                 DB::raw("SUM(IF(card_type = 'credit' && method= 'bank_transfer', tp.amount, 0)) as due"),
                 DB::raw("SUM(IF(card_type = 'debit' && method != 'service_transfer', tp.amount, 0)) as return_due"),
                 DB::raw("SUM(IF(card_type = 'credit' &&  ( method= 'basic_bonus' || method= 'free_credit'), tp.amount, 0)) as bonus"),
+                DB::raw("SUM(IF(card_type = 'credit' &&  method= 'free_credit', tp.amount, 0)) as free_credit"),
                 DB::raw("SUM(IF(t.type = 'opening_balance', final_total, 0)) as opening_balance"),
                 DB::raw("SUM(IF(t.type = 'opening_balance', (SELECT SUM(IF(is_return = 1,-1*amount,amount)) FROM transaction_payments WHERE transaction_payments.transaction_id=t.id), 0)) as opening_balance_paid")
             ])
@@ -118,6 +119,10 @@ class ClientStatementController extends Controller
                     'bonus',
                     '<span class="display_currency bonus" data-orig-value="{{$bonus}}" data-highlight=false>{{$bonus}}</span>'
                 )
+                ->editColumn(
+                    'free_credit',
+                    '<span class="display_currency free_credit" data-orig-value="{{$free_credit}}" data-highlight=false>{{$free_credit}}</span>'
+                )
                 ->addColumn(
                     'win_loss',
                     '<span class="display_currency win_loss" data-orig-value="{{$due - $return_due}}" data-highlight=false>{{$due - $return_due}}</span>'
@@ -131,7 +136,7 @@ class ClientStatementController extends Controller
                 ->removeColumn('contacts.id')
                 ->removeColumn('contacts.is_default');
             $reward_enabled = (request()->session()->get('business.enable_rp') == 1) ? true : false;
-            $raw = ['due', 'return_due', 'bonus', 'win_loss'];
+            $raw = ['due', 'return_due', 'bonus', 'win_loss', 'free_credit'];
             return $contacts->rawColumns($raw)->toJson();
         }
 

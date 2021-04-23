@@ -38,6 +38,7 @@
                             <th>@lang('contact.total_withdraw_due')</th>
                             <th>@lang('contact.bonus')</th>
                             <th>@lang('contact.win_loss')</th>
+                            <th>@lang('lang_v1.free_credit')</th>
                         </tr>
                     </thead>
                     <tfoot>
@@ -49,6 +50,7 @@
                             <td><span class="display_currency" id="footer_contact_return_due"> </span></td>
                             <td><span class="display_currency" id="footer_contact_bonus"> </span></td>
                             <td><span class="display_currency" id="footer_contact_win_loss"> </span></td>
+                            <td><span class="display_currency" id="footer_contact_free_credit"> </span></td>
                         </tr>
                     </tfoot>
                 </table>
@@ -145,7 +147,8 @@
                 {data: 'due', searchable: false,  width: "10%"},
                 {data: 'return_due', searchable: false, width: "10%"},
                 {data: 'bonus', searchable: false, width: "10%"},
-                {data: 'win_loss', searchable: false, width: "10%"}
+                {data: 'win_loss', searchable: false, width: "10%"},
+                {data: 'free_credit', searchable: false, width: "10%"}
             ],
             fnDrawCallback: function(oSettings) {
                 var total_due = sum_table_col($('#contact_table'), 'contact_due');
@@ -159,6 +162,10 @@
 
                 var total_win_loss = sum_table_col($('#contact_table'), 'win_loss');
                 $('#footer_contact_win_loss').text(total_win_loss);
+                __currency_convert_recursively($('#contact_table'));
+
+                var total_free_credit = sum_table_col($('#contact_table'), 'free_credit');
+                $('#footer_contact_free_credit').text(total_free_credit);
                 __currency_convert_recursively($('#contact_table'));
             },
             "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
