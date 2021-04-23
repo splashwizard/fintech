@@ -102,7 +102,7 @@
                 </li>
             @endif
             @if(auth()->user()->can('supplier.view') || auth()->user()->can('customer.view') )
-                <li class="treeview {{ in_array($request->segment(1), ['contacts', 'customer-group', 'membership', 'bank_brand']) ? 'active active-sub' : '' }}"
+                <li class="treeview {{ in_array($request->segment(1), ['contacts', 'customer-group', 'membership', 'bank_brand', 'client_statement']) ? 'active active-sub' : '' }}"
                     id="tour_step4">
                     <a href="#" id="tour_step4_menu"><i class="fa fa-address-book"></i>
                         <span> 5. @lang('contact.contacts')</span>
@@ -142,7 +142,8 @@
                                 <a href="{{action('ContactController@getImportContacts')}}"><i
                                             class="fa fa-download"></i> 5.6 @lang('lang_v1.import_contacts')</a></li>
                         @endcan
-
+                        <li class="{{ $request->segment(1) == 'client_statement' ? 'active' : '' }}">
+                            <a href="{{action('ClientStatementController@index')}}"><i class="fa fa-users"></i> 5.7 @lang('report.client_statement')</a></li>
                     </ul>
                 </li>
             @endif

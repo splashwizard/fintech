@@ -27,6 +27,7 @@ return [
     'customer' => 'Customers',
     'blacklisted_customer' => 'Blacklisted Customers',
     'supplier' => 'Suppliers',
+    'client_statement' => 'Client Statements',
     'total_due' => 'Due',
     'contacts' => 'Supplier & Customer Report',
     'contact' => 'Contact',
