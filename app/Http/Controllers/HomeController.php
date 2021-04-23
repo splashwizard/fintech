@@ -104,25 +104,25 @@ class HomeController extends Controller
         $date_filters['this_week']['start'] = date('Y-m-d', strtotime('monday this week'));
         $date_filters['this_week']['end'] = date('Y-m-d', strtotime('sunday this week'));
 
-        $currency = Currency::where('id', request()->session()->get('business.currency_id'))->first();
+//        $currency = Currency::where('id', request()->session()->get('business.currency_id'))->first();
         
         //Chart for sells last 30 days
-        $sells_last_30_days = $this->transactionUtil->getSellsLast30Days($business_id);
-        $labels = [];
-        $all_sell_values = [];
-        $dates = [];
-        for ($i = 29; $i >= 0; $i--) {
-            $date = \Carbon::now()->subDays($i)->format('Y-m-d');
-            $dates[] = $date;
-
-            $labels[] = date('j M Y', strtotime($date));
-
-            if (!empty($sells_last_30_days[$date])) {
-                $all_sell_values[] = $sells_last_30_days[$date];
-            } else {
-                $all_sell_values[] = 0;
-            }
-        }
+//        $sells_last_30_days = $this->transactionUtil->getSellsLast30Days($business_id);
+//        $labels = [];
+//        $all_sell_values = [];
+//        $dates = [];
+//        for ($i = 29; $i >= 0; $i--) {
+//            $date = \Carbon::now()->subDays($i)->format('Y-m-d');
+//            $dates[] = $date;
+//
+//            $labels[] = date('j M Y', strtotime($date));
+//
+//            if (!empty($sells_last_30_days[$date])) {
+//                $all_sell_values[] = $sells_last_30_days[$date];
+//            } else {
+//                $all_sell_values[] = 0;
+//            }
+//        }
 
         //Get Dashboard widgets from module
         $module_widgets = $this->moduleUtil->getModuleData('dashboard_widget');
@@ -328,7 +328,7 @@ class HomeController extends Controller
                     , DB::raw("SUM( IF(AT.type='credit' AND DATE_FORMAT(operation_date, '%Y-%m-%d') >='".$start."' AND DATE_FORMAT(operation_date, '%Y-%m-%d') <='".$end."', amount, 0) ) as total_deposit")
                     , DB::raw("SUM( IF(AT.type='debit'  AND DATE_FORMAT(operation_date, '%Y-%m-%d') >='".$start."' AND DATE_FORMAT(operation_date, '%Y-%m-%d') <='".$end."', amount, 0) ) as total_withdraw")])
                 ->groupBy('accounts.id');
-    
+
             $bank_accounts_sql->where(function ($q) {
                 $q->where('account_type', '!=', 'capital');
                 $q->orWhereNull('account_type');
@@ -339,27 +339,6 @@ class HomeController extends Controller
                 $banks["deposit"][] = empty($item["total_deposit"]) ? 0 : $item["total_deposit"];
                 $banks["withdraw"][] = empty($item["total_withdraw"]) ? 0 : $item["total_withdraw"];
             }
-    
-            $total_bank_sql = Account::leftjoin('account_transactions as AT', function ($join) {
-                $join->on('AT.account_id', '=', 'accounts.id');
-                $join->whereNull('AT.deleted_at');
-            })
-                ->where('is_service', 0)
-                ->where('is_safe', 0)
-                ->where('name', '!=', 'Bonus Account')
-                ->where('business_id', $business_id)
-                ->whereBetween(\Illuminate\Support\Facades\DB::raw('date(AT.operation_date)'), [$start, $end])
-                ->select(['name', 'account_number', 'accounts.note', 'accounts.id',
-                    'is_closed', DB::raw("SUM( IF(AT.type='credit', amount, -1*amount) ) as balance")
-                    , DB::raw("SUM( IF(AT.type='credit', amount, 0) ) as total_deposit")
-                    , DB::raw("SUM( IF(AT.type='debit', amount, 0) ) as total_withdraw")]);
-    
-            $total_bank_sql->where(function ($q) {
-                $q->where('account_type', '!=', 'capital');
-                $q->orWhereNull('account_type');
-            });
-    
-            $total_bank = $total_bank_sql->get()[0];
     
             $service_accounts_sql = Account::leftjoin('account_transactions as AT', function ($join) {
                 $join->on('AT.account_id', '=', 'accounts.id');
@@ -375,7 +354,7 @@ class HomeController extends Controller
                     , DB::raw("SUM( IF(AT.type='credit' AND DATE_FORMAT(operation_date, '%Y-%m-%d') >='".$start."' AND DATE_FORMAT(operation_date, '%Y-%m-%d') <='".$end."', amount, 0) ) as total_deposit")
                     , DB::raw("SUM( IF(AT.type='debit' AND DATE_FORMAT(operation_date, '%Y-%m-%d') >='".$start."' AND DATE_FORMAT(operation_date, '%Y-%m-%d') <='".$end."', amount, 0) ) as total_withdraw")])
                 ->groupBy('accounts.id');
-    
+
             $service_accounts_sql->where(function ($q) {
                 $q->where('account_type', '!=', 'capital');
                 $q->orWhereNull('account_type');
