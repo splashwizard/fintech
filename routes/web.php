@@ -82,6 +82,8 @@ Route::middleware(['IsInstalled', 'auth', 'SetSessionData', 'language', 'timezon
     Route::resource('contacts', 'ContactController');
     Route::post('/contacts/ban_user/{id}', 'ContactController@banUser');
 
+    Route::get('/client_statement', 'ClientStatementController@index');
+
     Route::resource('categories', 'CategoryController');
 
     Route::resource('variation-templates', 'VariationTemplateController');

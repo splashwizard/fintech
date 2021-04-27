@@ -219,12 +219,11 @@
     <div id="bank_service_part">
 
     </div>
-    <?php if(!empty($widgets['after_sale_purchase_totals'])): ?>
-      <?php $__currentLoopData = $widgets['after_sale_purchase_totals']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $widget): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-        <?php echo $widget; ?>
 
-      <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-    <?php endif; ?>
+
+
+
+
   	<!-- sales chart start -->
 
 
@@ -233,12 +232,11 @@
 
 
 
-    <?php if(!empty($widgets['after_sales_last_30_days'])): ?>
-      <?php $__currentLoopData = $widgets['after_sales_last_30_days']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $widget): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-        <?php echo $widget; ?>
 
-      <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-    <?php endif; ?>
+
+
+
+
 
 
 
@@ -247,12 +245,11 @@
 
 
   	<!-- sales chart end -->
-    <?php if(!empty($widgets['after_sales_current_fy'])): ?>
-      <?php $__currentLoopData = $widgets['after_sales_current_fy']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $widget): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-        <?php echo $widget; ?>
 
-      <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-    <?php endif; ?>
+
+
+
+
   	<!-- products less than alert quntity -->
   	<div class="row" style="display: none" >
 
@@ -371,12 +368,11 @@
       <?php endif; ?>
   	</div>
 
-    <?php if(!empty($widgets['after_dashboard_reports'])): ?>
-      <?php $__currentLoopData = $widgets['after_dashboard_reports']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $widget): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-        <?php echo $widget; ?>
 
-      <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-    <?php endif; ?>
+
+
+
+
 </section>
 <!-- /.content -->
 <?php $__env->stopSection(); ?>

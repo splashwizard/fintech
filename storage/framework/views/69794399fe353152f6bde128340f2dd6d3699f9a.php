@@ -102,7 +102,7 @@
                 </li>
             <?php endif; ?>
             <?php if(auth()->user()->can('supplier.view') || auth()->user()->can('customer.view') ): ?>
-                <li class="treeview <?php echo e(in_array($request->segment(1), ['contacts', 'customer-group', 'membership', 'bank_brand']) ? 'active active-sub' : '', false); ?>"
+                <li class="treeview <?php echo e(in_array($request->segment(1), ['contacts', 'customer-group', 'membership', 'bank_brand', 'client_statement']) ? 'active active-sub' : '', false); ?>"
                     id="tour_step4">
                     <a href="#" id="tour_step4_menu"><i class="fa fa-address-book"></i>
                         <span> 5. <?php echo app('translator')->get('contact.contacts'); ?></span>
@@ -142,7 +142,8 @@
                                 <a href="<?php echo e(action('ContactController@getImportContacts'), false); ?>"><i
                                             class="fa fa-download"></i> 5.6 <?php echo app('translator')->get('lang_v1.import_contacts'); ?></a></li>
                         <?php endif; ?>
-
+                        <li class="<?php echo e($request->segment(1) == 'client_statement' ? 'active' : '', false); ?>">
+                            <a href="<?php echo e(action('ClientStatementController@index'), false); ?>"><i class="fa fa-users"></i> 5.7 <?php echo app('translator')->get('report.client_statement'); ?></a></li>
                     </ul>
                 </li>
             <?php endif; ?>

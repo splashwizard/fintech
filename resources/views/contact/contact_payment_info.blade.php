@@ -16,13 +16,13 @@
     </p>
 @endif
 @if( $contact->type == 'customer' || $contact->type == 'both')
-    <strong>@lang('contact.bank_debit')</strong>
-    <p class="text-muted">
-        <span class="display_currency" data-currency_symbol="true">{{ $transaction_total->debit }}</span>
-    </p>
     <strong>@lang('contact.bank_credit')</strong>
     <p class="text-muted">
         <span class="display_currency" data-currency_symbol="true">{{ $transaction_total->credit }}</span>
+    </p>
+    <strong>@lang('contact.bank_debit')</strong>
+    <p class="text-muted">
+        <span class="display_currency" data-currency_symbol="true">{{ $transaction_total->debit }}</span>
     </p>
     <strong>@lang('contact.bonus')</strong>
     <p class="text-muted">
