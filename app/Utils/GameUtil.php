@@ -7,6 +7,7 @@ use App\ConnectedKioskContact;
 use App\Contact;
 use App\Promotion;
 use App\Utils\GameUtils\Ace333;
+use App\Utils\GameUtils\CT;
 use App\Utils\GameUtils\TransferWallet;
 use Symfony\Polyfill\Intl\Normalizer\Normalizer;
 
@@ -15,8 +16,9 @@ class GameUtil extends Util
     protected $games;
     protected $transferwallet;
     protected $ace333;
+    protected $ct;
     protected $contactUtil;
-    public function __construct(TransferWallet $transferwallet, Ace333 $ace333, ContactUtil $contactUtil){
+    public function __construct(TransferWallet $transferwallet, Ace333 $ace333, CT $ct, ContactUtil $contactUtil){
         $this->games = [
             'Xe88' => [
                 "agentid" => "testapi112",
@@ -27,6 +29,7 @@ class GameUtil extends Util
         ];
         $this->transferwallet = $transferwallet;
         $this->ace333 = $ace333;
+        $this->ct = $ct;
         $this->contactUtil = $contactUtil;
     }
 
@@ -92,6 +95,16 @@ class GameUtil extends Util
                 $output = ['success' => false, 'msg' => $result->Message];
             }
         }
+        else if ($game_name == "CT") {
+            $result = $this->ct->GetPlayGameUrl($connected_kiosk_id, $user_id, $username);
+            if ($result->Success == true) {
+                $output = ['success' => true, 'link' => $result->ForwardUrl];
+            }
+            else
+            {
+                $output = ['success' => false, 'msg' => $result->Message];
+            }
+        }
         else $output = ['success' => true, 'link' => ''];
         return $output;
     }
@@ -104,8 +117,7 @@ class GameUtil extends Util
             $resp = $this->getBalance($row->connected_kiosk_id, $contact_id);
             if($resp['success']) {
                 $game_data[$row->name] = $resp['balance'];
-            } else
-                $game_data[$row->name] = 0;
+            }
         }
         return $game_data;
     }
@@ -167,15 +179,29 @@ class GameUtil extends Util
                         $output = ['success' => false, 'msg' => $result->Message];
                     }
                 } else
+                    $output = ['success' => false];
+                return $output;
+            }
+            else if($game_name == 'CT'){ //
+                if(ConnectedKioskContact::where('connected_kiosk_id', $connected_kiosk_id)->where('contact_id', $contact_id)->count() > 0) {
+                    $result = $this->ct->getBalance($username);
+                    if ($result->Success == true) {
+                        $output = ['success' => true, 'balance' => $result->balance];
+                    }
+                    else
+                    {
+                        $output = ['success' => false, 'msg' => $result->Message];
+                    }
+                } else
                     $output = ['success' => true, 'balance' => 0];
                 return $output;
             }
             else {
-                return ['success' => true, 'balance' => 0];
+                return ['success' => false];
             }
         } catch (\Exception $e) {
 
-            return ['success' => 0,
+            return ['success' => false,
                 'msg' => __('messages.something_went_wrong')
             ];
         }
@@ -311,6 +337,13 @@ class GameUtil extends Util
             $output = $this->ace333->TopUp($connected_kiosk_id, $contact_id, $username, $invoice_no, $amount);
             $output = json_decode(json_encode($output), true);
         }
+        else if($game_name == 'CT'){  //Joker
+            $response = $this->ct->deposit($connected_kiosk_id, $contact_id, $username, $invoice_no, $amount);
+            if($response->Success)
+                $output = ['success' => true];
+            else
+                $output = ['success' => false, 'msg' => $response->Message];
+        }
         else
             $output = ['success' => true];
         return $output;
@@ -402,6 +435,11 @@ class GameUtil extends Util
             {
                 $output = ['success' => false, 'msg' => $result->Message];
             }
+            return $output;
+        }
+        else if($game_name == 'CT'){  //Joker
+            $output = $this->ct->withdraw($connected_kiosk_id, $contact_id, $username, $invoice_no, $amount);
+            $output = json_decode(json_encode($output), true);
             return $output;
         }
         return ['success' => true];

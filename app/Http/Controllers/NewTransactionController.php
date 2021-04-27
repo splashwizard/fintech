@@ -359,11 +359,17 @@ class NewTransactionController extends Controller
     {
         if (request()->ajax()) {
 //            try {
+            $business_id = request()->session()->get('user.business_id');
             $newTransaction = NewTransactions::find($id);
             $connected_kiosk_id = Account::find(Product::find($newTransaction->product_id)->account_id)->connected_kiosk_id;
             if($connected_kiosk_id != 0){
                 $deposit_amount = $this->getDepositAmount($request->session()->get('user.business_id'), $newTransaction->client_id, $newTransaction->amount, $newTransaction->bonus_id);
-                $resp = $this->gameUtil->deposit($connected_kiosk_id, $newTransaction->client_id, $deposit_amount);
+                $default_location = null;
+                if(BusinessLocation::where('business_id', $business_id)->count() == 1){
+                    $default_location = BusinessLocation::where('business_id', $business_id)->first()->id;
+                }
+                $invoice_no = $this->transactionUtil->getNewTransferNumber($business_id, $default_location);
+                $resp = $this->gameUtil->deposit($connected_kiosk_id, $newTransaction->client_id, $deposit_amount, $invoice_no);
                 if($resp['success'] == false) { // Player name exist
                     return $resp;
                 }
@@ -552,7 +558,7 @@ class NewTransactionController extends Controller
             ->where('products.account_id', $bank_id)
             ->where('default_sell_price', $total_credit)->select('variations.id as variation_id')->get();
         if(count($data) == 0)
-            return;
+            return null;
         $bank_product = $this->productUtil->getDetailsFromVariation($data[0]->variation_id, $business_id, $default_location, $check_qty);
         $products[] = [
             'product_type'=> $bank_product['product_type'],
@@ -600,7 +606,6 @@ class NewTransactionController extends Controller
             $basic_bonus = floor($total_credit * $bonus_rate / 100);
         }
         //bonus end
-
 
         $data = Variation::where('product_id', $game_id)->select('variations.id as variation_id')->get();
         if(count($data) == 0)

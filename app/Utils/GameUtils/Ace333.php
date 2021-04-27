@@ -193,14 +193,14 @@ class Ace333
             } else {
                 $response = new stdClass();
                 $response->success = false;
-                $response->Message = $result['description'];
+                $response->msg = $result['description'];
 
                 return $response;
             }
         } catch (Exception $e) {
             $response = new stdClass();
             $response->success = false;
-            $response->Message = $e->getMessage();
+            $response->msg = $e->getMessage();
             return $response;
         }
     }
