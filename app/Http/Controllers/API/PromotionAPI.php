@@ -37,7 +37,7 @@ class PromotionAPI extends Controller
                 ->leftjoin('promotion_collections', 'promotions.collection_id', 'promotion_collections.id')
                 ->leftjoin('connected_kiosks', 'connected_kiosks.id', 'promotions.connected_kiosk_id')
                 ->where('business_id', $business_id)
-                ->where('lang_id', 1)
+//                ->where('lang_id', 1)
 //                ->select('promotion_id AS id', 'type', 'title', 'desktop_image', 'promotions.connected_kiosk_id',
 //                 'content AS description','start_time', 'end_time', 'sequence', 'show', 'sale', 'new', 'promotion_collections.name AS collection')
             ->select('content AS description','promotions.*', 'promotion_id AS id', 'connected_kiosks.name AS brand', 'promotion_collections.name AS collection')

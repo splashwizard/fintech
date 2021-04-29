@@ -263,7 +263,7 @@ class CT
                 "data" => $referenceID,
                 "member" => [
                     "username" => $username,
-                    "amount" => $amount
+                    "amount" => -$amount
                 ]
             ];
             $url = "{$this->host}/api/transfer/{$this->agentName}";
@@ -287,7 +287,7 @@ class CT
             } else {
                 $response = new stdClass();
                 $response->Success = false;
-                $response->Message = "Error while depositing to CT";
+                $response->Message = "Error while withdrawing from CT";
 
                 return $response;
             }
