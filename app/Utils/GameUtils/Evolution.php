@@ -38,12 +38,6 @@ class Evolution
     public function GetPlayGameUrl($connected_kiosk_id, $user_id, $username)
     {
         try {
-            if(ConnectedKioskContact::where('connected_kiosk_id', $connected_kiosk_id)->where('contact_id', $user_id)->count() === 0) {
-                ConnectedKioskContact::create([
-                    'connected_kiosk_id' => $connected_kiosk_id,
-                    'contact_id' => $user_id
-                ]);
-            }
             $fields = [
                 "uuid" => uniqid(),
                 "player" => [
@@ -77,7 +71,12 @@ class Evolution
             $result = json_decode($data, true);
             $response = new stdClass();
             if(array_key_exists('entry', $result)){
-
+                if(ConnectedKioskContact::where('connected_kiosk_id', $connected_kiosk_id)->where('contact_id', $user_id)->count() === 0) {
+                    ConnectedKioskContact::create([
+                        'connected_kiosk_id' => $connected_kiosk_id,
+                        'contact_id' => $user_id
+                    ]);
+                }
                 $response->Success = true;
                 $response->ForwardUrl = $result['entry'];
                 return $response;
@@ -100,10 +99,49 @@ class Evolution
     {
         try {
             if(ConnectedKioskContact::where('connected_kiosk_id', $connected_kiosk_id)->where('contact_id', $contact_id)->count() === 0) {
-                ConnectedKioskContact::create([
-                    'connected_kiosk_id' => $connected_kiosk_id,
-                    'contact_id' => $contact_id
-                ]);
+                $fields = [
+                    "uuid" => uniqid(),
+                    "player" => [
+                        "id" => $username,
+                        "update" => true,
+                        "firstName" => $username,
+                        "lastName" => "jdj",
+                        "nickname" => "nickname",
+                        "country" => "MY",
+                        "language" => "my",
+                        "currency" => "MYR",
+                        "session" => [
+                            "id" => $username.time().$this->get_client_ip(),
+                            "ip" => $this->get_client_ip()
+                        ]
+                    ]
+                ];
+                $url = "{$this->host}/ua/v1/{$this->Casino_key}/{$this->token}";
+                $postData = json_encode($fields);
+                $curl = curl_init($url);
+                curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "POST");
+                curl_setopt($curl, CURLOPT_POSTFIELDS, $postData);
+                curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($curl, CURLOPT_HTTPHEADER, array(
+                    'Content-Type: application/json'
+                ));
+
+                $data = curl_exec($curl);
+                curl_close($curl);
+
+                $result = json_decode($data, true);
+                if(array_key_exists('entry', $result)){
+                    ConnectedKioskContact::create([
+                        'connected_kiosk_id' => $connected_kiosk_id,
+                        'contact_id' => $contact_id
+                    ]);
+                } else {
+                    $response = new stdClass();
+                    $response->Success = false;
+                    $response->Message = "Error on getting entry for Evolution";
+
+                    return $response;
+                }
             }
             $fields = [
                 "cCode" => "ECR",
@@ -144,10 +182,49 @@ class Evolution
     {
         try {
             if(ConnectedKioskContact::where('connected_kiosk_id', $connected_kiosk_id)->where('contact_id', $contact_id)->count() === 0) {
-                ConnectedKioskContact::create([
-                    'connected_kiosk_id' => $connected_kiosk_id,
-                    'contact_id' => $contact_id
-                ]);
+                $fields = [
+                    "uuid" => uniqid(),
+                    "player" => [
+                        "id" => $username,
+                        "update" => true,
+                        "firstName" => $username,
+                        "lastName" => "jdj",
+                        "nickname" => "nickname",
+                        "country" => "MY",
+                        "language" => "my",
+                        "currency" => "MYR",
+                        "session" => [
+                            "id" => $username.time().$this->get_client_ip(),
+                            "ip" => $this->get_client_ip()
+                        ]
+                    ]
+                ];
+                $url = "{$this->host}/ua/v1/{$this->Casino_key}/{$this->token}";
+                $postData = json_encode($fields);
+                $curl = curl_init($url);
+                curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "POST");
+                curl_setopt($curl, CURLOPT_POSTFIELDS, $postData);
+                curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($curl, CURLOPT_HTTPHEADER, array(
+                    'Content-Type: application/json'
+                ));
+
+                $data = curl_exec($curl);
+                curl_close($curl);
+
+                $result = json_decode($data, true);
+                if(array_key_exists('entry', $result)){
+                    ConnectedKioskContact::create([
+                        'connected_kiosk_id' => $connected_kiosk_id,
+                        'contact_id' => $contact_id
+                    ]);
+                } else {
+                    $response = new stdClass();
+                    $response->Success = false;
+                    $response->Message = "Error on getting entry for Evolution";
+
+                    return $response;
+                }
             }
             $fields = [
                 "cCode" => "EDB",
