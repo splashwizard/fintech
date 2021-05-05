@@ -52,7 +52,6 @@
 	        <span class="info-box-icon bg-aqua"><i class="ion ion-cash"></i></span>
 
 	        <div class="info-box-content">
-                <input type="number" id="free_credit_percent" min="0" max="100" style="margin-right: 10px">
                 <div style="margin-top: 10px">
                     <div style="width: 50%;float: left">
                         <span class="info-box-text"><?php echo e(__('home.total_deposit').":", false); ?></span>

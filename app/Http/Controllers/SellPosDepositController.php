@@ -193,6 +193,7 @@ class SellPosDepositController extends Controller
             ->where('p.type', '!=', 'modifier')
             ->where('p.is_inactive', 0)
             ->where('p.not_for_selling', 0)
+            ->orderBy('p.id')
             ->orderBy('variations.default_sell_price');
         $bonuses_query->where('accounts.name', '=', 'Bonus Account');
 
