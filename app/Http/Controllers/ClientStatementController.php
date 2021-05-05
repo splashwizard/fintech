@@ -6,11 +6,13 @@ use App\Account;
 use App\AccountTransaction;
 use App\BankBrand;
 use App\Business;
+use App\BusinessLocation;
 use App\Contact;
 use App\CountryCode;
 use App\CustomerGroup;
 use App\GameId;
 use App\Membership;
+use App\Product;
 use App\Transaction;
 use App\TransactionPayment;
 use App\User;
@@ -95,8 +97,8 @@ class ClientStatementController extends Controller
                 DB::raw( 'DATE_FORMAT(STR_TO_DATE(birthday, "%Y-%m-%d"), "%d/%m") as birthday'),
                 DB::raw("SUM(IF(card_type = 'credit' && method= 'bank_transfer', tp.amount, 0)) as due"),
                 DB::raw("SUM(IF(card_type = 'debit' && method != 'service_transfer', tp.amount, 0)) as return_due"),
-                DB::raw("SUM(IF(card_type = 'credit' &&  ( method= 'basic_bonus' || method= 'free_credit'), tp.amount, 0)) as bonus"),
-                DB::raw("SUM(IF(card_type = 'credit' &&  method= 'free_credit', tp.amount, 0)) as free_credit"),
+                DB::raw("SUM(IF(card_type = 'credit' &&  method = 'basic_bonus', tp.amount, 0)) as basic_bonus"),
+                DB::raw("SUM(IF(card_type = 'credit' &&  method = 'free_credit', tp.amount, 0)) as free_credit"),
                 DB::raw("SUM(IF(t.type = 'opening_balance', final_total, 0)) as opening_balance"),
                 DB::raw("SUM(IF(t.type = 'opening_balance', (SELECT SUM(IF(is_return = 1,-1*amount,amount)) FROM transaction_payments WHERE transaction_payments.transaction_id=t.id), 0)) as opening_balance_paid")
             ])
@@ -116,8 +118,8 @@ class ClientStatementController extends Controller
                     '<span class="display_currency return_due" data-orig-value="{{$return_due}}" data-highlight=false>{{$return_due}}</span>'
                 )
                 ->editColumn(
-                    'bonus',
-                    '<span class="display_currency bonus" data-orig-value="{{$bonus}}" data-highlight=false>{{$bonus}}</span>'
+                    'basic_bonus',
+                    '<span class="display_currency basic_bonus" data-orig-value="{{$basic_bonus}}" data-highlight=false>{{$basic_bonus}}</span>'
                 )
                 ->editColumn(
                     'free_credit',
@@ -136,12 +138,74 @@ class ClientStatementController extends Controller
                 ->removeColumn('contacts.id')
                 ->removeColumn('contacts.is_default');
             $reward_enabled = (request()->session()->get('business.enable_rp') == 1) ? true : false;
-            $raw = ['due', 'return_due', 'bonus', 'win_loss', 'free_credit'];
+            $raw = ['due', 'return_due', 'basic_bonus', 'win_loss', 'free_credit'];
             return $contacts->rawColumns($raw)->toJson();
         }
 
+        $business_id = request()->session()->get('user.business_id');
+        $products = Product::where('business_id', $business_id)->where('type', '!=', 'modifier')->where('is_inactive', false)->where('category_id' , 67)
+            ->groupBy('account_id')->orderBy('name')->pluck('name', 'account_id');
+
         $type = 'customer';
         return view('client_statement.index')
-            ->with(compact('type'));
+            ->with(compact('type', 'products'));
+    }
+
+    public function gameAddCredit(Request $request){
+        try {
+            $business_id = session()->get('user.business_id');
+            $amount = $this->commonUtil->num_uf($request->input('amount'));
+            $account_id = $request->input('account_id');
+            $contact_id = $request->input('contact_id');
+            $user_id = request()->session()->get('user.id');
+
+            $business_locations = BusinessLocation::forDropdown($business_id, false, true);
+            $business_locations = $business_locations['locations'];
+            $input = [];
+            if (count($business_locations) >= 1) {
+                foreach ($business_locations as $id => $name) {
+                    $input['location_id'] = $id;
+                }
+            }
+            $cg = $this->contactUtil->getCustomerGroup($business_id, $contact_id);
+            $input['customer_group_id'] = (empty($cg) || empty($cg->id)) ? null : $cg->id;
+            $input['contact_id'] = $contact_id;
+            $input['ref_no'] = 0;
+            $now = new \DateTime('now');
+            $input['transaction_date'] = $now->format('Y-m-d H:i:s');
+            $input['discount_type'] = 'percentage';
+            $input['discount_amount'] = 0;
+            $input['final_total'] = $amount;
+            $invoice_total = ['total_before_tax' => $amount, 'tax' => 0];
+            $sub_type = 'game_credit_addict';
+            $transaction = $this->transactionUtil->createSellReturnTransaction($business_id, $input, $invoice_total, $user_id, $sub_type);
+            ActivityLogger::activity("Created transaction, ticket # ".$transaction->invoice_no);
+            $this->transactionUtil->createWithDrawPaymentLine($transaction, $user_id, $account_id, 1, 'debit');
+            $this->transactionUtil->updateCustomerRewardPoints($contact_id, $amount, 0, 0);
+
+            $credit_data = [
+                'amount' => $amount,
+                'account_id' => $account_id,
+                'type' => 'debit',
+                'sub_type' => 'withdraw',
+                'operation_date' => $now->format('Y-m-d H:i:s'),
+                'created_by' => session()->get('user.id'),
+                'transaction_id' => $transaction->id,
+                'shift_closed_at' => Account::find($account_id)->shift_closed_at
+            ];
+
+            AccountTransaction::createAccountTransaction($credit_data);
+            $output = ['success' => true,
+                'msg' => __("account.game_add_credit_successfully")
+            ];
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+
+            $output = ['success' => false,
+                'msg' => __("messages.something_went_wrong")
+            ];
+        }
+        return $output;
     }
 }

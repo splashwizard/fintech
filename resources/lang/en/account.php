@@ -47,6 +47,7 @@ return [
     'deposited_successfully' => 'Amount deposited successfully',
     'withdraw' => 'Withdraw',
     'withdrawn_successfully' => 'Amount withdrawn successfully',
+    'game_add_credit_successfully' => 'Game Credit Added successfully',
     'requested_successfully' => 'Withdraw requested successfully',
     'from' => 'From',
     'to' => 'To',

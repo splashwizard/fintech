@@ -83,6 +83,7 @@ Route::middleware(['IsInstalled', 'auth', 'SetSessionData', 'language', 'timezon
     Route::post('/contacts/ban_user/{id}', 'ContactController@banUser');
 
     Route::get('/client_statement', 'ClientStatementController@index');
+    Route::post('/client_statement/game-add-credit', 'ClientStatementController@gameAddCredit');
 
     Route::resource('categories', 'CategoryController');
 
