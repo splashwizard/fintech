@@ -44,6 +44,8 @@ class GameAPIController extends Controller
     }
 
     public function getGameInfo(Request $request) {
+        \Log::emergency("TEst message");
+        return;
         try {
             $username = $request->get('username');
             $business_id = $request->get('business_id');
