@@ -44,8 +44,6 @@ class GameAPIController extends Controller
     }
 
     public function getGameInfo(Request $request) {
-        \Log::emergency("TEst message");
-        return;
         try {
             $username = $request->get('username');
             $business_id = $request->get('business_id');
@@ -146,5 +144,10 @@ class GameAPIController extends Controller
 //            $output = ['success' => false, 'msg' => __("messages.something_went_wrong")];
 //        }
         return $output;
+    }
+
+    public function mega(Request $request) {
+        \Log::emergency("mega ".json_encode($request->all()));
+        return;
     }
 }

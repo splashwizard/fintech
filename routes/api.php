@@ -42,4 +42,5 @@ Route::middleware('api')->group(function(){
     Route::post('/getGameInfo', 'API\GameAPIController@getGameInfo');
     Route::post('/getGameReport', 'API\GameAPIController@getGameReport');
     Route::post('/getGameLog', 'API\GameAPIController@getGameLog');
+    Route::post('/mega', 'API\GameAPIController@mega');
 });
