@@ -1674,7 +1674,7 @@ class TransactionUtil extends Util
         $prefix = 'req-';
         //Count
         $count = 1 + $scheme->new_transfer_count;
-        $count = str_pad($count, 3, '0', STR_PAD_LEFT);
+        $count = str_pad($count, 6, '0', STR_PAD_LEFT);
 
         //Prefix + count
         $invoice_no = $prefix.'t' . $count;

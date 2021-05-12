@@ -7,6 +7,7 @@ use App\ConnectedKioskContact;
 use App\Contact;
 use App\Promotion;
 use App\Utils\GameUtils\Ace333;
+use App\Utils\GameUtils\AllBet;
 use App\Utils\GameUtils\CT;
 use App\Utils\GameUtils\Evolution;
 use App\Utils\GameUtils\TransferWallet;
@@ -15,12 +16,13 @@ use Symfony\Polyfill\Intl\Normalizer\Normalizer;
 class GameUtil extends Util
 {
     protected $games;
-    protected $transferwallet;
-    protected $ace333;
-    protected $ct;
-    protected $evolution;
+    protected TransferWallet $transferwallet;
+    protected Ace333 $ace333;
+    protected CT $ct;
+    protected Evolution $evolution;
+    protected AllBet $allBet;
     protected $contactUtil;
-    public function __construct(TransferWallet $transferwallet, Ace333 $ace333, CT $ct, Evolution $evolution, ContactUtil $contactUtil){
+    public function __construct(TransferWallet $transferwallet, Ace333 $ace333, CT $ct, Evolution $evolution, AllBet $allBet, ContactUtil $contactUtil){
         $this->games = [
             'Xe88' => [
                 "agentid" => "testapi112",
@@ -33,6 +35,7 @@ class GameUtil extends Util
         $this->ace333 = $ace333;
         $this->ct = $ct;
         $this->evolution = $evolution;
+        $this->allBet = $allBet;
         $this->contactUtil = $contactUtil;
     }
 
@@ -110,6 +113,16 @@ class GameUtil extends Util
         }
         else if ($game_name == "Evolution") {
             $result = $this->evolution->GetPlayGameUrl($connected_kiosk_id, $user_id, $username);
+            if ($result->Success == true) {
+                $output = ['success' => true, 'link' => $result->ForwardUrl];
+            }
+            else
+            {
+                $output = ['success' => false, 'msg' => $result->Message];
+            }
+        }
+        else if ($game_name == "AllBet") {
+            $result = $this->allBet->GetPlayGameUrl($connected_kiosk_id, $user_id, $username);
             if ($result->Success == true) {
                 $output = ['success' => true, 'link' => $result->ForwardUrl];
             }
@@ -221,6 +234,20 @@ class GameUtil extends Util
                     }
                 } else
                     $output = ['success' => true, 'balance' => 0];
+                return $output;
+            }
+            else if($game_name == 'AllBet'){ //
+//                if(ConnectedKioskContact::where('connected_kiosk_id', $connected_kiosk_id)->where('contact_id', $contact_id)->count() > 0) {
+                    $result = $this->allBet->getBalance($username, $contact_id);
+                    if ($result->Success == true) {
+                        $output = ['success' => true, 'balance' => $result->balance];
+                    }
+                    else
+                    {
+                        $output = ['success' => false, 'msg' => $result->Message];
+                    }
+//                } else
+//                    $output = ['success' => true, 'balance' => 0];
                 return $output;
             }
             else {
@@ -360,19 +387,26 @@ class GameUtil extends Util
                 $output = ['success' => false, 'msg' => $message];
             return $output;
         }
-        else if($game_name == 'Ace333'){ //Joker
+        else if($game_name == 'Ace333'){ //Ace333
             $output = $this->ace333->TopUp($connected_kiosk_id, $contact_id, $username, $invoice_no, $amount);
             $output = json_decode(json_encode($output), true);
         }
-        else if($game_name == 'CT'){  //Joker
+        else if($game_name == 'CT'){  //CT
             $response = $this->ct->deposit($connected_kiosk_id, $contact_id, $username, $invoice_no, $amount);
             if($response->Success)
                 $output = ['success' => true];
             else
                 $output = ['success' => false, 'msg' => $response->Message];
         }
-        else if($game_name == 'Evolution'){  //Joker
+        else if($game_name == 'Evolution'){  //Evolution
             $response = $this->evolution->deposit($connected_kiosk_id, $contact_id, $username, $invoice_no, $amount);
+            if($response->Success)
+                $output = ['success' => true];
+            else
+                $output = ['success' => false, 'msg' => $response->Message];
+        }
+        else if($game_name == 'AllBet'){  //AllBet
+            $response = $this->allBet->deposit($connected_kiosk_id, $contact_id, $username, $invoice_no, $amount);
             if($response->Success)
                 $output = ['success' => true];
             else
@@ -470,7 +504,7 @@ class GameUtil extends Util
             }
             return $output;
         }
-        else if($game_name == 'CT'){  //Joker
+        else if($game_name == 'CT'){  //CT
             $output = $this->ct->withdraw($connected_kiosk_id, $contact_id, $username, $invoice_no, $amount);
             if ($output->Success == true) {
                 $output = ['success' => true];
@@ -481,8 +515,19 @@ class GameUtil extends Util
             }
             return $output;
         }
-        else if($game_name == 'Evolution'){  //Joker
+        else if($game_name == 'Evolution'){  //Evolution
             $output = $this->evolution->withdraw($connected_kiosk_id, $contact_id, $username, $invoice_no, $amount);
+            if ($output->Success == true) {
+                $output = ['success' => true];
+            }
+            else
+            {
+                $output = ['success' => false, 'msg' => $output->Message];
+            }
+            return $output;
+        }
+        else if($game_name == 'AllBet'){  //AllBet
+            $output = $this->allBet->withdraw($connected_kiosk_id, $contact_id, $username, $invoice_no, $amount);
             if ($output->Success == true) {
                 $output = ['success' => true];
             }

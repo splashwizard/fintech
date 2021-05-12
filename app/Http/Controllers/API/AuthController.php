@@ -20,7 +20,6 @@ use Modules\Essentials\Notifications\EditCustomerNotification;
 use Illuminate\Support\Str;
 use stdClass;
 
-
 class AuthController extends Controller
 {
     protected $commonUtil;
@@ -78,7 +77,7 @@ class AuthController extends Controller
 
 
     public function changePassword(Request $request) {
-        $required_fields = ['user_id', 'new_password'];
+        $required_fields = ['user_id', 'current_password', 'new_password'];
         $input = $request->only($required_fields);
         foreach ($required_fields as $key) {
             if(!isset($input[$key])){
@@ -96,7 +95,13 @@ class AuthController extends Controller
             ];
         }
         $row = Contact::find($input['user_id']);
+        if(!Hash::check($input['current_password'], $row->password)){
+            return ['success' => false,
+                'msg' => "The current password doesn't match"
+            ];
+        }
         $row->password = Hash::make($input['new_password']);
+        $row->simple_password = encrypt_decrypt('encrypt', $input['new_password']);
         $row->save();
         $output = ['success' => true,
             'msg' => "Password changed successfully",
@@ -288,6 +293,7 @@ class AuthController extends Controller
                     }
                     $input['type'] = 'customer';
                     $input['business_id'] = $business_id;
+                    $input['simple_password'] = encrypt_decrypt('encrypt', $input['password']);
                     $input['password'] = Hash::make($input['password']);
                     $admin = User::whereHas(
                         'roles', function($q)  use ($business_id) {

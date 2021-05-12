@@ -3,6 +3,7 @@ namespace App\Utils\GameUtils;
 
 use App\ConnectedKiosk;
 use App\ConnectedKioskContact;
+use App\Contact;
 use stdClass;
 
 class Ace333
@@ -31,7 +32,13 @@ class Ace333
         return $sign;
     }
 
-    private function getLoginAccessToken($username)
+    private function getPassword($contact_id)
+    {
+        $contact = Contact::find($contact_id);
+        return !$contact['simple_password'] ? 'bgt54321' : encrypt_decrypt('decrypt', $contact['simple_password']);
+    }
+
+    private function getLoginAccessToken($username, $user_id)
     {
         $secretKey = "BBBBaaaa";
         $md5Key = "UUUUqqqq";
@@ -39,7 +46,7 @@ class Ace333
         $delimiter = "♂♫‼◄¶";
         $currTime = date("YmdHms"); // Time format "yyyyMMddHHmmss" of current time, UTC +0
         $userName = "{$username}@jdj"; // UserName of player
-        $password = "bgt54321"; // Password of player on OPERATOR side
+        $password = $this->getPassword($user_id);
         $currency = "MYR"; // The currency code of player.
         $nickName = $username; // Nick name of player, for display purposes
         // Build QS (request string) before encryption
@@ -110,7 +117,7 @@ class Ace333
                     return $response;
                 }
             }
-            $result = $this->getLoginAccessToken($username);
+            $result = $this->getLoginAccessToken($username, $user_id);
             $response = new stdClass();
             if($result["status"] === "1"){
                 $forwardUrl = "{$this->H5_game_domain}/{$gameCode}/?actk={$result["actk"]}&lang=1&userName={$username}@jdj";

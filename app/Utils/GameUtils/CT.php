@@ -3,6 +3,7 @@ namespace App\Utils\GameUtils;
 
 use App\ConnectedKiosk;
 use App\ConnectedKioskContact;
+use App\Contact;
 use stdClass;
 
 class CT
@@ -16,6 +17,12 @@ class CT
         $this->API_key = "11efcd16502d4553941c3755a876858a";
         $this->agentName = "CTTE000188";
         $this->randStr_len = 6;
+    }
+
+    private function getPassword($contact_id)
+    {
+        $contact = Contact::find($contact_id);
+        return !$contact['simple_password'] ? 'bgt54321' : encrypt_decrypt('decrypt', $contact['simple_password']);
     }
 
     private function getToken($str)
@@ -36,6 +43,7 @@ class CT
     public function GetPlayGameUrl($connected_kiosk_id, $user_id, $username)
     {
         try {
+            $password = $this->getPassword($user_id);
             if(ConnectedKioskContact::where('connected_kiosk_id', $connected_kiosk_id)->where('contact_id', $user_id)->count() === 0){
                 $randstr = $this->generateRandomString($this->randStr_len);
                 $fields = [
@@ -43,7 +51,7 @@ class CT
                     "random" => $randstr,
                     "member" => [
                         "username" => $username,
-                        "password" => md5("Whatisthebestway"),
+                        "password" => md5($password),
                         "currencyName" => "MYR",
                         "winLimit" => 1000
                     ]
@@ -132,12 +140,13 @@ class CT
         try {
             if(ConnectedKioskContact::where('connected_kiosk_id', $connected_kiosk_id)->where('contact_id', $contact_id)->count() === 0){
                 $randstr = $this->generateRandomString($this->randStr_len);
+                $password = $this->getPassword($contact_id);
                 $fields = [
                     "token" => $this->getToken($randstr),
                     "random" => $randstr,
                     "member" => [
                         "username" => $username,
-                        "password" => md5("Whatisthebestway"),
+                        "password" => md5($password),
                         "currencyName" => "MYR",
                         "winLimit" => 1000
                     ]
@@ -218,12 +227,13 @@ class CT
         try {
             if(ConnectedKioskContact::where('connected_kiosk_id', $connected_kiosk_id)->where('contact_id', $contact_id)->count() === 0){
                 $randstr = $this->generateRandomString($this->randStr_len);
+                $password = $this->getPassword($contact_id);
                 $fields = [
                     "token" => $this->getToken($randstr),
                     "random" => $randstr,
                     "member" => [
                         "username" => $username,
-                        "password" => md5("Whatisthebestway"),
+                        "password" => md5($password),
                         "currencyName" => "MYR",
                         "winLimit" => 1000
                     ]
