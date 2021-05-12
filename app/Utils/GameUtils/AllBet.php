@@ -56,7 +56,7 @@ class AllBet
             if($response->Success === false) return $response;
 
             $password = $this->getPassword($user_id);
-            $params = ['random' => mt_rand(), 'client' => $username, 'password' => $password];
+            $params = ['random' => mt_rand(), 'client' => $username, 'password' => $password, 'language' => 'en'];
             $result = $this->getResponse("forward_game", $params);
             $response = new stdClass();
             if($result["error_code"] == "OK"){
