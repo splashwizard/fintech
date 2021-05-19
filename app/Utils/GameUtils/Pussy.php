@@ -109,7 +109,6 @@ class Pussy
             $ip_address = $util->getUserIpAddr();
             $params = ['action' => "setServerScore", 'scoreNum' => $amount, 'userName' => $account, 'ActionUser' => $username, 'ActionIp' => $ip_address];
             $result = $this->getResponse("ashx/account/setScore.ashx", $account, $params);
-            \Log::emergency("Deposit:" . json_encode($result));
 
             if ($result["success"] == true){
                 $response->Success = true;
@@ -117,7 +116,7 @@ class Pussy
             } else {
                 $response = new stdClass();
                 $response->Success = false;
-                $response->Message = "Error on depositing Pussy888";
+                $response->Message = "Pussy888 Deposit Error".$result['msg'];
 
                 return $response;
             }
