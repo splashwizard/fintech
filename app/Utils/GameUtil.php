@@ -11,6 +11,7 @@ use App\Utils\GameUtils\AllBet;
 use App\Utils\GameUtils\CT;
 use App\Utils\GameUtils\Evolution;
 use App\Utils\GameUtils\PlayTech;
+use App\Utils\GameUtils\Pussy;
 use App\Utils\GameUtils\TransferWallet;
 use Symfony\Polyfill\Intl\Normalizer\Normalizer;
 
@@ -23,8 +24,9 @@ class GameUtil extends Util
     protected Evolution $evolution;
     protected AllBet $allBet;
     protected PlayTech $playTech;
+    protected Pussy $pussy;
     protected $contactUtil;
-    public function __construct(TransferWallet $transferwallet, Ace333 $ace333, CT $ct, Evolution $evolution, AllBet $allBet, PlayTech $playTech, ContactUtil $contactUtil){
+    public function __construct(TransferWallet $transferwallet, Ace333 $ace333, CT $ct, Evolution $evolution, AllBet $allBet, PlayTech $playTech, Pussy $pussy, ContactUtil $contactUtil){
         $this->games = [
             'Xe88' => [
                 "agentid" => "testapi112",
@@ -39,6 +41,7 @@ class GameUtil extends Util
         $this->evolution = $evolution;
         $this->allBet = $allBet;
         $this->playTech = $playTech;
+        $this->pussy = $pussy;
         $this->contactUtil = $contactUtil;
     }
 
@@ -136,6 +139,16 @@ class GameUtil extends Util
         }
         else if ($game_name == "PlayTech") {
             $result = $this->playTech->GetPlayGameUrl($connected_kiosk_id, $user_id, $username);
+            if ($result->Success == true) {
+                $output = ['success' => true, 'link' => $result->ForwardUrl];
+            }
+            else
+            {
+                $output = ['success' => false, 'msg' => $result->Message];
+            }
+        }
+        else if ($game_name == "Pussy88") {
+            $result = $this->pussy->GetPlayGameUrl($connected_kiosk_id, $user_id, $username);
             if ($result->Success == true) {
                 $output = ['success' => true, 'link' => $result->ForwardUrl];
             }
