@@ -147,7 +147,7 @@ class GameUtil extends Util
                 $output = ['success' => false, 'msg' => $result->Message];
             }
         }
-        else if ($game_name == "Pussy88") {
+        else if ($game_name == "Pussy_888") {
             $result = $this->pussy->GetPlayGameUrl($connected_kiosk_id, $user_id, $username);
             if ($result->Success == true) {
                 $output = ['success' => true, 'link' => $result->ForwardUrl];
@@ -279,6 +279,20 @@ class GameUtil extends Util
             else if($game_name == 'PlayTech'){ // PlayTech
                 if(ConnectedKioskContact::where('connected_kiosk_id', $connected_kiosk_id)->where('contact_id', $contact_id)->count() > 0) {
                     $result = $this->playTech->getBalance($username);
+                    if ($result->Success == true) {
+                        $output = ['success' => true, 'balance' => $result->balance];
+                    }
+                    else
+                    {
+                        $output = ['success' => false, 'msg' => $result->Message];
+                    }
+                } else
+                    $output = ['success' => false, 'balance' => 0];
+                return $output;
+            }
+            else if($game_name == 'Pussy_888'){ // PlayTech
+                if(ConnectedKioskContact::where('connected_kiosk_id', $connected_kiosk_id)->where('contact_id', $contact_id)->count() > 0) {
+                    $result = $this->pussy->getBalance($connected_kiosk_id, $contact_id, $username);
                     if ($result->Success == true) {
                         $output = ['success' => true, 'balance' => $result->balance];
                     }
@@ -459,6 +473,13 @@ class GameUtil extends Util
             else
                 $output = ['success' => false, 'msg' => $response->Message];
         }
+        else if($game_name == 'Pussy_888'){  //Pussy_888
+            $response = $this->pussy->deposit($connected_kiosk_id, $contact_id, $username, $invoice_no, $amount);
+            if($response->Success)
+                $output = ['success' => true];
+            else
+                $output = ['success' => false, 'msg' => $response->Message];
+        }
         else
             $output = ['success' => true];
         return $output;
@@ -586,6 +607,17 @@ class GameUtil extends Util
         }
         else if($game_name == 'PlayTech'){  //AllBet
             $output = $this->playTech->withdraw($connected_kiosk_id, $contact_id, $username, $invoice_no, $amount);
+            if ($output->Success == true) {
+                $output = ['success' => true];
+            }
+            else
+            {
+                $output = ['success' => false, 'msg' => $output->Message];
+            }
+            return $output;
+        }
+        else if($game_name == 'Pussy_888'){  //AllBet
+            $output = $this->pussy->withdraw($connected_kiosk_id, $contact_id, $username, $invoice_no, $amount);
             if ($output->Success == true) {
                 $output = ['success' => true];
             }

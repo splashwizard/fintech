@@ -86,9 +86,6 @@ class Pussy
         try {
             $response = $this->createUserIfNotExist($connected_kiosk_id, $user_id, $username);
             if($response->Success === false) return $response;
-            $util = new \App\Utils\Util();
-            $ip_address = $util->getUserIpAddr();
-            \Log::emergency("IpAddr:" . $_SERVER['REMOTE_ADDR']);
             $response = new stdClass();
             $response->Success = true;
             $response->ForwardUrl = "http://dl9.pussy888.com";
@@ -108,15 +105,17 @@ class Pussy
             if($response->Success === false) return $response;
 
             $account = json_decode(ConnectedKioskContact::where('connected_kiosk_id', $connected_kiosk_id)->where('contact_id', $contact_id)->first()->data)->account;
-            $params = ['action' => "setServerScore", 'scoreNum' => $amount, 'userName' => $account, 'ActionUser' => $username, 'ActionIp'];
-            $result = $this->getResponse("ashx/account/setScore.ashx", $this->agentUser, $params);
+            $util = new \App\Utils\Util();
+            $ip_address = $util->getUserIpAddr();
+            $params = ['action' => "setServerScore", 'scoreNum' => $amount, 'userName' => $account, 'ActionUser' => $username, 'ActionIp' => $ip_address];
+            $result = $this->getResponse("ashx/account/setScore.ashx", $account, $params);
             if ($result["success"] == true){
                 $response->Success = true;
                 return $response;
             } else {
                 $response = new stdClass();
                 $response->Success = false;
-                $response->Message = "Error on depositing PlayTech";
+                $response->Message = "Error on depositing Pussy888";
 
                 return $response;
             }
@@ -127,58 +126,59 @@ class Pussy
             return $response;
         }
     }
-//
-//
-//    public function withdraw($connected_kiosk_id, $contact_id, $username, $referenceID, $amount)
-//    {
-//        try {
-//            $response = $this->createUserIfNotExist($connected_kiosk_id, $contact_id, $username);
-//            if($response->Success === false) return $response;
-//
-//            $params = ['secureLogin' => $this->secureLogin, 'externalPlayerId' => $username, 'externalTransactionId' => $referenceID, 'amount' => -$amount];
-//            $result = $this->getResponse("balance/transfer", $params);
-//            $response = new stdClass();
-//            if ($result["error"] == "0"){
-//                $response->Success = true;
-//                $response->balance = $result["balance"];
-//                return $response;
-//            } else {
-//                $response = new stdClass();
-//                $response->Success = false;
-//                $response->Message = "Error on withdrawing PlayTech";
-//
-//                return $response;
-//            }
-//        } catch (Exception $e) {
-//            $response = new stdClass();
-//            $response->Success = false;
-//            $response->Message = $e->getMessage();
-//            return $response;
-//        }
-//    }
-//
-//    public function getBalance($username)
-//    {
-//        try {
-//            $params = ['secureLogin' => $this->secureLogin, 'externalPlayerId' => $username];
-//            $result = $this->getResponse("balance/current", $params);
-//            $response = new stdClass();
-//            if ($result["error"] == "0"){
-//                $response->Success = true;
-//                $response->balance = $result["balance"];
-//                return $response;
-//            } else {
-//                $response = new stdClass();
-//                $response->Success = false;
-//                $response->Message = "Error on getting Balance of PlayTech";
-//
-//                return $response;
-//            }
-//        } catch (Exception $e) {
-//            $response = new stdClass();
-//            $response->Success = false;
-//            $response->Message = $e->getMessage();
-//            return $response;
-//        }
-//    }
+
+    public function withdraw($connected_kiosk_id, $contact_id, $username, $referenceID, $amount)
+    {
+        try {
+            $response = $this->createUserIfNotExist($connected_kiosk_id, $contact_id, $username);
+            if($response->Success === false) return $response;
+
+            $account = json_decode(ConnectedKioskContact::where('connected_kiosk_id', $connected_kiosk_id)->where('contact_id', $contact_id)->first()->data)->account;
+            $util = new \App\Utils\Util();
+            $ip_address = $util->getUserIpAddr();
+            $params = ['action' => "setServerScore", 'scoreNum' => -$amount, 'userName' => $account, 'ActionUser' => $username, 'ActionIp' => $ip_address];
+            $result = $this->getResponse("ashx/account/setScore.ashx", $account, $params);
+            if ($result["success"] == true){
+                $response->Success = true;
+                return $response;
+            } else {
+                $response = new stdClass();
+                $response->Success = false;
+                $response->Message = "Error on depositing Pussy888";
+
+                return $response;
+            }
+        } catch (Exception $e) {
+            $response = new stdClass();
+            $response->Success = false;
+            $response->Message = $e->getMessage();
+            return $response;
+        }
+    }
+
+    public function getBalance($connected_kiosk_id, $contact_id, $username)
+    {
+        try {
+            $account = json_decode(ConnectedKioskContact::where('connected_kiosk_id', $connected_kiosk_id)->where('contact_id', $contact_id)->first()->data)->account;
+            $params = ['action' => "getUserInfo"];
+            $result = $this->getResponse("ashx/account/account.ashx", $account, $params);
+            if ($result["success"] == true){
+                $response = new stdClass();
+                $response->Success = true;
+                $response->balance = $result["ScoreNum"];
+                return $response;
+            } else {
+                $response = new stdClass();
+                $response->Success = false;
+                $response->Message = "Error on depositing Pussy888";
+
+                return $response;
+            }
+        } catch (Exception $e) {
+            $response = new stdClass();
+            $response->Success = false;
+            $response->Message = $e->getMessage();
+            return $response;
+        }
+    }
 }
