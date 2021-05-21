@@ -259,7 +259,6 @@ return [
    '24_hour'=> '24小时',
     "list_quotations" =>"列表引号",
     "list_drafts" =>"列表草稿",
-    "," you_cannot_delete_this_contact"=>"该联系人无法删除-该联系人已经存在交易。",
     "enable_row" =>"激活行",
     "enable_position" =>"激活位置",
     "rack" =>"框架",
