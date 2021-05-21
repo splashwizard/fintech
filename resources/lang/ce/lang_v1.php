@@ -189,7 +189,7 @@ return [
 "register" => "Registrieren",
 "username" => "Nutzername",
 "password" => "Passwort",
-"remember_me" => "Erinnere dich an mich",
+"remember_me" => "记录密码",
 "forgot_your_password" => "Haben Sie Ihr Passwort vergessen?",
 "reset_password" => "Passwort zurücksetzen",
 "email_address" => "E-Mail-Addresse",
