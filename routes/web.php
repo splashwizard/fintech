@@ -33,6 +33,8 @@ Route::middleware(['IsInstalled', 'bootstrap'])->group(function () {
 Route::middleware(['IsInstalled', 'auth', 'SetSessionData', 'language', 'timezone', 'bootstrap'])->group(function () {
     Route::get('/logout', 'Auth\LoginController@logout')->name('logout');
 
+    Route::post('/setLocale', 'HomeController@setLocale')->name('locale');
+
     Route::get('/home', 'HomeController@index')->name('home');
     Route::get('/home/get-totals', 'HomeController@getTotals');
     Route::get('/home/product-stock-alert', 'HomeController@getProductStockAlert');

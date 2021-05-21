@@ -14,6 +14,8 @@ use App\Utils\ModuleUtil;
 
 use App\Utils\TransactionUtil;
 use App\VariationLocationDetails;
+use Illuminate\Support\Facades\App;
+
 
 
 use Datatables;
