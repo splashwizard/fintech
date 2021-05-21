@@ -33,7 +33,19 @@
 
   <!-- Navbar Right Menu -->
     <div class="navbar-custom-menu">
+      <select class="pull-left m-8 input-sm" id="change_lang" onchange="changeLang()">
+        <?php $__currentLoopData = config('constants.langs'); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $val): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+          <option value="<?php echo e($key, false); ?>"
+                  <?php if( (empty(request()->lang) && config('app.locale') == $key)
+                  || request()->lang == $key): ?>
+                  selected
+                  <?php endif; ?>
+          >
+            <?php echo e($val['full_name'], false); ?>
 
+          </option>
+        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+      </select>
       <a href="<?php echo e(action('NewTransactionController@index'), false); ?>"  class="pull-left load-new-trans">
         <i class="fa fa-book"></i>
         <span class="label label-warning new_trans_count">6</span>
@@ -124,4 +136,11 @@
       </ul>
     </div>
   </nav>
-</header><?php /**PATH E:\Freelancing_Projects\09-erp system minor modification(laravel)\source\ftmainlah\resources\views/layouts/partials/header.blade.php ENDPATH**/ ?>
+</header>
+<script>
+  function changeLang(){
+    var link = window.location.href;
+    var originLink = link.substring(0, link.indexOf('?') !== -1 ? link.indexOf('?') : link.length);
+    window.location.href = originLink + "?lang=" + document.getElementById("change_lang").value;
+  }
+</script><?php /**PATH E:\Freelancing_Projects\09-erp system minor modification(laravel)\source\ftmainlah\resources\views/layouts/partials/header.blade.php ENDPATH**/ ?>

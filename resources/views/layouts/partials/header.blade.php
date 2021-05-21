@@ -33,7 +33,18 @@
 
   <!-- Navbar Right Menu -->
     <div class="navbar-custom-menu">
-
+      <select class="pull-left m-8 input-sm" id="change_lang" onchange="changeLang()">
+        @foreach(config('constants.langs') as $key => $val)
+          <option value="{{$key}}"
+                  @if( (empty(request()->lang) && config('app.locale') == $key)
+                  || request()->lang == $key)
+                  selected
+                  @endif
+          >
+            {{$val['full_name']}}
+          </option>
+        @endforeach
+      </select>
       <a href="{{action('NewTransactionController@index')}}"  class="pull-left load-new-trans">
         <i class="fa fa-book"></i>
         <span class="label label-warning new_trans_count">6</span>
@@ -124,3 +135,10 @@
     </div>
   </nav>
 </header>
+<script>
+  function changeLang(){
+    var link = window.location.href;
+    var originLink = link.substring(0, link.indexOf('?') !== -1 ? link.indexOf('?') : link.length);
+    window.location.href = originLink + "?lang=" + document.getElementById("change_lang").value;
+  }
+</script>
