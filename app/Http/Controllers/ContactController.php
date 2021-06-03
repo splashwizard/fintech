@@ -420,7 +420,7 @@ class ContactController extends Controller
         $business_id = request()->session()->get('user.business_id');
         $mobile_list = $request->get('mobile');
 
-        $data = Contact::where('banned_by_user', '!=', null)->get(['mobile']);
+        $data = Contact::where('banned_by_user', '!=', null)->get(['contact_id', 'mobile']);
         foreach ($data as $item){
             if(!empty($item->mobile)){
                 foreach (json_decode($item->mobile) as $old_mobile) {
@@ -428,7 +428,7 @@ class ContactController extends Controller
                         if ($old_mobile == $new_mobile) {
                             $msg = ' has been banned in the system!';
                             $output = ['success' => false,
-                                'msg' => $request->get('mobile') . $msg . ' Please use another contact!'
+                                'msg' => $request->get('mobile') . $msg . ' Please use another phone number!<br>Existing Contact ID: <b>'.$item->contact_id.'</b>'
                             ];
                             return $output;
                         }
@@ -437,7 +437,7 @@ class ContactController extends Controller
             }
         }
 
-        $data = Contact::where('business_id', $business_id)->get(['mobile', 'blacked_by_user']);
+        $data = Contact::where('business_id', $business_id)->get(['contact_id', 'mobile', 'blacked_by_user']);
         foreach ($data as $item){
             if(!empty($item->mobile)){
                 foreach (json_decode($item->mobile) as $old_mobile){
@@ -448,7 +448,7 @@ class ContactController extends Controller
                             } else
                                 $msg = ' already exist in the system!';
                             $output = ['success' => false,
-                                'msg' => $new_mobile.$msg.' Please use another contact!'
+                                'msg' => $new_mobile.$msg.' Please use another phone number!<br>Existing Contact ID: <b>'.$item->contact_id.'</b>'
                             ];
                             return $output;
                         }
@@ -460,7 +460,7 @@ class ContactController extends Controller
         if(Contact::where('name', $request->get('name'))->count() > 0 && Contact::where('name', $request->get('name'))->get()[0]->banned_by_user){
             $msg = ' has been banned in the system!';
             $output = ['success' => false,
-                'msg' => $request->get('name').$msg.' Please use another IC Name!'
+                'msg' => $request->get('name').$msg.' Please use another IC Name!<br>Existing Contact ID: <b>'.Contact::where('name', $request->get('name'))->first()->contact_id.'</b>'
             ];
         }
         else if(Contact::where('name', $request->get('name'))->where('business_id', $business_id)->count() && !empty($request->get('name'))){
@@ -469,13 +469,13 @@ class ContactController extends Controller
             else
                 $msg = ' already exist in the system!';
             $output = ['success' => false,
-                'msg' => $request->get('name').$msg.' Please use another IC Name!'
+                'msg' => $request->get('name').$msg.' Please use another IC Name!<br>Existing Contact ID: <b>'.Contact::where('name', $request->get('name'))->where('business_id', $business_id)->first()->contact_id.'</b>'
             ];
         }
         else if(Contact::where('email', $request->get('email'))->count() > 0 && Contact::where('email', $request->get('email'))->get()[0]->banned_by_user){
             $msg = ' has been banned in the system!';
             $output = ['success' => false,
-                'msg' => $request->get('email').$msg.' Please use another email!'
+                'msg' => $request->get('email').$msg.' Please use another email!<br>Existing Contact ID: <b>'.Contact::where('email', $request->get('email'))->first()->contact_id.'</b>'
             ];
         }
         else if(Contact::where('email', $request->get('email'))->where('business_id', $business_id)->count() && !empty($request->get('email'))){
@@ -484,7 +484,7 @@ class ContactController extends Controller
             else
                 $msg = ' already exist in the system!';
             $output = ['success' => false,
-                'msg' => $request->get('email').$msg.' Please use another email!'
+                'msg' => $request->get('email').$msg.' Please use another email!<br>Existing Contact ID: <b>'.Contact::where('email', $request->get('email'))->where('business_id', $business_id)->first()->contact_id.'</b>'
             ];
         }
         else{
@@ -817,7 +817,7 @@ class ContactController extends Controller
         $business_id = request()->session()->get('user.business_id');
 
         $mobile_list = $request->get('mobile');
-        $data = Contact::where('business_id', $business_id)->where('id', '=', 5274)->get(['id', 'mobile', 'blacked_by_user']);
+        $data = Contact::where('business_id', $business_id)->where('id', '=', 5274)->get(['id', 'contact_id', 'mobile', 'blacked_by_user']);
         foreach ($data as $item){
             if(!empty($item->mobile)){
 
@@ -829,7 +829,7 @@ class ContactController extends Controller
                             } else
                                 $msg = ' already exist in the system!';
                             $output = ['success' => false,
-                                'msg' => $new_mobile.$msg.' Please use another contact!'
+                                'msg' => $new_mobile.$msg.' Please use another phone number!<br>Existing Contact ID: <b>'.$item->contact_id.'</b>'
                             ];
                             return $output;
                         }
@@ -838,7 +838,7 @@ class ContactController extends Controller
             }
         }
 
-        $data = Contact::where('banned_by_user', '!=', null)->where('id', '!=', $id)->get(['mobile']);
+        $data = Contact::where('banned_by_user', '!=', null)->where('id', '!=', $id)->get(['contact_id', 'mobile']);
         foreach ($data as $item){
             if(!empty($item->mobile)){
                 foreach (json_decode($item->mobile) as $old_mobile) {
@@ -846,7 +846,7 @@ class ContactController extends Controller
                         if ($old_mobile == $new_mobile) {
                             $msg = ' has been banned in the system!';
                             $output = ['success' => false,
-                                'msg' => $request->get('mobile') . $msg . ' Please use another contact!'
+                                'msg' => $request->get('mobile') . $msg . ' Please use another phone number!<br>Existing Contact ID: <b>'.$item->contact_id.'</b>'
                             ];
                             return $output;
                         }
@@ -855,10 +855,10 @@ class ContactController extends Controller
             }
         }
 
-        if(Contact::where('name', $request->get('name'))->where('id', '!=', $id)->count() > 0 && Contact::where('name', $request->get('name'))->get()[0]->banned_by_user){
+        if(Contact::where('name', $request->get('name'))->where('id', '!=', $id)->count() > 0 && Contact::where('name', $request->get('name'))->where('id', '!=', $id)->get()[0]->banned_by_user){
             $msg = ' has been banned in the system!';
             $output = ['success' => false,
-                'msg' => $request->get('name').$msg.' Please use another IC Name!'
+                'msg' => $request->get('name').$msg.' Please use another IC Name!<br>Existing Contact ID: <b>'.Contact::where('name', $request->get('name'))->where('id', '!=', $id)->first()->contact_id.'</b>'
             ];
         }
         else if(Contact::where('name', $request->get('name'))->where('business_id', $business_id)->where('id', '!=', $id)->count() && !empty($request->get('name'))){
@@ -867,13 +867,13 @@ class ContactController extends Controller
             else
                 $msg = ' already exist in the system!';
             $output = ['success' => false,
-                'msg' => $request->get('name').$msg.' Please use another IC Name!'
+                'msg' => $request->get('name').$msg.' Please use another IC Name!<br>Existing Contact ID: <b>'.Contact::where('name', $request->get('name'))->where('business_id', $business_id)->where('id', '!=', $id)->first()->contact_id.'</b>'
             ];
         }
         else if(Contact::where('email', $request->get('email'))->where('id', '!=', $id)->count() > 0 && Contact::where('email', $request->get('email'))->where('id', '!=', $id)->get()[0]->banned_by_user){
             $msg = ' has been banned in the system!';
             $output = ['success' => false,
-                'msg' => $request->get('email').$msg.' Please use another email!'
+                'msg' => $request->get('email').$msg.' Please use another email!<br>Existing Contact ID: <b>'.Contact::where('email', $request->get('email'))->where('id', '!=', $id)->first()->contact_id.'</b>'
             ];
         }
         else if(Contact::where('email', $request->get('email'))->where('business_id', $business_id)->where('id', '!=', $id)->count() && !empty($request->get('email')) > 0){
@@ -882,7 +882,7 @@ class ContactController extends Controller
             else
                 $msg = ' already exist in the system!';
             $output = ['success' => false,
-                'msg' => $request->get('email').$msg.' Please use another email!'
+                'msg' => $request->get('email').$msg.' Please use another email!<br>Existing Contact ID: <b>'.Contact::where('email', $request->get('email'))->where('business_id', $business_id)->where('id', '!=', $id)->first()->contact_id.'</b>'
             ];
         }
         else{

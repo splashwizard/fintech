@@ -113,6 +113,7 @@ class AccountController extends Controller
                                 <button data-href="{{action(\'AccountController@getWithdraw\',[$id])}}" class="btn btn-xs btn-primary btn-modal" data-container=".view_modal"><i class="fa fa-money"></i> @lang("account.withdraw")</button>
                                 <button data-href="{{action(\'AccountController@getExchange\',[$id])}}" class="btn btn-xs btn-warning btn-modal" data-container=".view_modal"><i class="fa fa-exchange"></i> @lang("account.exchange")</button>
                                 ':'<a href="{{action(\'AccountController@show\',[$id])}}" class="btn btn-warning btn-xs"><i class="fa fa-book"></i> @lang("account.account_book")</a>
+                                <button data-href="{{action(\'AccountController@getFundTransfer\',[$id])}}" class="btn btn-xs btn-info btn-modal" data-container=".view_modal"><i class="fa fa-exchange"></i> @lang("account.fund_transfer")</button>
                                 <button data-href="{{action(\'AccountController@getWithdraw\',[$id])}}" class="btn btn-xs btn-primary btn-modal" data-container=".view_modal"><i class="fa fa-money"></i> @lang("account.withdraw")</button>'
 
                             )

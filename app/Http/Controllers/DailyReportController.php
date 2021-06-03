@@ -52,7 +52,7 @@ class DailyReportController extends Controller
     function getTableData(){
         $categories = null;
         $business_id = request()->session()->get('user.business_id');
-        $banks = Account::where('business_id', $business_id)->where('is_service', 0)->where('name', '!=', 'Bonus Account')->where('display_group_id', '!=', 0)->orderBy('display_group_id', 'asc')->get();
+        $banks = Account::where('business_id', $business_id)->where('is_service', 0)->where('name', '!=', 'Bonus Account')->where('display_group_id', '!=', 0)->where('is_closed', 0)->orderBy('display_group_id', 'asc')->get();
         $banks_group_obj = [];
         foreach ($banks as $row){
             $banks_group_obj[$row->display_group_id][$row->id] = $row->name;
@@ -251,7 +251,7 @@ class DailyReportController extends Controller
         }
         // services start
 
-        $services = Account::where('business_id', $business_id)->where('is_service', 1)->where('accounts.name', '!=', 'Safe Kiosk Account')->get();
+        $services = Account::where('business_id', $business_id)->where('is_service', 1)->where('is_closed', 0)->where('accounts.name', '!=', 'Safe Kiosk Account')->get();
         $services_obj = [];
         $services_obj[0] = '';
         foreach ($services as $row){
