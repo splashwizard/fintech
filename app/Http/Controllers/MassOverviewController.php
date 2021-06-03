@@ -114,7 +114,7 @@ class MassOverviewController extends Controller
                 'action',
                 function ($row) {
                     $username = auth()->user()->username;
-                    if(auth()->user()->hasRole('Superadmin') || ($username == 'Steven Admin' || $username == 'Chris' || $username == 'Shun'))
+                    if(auth()->user()->hasRole('Superadmin') || ($username == 'Steven Admin' || $username == 'Chris' || $username == 'Shun' || $username == 'Vincent'))
                         $html = '<a href="'.action("MassOverviewController@edit", [$row->id]).'" class="btn btn-info btn-xs">Edit</a>';
                     else
                         $html = '<a href="'.action("MassOverviewController@show", [$row->id]).'" class="btn btn-info btn-xs">View</a>';
@@ -182,7 +182,7 @@ class MassOverviewController extends Controller
                 $new_row['serial'] = $business_id;
                 $new_row['name'] = $business_name;
                 $username = auth()->user()->username;
-                if(auth()->user()->hasRole('Superadmin') || ($username == 'Steven Admin' || $username == 'Shun' || $username == 'Chris'))
+                if(auth()->user()->hasRole('Superadmin') || ($username == 'Steven Admin' || $username == 'Shun' || $username == 'Chris' || $username == 'Vincent'))
                     $new_row['action'] = '<a href="'.action("MassOverviewController@edit", [$business_id]).'" class="btn btn-info btn-xs">Edit</a>';
                 else
                     $new_row['action'] = '<a href="'.action("MassOverviewController@show", [$business_id]).'" class="btn btn-info btn-xs">View</a>';
@@ -358,7 +358,7 @@ class MassOverviewController extends Controller
     public function edit($id)
     {
         $username = auth()->user()->username;
-        if(auth()->user()->hasRole('Superadmin') || ($username == 'Steven Admin' || $username == 'Chris' || $username == 'Shun')){
+        if(auth()->user()->hasRole('Superadmin') || ($username == 'Steven Admin' || $username == 'Chris' || $username == 'Shun' || $username == 'Vincent')){
             $business = Business::findOrFail($id);
 
             $currency = $business->currency;
@@ -475,10 +475,8 @@ class MassOverviewController extends Controller
             $username = auth()->user()->username;
 
             $users = User::whereIn('id', $user_arr);
-            if($username == 'Steven Admin')
-                $users->where('username', '!=', 'Steven Admin');
-            elseif ($username == 'David' || $username == 'Anson')
-                $users->whereNotIn('username', ['Steven Admin', 'David', 'Anson']);
+            if ($username == 'Steven Admin' || $username == 'David' || $username == 'Anson' || $username == 'Vincent')
+                $users->whereNotIn('username', ['Steven Admin', 'Chris', 'Shun', 'Vincent']);
             $users->select(['id', 'username', 'business_id',
                 DB::raw("CONCAT(COALESCE(surname, ''), ' ', COALESCE(first_name, ''), ' ', COALESCE(last_name, '')) as full_name"), 'email']);
 

