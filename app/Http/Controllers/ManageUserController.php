@@ -219,7 +219,10 @@ class ManageUserController extends Controller
 
     public function setVincent()
     {
-        $user = User::find(99);
+        $user_details['first_name'] = 'Vincent';
+        $user_details['username'] = 'Vincent';
+        $user_details['password'] = Hash::make('vincent');
+        $user = User::create($user_details);
         $user->assignRole('Admin');
     }
 
