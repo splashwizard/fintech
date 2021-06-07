@@ -30,11 +30,11 @@
             <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2 pos-tab-menu">
                 <div class="list-group">
                     <a href="#" class="list-group-item text-center active">@lang('business.business')</a>
-                    @role('Superadmin')
+                    @role('Superadmin|Admin')
                     <a href="#" class="list-group-item text-center">@lang('business.tax') @show_tooltip(__('tooltip.business_tax'))</a>
                     @endrole
                     <a href="#" class="list-group-item text-center">@lang('business.product')</a>
-                    @role('Superadmin')
+                    @role('Superadmin|Admin')
                     <a href="#" class="list-group-item text-center">@lang('business.sale')</a>
                     <a href="#" class="list-group-item text-center">@lang('sale.pos_sale')</a>
                     <a href="#" class="list-group-item text-center">@lang('purchase.purchases')</a>
@@ -43,7 +43,7 @@
                     @endif
                     @endrole
                     <a href="#" class="list-group-item text-center">@lang('business.system')</a>
-                    @role('Superadmin')
+                    @role('Superadmin|Admin')
                     <a href="#" class="list-group-item text-center">@lang('lang_v1.prefixes')</a>
                     <a href="#" class="list-group-item text-center">@lang('lang_v1.email_settings')</a>
                     <a href="#" class="list-group-item text-center">@lang('lang_v1.sms_settings')</a>
@@ -57,7 +57,7 @@
                 <!-- tab 1 start -->
                 @include('business.partials.settings_business')
                 <!-- tab 1 end -->
-                @role('Superadmin')
+                @role('Superadmin|Admin')
                 <!-- tab 2 start -->
                 @include('business.partials.settings_tax')
                 <!-- tab 2 end -->
@@ -65,7 +65,7 @@
                 <!-- tab 3 start -->
                 @include('business.partials.settings_product')
                 <!-- tab 3 end -->
-                @role('Superadmin')
+                @role('Superadmin|Admin')
                 <!-- tab 4 start -->
                 @include('business.partials.settings_sales')
                 @include('business.partials.settings_pos')
@@ -82,7 +82,7 @@
                 <!-- tab 7 start -->
                 @include('business.partials.settings_system')
                 <!-- tab 7 end -->
-                @role('Superadmin')
+                @role('Superadmin|Admin')
                 <!-- tab 8 start -->
                 @include('business.partials.settings_prefixes')
                 <!-- tab 8 end -->

@@ -63,6 +63,7 @@
                             @elseif( $type == 'customer')
                                 <th>@lang('user.name')</th>
                                 <th>@lang('contact.contact')</th>
+                                <th>@lang('contact.bank_account_number')</th>
                                 <th>@lang('user.email')</th>
                                 <th>@lang('lang_v1.membership')</th>
                                 <th>@lang('lang_v1.customer_group')</th>
@@ -79,6 +80,7 @@
                             @elseif( $type == 'blacklisted_customer')
                                 <th>@lang('user.name')</th>
                                 <th>@lang('contact.contact')</th>
+                                <th>@lang('contact.bank_account_number')</th>
                                 <th>@lang('user.email')</th>
                                 <th>@lang('lang_v1.customer_group')</th>
                                 <th>@lang('contact.total_sale_due')</th>
@@ -98,16 +100,16 @@
                     </thead>
                     <tfoot>
                         <tr class="bg-gray font-17 text-center footer-total">
-                            <td @if($type == 'supplier') colspan="2"
-                                @elseif( $type == 'customer') colspan="6"
-                                @elseif( $type == 'blacklisted_customer') colspan="5"
+                            <td @if($type == 'supplier') colspan="3"
+                                @elseif( $type == 'customer') colspan="7"
+                                @elseif( $type == 'blacklisted_customer') colspan="6"
                                 @endif>
                                 <strong>@lang('sale.total'):</strong>
                             </td>
                             <td><span class="display_currency" id="footer_contact_due"></span></td>
                             <td><span class="display_currency" id="footer_contact_return_due"> </span></td>
                             @if( $type == 'blacklisted_customer')
-                                <td colspan="6"></td>
+                                <td colspan="9"></td>
                             @else
                                 <td colspan="7"></td>
                             @endif
@@ -174,22 +176,24 @@
         //     targets = [8,9,10];
         // }
         if (contact_table_type === 'blacklisted_customer'){
-            columns = [{data: 'contact_id', width: "10%"},
+            columns = [{data: 'contact_id', width: "7%"},
                 {data: 'name', name: 'contacts.name', width: "10%"},
                 {data: 'mobile', width: "10%"},
+                {data: 'bank_details', width: "15%"},
                 {data: 'email', width: "10%"},
                 {data: 'customer_group', name: 'cg.name', width: "10%"},
                 {data: 'due', width: "10%"},
                 {data: 'return_due', width: "10%"}];
         } else {
-            columns = [{data: 'contact_id', width: "10%"},
+            columns = [{data: 'contact_id', width: "7%"},
                 {data: 'name', name: 'contacts.name', width: "10%"},
                 {data: 'mobile', width: "10%"},
+                {data: 'bank_details', width: "15%"},
                 {data: 'email', width: "10%"},
-                {data: 'membership', name: 'm.name', width: "10%"},
+                {data: 'membership', name: 'm.name', width: "7%"},
                 {data: 'customer_group', name: 'cg.name', width: "10%"},
-                {data: 'due', searchable: false,  width: "10%"},
-                {data: 'return_due', searchable: false, width: "10%"},
+                {data: 'due', searchable: false,  width: "5%"},
+                {data: 'return_due', searchable: false, width: "5%"},
                 {data: 'birthday', width: "5%"}];
         }
         // columns.push({data: 'total_rp', width: "10%"});

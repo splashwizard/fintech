@@ -61,7 +61,7 @@
                       <span class="input-group-addon">
                           <i class="fa fa-users"></i>
                       </span>
-                    {!! Form::select('display_group_id', $display_groups, $account->display_group_id, ['class' => 'form-control', $account->name == 'HQ' ? 'disabled' : null]); !!}
+                    {!! Form::select('display_group_id', $display_groups, $account->display_group_id, ['class' => 'form-control']); !!}
                 </div>
             </div>
             <div class="form-group">

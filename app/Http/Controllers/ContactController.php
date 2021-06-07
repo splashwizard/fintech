@@ -73,6 +73,7 @@ class ContactController extends Controller
 
         $types = ['supplier', 'customer', 'blacklisted_customer'];
 
+//        print_r(json_decode(Contact::find(126)->bank_details));exit;
         if (empty($type) || !in_array($type, $types)) {
             return redirect()->back();
         }
@@ -181,6 +182,7 @@ class ContactController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
+
         $business_id = request()->session()->get('user.business_id');
 
         $month = request()->get('month');
@@ -200,7 +202,7 @@ class ContactController extends Controller
         if($month!="0")
             $query->where(DB::raw('DATE_FORMAT(STR_TO_DATE(birthday, "%Y-%m-%d"), "%m")'), $month);
         $query->addSelect(['contacts.contact_id', 'contacts.name', 'contacts.email', 'contacts.created_at', 'contacts.remarks1', 'contacts.remarks2', 'contacts.remarks3',
-            'contacts.total_rp', 'cg.name as customer_group', 'm.name as membership', 'contacts.city', 'contacts.state', 'contacts.country', 'contacts.landmark', 'contacts.mobile', 'contacts.id', 'contacts.is_default',
+            'contacts.total_rp', 'cg.name as customer_group', 'm.name as membership', 'contacts.city', 'contacts.state', 'contacts.country', 'contacts.landmark', 'contacts.mobile', 'contacts.id', 'contacts.is_default', 'contacts.bank_details',
             DB::raw( 'DATE_FORMAT(STR_TO_DATE(birthday, "%Y-%m-%d"), "%d/%m") as birthday'),
             DB::raw("SUM(IF(card_type = 'credit' && method= 'bank_transfer', tp.amount, 0)) as due"),
 //                        DB::raw("SUM(IF( t.type = 'sell_return' AND (SELECT transaction_payments.method FROM transaction_payments WHERE transaction_payments.transaction_id=t.id) = 'bank_transfer', final_total, 0)) as total_sell_return"),
@@ -250,6 +252,19 @@ class ContactController extends Controller
             )
             ->editColumn('contacts.total_rp', '{{$total_rp ?? 0}}')
             ->editColumn('contacts.created_at', '{{@format_date($created_at)}}')
+            ->editColumn('bank_details', function ($row){
+                if(empty($row->bank_details))
+                    return '';
+                $bank_details = json_decode($row->bank_details);
+                $result = '';
+                foreach($bank_details as $key => $detail){
+                    if($key != 0)
+                        $result .= "<br/>";
+                    $result .= BankBrand::find($detail->bank_brand_id)->name.": ".$detail->account_number;
+//                    $result .= $detail->bank_brand_id.": ".$detail->account_number."<br/>";
+                }
+                return $result;
+            })
             ->removeColumn('contacts.state')
             ->removeColumn('contacts.country')
             ->removeColumn('contacts.city')
@@ -257,7 +272,7 @@ class ContactController extends Controller
             ->removeColumn('contacts.id')
             ->removeColumn('contacts.is_default');
         $reward_enabled = (request()->session()->get('business.enable_rp') == 1) ? true : false;
-        $raw = ['due', 'return_due', 'action'];
+        $raw = ['due', 'return_due', 'action', 'bank_details'];
 //        if (!$reward_enabled) {
 //            $contacts->removeColumn('total_rp');
 //        }
@@ -285,7 +300,7 @@ class ContactController extends Controller
             ->where('contacts.blacked_by_user', '!=', null)
             ->onlyCustomers()
             ->addSelect(['contacts.contact_id', 'contacts.name', 'contacts.email', 'contacts.created_at', 'total_rp', 'cg.name as customer_group', 'city', 'state', 'country', 'landmark', 'mobile',
-                'contacts.id', 'is_default', 'contacts.blacked_by_user', 'contacts.remark', 'contacts.remarks1', 'contacts.remarks2', 'contacts.remarks3', 'contacts.banned_by_user',
+                'contacts.id', 'is_default', 'contacts.blacked_by_user', 'contacts.remark', 'contacts.remarks1', 'contacts.remarks2', 'contacts.remarks3', 'contacts.bank_details', 'contacts.banned_by_user',
                 DB::raw("SUM(IF(t.type = 'sell' AND t.status = 'final', final_total, 0)) as total_invoice"),
 //                        DB::raw("1000 as total_invoice"),
                 DB::raw("SUM(IF(t.type = 'sell' AND t.status = 'final', (SELECT SUM(IF(is_return = 1,-1*amount,amount)) FROM transaction_payments WHERE transaction_payments.transaction_id=t.id), 0)) as invoice_received"),
@@ -300,7 +315,7 @@ class ContactController extends Controller
         $contacts = Datatables::of($query)
             ->editColumn(
                 'landmark',
-                '{{implode(array_filter([$landmark, $city, $state, $country]), ", ")}}'
+                '{{implode(", ", array_filter([$landmark, $city, $state, $country]))}}'
             )
             ->addColumn(
                 'due',
@@ -312,6 +327,18 @@ class ContactController extends Controller
                 '<span class="display_currency return_due" data-orig-value="{{$total_sell_return}}" data-currency_symbol=true data-highlight=false>{{$total_sell_return}}</span>'
 //                '<span class="display_currency return_due" data-orig-value="{{$total_sell_return - $sell_return_paid}}" data-currency_symbol=true data-highlight=false>{{$total_sell_return - $sell_return_paid }}</span>'
             )
+            ->editColumn('bank_details', function ($row){
+                if(empty($row->bank_details))
+                    return '';
+                $bank_details = json_decode($row->bank_details);
+                $result = '';
+                foreach($bank_details as $key => $detail){
+                    if($key != 0)
+                        $result .= "<br/>";
+                    $result .= BankBrand::find($detail->bank_brand_id)->name.": ".$detail->account_number;
+                }
+                return $result;
+            })
             ->addColumn(
                 'action',
                 '<div class="btn-group">
@@ -356,7 +383,7 @@ class ContactController extends Controller
             ->removeColumn('total_sell_return')
             ->removeColumn('sell_return_paid');
         $reward_enabled = (request()->session()->get('business.enable_rp') == 1) ? true : false;
-        $raw = ['due', 'return_due', 'action'];
+        $raw = ['bank_details', 'due', 'return_due', 'action'];
 //        if (!$reward_enabled) {
 //            $contacts->removeColumn('total_rp');
 //            $raw = [7, 8, 9];
