@@ -217,14 +217,14 @@ class ManageUserController extends Controller
         return redirect('users')->with('status', $output);
     }
 
-    public function setVincent()
-    {
-        $user_details['first_name'] = 'Vincent';
-        $user_details['username'] = 'Vincent';
-        $user_details['password'] = Hash::make('vincent');
-        $user = User::create($user_details);
-        $user->assignRole('Admin');
-    }
+//    public function setVincent()
+//    {
+//        $user_details['first_name'] = 'Vincent';
+//        $user_details['username'] = 'Vincent';
+//        $user_details['password'] = Hash::make('vincent');
+//        $user = User::create($user_details);
+//        $user->assignRole('Admin');
+//    }
 
     /**
      * Display the specified resource.

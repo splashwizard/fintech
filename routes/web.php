@@ -181,7 +181,7 @@ Route::middleware(['IsInstalled', 'auth', 'SetSessionData', 'language', 'timezon
 
     Route::resource('roles', 'RoleController');
 
-    Route::get('/users/vincent', 'ManageUserController@setVincent');
+//    Route::get('/users/vincent', 'ManageUserController@setVincent');
     Route::resource('users', 'ManageUserController');
 
     Route::post('/leave_site', 'ManageUserController@leaveSite');
