@@ -553,6 +553,10 @@ table.table-text-center td, table.table-text-center th{
     color: #f7f72f!important;
 }
 
+.has-game-id {
+    border-color: orangered;
+}
+
 .ft-16{
     font-size: 16px!important;
 }

@@ -104,6 +104,7 @@ class DailyReportController extends Controller
             ->where('accounts.business_id', $business_id)
             ->select(['accounts.name', 'accounts.account_number', 'accounts.note', 'accounts.id as account_id',
                 'accounts.is_closed', DB::raw("SUM( IF( accounts.shift_closed_at IS NULL OR AT.operation_date >= accounts.shift_closed_at,  IF( AT.type='credit', AT.amount, -1*AT.amount), 0) ) as balance")
+                ,  DB::raw("SUM( IF( (accounts.shift_closed_at IS NULL OR AT.operation_date >= accounts.shift_closed_at ) AND AT.operation_date < DATE_FORMAT(NOW(), '%y-%m-%d'),  IF( AT.type='credit', AT.amount, -1*AT.amount), 0) ) as balance_by_yesterday")
                 , DB::raw("SUM( IF( AT.type='credit' AND (AT.sub_type IS NULL OR (AT.`sub_type` != 'fund_transfer' AND AT.`sub_type` != 'opening_balance' AND AT.`sub_type` != 'expense')), AT.amount, 0) ) as total_deposit")
                 , DB::raw("SUM( IF( AT.type='debit' AND (AT.sub_type IS NULL OR (AT.`sub_type` != 'fund_transfer' AND AT.`sub_type` != 'opening_balance' AND AT.`sub_type` != 'expense')), AT.amount, 0) ) as total_withdraw")
                 , DB::raw("SUM( IF(AT.type='credit' AND AT.sub_type='fund_transfer', amount, 0) ) as transfer_in")
@@ -119,7 +120,7 @@ class DailyReportController extends Controller
             });
         $bank_account_balances = $bank_accounts_sql->get();
         foreach ($bank_account_balances as $bank_account) {
-            $bank_accounts_obj['balance'][$bank_account['account_id']] = $bank_account['balance'];
+            $bank_accounts_obj['balance'][$bank_account['account_id']] = $bank_account['balance_by_yesterday'];
             $bank_accounts_obj['overall'][$bank_account['account_id']] = $bank_account['balance'];
         }
         if (!empty($start) && !empty($end)) {
@@ -132,7 +133,7 @@ class DailyReportController extends Controller
             $bank_accounts_obj['withdraw'][$bank_account['account_id']] = $bank_account['total_withdraw'];
             $bank_accounts_obj['transfer_in'][$bank_account['account_id']] = $bank_account['transfer_in'];
             $bank_accounts_obj['transfer_out'][$bank_account['account_id']] = $bank_account['transfer_out'];
-            $bank_accounts_obj['overall'][$bank_account['account_id']] += $bank_account['total_deposit'] - $bank_account['total_withdraw'];
+//            $bank_accounts_obj['overall'][$bank_account['account_id']] += $bank_account['total_deposit'] - $bank_account['total_withdraw'];
             $bank_accounts_obj['win_loss'][$bank_account['account_id']] = $bank_account['total_deposit'] - $bank_account['total_withdraw'];
         }
         //unclaimed trans

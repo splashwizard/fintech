@@ -82,6 +82,7 @@ Route::middleware(['IsInstalled', 'auth', 'SetSessionData', 'language', 'timezon
     Route::put('/contacts/blacklist/{id}', 'ContactController@updateBlackList');
     Route::get('/contacts/bank_detail_html', 'ContactController@getBankDetailHtml');
     Route::resource('contacts', 'ContactController');
+    Route::resource('new_member', 'NewMemberReportController');
     Route::post('/contacts/ban_user/{id}', 'ContactController@banUser');
 
     Route::get('/client_statement', 'ClientStatementController@index');
@@ -172,6 +173,7 @@ Route::middleware(['IsInstalled', 'auth', 'SetSessionData', 'language', 'timezon
     Route::post('/sells/pos_deposit/get_game_id', 'SellPosDepositController@getGameID');
     Route::post('/sells/pos_deposit/check_shift_closed', 'SellPosDepositController@checkShiftClosed');
     Route::post('/sells/pos_deposit/get_no_bonus', 'SellPosDepositController@getNoBonus');
+    Route::post('/sells/pos_deposit/get_existing_game_ids', 'SellPosDepositController@getExistingGameIds');
     Route::get('/pos_deposit/create_selected_transaction/{transaction_id}', 'SellPosDepositController@createSelectedTransaction');
 
 

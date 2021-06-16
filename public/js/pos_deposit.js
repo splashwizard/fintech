@@ -305,6 +305,19 @@ $(document).ready(function() {
                 pos_total_row();
             }
         });
+        $.ajax({
+            method: 'POST',
+            url: '/sells/pos_deposit/get_existing_game_ids',
+            data: {customer_id: $('#customer_id').val()},
+            dataType: 'json',
+            success: function(result) {
+                var list = result.list;
+                $('#product_list_body2 .product_box').removeClass('has-game-id');
+                for(let service_id of list){
+                    $('#product_list_body2 .productG_box[data-account_id="' + service_id + '"]').addClass('has-game-id');
+                }
+            }
+        });
         //
         // get_product_suggestion_list(category_id, product_id, brand_id, location_id);
     }

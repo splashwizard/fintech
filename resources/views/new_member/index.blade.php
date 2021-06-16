@@ -5,8 +5,7 @@
 
 <!-- Content Header (Page header) -->
 <section class="content-header">
-    <h1> @lang('lang_v1.'.$type.'s')
-        <small>@lang( 'contact.manage_your_contact', ['contacts' =>  __('lang_v1.'.$type.'s') ])</small>
+    <h1> @lang('lang_v1.new_member')
     </h1>
     <!-- <ol class="breadcrumb">
         <li><a href="#"><i class="fa fa-dashboard"></i> Level</a></li>
@@ -79,6 +78,7 @@ $hide_info = !auth()->user()->hasRole('Superadmin') && !auth()->user()->hasRole(
                                 <th></th>
                                 <th></th>
                                 <th>@lang('lang_v1.added_on')</th>
+                                <th>@lang('lang_v1.added_by')</th>
                                 <th>@lang('messages.action')</th>
                             @elseif( $type == 'blacklisted_customer')
                                 <th>@lang('user.name')</th>
@@ -115,7 +115,7 @@ $hide_info = !auth()->user()->hasRole('Superadmin') && !auth()->user()->hasRole(
                             @if( $type == 'blacklisted_customer')
                                 <td colspan="9"></td>
                             @else
-                                <td colspan="7"></td>
+                                <td colspan="8"></td>
                             @endif
                         </tr>
                     </tfoot>
@@ -236,6 +236,7 @@ $hide_info = !auth()->user()->hasRole('Superadmin') && !auth()->user()->hasRole(
                 {data: 'remarks2', visible: false, width: "0%"},
                 {data: 'remarks3', visible: false, width: "0%"},
                 {data: 'created_at', width: "10%"},
+                {data: 'created_by', width: "10%"},
                 {data: 'action', searchable: false, orderable: false, width: "10%"}
             ]);
         }
@@ -256,7 +257,7 @@ $hide_info = !auth()->user()->hasRole('Superadmin') && !auth()->user()->hasRole(
             processing: true,
             serverSide: true,
             ajax: {
-                url: '/contacts?type=' + $('#contact_type').val(),
+                url: '/new_member?type=' + $('#contact_type').val(),
                 data: function (data) {
                     data.month = $('#month').val();
                 }

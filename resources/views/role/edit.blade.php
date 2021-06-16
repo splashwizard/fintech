@@ -16,7 +16,7 @@
         <div class="col-md-4">
           <div class="form-group">
             {!! Form::label('name', __( 'user.role_name' ) . ':*') !!}
-              {!! Form::text('name', str_replace( '#' . auth()->user()->business_id, '', $role->name) , ['class' => 'form-control', 'required', 'placeholder' => __( 'user.role_name' ) ]); !!}
+              {!! Form::text('name', str_replace( '#' . session()->get('user.business_id'), '', $role->name) , ['class' => 'form-control', 'required', 'placeholder' => __( 'user.role_name' ) ]); !!}
           </div>
         </div>
         </div>
@@ -256,6 +256,14 @@
               <label>
                 {!! Form::checkbox('permissions[]', 'customer.delete', in_array('customer.delete', $role_permissions), 
                 [ 'class' => 'input-icheck']); !!} {{ __( 'role.customer.delete' ) }}
+              </label>
+            </div>
+          </div>
+          <div class="col-md-12">
+            <div class="checkbox">
+              <label>
+                {!! Form::checkbox('permissions[]', 'customer.hide_info', in_array('customer.hide_info', $role_permissions), ['class' => 'input-icheck']); !!}
+                {{ __('role.customer.hide_info') }}
               </label>
             </div>
           </div>

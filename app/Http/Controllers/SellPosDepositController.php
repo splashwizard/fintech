@@ -416,6 +416,16 @@ class SellPosDepositController extends Controller
         $no_bonus = Contact::find($customer_id)->no_bonus;
         return ['no_bonus' => $no_bonus];
     }
+
+    public function getExistingGameIds(Request $request){
+        $customer_id = $request->get('customer_id');
+        $data = GameId::where('contact_id', $customer_id)->get('service_id');
+        $list = [];
+        foreach($data as $row){
+            $list[] = $row->service_id;
+        }
+        return ['list' => $list];
+    }
     /**
      * Store a newly created resource in storage.
      *

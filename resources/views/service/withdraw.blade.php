@@ -41,7 +41,7 @@
                         <button class="form-control btn-withdraw_mode" data-mode="gd">Game Credit Deduction</button>
                     </div>
                     <div class="col-sm-6" style="padding-left: 5px; padding-right: 5px">
-                        <button class="form-control btn-withdraw_mode" data-mode="ga">Game Credit Addition</button>
+                        <button class="form-control btn-withdraw_mode" data-mode="ga">Free Credit</button>
                     </div>
                 </div>
             </div>

@@ -144,6 +144,10 @@
                         @endcan
                         <li class="{{ $request->segment(1) == 'client_statement' ? 'active' : '' }}">
                             <a href="{{action('ClientStatementController@index')}}"><i class="fa fa-users"></i> 5.7 @lang('report.client_statement')</a></li>
+                        @can('customer.view')
+                        <li class="{{ $request->segment(1) == 'new_member' ? 'active' : '' }}">
+                            <a href="{{action('NewMemberReportController@index', ['type' => 'customer'])}}"><i class="fa fa-users"></i> 5.8 @lang('lang_v1.new_member')</a></li>
+                        @endcan
                     </ul>
                 </li>
             @endif

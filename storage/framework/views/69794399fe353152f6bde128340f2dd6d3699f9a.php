@@ -144,6 +144,10 @@
                         <?php endif; ?>
                         <li class="<?php echo e($request->segment(1) == 'client_statement' ? 'active' : '', false); ?>">
                             <a href="<?php echo e(action('ClientStatementController@index'), false); ?>"><i class="fa fa-users"></i> 5.7 <?php echo app('translator')->get('report.client_statement'); ?></a></li>
+                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('customer.view')): ?>
+                        <li class="<?php echo e($request->segment(1) == 'new_member' ? 'active' : '', false); ?>">
+                            <a href="<?php echo e(action('NewMemberReportController@index', ['type' => 'customer']), false); ?>"><i class="fa fa-users"></i> 5.8 <?php echo app('translator')->get('lang_v1.new_member'); ?></a></li>
+                        <?php endif; ?>
                     </ul>
                 </li>
             <?php endif; ?>

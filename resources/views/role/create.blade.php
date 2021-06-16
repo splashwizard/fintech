@@ -228,6 +228,14 @@
               </label>
             </div>
           </div>
+          <div class="col-md-12">
+            <div class="checkbox">
+                <label>
+                    {!! Form::checkbox('permissions[]', 'customer.hide_info', false, ['class' => 'input-icheck']); !!}
+                    {{ __('role.customer.hide_info') }}
+                </label>
+            </div>
+          </div>
         </div>
         </div>
         <hr>

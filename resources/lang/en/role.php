@@ -37,6 +37,7 @@ return [
     'customer.create' => 'Add customer',
     'customer.update' => 'Edit customer',
     'customer.delete' => 'Delete customer',
+    'customer.hide_info' => 'Hide important info',
 
     'product.view' => 'View product',
     'product.create' => 'Add product',
