@@ -170,19 +170,21 @@ $(document).ready(function() {
                 // - PIE CHART -
                 // -------------
                 // Get context with jQuery - using jQuery's .get() method.
-                $('#pieChart').remove();
-                $('#chart_container').append('<canvas id="pieChart" height="165" width="200" style="width: 200px; height: 165px;"></canvas>');
-                var pieChartCanvas = $('#pieChart').get(0).getContext('2d');
-                var pieChart       = new Chart(pieChartCanvas);
+                $('#cg_pieChart').remove();
+                $('#cg_chart_container').append('<canvas id="cg_pieChart" height="165" width="200" style="width: 200px; height: 165px;"></canvas>');
+                var cg_pieChartCanvas = $('#cg_pieChart').get(0).getContext('2d');
                 const registration_arr = data.registration_arr;
-                let PieData = [];
-                let html = '';
-                for(let data of registration_arr){
+                let labels = [], pieData = [], backgroundColors = [];
+                // let html = '';
+                for(let item of registration_arr){
                     const random_color = getRandomColor();
-                    PieData.push({value: data.cnt, color: random_color,highlight: random_color,label: data.name});
-                    html +='<li><i class="fa fa-circle-o" style="color: ' + random_color + '"></i> ' + data.name+ '</li>';
+                    backgroundColors.push(random_color);
+                    pieData.push(item.cnt);
+                    labels.push(item.name);
+                    // PieData.push({value: data.cnt, color: random_color,highlight: random_color,label: data.name});
+                    // html +='<li><i class="fa fa-circle-o" style="color: ' + random_color + '"></i> ' + data.name+ '</li>';
                 }
-                $('#chart_legend').html(html);
+                // $('#chart_legend').html(html);
                 var pieOptions     = {
                     // Boolean - Whether we should show a stroke on each segment
                     segmentShowStroke    : true,
@@ -208,11 +210,57 @@ $(document).ready(function() {
                     legendTemplate       : '<ul class=\'<%=name.toLowerCase()%>-legend\'><% for (var i=0; i<segments.length; i++){%><li><span style=\'background-color:<%=segments[i].fillColor%>\'></span><%if(segments[i].label){%><%=segments[i].label%><%}%></li><%}%></ul>',
                     // String - A tooltip template
                     // tooltipTemplate      : '<%=label%> <%=value %> users'
-                    tooltipTemplate      : '<%=value %> users <%=label%>'
+                    tooltipTemplate      : '<%=value %> users <%=label%>',
+                    legend: {
+                        position: 'right'
+                    }
                 };
                 // Create pie or douhnut chart
                 // You can switch between pie and douhnut using the method below.
-                pieChart.Doughnut(PieData, pieOptions);
+                // pieChart.Doughnut(PieData, pieOptions);
+                new Chart(cg_pieChartCanvas, {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'My First Dataset',
+                            data: pieData,
+                            backgroundColor: backgroundColors,
+                            hoverOffset: 4
+                        }]
+                    },
+                    options: pieOptions
+                });
+                // added_by chart
+                $('#added_by_pieChart').remove();
+                $('#added_by_chart_container').append('<canvas id="added_by_pieChart" height="165" width="200" style="width: 200px; height: 165px;"></canvas>');
+                var added_by_pieChartCanvas = $('#added_by_pieChart').get(0).getContext('2d');
+                const added_by_arr = data.added_by_arr;
+                labels = [];
+                pieData = [];
+                backgroundColors = [];
+                // let html = '';
+                for(let item of added_by_arr){
+                    const random_color = getRandomColor();
+                    backgroundColors.push(random_color);
+                    pieData.push(item.cnt);
+                    labels.push(item.username);
+                    // PieData.push({value: data.cnt, color: random_color,highlight: random_color,label: data.name});
+                    // html +='<li><i class="fa fa-circle-o" style="color: ' + random_color + '"></i> ' + data.name+ '</li>';
+                }
+                new Chart(added_by_pieChartCanvas, {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'My First Dataset',
+                            data: pieData,
+                            backgroundColor: backgroundColors,
+                            hoverOffset: 4
+                        }]
+                    },
+                    options: pieOptions
+                });
                 // -----------------
                 // - END PIE CHART -
                 // -----------------

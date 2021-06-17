@@ -139,27 +139,28 @@
 	    <div class="clearfix"></div>
 	    <div class="col-lg-4 col-md-6 col-xs-12">
 	      <div class="info-box">
-              <div class="row" style="padding-top: 15px; padding-bottom: 15px">
-                  <div class="col-md-8">
-                      <div class="chart-responsive" id="chart_container">
-                          <canvas id="pieChart" height="165" width="200" style="width: 200px; height: 165px;"></canvas>
-                      </div>
-                      <!-- ./chart-responsive -->
-                  </div>
-                  <!-- /.col -->
-                  <div class="col-md-4">
-                      <ul class="chart-legend clearfix" id="chart_legend" style="margin-top: 20px">
-                      </ul>
-                  </div>
-                  <!-- /.col -->
-              </div>
-
-
+          <div style="padding-top: 15px; padding-bottom: 15px">
+            <div class="chart-responsive" id="cg_chart_container">
+              <canvas id="cg_pieChart" height="165" width="200" style="width: 200px; height: 165px;"></canvas>
+            </div>
+              
+          </div>
 	        <!-- /.info-box-content -->
 	      </div>
 	      <!-- /.info-box -->
 	    </div>
-        <div class="col-lg-4 col-md-6 col-xs-12">
+      <div class="col-lg-4 col-md-6 col-xs-12">
+	      <div class="info-box">
+          <div style="padding-top: 15px; padding-bottom: 15px">
+            <div class="chart-responsive" id="added_by_chart_container">
+              <canvas id="added_by_pieChart" height="165" width="200" style="width: 200px; height: 165px;"></canvas>
+            </div>
+          </div>
+	        <!-- /.info-box-content -->
+	      </div>
+	      <!-- /.info-box -->
+	    </div>
+      <div class="col-lg-4 col-md-6 col-xs-12">
         <div class="info-box" id="total_bank_transaction">
             <span class="custom-info-box bg-yellow">
                 Total Bank Transaction
@@ -381,7 +382,7 @@
         const banks = JSON.parse('<?php echo json_encode($banks);?>');
         const services = JSON.parse('<?php echo json_encode($services);?>');
     </script>
-    <script src="<?php echo e(asset('AdminLTE/plugins/chartjs/Chart.js'), false); ?>"></script>
+    
     <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
     <script src="<?php echo e(asset('js/home.js?v=' . $asset_v), false); ?>"></script>
 

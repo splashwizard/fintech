@@ -263,6 +263,7 @@ $hide_info = !auth()->user()->hasRole('Superadmin') && !auth()->user()->hasRole(
                 }
             },
             columns: columns,
+            "order": [[ 14, "desc" ]],
             fnDrawCallback: function(oSettings) {
                 var total_due = sum_table_col($('#contact_table'), 'contact_due');
                 $('#footer_contact_due').text(total_due);

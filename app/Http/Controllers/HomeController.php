@@ -296,6 +296,13 @@ class HomeController extends Controller
                     , DB::raw("SUM( IF( AT.type='debit' AND (AT.sub_type IS NULL OR AT.`sub_type` != 'fund_transfer'), AT.amount, 0) ) as total_withdraw")]);
 
             $bank_accounts = $bank_accounts_sql->get();
+
+            $added_by_query = Contact::join('users AS u', 'u.id', 'contacts.created_by')
+                ->where('contacts.business_id', $business_id)->where('type', 'customer')
+                ->whereBetween(\Illuminate\Support\Facades\DB::raw('date(contacts.created_at)'), [$start, $end])
+                ->select(DB::raw('COUNT(contacts.id) as cnt'), 'u.username')
+                ->groupBy('contacts.created_by');
+
             $output['total_deposit'] = $bank_accounts[0]->total_deposit;
             $output['total_withdraw'] = $bank_accounts[0]->total_withdraw;
             $output['deposit_count'] = $deposit_count;
@@ -303,8 +310,9 @@ class HomeController extends Controller
 //            $output['total_sell'] = $total_sell_inc_tax - $total_sell_return_inc_tax;
 //            $output['total_deposit'] = $total_sell_inc_tax;
             $output['total_bonus'] = $data['basic_bonus'];
-            $output['total_profit'] = $data['free_credit'];;
+            $output['total_profit'] = $data['free_credit'];
             $output['registration_arr'] = $query->get();
+            $output['added_by_arr'] = $added_by_query->get();
 
 //            $output['invoice_due'] = $sell_details['invoice_due'];
 
