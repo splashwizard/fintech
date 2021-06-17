@@ -314,7 +314,7 @@ $(document).ready(function() {
                 var list = result.list;
                 $('#product_list_body2 .product_box').removeClass('has-game-id');
                 for(let service_id of list){
-                    $('#product_list_body2 .productG_box[data-account_id="' + service_id + '"]').addClass('has-game-id');
+                    $('#product_list_body2 .product_box[data-account_id="' + service_id + '"]').addClass('has-game-id');
                 }
             }
         });
