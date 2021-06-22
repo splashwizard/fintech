@@ -75,14 +75,14 @@ class AccountController extends Controller
                                 ->where('accounts.is_closed', 0)
                                 ->where('accounts.name', '!=', 'Bonus Account')
                                 ->where('accounts.business_id', $business_id)
-                                ->where(function ($q) {
-                                    $q->where('T.payment_status', '!=', 'cancelled');
-                                    $q->orWhere('T.payment_status', '=', null);
-                                })
+                                // ->where(function ($q) {
+                                //     $q->where('T.payment_status', '!=', 'cancelled');
+                                //     $q->orWhere('T.payment_status', '=', null);
+                                // })
                                 ->select(['accounts.name', 'accounts.account_number', 'accounts.note', 'accounts.id', 'currencies.code as currency',
                                     'bank_brands.name as bank_brand',
                                     'accounts.is_closed',
-                                    \Illuminate\Support\Facades\DB::raw("SUM( IF( accounts.shift_closed_at IS NULL OR AT.operation_date >= accounts.shift_closed_at,  IF( AT.type='credit', AT.amount, -1*AT.amount), 0) ) as balance"),
+                                    \Illuminate\Support\Facades\DB::raw("SUM( IF( ( accounts.shift_closed_at IS NULL OR AT.operation_date >= accounts.shift_closed_at) AND T.payment_status != 'cancelled',  IF( AT.type='credit', AT.amount, -1*AT.amount), 0) ) as balance"),
                                     ])
                                 ->groupBy('accounts.id');
 
