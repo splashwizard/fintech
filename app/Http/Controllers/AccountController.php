@@ -75,14 +75,11 @@ class AccountController extends Controller
                                 ->where('accounts.is_closed', 0)
                                 ->where('accounts.name', '!=', 'Bonus Account')
                                 ->where('accounts.business_id', $business_id)
-                                // ->where(function ($q) {
-                                //     $q->where('T.payment_status', '!=', 'cancelled');
-                                //     $q->orWhere('T.payment_status', '=', null);
-                                // })
+                                ->whereNull('AT.cancelled_at')
                                 ->select(['accounts.name', 'accounts.account_number', 'accounts.note', 'accounts.id', 'currencies.code as currency',
                                     'bank_brands.name as bank_brand',
                                     'accounts.is_closed',
-                                    \Illuminate\Support\Facades\DB::raw("SUM( IF( ( accounts.shift_closed_at IS NULL OR AT.operation_date >= accounts.shift_closed_at) AND T.payment_status != 'cancelled',  IF( AT.type='credit', AT.amount, -1*AT.amount), 0) ) as balance"),
+                                    \Illuminate\Support\Facades\DB::raw("SUM( IF( ( accounts.shift_closed_at IS NULL OR AT.operation_date >= accounts.shift_closed_at),  IF( AT.type='credit', AT.amount, -1*AT.amount), 0) ) as balance"),
                                     ])
                                 ->groupBy('accounts.id');
 
@@ -254,8 +251,8 @@ class AccountController extends Controller
                             ->select(['type', 'amount', 'operation_date',
                                 'sub_type', 'transfer_transaction_id',
                                 DB::raw('(SELECT SUM( IF(AT.type="credit", AT.amount, -1 * AT.amount) ) from account_transactions as AT 
-                                WHERE AT.operation_date <= account_transactions.operation_date AND (IF(account_transactions.shift_closed_at IS NOT NULL, account_transactions.shift_closed_at < AT.operation_date, 1)) 
-                                AND AT.account_id = account_transactions.account_id AND AT.cancelled_at IS NULL) as balance'),
+                                WHERE AT.operation_date <= account_transactions.operation_date AND (IF(account_transactions.shift_closed_at IS NOT NULL, account_transactions.shift_closed_at <= AT.operation_date, 1)) 
+                                AND AT.account_id = account_transactions.account_id AND AT.cancelled_at IS NULL AND AT.deleted_at IS NULL) as balance'),
                                 'transaction_id',
                                 'account_transactions.id',
                                 'account_transactions.note AS note'
@@ -962,7 +959,7 @@ class AccountController extends Controller
             }
 
             $output = ['success' => true,
-                'msg' => __("account.deposited_successfully")
+                'msg' => __("account.withdrawn_successfully")
             ];
         } catch (\Exception $e) {
             DB::rollBack();
@@ -1015,11 +1012,8 @@ class AccountController extends Controller
         if($shift_closed_at != null)
             $query = $query->where('account_transactions.operation_date', '>=', $shift_closed_at);
         $total_row = $query->whereNull('account_transactions.deleted_at')
-            ->where(function ($q) {
-                $q->where('T.payment_status', '!=', 'cancelled');
-                $q->orWhere('T.payment_status', '=', null);
-            })
-            ->select(DB::raw("SUM( IF(account_transactions.type='credit', account_transactions.amount, -1 * account_transactions.amount) ) as balance"))
+            ->whereNull('account_transactions.cancelled_at')
+            ->select(DB::raw("SUM( IF(account_transactions.type='credit', account_transactions.amount, -1 * account_transactions.amount)) as balance"))
             ->first();
         return $total_row->balance;
     }

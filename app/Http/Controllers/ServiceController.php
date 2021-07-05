@@ -79,6 +79,7 @@ class ServiceController extends Controller
                 ->where('accounts.is_service', 1)
                 ->where('accounts.name', '!=', 'Bonus Account')
                 ->where('accounts.business_id', $business_id)
+                ->whereNull('AT.cancelled_at')
                 // ->where(function ($q) {
                 //     $q->where('T.payment_status', '!=', 'cancelled');
                 //     $q->orWhere('T.payment_status', '=', null);
@@ -259,10 +260,10 @@ class ServiceController extends Controller
                     'sub_type', 'transfer_transaction_id',
                     DB::raw('(SELECT SUM( IF(AT.type="credit", AT.amount, -1 * AT.amount) ) from account_transactions as AT 
                                 WHERE AT.operation_date <= account_transactions.operation_date AND (IF(account_transactions.shift_closed_at IS NOT NULL, account_transactions.shift_closed_at < AT.operation_date, 1)) 
-                                AND AT.account_id = account_transactions.account_id AND AT.cancelled_at IS NULL) as balance'),
+                                AND AT.account_id = account_transactions.account_id AND AT.cancelled_at IS NULL AND AT.deleted_at IS NULL) as balance'),
                     DB::raw('(SELECT SUM( IF(AT.type="credit", -1*AT.amount, AT.amount) ) from account_transactions as AT 
                                 WHERE AT.operation_date <= account_transactions.operation_date AND (IF(account_transactions.shift_closed_at IS NOT NULL, account_transactions.shift_closed_at < AT.operation_date, 1)) 
-                                AND AT.account_id = account_transactions.account_id AND AT.cancelled_at IS NULL AND ( AT.sub_type IS NULL OR AT.sub_type != "opening_balance") ) as special_balance'),
+                                AND AT.account_id = account_transactions.account_id AND AT.cancelled_at IS NULL AND AT.deleted_at IS NULL AND ( AT.sub_type IS NULL OR AT.sub_type != "opening_balance") ) as special_balance'),
                     'transaction_id',
                     'account_transactions.id',
                     'account_transactions.note AS note'
@@ -1094,11 +1095,7 @@ class ServiceController extends Controller
         if($shift_closed_at != null)
             $query = $query->where('account_transactions.operation_date', '>=', $shift_closed_at);
         $query = $query->whereNull('account_transactions.deleted_at')
-            ->where(function ($q) {
-                $q->where('T.payment_status', '!=', 'cancelled');
-                $q->orWhere('T.payment_status', '=', null);
-            });
-
+            ->whereNull('account_transactions.cancelled_at');
         if($is_special_kiosk)
             $query = $query->where(function ($q) {
                 $q->where('account_transactions.sub_type', '!=', 'opening_balance');
