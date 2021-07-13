@@ -2942,7 +2942,7 @@ class SellPosDepositController extends Controller
                             'payment_method' => !empty($paymentTypes[$payment->method]) ? $paymentTypes[$payment->method] : '',
                             'others' => '<small>' . $ref_no . '</small>',
                             'bank_in_time' => $payment->bank_in_time,
-                            'user' => $user['first_name'].' '.$user['last_name'],
+                            'user' => $user ? $user->user_full_name : '',
                             'is_default' => $payment->is_default,
                             'account_name' => $payment->account_name,
                             'transaction_id' => $payment->transaction_id
