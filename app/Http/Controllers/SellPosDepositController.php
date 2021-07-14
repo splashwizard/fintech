@@ -2529,7 +2529,7 @@ class SellPosDepositController extends Controller
             // });
 
             $products = $products->select(
-                DB::raw("SUM( IF( (accounts.shift_closed_at IS NULL OR AT.operation_date >= accounts.shift_closed_at) AND T.payment_status != 'cancelled',  IF( AT.type='credit', AT.amount, -1*AT.amount), 0) ) as balance"),
+                DB::raw("SUM( IF( (accounts.shift_closed_at IS NULL OR AT.operation_date >= accounts.shift_closed_at)AND AT.cancelled_at IS NULL AND AT.deleted_at IS NULL,  IF( AT.type='credit', AT.amount, -1*AT.amount), 0) ) as balance"),
                 'products.id',
                 'products.name'
             )
@@ -2633,8 +2633,8 @@ class SellPosDepositController extends Controller
 
 
             $products = $products->select(
-                DB::raw("SUM( IF( (accounts.shift_closed_at IS NULL OR AT.operation_date >= accounts.shift_closed_at) AND (!accounts.is_special_kiosk OR AT.sub_type IS NULL OR AT.sub_type != 'opening_balance') AND T.payment_status != 'cancelled',  IF( AT.type='credit', AT.amount, -1*AT.amount), 0) )
-                  * (1 - accounts.is_special_kiosk * 2) as balance"),
+                DB::raw('SUM( IF((accounts.shift_closed_at IS NULL OR AT.operation_date >= accounts.shift_closed_at) AND AT.cancelled_at IS NULL AND AT.deleted_at IS NULL,
+                        IF(AT.type="credit", AT.amount, -1 * AT.amount), 0)) * (1 - accounts.is_special_kiosk * 2) as balance'),
                 'p.id as product_id',
                 'p.name',
                 'p.type',

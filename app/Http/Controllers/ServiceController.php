@@ -88,7 +88,7 @@ class ServiceController extends Controller
 //                    \Illuminate\Support\Facades\DB::raw("SUM( IF( (accounts.shift_closed_at IS NULL OR AT.operation_date >= accounts.shift_closed_at) AND T.payment_status != 'cancelled' AND (!accounts.is_special_kiosk OR AT.sub_type IS NULL OR AT.sub_type = 'opening_balance'),  IF( AT.type='credit', AT.amount, -1*AT.amount), 0) )
 //                     * (1 - accounts.is_special_kiosk * 2) as balance"),
                     \Illuminate\Support\Facades\DB::raw('SUM( IF((accounts.shift_closed_at IS NULL OR AT.operation_date >= accounts.shift_closed_at) AND AT.cancelled_at IS NULL AND AT.deleted_at IS NULL,
-                        IF(AT.type="credit", AT.amount, -1 * AT.amount), 0)) as balance')
+                        IF(AT.type="credit", AT.amount, -1 * AT.amount), 0)) * (1 - accounts.is_special_kiosk * 2) as balance')
                 ])
                 ->groupBy('accounts.id');
 
@@ -850,7 +850,7 @@ class ServiceController extends Controller
                         })
                             ->leftjoin('currencies', 'currencies.id', 'accounts.currency_id')
                             ->where('accounts.id', $bank_account_id)
-                            ->select([DB::raw("SUM( IF(AT.type='credit', amount, -1*amount) ) as balance")])
+                            ->select([DB::raw("SUM( IF( (accounts.shift_closed_at IS NULL OR AT.operation_date >= accounts.shift_closed_at) AND AT.cancelled_at IS NULL AND AT.deleted_at IS NULL,  IF( AT.type='credit', AT.amount, -1*AT.amount), 0) ) as balance")])
                             ->groupBy('accounts.id');
                         if($accounts->get()->first()->balance < $amount){
                             $output = ['success' => false,
@@ -1099,7 +1099,7 @@ class ServiceController extends Controller
                 $q->orWhere('account_transactions.sub_type', '=', null);
             });
         $total_row = $query->select(DB::raw('SUM( IF((A.shift_closed_at IS NULL OR account_transactions.operation_date >= A.shift_closed_at) AND account_transactions.cancelled_at IS NULL AND account_transactions.deleted_at IS NULL,
-                        IF(account_transactions.type="credit", account_transactions.amount, -1 * account_transactions.amount), 0)) as balance'))
+                        IF(account_transactions.type="credit", account_transactions.amount, -1 * account_transactions.amount), 0)) * (1 - A.is_special_kiosk * 2) as balance'))
             ->first();
         return $total_row->balance;
     }
