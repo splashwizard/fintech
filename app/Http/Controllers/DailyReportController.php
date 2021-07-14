@@ -165,6 +165,7 @@ class DailyReportController extends Controller
         $bank_accounts_sql = Account::join('transaction_payments as tp', 'tp.account_id', 'accounts.id')
             ->join('transactions as t', 't.id', 'tp.transaction_id')
             ->where('accounts.is_service', 0)
+            ->where('accounts.name', '!=', 'Bonus Account')
             ->where('accounts.business_id', $business_id)
             ->select('accounts.id as account_id', DB::raw("SUM( IF(t.type = 'sell' AND t.payment_status = 'cancelled' , tp.amount, 0) ) as back"))
             ->groupBy('accounts.id');
