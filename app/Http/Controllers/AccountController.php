@@ -79,7 +79,7 @@ class AccountController extends Controller
                                 ->select(['accounts.name', 'accounts.account_number', 'accounts.note', 'accounts.id', 'currencies.code as currency',
                                     'bank_brands.name as bank_brand',
                                     'accounts.is_closed',
-                                    \Illuminate\Support\Facades\DB::raw("SUM( IF( ( accounts.shift_closed_at IS NULL OR AT.operation_date >= accounts.shift_closed_at),  IF( AT.type='credit', AT.amount, -1*AT.amount), 0) ) as balance"),
+                                    \Illuminate\Support\Facades\DB::raw("SUM( IF( (accounts.shift_closed_at IS NULL OR AT.operation_date >= accounts.shift_closed_at)AND AT.cancelled_at IS NULL AND AT.deleted_at IS NULL,  IF( AT.type='credit', AT.amount, -1*AT.amount), 0) ) as balance"),
                                     ])
                                 ->groupBy('accounts.id');
 

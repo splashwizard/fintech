@@ -79,7 +79,6 @@ class ServiceController extends Controller
                 ->where('accounts.is_service', 1)
                 ->where('accounts.name', '!=', 'Bonus Account')
                 ->where('accounts.business_id', $business_id)
-//                ->whereNull('AT.cancelled_at')
                 // ->where(function ($q) {
                 //     $q->where('T.payment_status', '!=', 'cancelled');
                 //     $q->orWhere('T.payment_status', '=', null);
@@ -88,7 +87,7 @@ class ServiceController extends Controller
                     'accounts.is_closed', 'accounts.is_daily_zero', 'accounts.is_special_kiosk',
 //                    \Illuminate\Support\Facades\DB::raw("SUM( IF( (accounts.shift_closed_at IS NULL OR AT.operation_date >= accounts.shift_closed_at) AND T.payment_status != 'cancelled' AND (!accounts.is_special_kiosk OR AT.sub_type IS NULL OR AT.sub_type = 'opening_balance'),  IF( AT.type='credit', AT.amount, -1*AT.amount), 0) )
 //                     * (1 - accounts.is_special_kiosk * 2) as balance"),
-                    \Illuminate\Support\Facades\DB::raw('SUM( IF((accounts.shift_closed_at IS NULL OR AT.operation_date >= accounts.shift_closed_at) AND AT.deleted_at IS NULL,
+                    \Illuminate\Support\Facades\DB::raw('SUM( IF((accounts.shift_closed_at IS NULL OR AT.operation_date >= accounts.shift_closed_at) AND AT.cancelled_at IS NULL AND AT.deleted_at IS NULL,
                         IF(AT.type="credit", AT.amount, -1 * AT.amount), 0)) as balance')
                 ])
                 ->groupBy('accounts.id');
@@ -1094,16 +1093,13 @@ class ServiceController extends Controller
                 'T.id')
             ->where('A.business_id', $business_id)
             ->where('A.id', $id);
-        if($shift_closed_at != null)
-            $query = $query->where('account_transactions.operation_date', '>=', $shift_closed_at);
-        $query = $query->whereNull('account_transactions.deleted_at')
-            ->whereNull('account_transactions.cancelled_at');
         if($is_special_kiosk)
             $query = $query->where(function ($q) {
                 $q->where('account_transactions.sub_type', '!=', 'opening_balance');
                 $q->orWhere('account_transactions.sub_type', '=', null);
             });
-        $total_row = $query->select(DB::raw("SUM( IF(account_transactions.type='credit', account_transactions.amount, -1 * account_transactions.amount) )*( 1 - is_special_kiosk * 2) as balance"))
+        $total_row = $query->select(DB::raw('SUM( IF((A.shift_closed_at IS NULL OR account_transactions.operation_date >= A.shift_closed_at) AND account_transactions.cancelled_at IS NULL AND account_transactions.deleted_at IS NULL,
+                        IF(account_transactions.type="credit", account_transactions.amount, -1 * account_transactions.amount), 0)) as balance'))
             ->first();
         return $total_row->balance;
     }
