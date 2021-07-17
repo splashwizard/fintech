@@ -14,6 +14,7 @@ class AddSuperadminRole extends Migration
      */
     public function up()
     {
+        Schema::disableForeignKeyConstraints(); // temporary migration fix
         //
         Role::create([
             'name' => 'Superadmin',

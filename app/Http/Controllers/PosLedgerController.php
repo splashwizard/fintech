@@ -96,7 +96,6 @@ class PosLedgerController extends Controller
                     $ref_no = in_array($payment->transaction_type, ['sell', 'sell_return']) ? $payment->invoice_no : $payment->ref_no;
                     $user = User::find($payment->created_by);
 
-
                     $game_data = GameId::where('contact_id', $payment->contact_primary_key)->where('service_id', $payment->account_id)->get();
                     $game_id = null;
                     if(count($game_data) >= 1){

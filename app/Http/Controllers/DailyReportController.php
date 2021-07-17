@@ -16,6 +16,7 @@ use App\Utils\ModuleUtil;
 use App\Utils\TransactionUtil;
 
 use DB;
+use Log;
 use Illuminate\Http\Request;
 
 use Yajra\DataTables\Facades\DataTables;
@@ -91,40 +92,56 @@ class DailyReportController extends Controller
         }
 
         // balance, deposit, withdraw
+        // A Brought forward is the balance that are brought from at previous operation date. Not equal to today date.
         $bank_accounts_sql = Account::leftjoin('account_transactions as AT', function ($join) {
             $join->on('AT.account_id', '=', 'accounts.id');
             $join->whereNull('AT.deleted_at');
-        })
+          
+        })->leftjoin( 'transactions as T','AT.transaction_id','=','T.id')
             ->where('is_service', 0)
             ->where('name', '!=', 'Bonus Account')
-            ->where('business_id', $business_id)
+            ->where('accounts.business_id', $business_id)
             ->select(['name', 'account_number', 'accounts.note', 'accounts.id as account_id',
-                'is_closed', DB::raw("SUM( IF( accounts.shift_closed_at IS NULL OR AT.operation_date >= accounts.shift_closed_at,  IF( AT.type='credit', AT.amount, -1*AT.amount), 0) ) as balance")
-                , DB::raw("SUM( IF( AT.type='credit' AND (AT.sub_type IS NULL OR (AT.`sub_type` != 'fund_transfer' AND AT.`sub_type` != 'opening_balance' AND AT.`sub_type` != 'expense')), AT.amount, 0) ) as total_deposit")
-                , DB::raw("SUM( IF( AT.type='debit' AND (AT.sub_type IS NULL OR (AT.`sub_type` != 'fund_transfer' AND AT.`sub_type` != 'opening_balance' AND AT.`sub_type` != 'expense')), AT.amount, 0) ) as total_withdraw")
-                , DB::raw("SUM( IF(AT.type='credit' AND AT.sub_type='fund_transfer', amount, 0) ) as transfer_in")
-                , DB::raw("SUM( IF(AT.type='debit' AND AT.sub_type='fund_transfer', amount, 0) ) as transfer_out")])
+                'is_closed', DB::raw("SUM( IF(accounts.shift_closed_at IS NULL OR AT.operation_date  >= accounts.shift_closed_at, IF( AT.type='credit', AT.amount, -1*AT.amount), 0)) as balance")
+                , DB::raw("SUM(IF(accounts.shift_closed_at IS NULL OR AT.operation_date  >= accounts.shift_closed_at, IF( AT.type='credit' AND (AT.sub_type IS NULL OR (AT.`sub_type` != 'fund_transfer' AND AT.`sub_type` != 'opening_balance' AND AT.`sub_type` != 'expense')), AT.amount, 0),0)) as total_deposit")
+                , DB::raw("SUM(IF(accounts.shift_closed_at IS NULL OR AT.operation_date  >= accounts.shift_closed_at, IF( AT.type='debit' AND (AT.sub_type IS NULL OR (AT.`sub_type` != 'fund_transfer' AND AT.`sub_type` != 'opening_balance' AND AT.`sub_type` != 'expense')), AT.amount, 0),0) ) as total_withdraw")
+                , DB::raw("SUM(IF(accounts.shift_closed_at IS NULL OR AT.operation_date  >= accounts.shift_closed_at, IF(AT.type='credit' AND AT.sub_type='fund_transfer', amount, 0),0) ) as transfer_in")
+                , DB::raw("SUM(IF(accounts.shift_closed_at IS NULL OR AT.operation_date  >= accounts.shift_closed_at, IF(AT.type='debit' AND AT.sub_type='fund_transfer', amount, 0),0) ) as transfer_out")])
             ->groupBy('accounts.id');
+
         $bank_accounts_sql->where(function ($q) {
             $q->where('account_type', '!=', 'capital');
             $q->orWhereNull('account_type');
         });
-        $bank_account_balances = $bank_accounts_sql->get();
+       
+
+        $bank_accounts_sql->where(function ($q) {
+            $q->where('T.payment_status', '!=', 'cancelled');
+            $q->orWhere('T.payment_status', '=', null);
+        });
+
+        $bank_account_balances = with(clone $bank_accounts_sql)->whereDate('AT.operation_date', '<', $start)->get();
+      
         foreach ($bank_account_balances as $bank_account) {
             $bank_accounts_obj['balance'][$bank_account['account_id']] = $bank_account['balance'];
             $bank_accounts_obj['overall'][$bank_account['account_id']] = $bank_account['balance'];
-        }
+        } 
+ 
         if (!empty($start) && !empty($end)) {
             $bank_accounts_sql->whereDate('AT.operation_date', '>=', $start)
                         ->whereDate('AT.operation_date', '<=', $end);
         }
         $bank_accounts = $bank_accounts_sql->get();
+
         foreach ($bank_accounts as $bank_account) {
             $bank_accounts_obj['deposit'][$bank_account['account_id']] = $bank_account['total_deposit'];
             $bank_accounts_obj['withdraw'][$bank_account['account_id']] = $bank_account['total_withdraw'];
             $bank_accounts_obj['transfer_in'][$bank_account['account_id']] = $bank_account['transfer_in'];
             $bank_accounts_obj['transfer_out'][$bank_account['account_id']] = $bank_account['transfer_out'];
-            $bank_accounts_obj['overall'][$bank_account['account_id']] += $bank_account['total_deposit'] - $bank_account['total_withdraw'];
+            if(!array_key_exists($bank_account['account_id'], $bank_accounts_obj['overall'])) {
+                $bank_accounts_obj['overall'][$bank_account['account_id']] = 0;
+            }
+            $bank_accounts_obj['overall'][$bank_account['account_id']] += ($bank_account['transfer_in'] - $bank_account['transfer_out']) + ($bank_account['total_deposit'] - $bank_account['total_withdraw']);
             $bank_accounts_obj['win_loss'][$bank_account['account_id']] = $bank_account['total_deposit'] - $bank_account['total_withdraw'];
         }
         //unclaimed trans
