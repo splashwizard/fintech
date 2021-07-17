@@ -2493,7 +2493,7 @@ class SellPosDepositController extends Controller
                 $q->where('T.payment_status', '!=', 'cancelled');
                 $q->orWhere('T.payment_status', '=', null);
             });
-            DB::enableQueryLog(); // Enable query log
+           
             $products = $products->select(
                 DB::raw("SUM( IF( accounts.shift_closed_at IS NULL OR AT.operation_date >= accounts.shift_closed_at,  IF( AT.type='credit', AT.amount, -1*AT.amount), 0) ) as balance"),
                 'products.id',
@@ -2501,8 +2501,7 @@ class SellPosDepositController extends Controller
             )
                 ->orderBy('products.name', 'asc')
                 ->paginate(40);
-                
-                \Log::info(DB::getQueryLog());
+            
             $business_details = $this->businessUtil->getDetails($business_id);
             $bonus_decimal = $business_details->bonus_decimal;
             return view('sale_pos_deposit.partials.bank_product_list')
