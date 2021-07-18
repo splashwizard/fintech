@@ -2494,10 +2494,7 @@ class SellPosDepositController extends Controller
                     $join->on('AT.account_id', '=', 'accounts.id');
                     $join->whereNull('AT.deleted_at');
                 })
-                ->leftjoin( 'transactions as T',
-                    'AT.transaction_id',
-                    '=',
-                    'T.id')
+                ->leftjoin( 'transactions as T', 'AT.transaction_id', '=','T.id')
                 ->groupBy('accounts.id')
                 ->where('products.business_id', $business_id)
                 ->where('products.type', '!=', 'modifier')
@@ -2523,13 +2520,13 @@ class SellPosDepositController extends Controller
                 });
             }
 
-            // $products = $products->where(function ($q) {
-            //     $q->where('T.payment_status', '!=', 'cancelled');
-            //     $q->orWhere('T.payment_status', '=', null);
-            // });
+            $products = $products->where(function ($q) {
+               $q->where('T.payment_status', '!=', 'cancelled');
+                $q->orWhere('T.payment_status', '=', null);
+             });
 
             $products = $products->select(
-                DB::raw("SUM( IF( (accounts.shift_closed_at IS NULL OR AT.operation_date >= accounts.shift_closed_at)AND AT.cancelled_at IS NULL AND AT.deleted_at IS NULL,  IF( AT.type='credit', AT.amount, -1*AT.amount), 0) ) as balance"),
+                DB::raw("SUM( IF( accounts.shift_closed_at IS NULL OR AT.operation_date >= accounts.shift_closed_at,  IF( AT.type='credit', AT.amount, -1*AT.amount), 0) ) as balance"),
                 'products.id',
                 'products.name'
             )
@@ -2538,6 +2535,8 @@ class SellPosDepositController extends Controller
 
             $business_details = $this->businessUtil->getDetails($business_id);
             $bonus_decimal = $business_details->bonus_decimal;
+
+            // return response()->json(compact('products', 'bonus_decimal'));
             return view('sale_pos_deposit.partials.bank_product_list')
                 ->with(compact('products', 'bonus_decimal'));
         }
