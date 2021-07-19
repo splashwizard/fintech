@@ -290,7 +290,7 @@ class DailyReportController extends Controller
             ->where('accounts.name', '!=', 'Safe Kiosk Account')
             ->where(function ($q) {
                 $q->where('T.payment_status', '!=', 'cancelled');
-                $q->orWhere('T.payment_status', '=', null);
+                $q->orWhereNull('T.payment_status');
             })
             ->select(['name', 'account_number', 'accounts.note', 'accounts.id as account_id',
                 'is_closed', DB::raw("SUM( IF( (accounts.shift_closed_at IS NULL OR AT.operation_date >= accounts.shift_closed_at) AND (!accounts.is_special_kiosk OR AT.sub_type IS NULL OR AT.sub_type != 'opening_balance'),  IF( AT.type='credit', AT.amount, -1*AT.amount), 0) )
