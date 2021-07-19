@@ -127,8 +127,7 @@ class DailyReportController extends Controller
         $bank_accounts = $bank_accounts_sql->get();
         foreach ($bank_accounts as $bank_account) {
             $bank_accounts_obj['deposit'][$bank_account['account_id']] = $bank_account['total_deposit'];
-//            $bank_accounts_obj['withdraw'][$bank_account['account_id']] = $bank_account['total_withdraw'];
-            $bank_accounts_obj['withdraw'][$bank_account['account_id']] = 1;
+            $bank_accounts_obj['withdraw'][$bank_account['account_id']] = $bank_account['total_withdraw'];
             $bank_accounts_obj['transfer_in'][$bank_account['account_id']] = $bank_account['transfer_in'];
             $bank_accounts_obj['transfer_out'][$bank_account['account_id']] = $bank_account['transfer_out'];
             $bank_accounts_obj['overall'][$bank_account['account_id']] += ($bank_account['total_deposit'] - $bank_account['total_withdraw'] + $bank_account['transfer_in'] - $bank_account['transfer_out']);
