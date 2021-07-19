@@ -172,7 +172,7 @@ class DailyReportController extends Controller
         $bank_accounts = $bank_accounts_sql->get();
         foreach ($bank_accounts as $bank_account) {
             $bank_accounts_obj['back'][$bank_account['account_id']] = $bank_account['back'];
-            $bank_accounts_obj['overall'][$bank_account['account_id']] -= $bank_account['back'];
+//            $bank_accounts_obj['overall'][$bank_account['account_id']] -= $bank_account['back'];
         }
         // in_ticket, out_ticket
         $sells = Transaction::leftJoin('transaction_payments as tp', 'transactions.id', '=', 'tp.transaction_id')
