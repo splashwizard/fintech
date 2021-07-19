@@ -1029,7 +1029,7 @@ class SellPosDepositController extends Controller
                                 ->where('accounts.business_id', $business_id)
                                 ->where(function ($q) {
                                     $q->where('T.payment_status', '!=', 'cancelled');
-                                    $q->orWhere('T.payment_status', '=', null);
+                                    $q->orWhereNull('T.payment_status');
                                 })
                                 ->select(['name', \Illuminate\Support\Facades\DB::raw("SUM( IF( (accounts.shift_closed_at IS NULL OR AT.operation_date >= accounts.shift_closed_at) AND (!accounts.is_special_kiosk OR AT.sub_type IS NULL OR AT.sub_type != 'opening_balance'),  IF( AT.type='credit', AT.amount, -1*AT.amount), 0) )
                      * (1 - accounts.is_special_kiosk * 2) as balance")])
@@ -2525,6 +2525,8 @@ class SellPosDepositController extends Controller
                 $q->orWhere('T.payment_status', '=', null);
              });
 
+            \DB::enableQueryLog();
+
             $products = $products->select(
                 DB::raw("SUM( IF( accounts.shift_closed_at IS NULL OR AT.operation_date >= accounts.shift_closed_at,  IF( AT.type='credit', AT.amount, -1*AT.amount), 0) ) as balance"),
                 'products.id',
@@ -2532,6 +2534,8 @@ class SellPosDepositController extends Controller
             )
                 ->orderBy('products.name', 'asc')
                 ->paginate(40);
+
+                \Log::info( \DB::getQueryLog());
 
             $business_details = $this->businessUtil->getDetails($business_id);
             $bonus_decimal = $business_details->bonus_decimal;
