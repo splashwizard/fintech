@@ -77,18 +77,18 @@ class DailyReportController extends Controller
         $end =  request()->end_date;
         
         // expenses
-        $expenses = Transaction::join('transaction_payments AS tp', 'transactions.id', '=','tp.transaction_id')
-                        ->leftJoin('accounts', 'tp.account_id', '=', 'accounts.id')
-                        ->where('transactions.business_id', $business_id)
-                        ->where('transactions.type', 'expense')
-                        ->whereDate('tp.paid_on', '>=', $start)
-                        ->whereDate('tp.paid_on', '<=', $end)
-                        ->select('accounts.id as account_id', DB::raw('SUM(transactions.final_total) as final_total'))
-                        ->groupBy('accounts.id')->get();
-
-        foreach ($expenses as $row) {
-            $bank_accounts_obj['expenses'][$row['account_id']] = $row['final_total'];
-        }
+//        $expenses = Transaction::join('transaction_payments AS tp', 'transactions.id', '=','tp.transaction_id')
+//                        ->leftJoin('accounts', 'tp.account_id', '=', 'accounts.id')
+//                        ->where('transactions.business_id', $business_id)
+//                        ->where('transactions.type', 'expense')
+//                        ->whereDate('tp.paid_on', '>=', $start)
+//                        ->whereDate('tp.paid_on', '<=', $end)
+//                        ->select('accounts.id as account_id', DB::raw('SUM(transactions.final_total) as final_total'))
+//                        ->groupBy('accounts.id')->get();
+//
+//        foreach ($expenses as $row) {
+//            $bank_accounts_obj['expenses'][$row['account_id']] = $row['final_total'];
+//        }
 
         // balance, deposit, withdraw
         $bank_accounts_sql = Account::leftjoin('account_transactions as AT', function ($join) {
@@ -107,7 +107,8 @@ class DailyReportController extends Controller
 //                ,  DB::raw("SUM( IF( (accounts.shift_closed_at IS NULL OR AT.operation_date >= accounts.shift_closed_at ) AND AT.operation_date < DATE_FORMAT(NOW(), '%y-%m-%d'),  IF( AT.type='credit', AT.amount, -1*AT.amount), 0) ) as balance_by_yesterday")
                 ,  DB::raw("SUM( IF( (accounts.shift_closed_at IS NULL OR AT.operation_date >= accounts.shift_closed_at ) AND AT.cancelled_at IS NULL AND AT.deleted_at IS NULL AND AT.operation_date < '".$start."',  IF( AT.type='credit', AT.amount, -1*AT.amount), 0) ) as balance_by_start")
                 , DB::raw("SUM( IF( (accounts.shift_closed_at IS NULL OR AT.operation_date >= accounts.shift_closed_at) AND AT.cancelled_at IS NULL AND AT.deleted_at IS NULL AND AT.type='credit' AND (AT.`sub_type` IS NULL OR (AT.`sub_type` != 'fund_transfer')), AT.amount, 0) ) as total_deposit")
-                , DB::raw("SUM( IF( (accounts.shift_closed_at IS NULL OR AT.operation_date >= accounts.shift_closed_at) AND AT.cancelled_at IS NULL AND AT.deleted_at IS NULL AND AT.type='debit' AND (AT.`sub_type` IS NULL OR (AT.`sub_type` != 'fund_transfer')), AT.amount, 0) ) as total_withdraw")
+                , DB::raw("SUM( IF( (accounts.shift_closed_at IS NULL OR AT.operation_date >= accounts.shift_closed_at) AND AT.cancelled_at IS NULL AND AT.deleted_at IS NULL AND AT.type='debit' AND (AT.`sub_type` IS NULL OR (AT.`sub_type` != 'fund_transfer' AND AT.`sub_type` != 'expense')), AT.amount, 0) ) as total_withdraw")
+                , DB::raw("SUM( IF( (accounts.shift_closed_at IS NULL OR AT.operation_date >= accounts.shift_closed_at) AND AT.cancelled_at IS NULL AND AT.deleted_at IS NULL AND AT.type='debit' AND AT.`sub_type` = 'expense', AT.amount, 0) ) as expenses")
                 , DB::raw("SUM( IF( (accounts.shift_closed_at IS NULL OR AT.operation_date >= accounts.shift_closed_at) AND AT.cancelled_at IS NULL AND AT.deleted_at IS NULL AND AT.type='credit' AND AT.sub_type='fund_transfer', amount, 0) ) as transfer_in")
                 , DB::raw("SUM( IF( (accounts.shift_closed_at IS NULL OR AT.operation_date >= accounts.shift_closed_at) AND AT.cancelled_at IS NULL AND AT.deleted_at IS NULL AND AT.type='debit' AND AT.sub_type='fund_transfer', amount, 0) ) as transfer_out")])
             ->groupBy('accounts.id');
@@ -128,9 +129,10 @@ class DailyReportController extends Controller
         foreach ($bank_accounts as $bank_account) {
             $bank_accounts_obj['deposit'][$bank_account['account_id']] = $bank_account['total_deposit'];
             $bank_accounts_obj['withdraw'][$bank_account['account_id']] = $bank_account['total_withdraw'];
+            $bank_accounts_obj['expenses'][$bank_account['account_id']] = $bank_account['expenses'];
             $bank_accounts_obj['transfer_in'][$bank_account['account_id']] = $bank_account['transfer_in'];
             $bank_accounts_obj['transfer_out'][$bank_account['account_id']] = $bank_account['transfer_out'];
-            $bank_accounts_obj['overall'][$bank_account['account_id']] += ($bank_account['total_deposit'] - $bank_account['total_withdraw'] + $bank_account['transfer_in'] - $bank_account['transfer_out']);
+            $bank_accounts_obj['overall'][$bank_account['account_id']] += ($bank_account['total_deposit'] - $bank_account['total_withdraw'] - $bank_account['expenses'] + $bank_account['transfer_in'] - $bank_account['transfer_out']);
             $bank_accounts_obj['win_loss'][$bank_account['account_id']] = $bank_account['total_deposit'] - $bank_account['total_withdraw'];
         }
         //unclaimed trans
