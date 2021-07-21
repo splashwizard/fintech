@@ -77,6 +77,7 @@ class ServiceController extends Controller
                     'T.id')
                 ->leftjoin('currencies', 'currencies.id', 'accounts.currency_id')
                 ->where('accounts.is_service', 1)
+                ->where('accounts.is_closed', 0)
                 ->where('accounts.name', '!=', 'Bonus Account')
                 ->where('accounts.business_id', $business_id)
                 // ->where(function ($q) {

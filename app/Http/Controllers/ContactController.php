@@ -257,10 +257,12 @@ class ContactController extends Controller
                     return '';
                 $bank_details = json_decode($row->bank_details);
                 $result = '';
-                foreach($bank_details as $key => $detail){
-                    if($key != 0)
-                        $result .= "<br/>";
-                    $result .= BankBrand::find($detail->bank_brand_id)->name.": ".$detail->account_number;
+                foreach($bank_details as $key => $detail) {
+                    if (BankBrand::where('id', $detail->bank_brand_id)->count() > 0){
+                            if ($key != 0)
+                                $result .= "<br/>";
+                        $result .= BankBrand::find($detail->bank_brand_id)->name . ": " . $detail->account_number;
+                    }
 //                    $result .= $detail->bank_brand_id.": ".$detail->account_number."<br/>";
                 }
                 return $result;
@@ -426,8 +428,7 @@ class ContactController extends Controller
         $memberships = Membership::forDropdown($business_id);
         $bank_brands = BankBrand::forDropdown($business_id);
 
-
-        $services = Account::where('business_id', $business_id)->where('is_service', 1)->where('name', '!=', 'Safe Kiosk Account')->get();
+        $services = Account::where('business_id', $business_id)->where('is_closed', 0)->where('is_service', 1)->where('name', '!=', 'Safe Kiosk Account')->orderBy('name', 'asc')->get();
         $country_codes = CountryCode::forDropdown(false);
         return view('contact.create')
             ->with(compact('types', 'customer_groups', 'country_codes', 'memberships', 'bank_brands', 'type', 'services'));
@@ -753,7 +754,7 @@ class ContactController extends Controller
             $memberships = Membership::forDropdown($business_id);
             $bank_brands = BankBrand::forDropdown($business_id);
 
-            $services = Account::where('business_id', $business_id)->where('is_service', 1)->where('name', '!=', 'Safe Kiosk Account')->get();
+            $services = Account::where('business_id', $business_id)->where('is_closed', 0)->where('is_service', 1)->where('name', '!=', 'Safe Kiosk Account')->orderBy('name', 'asc')->get();
 
             $ob_transaction =  Transaction::where('contact_id', $id)
                                             ->where('type', 'opening_balance')
