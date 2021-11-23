@@ -171,7 +171,7 @@ class ContactController extends Controller
             ->make(false);
     }
 
-    /**
+    /**indexCustomer
      * Returns the database object for customer
      *
      * @return \Illuminate\Http\Response
@@ -257,14 +257,19 @@ class ContactController extends Controller
                     return '';
                 $bank_details = json_decode($row->bank_details);
                 $result = '';
-                foreach($bank_details as $key => $detail) {
-                    if (BankBrand::where('id', $detail->bank_brand_id)->count() > 0){
-                            if ($key != 0)
-                                $result .= "<br/>";
-                        $result .= BankBrand::find($detail->bank_brand_id)->name . ": " . $detail->account_number;
-                    }
-//                    $result .= $detail->bank_brand_id.": ".$detail->account_number."<br/>";
-                }
+                // try{
+                //   if($row->id > 49771){
+                  foreach($bank_details as $key => $detail) {
+                      if (BankBrand::where('id', $detail->bank_brand_id)->count() > 0){
+                              if ($key != 0)
+                                  $result .= "<br/>";
+                          $result .= BankBrand::find($detail->bank_brand_id)->name . ": " . $detail->account_number;
+                      }
+                  }
+                // }
+                // } catch (\Exception $e) {
+                //   \Log::emergency("bank detail". $row->id);
+                // }
                 return $result;
             })
             ->removeColumn('contacts.state')
@@ -426,7 +431,7 @@ class ContactController extends Controller
 
         $customer_groups = CustomerGroup::forDropdown($business_id);
         $memberships = Membership::forDropdown($business_id);
-        $bank_brands = BankBrand::forDropdown($business_id);
+        $bank_brands = BankBrand::forDropdown($business_id, false);
 
         $services = Account::where('business_id', $business_id)->where('is_closed', 0)->where('is_service', 1)->where('name', '!=', 'Safe Kiosk Account')->orderBy('name', 'asc')->get();
         $country_codes = CountryCode::forDropdown(false);
@@ -523,17 +528,21 @@ class ContactController extends Controller
                 if($is_equal)
                     break;
                 $bank_details = empty($contact->bank_details) ? [] : json_decode($contact->bank_details);
-                foreach ($bank_details as $bank_detail){
-                    foreach ($new_bank_details as $new_bank_detail){
-                        if(!empty($bank_detail->bank_brand_id)){
-                            if($new_bank_detail['bank_brand_id'] == $bank_detail->bank_brand_id && $new_bank_detail['account_number'] == $bank_detail->account_number){
-                                $is_equal = 1;
-                                $equal_id = $contact->id;
-                                $bank_account_number = $bank_detail->account_number;
-                                break;
-                            }
-                        }
-                    }
+                try{
+                  foreach ($bank_details as $bank_detail){
+                      foreach ($new_bank_details as $new_bank_detail){
+                          if(!empty($bank_detail->bank_brand_id)){
+                              if($new_bank_detail['bank_brand_id'] == $bank_detail->bank_brand_id && $new_bank_detail['account_number'] == $bank_detail->account_number){
+                                  $is_equal = 1;
+                                  $equal_id = $contact->id;
+                                  $bank_account_number = $bank_detail->account_number;
+                                  break;
+                              }
+                          }
+                      }
+                  }
+                } catch(\Exception $e){
+                  \Log::emergency("bank-detail". $contact->id);
                 }
             }
             if($is_equal){
@@ -752,7 +761,7 @@ class ContactController extends Controller
             $customer_groups = CustomerGroup::forDropdown($business_id);
 
             $memberships = Membership::forDropdown($business_id);
-            $bank_brands = BankBrand::forDropdown($business_id);
+            $bank_brands = BankBrand::forDropdown($business_id, false);
 
             $services = Account::where('business_id', $business_id)->where('is_closed', 0)->where('is_service', 1)->where('name', '!=', 'Safe Kiosk Account')->orderBy('name', 'asc')->get();
 
