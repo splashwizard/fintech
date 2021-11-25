@@ -131,6 +131,10 @@ class LoginController extends Controller
             );
         }
 
+        if($user->hasRole('Procatcher#' . $user->business_id)) {
+            return redirect('/contacts');
+        }
+
         $date = new \DateTime('now');
         $user->last_online = $date->format('Y-m-d H:i:s');
         $user->is_logged = true;

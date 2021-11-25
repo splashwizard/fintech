@@ -56,6 +56,12 @@ class BusinessUtil extends Util
                         ]);
         $cashier_role->syncPermissions(['sell.view', 'sell.create', 'sell.update', 'sell.delete', 'access_all_locations']);
 
+        //create Procatcher role
+        Role::create([ 'name' => 'Procatcher#' . $business_id,
+            'business_id' => $business_id,
+            'guard_name' => 'web', 'is_default' => 1
+        ]);
+
         $business = Business::findOrFail($business_id);
 
         //Update reference count

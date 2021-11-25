@@ -51,12 +51,14 @@ class RoleController extends Controller
                     $is_superadmin = auth()->user()->hasRole('Superadmin');
                     if (!$row->is_default || $row->name == "Cashier#" . $row->business_id || $is_superadmin) {
                         $action = '';
-                        if (auth()->user()->can('roles.update')) {
-                            $action .= '<a href="' . action('RoleController@edit', [$row->id]) . '" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> ' . __("messages.edit") . '</a>';
-                        }
-                        if (auth()->user()->can('roles.delete')) {
-                            $action .= '&nbsp
-                                <button data-href="' . action('RoleController@destroy', [$row->id]) . '" class="btn btn-xs btn-danger delete_role_button"><i class="glyphicon glyphicon-trash"></i> ' . __("messages.delete") . '</button>';
+                        if($row->name != "Procatcher#" . $row->business_id){
+                            if (auth()->user()->can('roles.update')) {
+                                $action .= '<a href="' . action('RoleController@edit', [$row->id]) . '" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> ' . __("messages.edit") . '</a>';
+                            }
+                            if (auth()->user()->can('roles.delete')) {
+                                $action .= '&nbsp
+                                    <button data-href="' . action('RoleController@destroy', [$row->id]) . '" class="btn btn-xs btn-danger delete_role_button"><i class="glyphicon glyphicon-trash"></i> ' . __("messages.delete") . '</button>';
+                            }
                         }
                         
                         return $action;

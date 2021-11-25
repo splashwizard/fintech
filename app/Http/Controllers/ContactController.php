@@ -69,6 +69,18 @@ class ContactController extends Controller
      */
     public function index()
     {
+        if(auth()->user()->hasRole('Procatcher#' . auth()->user()->business_id)) {
+            $business_id = auth()->user()->business_id;
+            $type = 'customer';
+
+            $customer_groups = CustomerGroup::forDropdown($business_id);
+            $memberships = Membership::forDropdown($business_id);
+            $bank_brands = BankBrand::forDropdown($business_id, false);
+
+            $services = Account::where('business_id', $business_id)->where('is_closed', 0)->where('is_service', 1)->where('name', '!=', 'Safe Kiosk Account')->orderBy('name', 'asc')->get();
+            $country_codes = CountryCode::forDropdown(false);
+            return view('contact.procatcher')->with(compact('type', 'customer_groups', 'country_codes', 'memberships', 'bank_brands', 'type', 'services'));
+        }
         $type = request()->get('type');
 
         $types = ['supplier', 'customer', 'blacklisted_customer'];
@@ -447,7 +459,7 @@ class ContactController extends Controller
      */
     public function store(Request $request)
     {
-        if (!auth()->user()->can('supplier.create') && !auth()->user()->can('customer.create')) {
+        if (!auth()->user()->can('supplier.create') && !auth()->user()->can('customer.create') && !auth()->user()->hasRole('Procatcher#' . auth()->user()->business_id)) {
             abort(403, 'Unauthorized action.');
         }
         $business_id = request()->session()->get('user.business_id');
