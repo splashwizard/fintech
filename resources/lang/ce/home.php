@@ -13,9 +13,9 @@
 'sells_last_30_days'=>'銷售最近30天',
 'sells_current_fy'=>'營業額當前財年',
 'total_sells'=>'總收入（：貨幣）',
-'product_stock_alert'=>'產品倉庫警告',
+'product_stock_alert'=>'倉庫警告',
 'payment_dues'=>'付費',
 'due_amount'=>'應付金額',
 'stock_expiry_alert'=>'庫存到期',
-'todays_profit'=>'今天的利潤',
+'todays_profit'=>'今日利潤',
 ];

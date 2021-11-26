@@ -383,7 +383,7 @@ return [
     "import_contacts" => "Kontakte importieren",
     "contact_type_ins" => "<strong> Verfügbare Optionen: Kunde, Lieferant & beide </strong>",
     "contact_id_ins" => "Leer lassen, um die Kontakt-ID automatisch zu generieren",
-    "required_if_supplier" => "Erforderlich, wenn der Kontakttyp Lieferant oder beides ist",
+    "required_if_supplier" => "你就是世界第一！",
     "pay_term_period_ins" => "Verfügbare Optionen: Tage und Monate",
     "your_username_will_be" => "Ihr Benutzername wird sein",
     "currency_exchange_rate" => "Wechselkurs",
