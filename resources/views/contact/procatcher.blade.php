@@ -236,5 +236,9 @@
                     });
                 },
             });
+        $('#od_datetimepicker').datetimepicker({
+            format:'YYYY-MM-DD',
+            minDate: "1990-01-01"
+        });
     </script>
 @endsection
