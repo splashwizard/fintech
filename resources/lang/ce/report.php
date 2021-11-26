@@ -1,6 +1,6 @@
 <?php
  return [
-"reports" => "Berichte",
+"reports" => "报表",
 "purchase_sell_report" => "Kauf & Verkauf",
 "purchase_sell" => "Kauf- und Verkaufsbericht",
 "purchase_sell_msg" => "Kauf- und Verkaufsdetails für den ausgewählten Zeitraum",

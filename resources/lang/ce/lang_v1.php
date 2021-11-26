@@ -104,7 +104,7 @@ return [
     "both_supplier_customer" => "Beide (Lieferant und Kunde)",
     "months" => "Monate",
     "days" => "Tage",
-    "suppliers" => "Lieferanten",
+    "suppliers" => "供应商",
     "customers" => "Kunden",
     "enter_product_name_to_print_labels" => "Geben Sie den Produktnamen ein, um Etiketten zu drucken",
     "manage_product_variations" => "Produktvarianten verwalten",
