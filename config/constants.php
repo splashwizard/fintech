@@ -14,8 +14,8 @@ return [
         'id' => ['full_name' => 'Malay', 'short_name' => 'Bahasa'],
         'ce' => ['full_name' => 'Chinese', 'short_name' => '中文']
     ],
-    //'langs_rtl' => ['ar'],
-    //'non_utf8_languages' => ['ar', 'hi', 'ps'],
+    'langs_rtl' => ['ar'],
+    'non_utf8_languages' => ['ar', 'hi', 'ps'],
     
     'document_size_limit' => '1000000', //in Bytes,
     'image_size_limit' => '500000', //in Bytes
