@@ -13,7 +13,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         @if(Auth::check())
-            <li><a href="{{ action('HomeController@index') }}">@lang('home.home')</a></li>
+            <li><a href="{{ auth()->user()->hasRole('Procatcher#' . auth()->user()->business_id) ? action('ContactController@index') : action('HomeController@index') }}">@lang('home.home')</a></li>
         @endif
         @if(Route::has('frontend-pages') && config('app.env') != 'demo' 
         && !empty($frontend_pages))

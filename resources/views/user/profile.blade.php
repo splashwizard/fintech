@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends($procatcher ? 'layouts.procatcher' : 'layouts.app')
 @section('title', __('lang_v1.my_profile'))
 
 @section('content')

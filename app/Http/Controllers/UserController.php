@@ -54,7 +54,8 @@ class UserController extends Controller
             $languages[$key] = $value['full_name'];
         }
 
-        return view('user.profile', compact('user', 'languages'));
+        $procatcher = auth()->user()->hasRole('Procatcher#' . auth()->user()->business_id);
+        return view('user.profile', compact('user', 'languages', 'procatcher'));
     }
 
     /**

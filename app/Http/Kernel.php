@@ -62,6 +62,7 @@ class Kernel extends HttpKernel
         'language' => \App\Http\Middleware\Language::class,
         'timezone' => \App\Http\Middleware\Timezone::class,
         'SetSessionData' => \App\Http\Middleware\SetSessionData::class,
+        'RedirectIfProcatcher' => \App\Http\Middleware\RedirectIfProcatcher::class,
         'IsInstalled' => \App\Http\Middleware\IsInstalled::class,
         'bootstrap' => \App\Http\Middleware\Callbacks::class,
         'EcomApi' => \App\Http\Middleware\EcomApi::class,

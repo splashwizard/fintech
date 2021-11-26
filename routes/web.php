@@ -30,7 +30,7 @@ Route::middleware(['IsInstalled', 'bootstrap'])->group(function () {
 });
 
 //Routes for authenticated users only
-Route::middleware(['IsInstalled', 'auth', 'SetSessionData', 'language', 'timezone', 'bootstrap'])->group(function () {
+Route::middleware(['IsInstalled', 'auth', 'SetSessionData', 'language', 'timezone', 'bootstrap', 'RedirectIfProcatcher'])->group(function () {
     Route::get('/logout', 'Auth\LoginController@logout')->name('logout');
 
     Route::post('/setLocale', 'HomeController@setLocale')->name('locale');
