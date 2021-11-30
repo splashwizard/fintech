@@ -1084,6 +1084,9 @@ $(document).ready(function() {
             }
 
             if (cnf) {
+                $('#pos-finalize .fa-spinner').css('display', 'block');
+                $('#pos-finalize').attr('disabled', true);
+
                 selected_bank = $('#pos_table tbody').children().first().find('.account_id').val();
                 $('#customer_id').prop('disabled', false);
                 $('div.pos-processing').show();
@@ -1119,6 +1122,8 @@ $(document).ready(function() {
                                 setTimeout(function () {
                                     $('#modal_success').modal('hide');
                                 }, 500);
+                                $('#pos-finalize .fa-spinner').css('display', 'none');
+                                $('#pos-finalize').attr('disabled', false);
 
                                 get_contact_ledger();
 

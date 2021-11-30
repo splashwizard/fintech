@@ -60,8 +60,9 @@
 							@if(empty($edit))
 							<div class="col-sm-3 col-xs-12 d-inline-table">
 								<button type="button" class="btn btn-success  btn-block btn-flat btn-lg no-print @if($pos_settings['disable_pay_checkout'] != 0) hide @endif pos-express-btn" id="pos-finalize" title="@lang('lang_v1.tooltip_checkout_multi_pay')">
-									<div class="text-center">
-										<i class="fa fa-check" aria-hidden="true"></i>
+									<div class="text-center" style="display: inline-flex;align-items: center">
+										<i class="fa fa-spinner fa-spin fa-2x" style="display: none"></i>&nbsp;
+										<i class="fa fa-check" aria-hidden="true"></i>&nbsp;
 										<b>@lang('lang_v1.deposit')</b>
 									</div>
 								</button>
